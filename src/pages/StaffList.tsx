@@ -1,0 +1,62 @@
+import { useState } from "react";
+import { PageHeader } from "../components/layout/PageHeader";
+import { PageSection } from "../components/layout/PageSection";
+import { SearchBar } from "../components/SearchBar";
+import { Button } from "../components/ui/button";
+import { Plus } from "lucide-react";
+import {
+  FilterMultiSelect,
+  type FilterOption,
+} from "@/components/ui/filter-multi-select";
+
+const staffOptions: FilterOption[] = [
+  { value: "alice", label: "Alice", description: "Host" },
+  { value: "bob", label: "Bob", description: "IT Support" },
+  { value: "charlie", label: "Charlie" },
+  { value: "john", label: "John" },
+];
+const StaffList = () => {
+  const totalStaff = 35;
+  const [searchText, setSearchText] = useState("");
+  const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
+
+  return (
+    <>
+      <PageHeader
+        title="Staff"
+        count={totalStaff}
+        countLabel="staff members"
+        actions={
+          <Button size="add">
+            <Plus strokeWidth={2.5} />
+            Add Staff
+          </Button>
+        }
+      />
+
+      <div className="px-6 pt-4 pb-2">
+        <SearchBar
+          value={searchText}
+          onChange={setSearchText}
+          placeholder="Search Company..."
+          filterSlot={
+            <FilterMultiSelect
+              title="Company"
+              options={staffOptions}
+              selected={selectedStaff}
+              onChange={setSelectedStaff}
+            />
+          }
+        />
+      </div>
+
+      <PageSection>
+        <p className="text-sm text-gray-700">
+          ที่นี่คือพื้นที่ content ของ Staff
+        </p>
+      </PageSection>
+    </>
+  );
+};
+
+export default StaffList;
