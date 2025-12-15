@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { PageHeader } from "../components/layout/PageHeader";
 import { PageSection } from "../components/layout/PageSection";
 import { SearchBar } from "../components/SearchBar";
@@ -8,6 +8,12 @@ import {
   FilterMultiSelect,
   type FilterOption,
 } from "@/components/ui/filter-multi-select";
+import { Table } from "@/components/ui/table";
+import { Pagination } from "@/components/ui/pagination";
+import {
+  getOutsourceColumns,
+  type OutsourceRow,
+} from "@/components/ui/outsource-columns";
 
 const staffOptions: FilterOption[] = [
   { value: "alice", label: "Alice", description: "Host" },
@@ -19,6 +25,12 @@ const OutsourceList = () => {
   const totalOutsource = 12; // mock data
   const [searchText, setSearchText] = useState("");
   const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
+
+  const rows: OutsourceRow[] = useMemo(() => [], []);
+  const columns = useMemo(() => getOutsourceColumns(), []);
+
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
 
   return (
     <>
@@ -38,10 +50,10 @@ const OutsourceList = () => {
         <SearchBar
           value={searchText}
           onChange={setSearchText}
-          placeholder="Search Company..."
+          placeholder="Search by name or email..."
           filterSlot={
             <FilterMultiSelect
-              title="Company"
+              title="Role"
               options={staffOptions}
               selected={selectedStaff}
               onChange={setSelectedStaff}
@@ -51,9 +63,23 @@ const OutsourceList = () => {
       </div>
 
       <PageSection>
-        <p className="text-sm text-gray-700">
-          ที่นี่คือพื้นที่ content ของ Outsource list
-        </p>
+        <Table
+          columns={columns}
+          rows={rows}
+          emptyTitle="No staff found"
+          emptyDescription="Try adjusting your search or filters."
+        />
+
+        <Pagination
+          totalRows={totalOutsource}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          onPageChange={setPageIndex}
+          onPageSizeChange={(n: number) => {
+            setPageSize(n);
+            setPageIndex(0);
+          }}
+        />
       </PageSection>
     </>
   );

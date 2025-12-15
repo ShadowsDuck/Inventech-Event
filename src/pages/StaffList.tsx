@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "../components/layout/PageHeader";
 import { PageSection } from "../components/layout/PageSection";
 import { SearchBar } from "../components/SearchBar";
@@ -8,6 +8,9 @@ import {
   FilterMultiSelect,
   type FilterOption,
 } from "@/components/ui/filter-multi-select";
+import { Table } from "@/components/ui/table";
+import { Pagination } from "@/components/ui/pagination";
+import { getStaffColumns, type StaffRow } from "@/components/ui/staff-columns";
 
 const staffOptions: FilterOption[] = [
   { value: "alice", label: "Alice", description: "Host" },
@@ -15,10 +18,16 @@ const staffOptions: FilterOption[] = [
   { value: "charlie", label: "Charlie" },
   { value: "john", label: "John" },
 ];
+
 const StaffList = () => {
   const totalStaff = 35;
   const [searchText, setSearchText] = useState("");
   const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+
+  const rows: StaffRow[] = useMemo(() => [], []);
+  const columns = useMemo(() => getStaffColumns(), []);
 
   return (
     <>
@@ -38,10 +47,10 @@ const StaffList = () => {
         <SearchBar
           value={searchText}
           onChange={setSearchText}
-          placeholder="Search Company..."
+          placeholder="Search by name or email..."
           filterSlot={
             <FilterMultiSelect
-              title="Company"
+              title="Role"
               options={staffOptions}
               selected={selectedStaff}
               onChange={setSelectedStaff}
@@ -51,9 +60,23 @@ const StaffList = () => {
       </div>
 
       <PageSection>
-        <p className="text-sm text-gray-700">
-          ที่นี่คือพื้นที่ content ของ Staff
-        </p>
+        <Table
+          columns={columns}
+          rows={rows}
+          emptyTitle="No staff found"
+          emptyDescription="Try adjusting your search or filters."
+        />
+
+        <Pagination
+          totalRows={totalStaff}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          onPageChange={setPageIndex}
+          onPageSizeChange={(n: number) => {
+            setPageSize(n);
+            setPageIndex(0);
+          }}
+        />
       </PageSection>
     </>
   );
