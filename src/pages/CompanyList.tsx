@@ -1,5 +1,5 @@
 import { Plus, Users } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import PageHeader from "../components/layout/PageHeader";
 import PageSection from "../components/layout/PageSection";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,11 @@ import {
   FilterMultiSelect,
   type FilterOption,
 } from "@/components/ui/filter-multi-select";
+import {
+  CompanyListCards,
+  type CompanyCardItem,
+} from "@/components/ui/company-list-cards";
+import { Pagination } from "@/components/ui/pagination";
 
 const staffOptions: FilterOption[] = [
   { value: "alice", label: "Alice", description: "Host" },
@@ -20,6 +25,22 @@ const CompanyList = () => {
   const totalCompanies = 15;
   const [searchText, setSearchText] = useState("");
   const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
+
+  const companies: CompanyCardItem[] = useMemo((
+  ) => [
+    {
+      id: "1",
+      companyName: "Tech Innovators Ltd.",},
+    {
+      id: "2",
+      companyName: "Event Solutions Co.",},
+    {
+      id: "3",
+      companyName: "Global Conferences Inc.",},
+  ], []);
+
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
 
   return (
     <>
@@ -53,9 +74,18 @@ const CompanyList = () => {
       </div>
 
       <PageSection>
-        <p className="text-sm text-gray-700">
-          ที่นี่คือพื้นที่ content ของ Company list
-        </p>
+        <CompanyListCards items={companies} />
+
+        <Pagination
+          totalRows={totalCompanies}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          onPageChange={setPageIndex}
+          onPageSizeChange={(n: number) => {
+            setPageSize(n);
+            setPageIndex(0);
+          }}
+        />
       </PageSection>
     </>
   );
