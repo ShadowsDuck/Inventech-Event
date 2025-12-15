@@ -2,6 +2,9 @@ import * as React from "react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { Calendar } from "@/components/ui/calendar";
+import { DatePicker } from "@/components/ui/date-picker";
+import TimePicker from "@/components/ui/time-picker";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -181,6 +184,89 @@ export default function CreateEvent() {
                 </section>
               </FieldGroup>
             </form>
+          </CardContent>
+        </Card>
+
+        {/*Schedule */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <span className="w-1.5 h-6 bg-blue-600 rounded-full" />
+              Schedule
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* ใส่อะไรก็ได้ตามที่อยากเพิ่มต่อ เช่น textarea / date / time */}
+            <FieldGroup>
+              <section className="md:grid-cols-2 gap-8">
+                <Field>
+                  <FieldLabel htmlFor="Event Shedule">
+                    MeetingDate
+                  </FieldLabel>
+                  <DatePicker
+                  />
+                </Field>
+              </section>
+              <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <Field>
+                  <FieldLabel htmlFor="StarTime">
+                    Start Time
+                  </FieldLabel>
+                  <TimePicker
+                  
+                  />                    
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="StarTime">
+                    End Time
+                  </FieldLabel>
+                  <TimePicker 
+                  
+                  />                    
+                </Field>
+              </section>  
+            </FieldGroup>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <span className="w-1.5 h-6 bg-blue-600 rounded-full" />
+              Package 
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* ใส่อะไรก็ได้ตามที่อยากเพิ่มต่อ เช่น textarea / date / time */}
+            <FieldGroup>
+              <section className="md:grid-cols-2 gap-8">
+                <Field>
+                  <FieldLabel htmlFor="Event Shedule">
+                    MeetingDate
+                  </FieldLabel>
+                  <DatePicker
+                  />
+                </Field>
+              </section>
+              <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <Field>
+                  <FieldLabel htmlFor="StarTime">
+                    Start Time
+                  </FieldLabel>
+                  <TimePicker
+                  
+                  />                    
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="StarTime">
+                    End Time
+                  </FieldLabel>
+                  <TimePicker 
+                  
+                  />                    
+                </Field>
+              </section>  
+            </FieldGroup>
           </CardContent>
         </Card>
       </div>
