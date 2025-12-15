@@ -5,6 +5,12 @@ import * as z from "zod";
 import { Calendar } from "@/components/ui/calendar";
 import { DatePicker } from "@/components/ui/date-picker";
 import TimePicker from "@/components/ui/time-picker";
+import { Save, Sun, Moon } from "lucide-react";
+import { Package as PackageIcon, CheckCircle2, ChevronRight } from "lucide-react";
+import { EquipmentSection } from "@/components/CreateEventComponents/equipment-section";
+import StaffSection from "@/components/CreateEventComponents/staff-section";
+
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +30,6 @@ import FilterSelectCompany from "@/components/ui/filter-select-company";
 import { TabEventType } from "@/components/ui/tab-event-type";
 
 import { PageHeader } from "../components/layout/PageHeader";
-import { Save } from "lucide-react";
 
 // const formSchema = z.object({ ... });
 
@@ -53,8 +58,46 @@ export default function CreateEvent() {
           "--border-radius": "calc(var(--radius)  + 4px)",
         } as React.CSSProperties,
       });
+      const [timePeriod, setTimePeriod] = React.useState<"morning" | "afternoon">(
+        "afternoon"
+      );
     },
+
   });
+  const [timePeriod, setTimePeriod] = React.useState<
+    "morning" | "afternoon"
+  >("afternoon");
+
+  const packages = [
+    {
+      id: "premium",
+      name: "Premium Event Package",
+      highlight: "7 items included",
+      items: [
+        "4x Wireless Microphones",
+        "2x HD Projectors (4K Ready)",
+        "2x MacBook Pro Laptops",
+        "1x Professional Sound System",
+      ],
+      moreText: "+ 3 more items",
+      autoSelected: true,
+    },
+    {
+      id: "standard",
+      name: "Standard Conference",
+      highlight: "5 items included",
+      items: [
+        "2x Wireless Microphones",
+        "1x HD Projector",
+        "2x Laptops",
+        "1x LED Screen 3×2m",
+      ],
+      moreText: "+ 1 more item",
+      autoSelected: false,
+    },
+  ];
+
+  const [selectedPackage, setSelectedPackage] = React.useState<string>("premium");
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -213,62 +256,204 @@ export default function CreateEvent() {
                     Start Time
                   </FieldLabel>
                   <TimePicker
-                  
-                  />                    
+
+                  />
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="StarTime">
                     End Time
                   </FieldLabel>
-                  <TimePicker 
-                  
-                  />                    
+                  <TimePicker
+
+                  />
                 </Field>
-              </section>  
+              </section>
+              {/* Time Period*/}
+              <div className="space-y-2">
+                <div className="flex items-baseline gap-2">
+                  <FieldLabel>Time Period</FieldLabel>
+                  <span className="text-xs text-gray-400">
+                    (Quick Select)
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Morning */}
+                  <button
+                    type="button"
+                    onClick={() => setTimePeriod("morning")}
+                    className={cn(
+                      "flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition",
+                      timePeriod === "morning"
+                        ? "border-orange-500 bg-orange-50 text-orange-600"
+                        : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                    )}
+                  >
+                    <Sun className="h-4 w-4" />
+                    Morning
+                  </button>
+
+                  {/* Afternoon */}
+                  <button
+                    type="button"
+                    onClick={() => setTimePeriod("afternoon")}
+                    className={cn(
+                      "flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition",
+                      timePeriod === "afternoon"
+                        ? "border-indigo-500 bg-indigo-50 text-indigo-600"
+                        : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                    )}
+                  >
+                    <Moon className="h-4 w-4" />
+                    Afternoon
+                  </button>
+                </div>
+              </div>
             </FieldGroup>
           </CardContent>
         </Card>
 
+        {/* Package*/}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
               <span className="w-1.5 h-6 bg-blue-600 rounded-full" />
-              Package 
+              Package
             </CardTitle>
           </CardHeader>
           <CardContent>
             {/* ใส่อะไรก็ได้ตามที่อยากเพิ่มต่อ เช่น textarea / date / time */}
             <FieldGroup>
-              <section className="md:grid-cols-2 gap-8">
-                <Field>
-                  <FieldLabel htmlFor="Event Shedule">
-                    MeetingDate
-                  </FieldLabel>
-                  <DatePicker
-                  />
-                </Field>
-              </section>
-              <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Field>
-                  <FieldLabel htmlFor="StarTime">
-                    Start Time
-                  </FieldLabel>
-                  <TimePicker
-                  
-                  />                    
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="StarTime">
-                    End Time
-                  </FieldLabel>
-                  <TimePicker 
-                  
-                  />                    
-                </Field>
-              </section>  
+              <FieldGroup>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {packages.map((pkg) => {
+                    const isActive = selectedPackage === pkg.id;
+
+                    return (
+                      <button
+                        key={pkg.id}
+                        type="button"
+                        onClick={() => setSelectedPackage(pkg.id)}
+                        className={cn(
+                          "relative flex h-full w-full flex-col rounded-2xl border px-6 py-5 text-left transition",
+                          "bg-slate-50",
+                          isActive
+                            ? "border-indigo-400 ring-2 ring-indigo-400/50"
+                            : "border-slate-100 text-slate-400 hover:border-indigo-200 hover:bg-indigo-50/40"
+                        )}
+                      >
+                        {/* badge Auto-Selected มุมขวาบน */}
+                        {isActive && pkg.autoSelected && (
+                          <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Auto-Selected
+                          </span>
+                        )}
+
+                        {/* icon กล่องมุมซ้ายบน */}
+                        <div
+                          className={cn(
+                            "mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl",
+                            isActive
+                              ? "bg-indigo-100 text-indigo-600"
+                              : "bg-slate-100 text-slate-300"
+                          )}
+                        >
+                          <PackageIcon className="h-7 w-7" />
+                        </div>
+
+                        {/* ชื่อแพ็กเกจ */}
+                        <h3
+                          className={cn(
+                            "text-lg font-semibold",
+                            isActive ? "text-slate-900" : "text-slate-400"
+                          )}
+                        >
+                          {pkg.name}
+                        </h3>
+
+                        {/* จำนวน item */}
+                        <p
+                          className={cn(
+                            "mt-1 text-sm",
+                            isActive ? "text-slate-500" : "text-slate-300"
+                          )}
+                        >
+                          {pkg.highlight}
+                        </p>
+
+                        {/* รายการอุปกรณ์ */}
+                        <ul className="mt-4 space-y-1 text-sm">
+                          {pkg.items.map((item) => (
+                            <li
+                              key={item}
+                              className={cn(
+                                "flex items-start gap-2",
+                                isActive ? "text-slate-700" : "text-slate-300"
+                              )}
+                            >
+                              <span
+                                className={cn(
+                                  "mt-1 h-1.5 w-1.5 rounded-full",
+                                  isActive ? "bg-indigo-400" : "bg-slate-300"
+                                )}
+                              />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        {/* ข้อความ more */}
+                        <p
+                          className={cn(
+                            "mt-3 text-sm italic",
+                            isActive ? "text-indigo-500" : "text-slate-300"
+                          )}
+                        >
+                          {pkg.moreText}
+                        </p>
+
+                        {/* ปุ่มลูกศรด้านขวา สำหรับการ์ดที่ยังไม่ active */}
+                        {/* {!isActive && (
+                <div className="absolute right-6 top-1/2 -translate-y-1/2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md">
+                    <ChevronRight className="h-4 w-4 text-slate-400" />
+                  </div>
+                </div>
+              )} */}
+                      </button>
+                    );
+                  })}
+                </div>
+              </FieldGroup>
             </FieldGroup>
           </CardContent>
         </Card>
+ {/* Equipment */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <span className="w-1.5 h-6 bg-blue-600 rounded-full" />
+              Equipment
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+              <EquipmentSection />
+          </CardContent>
+        </Card>
+
+        <Card>
+  <CardHeader>
+    <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+      <span className="h-6 w-1 rounded-full bg-blue-600" />
+      Staff Management
+
+    </CardTitle>
+  </CardHeader>
+  <CardContent>
+    <StaffSection />
+  </CardContent>
+</Card>
       </div>
     </div>
   );
