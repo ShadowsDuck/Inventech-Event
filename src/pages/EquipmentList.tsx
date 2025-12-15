@@ -1,31 +1,43 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "../components/layout/PageHeader";
 import { PageSection } from "../components/layout/PageSection";
 import { SearchBar } from "../components/SearchBar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import {
-  FilterMultiSelect,
-  type FilterOption,
-} from "@/components/ui/filter-multi-select";
+import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
 
-const staffOptions: FilterOption[] = [
-  { value: "alice", label: "Alice", description: "Host" },
-  { value: "bob", label: "Bob", description: "IT Support" },
-  { value: "charlie", label: "Charlie" },
-  { value: "john", label: "John" },
+import { Table } from "@/components/ui/table";
+import { Pagination } from "@/components/ui/pagination";
+import { getEquipmentColumns, type EquipmentRow } from "@/components/ui/equipment-columns";
+
+const categoryOptions: FilterOption[] = [
+  { value: "video", label: "Video" },
+  { value: "computer", label: "Computer" },
+  { value: "audio", label: "Audio" },
+  { value: "lighting", label: "Lighting" },
+  { value: "cables", label: "Cables" },
 ];
+
 const EquipmentList = () => {
-  const totalItems = 20; // mock data
+  const totalItems = 20;
+
   const [searchText, setSearchText] = useState("");
-  const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  // pagination
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+
+  // UI เปล่า ๆ (ไม่ mock data)
+  const rows: EquipmentRow[] = useMemo(() => [], []);
+  const columns = useMemo(() => getEquipmentColumns(), []);
 
   return (
     <>
       <PageHeader
         title="Equipment"
         count={totalItems}
-        countLabel="Equipment"
+        countLabel="items"
         actions={
           <Button size="add">
             <Plus strokeWidth={2.5} />
@@ -38,22 +50,36 @@ const EquipmentList = () => {
         <SearchBar
           value={searchText}
           onChange={setSearchText}
-          placeholder="Search Company..."
+          placeholder="Search equipment..."
           filterSlot={
             <FilterMultiSelect
-              title="Company"
-              options={staffOptions}
-              selected={selectedStaff}
-              onChange={setSelectedStaff}
+              title="Category"
+              options={categoryOptions}
+              selected={selectedCategories}
+              onChange={setSelectedCategories}
             />
           }
         />
       </div>
 
       <PageSection>
-        <p className="text-sm text-gray-700">
-          ที่นี่คือพื้นที่ content ของ Equipment
-        </p>
+        <Table
+          columns={columns}
+          rows={rows}
+          emptyTitle="No equipment found"
+          emptyDescription="Try adjusting your search or filters."
+        />
+
+        <Pagination
+          totalRows={totalItems}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          onPageChange={setPageIndex}
+          onPageSizeChange={(n: number) => {
+            setPageSize(n);
+            setPageIndex(0);
+          }}
+        />
       </PageSection>
     </>
   );

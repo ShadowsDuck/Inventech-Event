@@ -10,7 +10,6 @@ export type OutsourceRow = {
   name: string;
   email: string;
   phone: string;
-  company?: string;
   role?: string;
   favorite?: boolean;
   avatarUrl?: string;
