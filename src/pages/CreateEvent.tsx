@@ -41,7 +41,8 @@ export default function CreateEvent() {
       company: "",
       type: "offline",
       attachments: [] as File[],
-      note: ""
+      note: "",
+      location: "", 
     },
     // validators: {
     //   onSubmit: formSchema,
@@ -313,6 +314,79 @@ export default function CreateEvent() {
             </FieldGroup>
           </CardContent>
         </Card>
+
+        <Card>
+  <CardHeader>
+    <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+      <span className="h-6 w-1 rounded-full bg-blue-600" />
+      Location
+    </CardTitle>
+  </CardHeader>
+
+  <CardContent className="w-full min-w-0 p-4 md:p-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      {/* ซ้าย: กรอกที่อยู่ */}
+      <form.Field name="location">
+        {(field) => {
+          const isInvalid =
+            field.state.meta.isTouched && !field.state.meta.isValid;
+
+          return (
+            <Field data-invalid={isInvalid} className="min-w-0">
+              <FieldLabel htmlFor={field.name} className="mb-1">
+                Address
+              </FieldLabel>
+
+              <Input
+                id={field.name}
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                placeholder="e.g. ICONSIAM Bangkok"
+                aria-invalid={isInvalid}
+              />
+
+              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              <p className="mt-2 text-xs text-gray-500">
+                Tip: พิมพ์ชื่อสถานที่/ที่อยู่ แล้วแผนที่จะอัปเดตเอง
+              </p>
+            </Field>
+          );
+        }}
+      </form.Field>
+
+      {/* Map */}
+      <div className="min-w-0">
+        <div className="mb-1 text-sm font-medium text-gray-900">Map Preview</div>
+
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+          <form.Subscribe
+            selector={(state) => state.values.location}
+            children={(location) => {
+              const q = (location?.trim() || "Bangkok").toString();
+              const src = `https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
+
+              return (
+                <iframe
+                  title="map"
+                  className="h-[260px] w-full"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  src={src}
+                />
+              );
+            }}
+          />
+        </div>
+
+        <div className="mt-2 text-xs text-gray-500">
+          ถ้าพิมพ์กว้าง ๆ เช่น “CentralWorld” มันจะเดาให้ — ถ้าอยากแม่น ให้ใส่ “ชื่อ + เมือง”
+        </div>
+      </div>
+    </div>
+  </CardContent>
+</Card>
 
         {/* Package*/}
         <Card>
