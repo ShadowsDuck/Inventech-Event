@@ -9,6 +9,7 @@ import { Save, Sun, Moon } from "lucide-react";
 import { Package as PackageIcon, CheckCircle2, ChevronRight } from "lucide-react";
 import { EquipmentSection } from "@/components/CreateEventComponents/equipment-section";
 import StaffSection from "@/components/CreateEventComponents/staff-section";
+import Dropzone from "@/components/ui/dropzone";
 
 import { cn } from "@/lib/utils";
 
@@ -39,6 +40,8 @@ export default function CreateEvent() {
       title: "",
       company: "",
       type: "offline",
+      attachments: [] as File[],
+      note: ""
     },
     // validators: {
     //   onSubmit: formSchema,
@@ -58,9 +61,7 @@ export default function CreateEvent() {
           "--border-radius": "calc(var(--radius)  + 4px)",
         } as React.CSSProperties,
       });
-      const [timePeriod, setTimePeriod] = React.useState<"morning" | "afternoon">(
-        "afternoon"
-      );
+
     },
 
   });
@@ -429,7 +430,7 @@ export default function CreateEvent() {
             </FieldGroup>
           </CardContent>
         </Card>
- {/* Equipment */}
+        {/* Equipment */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -438,22 +439,102 @@ export default function CreateEvent() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-              <EquipmentSection />
+            <EquipmentSection />
           </CardContent>
         </Card>
 
+        {/** Staff*/}
         <Card>
-  <CardHeader>
-    <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-      <span className="h-6 w-1 rounded-full bg-blue-600" />
-      Staff Management
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+              <span className="h-6 w-1 rounded-full bg-blue-600" />
+              Staff Management
+            </CardTitle>
+          </CardHeader>
 
-    </CardTitle>
-  </CardHeader>
-  <CardContent>
-    <StaffSection />
-  </CardContent>
-</Card>
+          {/* ลด padding ให้กว้างขึ้น (เลือกใช้ตามชอบ) */}
+          <CardContent className="w-full min-w-0 p-4 md:p-6">
+            <StaffSection />
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          {/*Files & Documents*/}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                <span className="h-6 w-1 rounded-full bg-blue-600" />
+                File and Document
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent className="w-full min-w-0 p-4 md:p-6">
+              <form.Field name="attachments">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+
+                  return (
+                    <Field data-invalid={isInvalid} className="min-w-0">
+                      <Dropzone
+                        value={field.state.value ?? []}
+                        onChange={field.handleChange}
+                        isInvalid={isInvalid}
+                        accept="image/*,.pdf"
+                        maxSizeMB={10}
+                        multiple
+                        placeholder="Drop files here or click to upload"
+                      />
+
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    </Field>
+                  );
+                }}
+              </form.Field>
+            </CardContent>
+          </Card>
+
+          {/** Note */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                <span className="h-6 w-1 rounded-full bg-blue-600" />
+                Note
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent className="w-full min-w-0 p-4 md:p-6">
+              <form.Field name="note">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+
+                  return (
+                    <Field data-invalid={isInvalid} className="min-w-0">
+                      
+
+                      <textarea
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="Write notes here..."
+                        className={cn(
+                          "w-full min-h-[140px] rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm",
+                          "outline-none focus:border-blue-500",
+                          isInvalid && "border-destructive"
+                        )}
+                      />
+
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    </Field>
+                  );
+                }}
+              </form.Field>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
