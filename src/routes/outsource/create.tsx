@@ -1,9 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-
+import Addoutsource from "@/pages/AddoutSource";
 export const Route = createFileRoute("/outsource/create")({
-  component: RouteComponent,
+  component: Addoutsource,
 });
 
-function RouteComponent() {
-  return <div>Hello "/outsource/create"!</div>;
-}
+

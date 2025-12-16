@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+
 import { PageHeader } from "../components/layout/PageHeader";
 import { PageSection } from "../components/layout/PageSection";
 import { SearchBar } from "../components/SearchBar";
@@ -28,6 +30,7 @@ const StaffList = () => {
 
   const rows: StaffRow[] = useMemo(() => [], []);
   const columns = useMemo(() => getStaffColumns(), []);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -36,12 +39,22 @@ const StaffList = () => {
         count={totalStaff}
         countLabel="staff members"
         actions={
-          <Button size="add">
-            <Plus strokeWidth={2.5} />
+          <Button
+            className=""
+            // variant="primary"
+            size="add"
+            onClick={() =>
+              navigate({
+                to: "/staff/create",
+              })
+            }
+          >
+            <Plus size={18} strokeWidth={2.5} />
             Add Staff
           </Button>
         }
       />
+      
 
       <div className="px-6 pt-4 pb-2">
         <SearchBar

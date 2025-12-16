@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "@tanstack/react-router";
+
 import { PageHeader } from "../components/layout/PageHeader";
 import { PageSection } from "../components/layout/PageSection";
 import { SearchBar } from "../components/SearchBar";
@@ -31,6 +33,7 @@ const OutsourceList = () => {
 
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -39,8 +42,17 @@ const OutsourceList = () => {
         count={totalOutsource}
         countLabel="outsourced staff"
         actions={
-          <Button size="add">
-            <Plus strokeWidth={2.5} />
+          <Button
+            className=""
+            // variant="primary"
+            size="add"
+            onClick={() =>
+              navigate({
+                to: "/outsource/create",
+              })
+            }
+          >
+            <Plus size={18} strokeWidth={2.5} />
             Add Outsource
           </Button>
         }
