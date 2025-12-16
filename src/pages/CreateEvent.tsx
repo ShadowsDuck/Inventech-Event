@@ -1,34 +1,28 @@
 import * as React from "react";
+
 import { useForm } from "@tanstack/react-form";
+import { format } from "date-fns";
+import { Moon, Save, Sun } from "lucide-react";
+import { CheckCircle2, Package as PackageIcon } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
-import { Calendar } from "@/components/ui/calendar";
-import { DatePicker } from "@/components/ui/date-picker";
-import TimePicker from "@/components/ui/time-picker";
-import { Save, Sun, Moon } from "lucide-react";
-import { Package as PackageIcon, CheckCircle2, ChevronRight } from "lucide-react";
+
 import { EquipmentSection } from "@/components/CreateEventComponents/equipment-section";
 import StaffSection from "@/components/CreateEventComponents/staff-section";
-import Dropzone from "@/components/ui/dropzone";
-
-import { cn } from "@/lib/utils";
-
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DatePicker } from "@/components/ui/date-picker";
+import Dropzone from "@/components/ui/dropzone";
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import FilterSelectCompany from "@/components/ui/filter-select-company";
+import { Input } from "@/components/ui/input";
 import { TabEventType } from "@/components/ui/tab-event-type";
+import { cn } from "@/lib/utils";
 
 import { PageHeader } from "../components/layout/PageHeader";
 
@@ -40,18 +34,27 @@ export default function CreateEvent() {
       title: "",
       company: "",
       type: "offline",
+      date: undefined as Date | undefined,
+      start_time: "",
+      end_time: "",
+      time_period: "",
       attachments: [] as File[],
       note: "",
-      location: "", 
+      location: "",
     },
     // validators: {
     //   onSubmit: formSchema,
     // },
     onSubmit: async ({ value }) => {
+      const payload = {
+        ...value,
+        date: value.date ? format(value.date, "yyyy-MM-dd") : null,
+      };
+
       toast("You submitted the following values:", {
         description: (
-          <pre className="bg-black text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-            <code>{JSON.stringify(value, null, 2)}</code>
+          <pre className="text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md bg-black p-4">
+            <code>{JSON.stringify(payload, null, 2)}</code>
           </pre>
         ),
         position: "bottom-right",
@@ -62,13 +65,11 @@ export default function CreateEvent() {
           "--border-radius": "calc(var(--radius)  + 4px)",
         } as React.CSSProperties,
       });
-
     },
-
   });
-  const [timePeriod, setTimePeriod] = React.useState<
-    "morning" | "afternoon"
-  >("afternoon");
+  const [timePeriod, setTimePeriod] = React.useState<"morning" | "afternoon">(
+    "afternoon",
+  );
 
   const packages = [
     {
@@ -99,11 +100,11 @@ export default function CreateEvent() {
     },
   ];
 
-  const [selectedPackage, setSelectedPackage] = React.useState<string>("premium");
+  const [selectedPackage, setSelectedPackage] =
+    React.useState<string>("premium");
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      {/* 🔹 Header ด้านบน พร้อมปุ่ม Reset + Create Event */}
       <PageHeader
         title="Create Event"
         countLabel="Create Event"
@@ -116,11 +117,7 @@ export default function CreateEvent() {
             >
               Reset
             </Button>
-            <Button
-              size="add"
-              type="submit"
-              form="create-event-form"
-            >
+            <Button size="add" type="submit" form="create-event-form">
               <Save size={18} strokeWidth={2.5} />
               Create Event
             </Button>
@@ -128,12 +125,12 @@ export default function CreateEvent() {
         }
       />
 
-      {/* 🔹 เนื้อหา + ฟอร์ม */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-10 max-w-6xl mx-auto w-full space-y-8 pb-20">
+      {/* เนื้อหา + ฟอร์ม */}
+      <div className="custom-scrollbar mx-auto w-full max-w-6xl flex-1 space-y-8 overflow-y-auto p-6 pb-20 lg:p-10">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-blue-600 rounded-full" />
+            <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+              <span className="h-6 w-1.5 rounded-full bg-blue-600" />
               Basic Information
             </CardTitle>
           </CardHeader>
@@ -146,7 +143,7 @@ export default function CreateEvent() {
               }}
             >
               <FieldGroup>
-                <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <section className="grid grid-cols-1 gap-8 md:grid-cols-2">
                   {/* Event Name */}
                   <div className="md:col-span-2">
                     <form.Field
@@ -169,7 +166,7 @@ export default function CreateEvent() {
                                 field.handleChange(e.target.value)
                               }
                               aria-invalid={isInvalid}
-                              placeholder="Login button not working on mobile"
+                              placeholder="Enter event name..."
                               autoComplete="off"
                             />
                             {isInvalid && (
@@ -185,8 +182,7 @@ export default function CreateEvent() {
                   <form.Field name="company">
                     {(field) => {
                       const isInvalid =
-                        field.state.meta.isTouched &&
-                        !field.state.meta.isValid;
+                        field.state.meta.isTouched && !field.state.meta.isValid;
                       return (
                         <Field data-invalid={isInvalid}>
                           <FieldLabel htmlFor={field.name}>Company</FieldLabel>
@@ -208,8 +204,7 @@ export default function CreateEvent() {
                     name="type"
                     children={(field) => {
                       const isInvalid =
-                        field.state.meta.isTouched &&
-                        !field.state.meta.isValid;
+                        field.state.meta.isTouched && !field.state.meta.isValid;
                       return (
                         <Field data-invalid={isInvalid}>
                           <FieldLabel htmlFor={field.name}>
@@ -235,164 +230,225 @@ export default function CreateEvent() {
         {/*Schedule */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-blue-600 rounded-full" />
+            <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+              <span className="h-6 w-1.5 rounded-full bg-blue-600" />
               Schedule
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {/* ใส่อะไรก็ได้ตามที่อยากเพิ่มต่อ เช่น textarea / date / time */}
-            <FieldGroup>
-              <section className="md:grid-cols-2 gap-8">
-                <Field>
-                  <FieldLabel htmlFor="Event Shedule">
-                    MeetingDate
-                  </FieldLabel>
-                  <DatePicker
+            <form
+              id="create-event-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+            >
+              <FieldGroup>
+                <section className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                  {/* Meeting Date */}
+                  <div className="md:col-span-2">
+                    <form.Field
+                      name="date"
+                      children={(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid;
+                        return (
+                          <Field data-invalid={isInvalid}>
+                            <FieldLabel htmlFor={field.name}>
+                              Meeting Date
+                            </FieldLabel>
+                            <DatePicker
+                              value={field.state.value}
+                              onChange={(date) => field.handleChange(date)}
+                            />
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        );
+                      }}
+                    />
+                  </div>
+
+                  {/* Start Time */}
+                  <form.Field
+                    name="start_time"
+                    children={(field) => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      return (
+                        <Field data-invalid={isInvalid}>
+                          <FieldLabel htmlFor={field.name}>
+                            Start Time
+                          </FieldLabel>
+                          <Input
+                            id={field.name}
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            aria-invalid={isInvalid}
+                            placeholder="Enter start time..."
+                            autoComplete="off"
+                            type="time"
+                          />
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      );
+                    }}
                   />
-                </Field>
-              </section>
-              <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Field>
-                  <FieldLabel htmlFor="StarTime">
-                    Start Time
-                  </FieldLabel>
-                  <TimePicker
 
+                  {/* End Time */}
+                  <form.Field
+                    name="end_time"
+                    children={(field) => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      return (
+                        <Field data-invalid={isInvalid}>
+                          <FieldLabel htmlFor={field.name}>End Time</FieldLabel>
+                          <Input
+                            id={field.name}
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            aria-invalid={isInvalid}
+                            placeholder="Enter end time..."
+                            autoComplete="off"
+                            type="time"
+                          />
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      );
+                    }}
                   />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="StarTime">
-                    End Time
-                  </FieldLabel>
-                  <TimePicker
 
+                  {/* Time Period */}
+                  <form.Field
+                    name="time_period"
+                    children={(field) => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      return (
+                        <Field data-invalid={isInvalid}>
+                          <FieldLabel htmlFor={field.name}>
+                            Time Period
+                          </FieldLabel>
+                          <Input
+                            id={field.name}
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            aria-invalid={isInvalid}
+                            placeholder="Enter start time..."
+                            autoComplete="off"
+                            type="time"
+                          />
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      );
+                    }}
                   />
-                </Field>
-              </section>
-              {/* Time Period*/}
-              <div className="space-y-2">
-                <div className="flex items-baseline gap-2">
-                  <FieldLabel>Time Period</FieldLabel>
-                  <span className="text-xs text-gray-400">
-                    (Quick Select)
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Morning */}
-                  <button
-                    type="button"
-                    onClick={() => setTimePeriod("morning")}
-                    className={cn(
-                      "flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition",
-                      timePeriod === "morning"
-                        ? "border-orange-500 bg-orange-50 text-orange-600"
-                        : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-                    )}
-                  >
-                    <Sun className="h-4 w-4" />
-                    Morning
-                  </button>
-
-                  {/* Afternoon */}
-                  <button
-                    type="button"
-                    onClick={() => setTimePeriod("afternoon")}
-                    className={cn(
-                      "flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition",
-                      timePeriod === "afternoon"
-                        ? "border-indigo-500 bg-indigo-50 text-indigo-600"
-                        : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-                    )}
-                  >
-                    <Moon className="h-4 w-4" />
-                    Afternoon
-                  </button>
-                </div>
-              </div>
-            </FieldGroup>
+                </section>
+              </FieldGroup>
+            </form>
           </CardContent>
         </Card>
 
+        {/* Location */}
         <Card>
-  <CardHeader>
-    <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-      <span className="h-6 w-1 rounded-full bg-blue-600" />
-      Location
-    </CardTitle>
-  </CardHeader>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+              <span className="h-6 w-1 rounded-full bg-blue-600" />
+              Location
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="w-full min-w-0 p-4 md:p-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {/* ซ้าย: กรอกที่อยู่ */}
+              <form.Field name="location">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
 
-  <CardContent className="w-full min-w-0 p-4 md:p-6">
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-      {/* ซ้าย: กรอกที่อยู่ */}
-      <form.Field name="location">
-        {(field) => {
-          const isInvalid =
-            field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid} className="min-w-0">
+                      <FieldLabel htmlFor={field.name} className="mb-1">
+                        Address
+                      </FieldLabel>
 
-          return (
-            <Field data-invalid={isInvalid} className="min-w-0">
-              <FieldLabel htmlFor={field.name} className="mb-1">
-                Address
-              </FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="e.g. ICONSIAM Bangkok"
+                        aria-invalid={isInvalid}
+                      />
 
-              <Input
-                id={field.name}
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                placeholder="e.g. ICONSIAM Bangkok"
-                aria-invalid={isInvalid}
-              />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                      <p className="mt-2 text-xs text-gray-500">
+                        Tip: พิมพ์ชื่อสถานที่/ที่อยู่ แล้วแผนที่จะอัปเดตเอง
+                      </p>
+                    </Field>
+                  );
+                }}
+              </form.Field>
 
-              {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              <p className="mt-2 text-xs text-gray-500">
-                Tip: พิมพ์ชื่อสถานที่/ที่อยู่ แล้วแผนที่จะอัปเดตเอง
-              </p>
-            </Field>
-          );
-        }}
-      </form.Field>
+              {/* Map */}
+              <div className="min-w-0">
+                <div className="mb-1 text-sm font-medium text-gray-900">
+                  Map Preview
+                </div>
 
-      {/* Map */}
-      <div className="min-w-0">
-        <div className="mb-1 text-sm font-medium text-gray-900">Map Preview</div>
+                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+                  <form.Subscribe
+                    selector={(state) => state.values.location}
+                    children={(location) => {
+                      const q = (location?.trim() || "Bangkok").toString();
+                      const src = `https://www.google.com/maps?q=${encodeURIComponent(
+                        q,
+                      )}&output=embed`;
 
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-          <form.Subscribe
-            selector={(state) => state.values.location}
-            children={(location) => {
-              const q = (location?.trim() || "Bangkok").toString();
-              const src = `https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
+                      return (
+                        <iframe
+                          title="map"
+                          className="h-[260px] w-full"
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                          src={src}
+                        />
+                      );
+                    }}
+                  />
+                </div>
 
-              return (
-                <iframe
-                  title="map"
-                  className="h-[260px] w-full"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  src={src}
-                />
-              );
-            }}
-          />
-        </div>
-
-        <div className="mt-2 text-xs text-gray-500">
-          ถ้าพิมพ์กว้าง ๆ เช่น “CentralWorld” มันจะเดาให้ — ถ้าอยากแม่น ให้ใส่ “ชื่อ + เมือง”
-        </div>
-      </div>
-    </div>
-  </CardContent>
-</Card>
+                <div className="mt-2 text-xs text-gray-500">
+                  ถ้าพิมพ์กว้าง ๆ เช่น “CentralWorld” มันจะเดาให้ — ถ้าอยากแม่น
+                  ให้ใส่ “ชื่อ + เมือง”
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Package*/}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-blue-600 rounded-full" />
+            <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+              <span className="h-6 w-1.5 rounded-full bg-blue-600" />
               Package
             </CardTitle>
           </CardHeader>
@@ -400,7 +456,7 @@ export default function CreateEvent() {
             {/* ใส่อะไรก็ได้ตามที่อยากเพิ่มต่อ เช่น textarea / date / time */}
             <FieldGroup>
               <FieldGroup>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   {packages.map((pkg) => {
                     const isActive = selectedPackage === pkg.id;
 
@@ -414,12 +470,12 @@ export default function CreateEvent() {
                           "bg-slate-50",
                           isActive
                             ? "border-indigo-400 ring-2 ring-indigo-400/50"
-                            : "border-slate-100 text-slate-400 hover:border-indigo-200 hover:bg-indigo-50/40"
+                            : "border-slate-100 text-slate-400 hover:border-indigo-200 hover:bg-indigo-50/40",
                         )}
                       >
                         {/* badge Auto-Selected มุมขวาบน */}
                         {isActive && pkg.autoSelected && (
-                          <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600">
+                          <span className="absolute top-4 right-4 inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600">
                             <CheckCircle2 className="h-3 w-3" />
                             Auto-Selected
                           </span>
@@ -431,7 +487,7 @@ export default function CreateEvent() {
                             "mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl",
                             isActive
                               ? "bg-indigo-100 text-indigo-600"
-                              : "bg-slate-100 text-slate-300"
+                              : "bg-slate-100 text-slate-300",
                           )}
                         >
                           <PackageIcon className="h-7 w-7" />
@@ -441,7 +497,7 @@ export default function CreateEvent() {
                         <h3
                           className={cn(
                             "text-lg font-semibold",
-                            isActive ? "text-slate-900" : "text-slate-400"
+                            isActive ? "text-slate-900" : "text-slate-400",
                           )}
                         >
                           {pkg.name}
@@ -451,7 +507,7 @@ export default function CreateEvent() {
                         <p
                           className={cn(
                             "mt-1 text-sm",
-                            isActive ? "text-slate-500" : "text-slate-300"
+                            isActive ? "text-slate-500" : "text-slate-300",
                           )}
                         >
                           {pkg.highlight}
@@ -464,13 +520,13 @@ export default function CreateEvent() {
                               key={item}
                               className={cn(
                                 "flex items-start gap-2",
-                                isActive ? "text-slate-700" : "text-slate-300"
+                                isActive ? "text-slate-700" : "text-slate-300",
                               )}
                             >
                               <span
                                 className={cn(
                                   "mt-1 h-1.5 w-1.5 rounded-full",
-                                  isActive ? "bg-indigo-400" : "bg-slate-300"
+                                  isActive ? "bg-indigo-400" : "bg-slate-300",
                                 )}
                               />
                               <span>{item}</span>
@@ -482,7 +538,7 @@ export default function CreateEvent() {
                         <p
                           className={cn(
                             "mt-3 text-sm italic",
-                            isActive ? "text-indigo-500" : "text-slate-300"
+                            isActive ? "text-indigo-500" : "text-slate-300",
                           )}
                         >
                           {pkg.moreText}
@@ -507,8 +563,8 @@ export default function CreateEvent() {
         {/* Equipment */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-blue-600 rounded-full" />
+            <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+              <span className="h-6 w-1.5 rounded-full bg-blue-600" />
               Equipment
             </CardTitle>
           </CardHeader>
@@ -560,7 +616,9 @@ export default function CreateEvent() {
                         placeholder="Drop files here or click to upload"
                       />
 
-                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
                     </Field>
                   );
                 }}
@@ -585,8 +643,6 @@ export default function CreateEvent() {
 
                   return (
                     <Field data-invalid={isInvalid} className="min-w-0">
-                      
-
                       <textarea
                         id={field.name}
                         name={field.name}
@@ -595,13 +651,15 @@ export default function CreateEvent() {
                         onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="Write notes here..."
                         className={cn(
-                          "w-full min-h-[140px] rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm",
+                          "min-h-[140px] w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm",
                           "outline-none focus:border-blue-500",
-                          isInvalid && "border-destructive"
+                          isInvalid && "border-destructive",
                         )}
                       />
 
-                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
                     </Field>
                   );
                 }}
