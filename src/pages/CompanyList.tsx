@@ -4,6 +4,8 @@ import PageHeader from "../components/layout/PageHeader";
 import PageSection from "../components/layout/PageSection";
 import { Button } from "@/components/ui/button";
 import SearchBar from "../components/SearchBar";
+import { useNavigate } from "@tanstack/react-router";
+
 import {
   FilterMultiSelect,
   type FilterOption,
@@ -22,6 +24,7 @@ const staffOptions: FilterOption[] = [
 ];
 
 const CompanyList = () => {
+  const navigate = useNavigate();
   const totalCompanies = 15;
   const [searchText, setSearchText] = useState("");
   const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
@@ -49,9 +52,18 @@ const CompanyList = () => {
         count={totalCompanies}
         countLabel="companies"
         actions={
-          <Button size="add">
-            <Plus strokeWidth={2.5} />
-            Add Company
+          <Button
+            className=""
+            // variant="primary"
+            size="add"
+            onClick={() =>
+              navigate({
+                to: "/company/create",
+              })
+            }
+          >
+            <Plus size={18} strokeWidth={2.5} />
+            Create Event
           </Button>
         }
       />

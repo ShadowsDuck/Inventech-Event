@@ -1,6 +1,9 @@
-import CreateEvent from "@/pages/CreateEvent";
 import { createFileRoute } from "@tanstack/react-router";
+import CreateCompany from "@/pages/CreateCompany";
 
 export const Route = createFileRoute("/company/create")({
-  component: CreateEvent,
+  component: CreateCompany,
+  staticData: {
+    title: "Create Company",
+  },
 });

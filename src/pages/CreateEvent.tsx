@@ -527,7 +527,7 @@ export default function CreateEvent() {
           </CardHeader>
 
           {/* ลด padding ให้กว้างขึ้น (เลือกใช้ตามชอบ) */}
-          <CardContent className="w-full min-w-0 p-4 md:p-6">
+          <CardContent>
             <StaffSection />
           </CardContent>
         </Card>
