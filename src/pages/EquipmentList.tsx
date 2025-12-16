@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { PageHeader } from "../components/layout/PageHeader";
 import { PageSection } from "../components/layout/PageSection";
 import { SearchBar } from "../components/SearchBar";
@@ -32,6 +33,8 @@ const EquipmentList = () => {
   const rows: EquipmentRow[] = useMemo(() => [], []);
   const columns = useMemo(() => getEquipmentColumns(), []);
 
+  const navigate = useNavigate();
+
   return (
     <>
       <PageHeader
@@ -39,9 +42,18 @@ const EquipmentList = () => {
         count={totalItems}
         countLabel="items"
         actions={
-          <Button size="add">
-            <Plus strokeWidth={2.5} />
-            Add Equipment
+          <Button
+            className=""
+            // variant="primary"
+            size="add"
+            onClick={() =>
+              navigate({
+                to: "/equipment/create",
+              })
+            }
+          >
+            <Plus size={18} strokeWidth={2.5} />
+            Create Event
           </Button>
         }
       />

@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import AddEquipment from "@/pages/AddEquipment";
 
 export const Route = createFileRoute("/equipment/create")({
-  component: RouteComponent,
+  component: AddEquipment,
+  staticData: {
+    title: "Create Event",
+  },
 });
 
-function RouteComponent() {
-  return <div>Hello "/equipment/create"!</div>;
-}
+
