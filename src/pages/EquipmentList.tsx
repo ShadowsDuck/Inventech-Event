@@ -53,7 +53,7 @@ const EquipmentList = () => {
             }
           >
             <Plus size={18} strokeWidth={2.5} />
-            Create Event
+            Add Equipment
           </Button>
         }
       />
