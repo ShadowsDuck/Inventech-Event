@@ -1,9 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-
+import CreatePackage from "@/pages/CreatePackage";
 export const Route = createFileRoute("/package/create")({
-  component: RouteComponent,
+  component: CreatePackage,
 });
 
-function RouteComponent() {
-  return <div>Hello "/package/create"!</div>;
-}
