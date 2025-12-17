@@ -11,6 +11,7 @@ import { EquipmentSection } from "@/components/CreateEventComponents/equipment-s
 import StaffSection from "@/components/CreateEventComponents/staff-section";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import CarouselPackage from "@/components/ui/carousel-package";
 import { DatePicker } from "@/components/ui/date-picker";
 import Dropzone from "@/components/ui/dropzone";
 import {
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/field";
 import FilterSelectCompany from "@/components/ui/filter-select-company";
 import { Input } from "@/components/ui/input";
+import SelectPeriod from "@/components/ui/select-period";
 import { TabEventType } from "@/components/ui/tab-event-type";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +40,7 @@ export default function CreateEvent() {
       start_time: "",
       end_time: "",
       time_period: "",
+      package: "",
       attachments: [] as File[],
       note: "",
       location: "",
@@ -67,41 +70,6 @@ export default function CreateEvent() {
       });
     },
   });
-  const [timePeriod, setTimePeriod] = React.useState<"morning" | "afternoon">(
-    "afternoon",
-  );
-
-  const packages = [
-    {
-      id: "premium",
-      name: "Premium Event Package",
-      highlight: "7 items included",
-      items: [
-        "4x Wireless Microphones",
-        "2x HD Projectors (4K Ready)",
-        "2x MacBook Pro Laptops",
-        "1x Professional Sound System",
-      ],
-      moreText: "+ 3 more items",
-      autoSelected: true,
-    },
-    {
-      id: "standard",
-      name: "Standard Conference",
-      highlight: "5 items included",
-      items: [
-        "2x Wireless Microphones",
-        "1x HD Projector",
-        "2x Laptops",
-        "1x LED Screen 3×2m",
-      ],
-      moreText: "+ 1 more item",
-      autoSelected: false,
-    },
-  ];
-
-  const [selectedPackage, setSelectedPackage] =
-    React.useState<string>("premium");
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -330,34 +298,30 @@ export default function CreateEvent() {
                   />
 
                   {/* Time Period */}
-                  <form.Field
-                    name="time_period"
-                    children={(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
-                            Time Period
-                          </FieldLabel>
-                          <Input
-                            id={field.name}
-                            name={field.name}
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            aria-invalid={isInvalid}
-                            placeholder="Enter start time..."
-                            autoComplete="off"
-                            type="time"
-                          />
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </Field>
-                      );
-                    }}
-                  />
+                  <div className="md:col-span-2">
+                    <form.Field
+                      name="time_period"
+                      children={(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid;
+                        return (
+                          <Field data-invalid={isInvalid}>
+                            <FieldLabel htmlFor={field.name}>
+                              Time Period
+                            </FieldLabel>
+                            <SelectPeriod
+                              value={field.state.value}
+                              onChange={field.handleChange}
+                            />
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        );
+                      }}
+                    />
+                  </div>
                 </section>
               </FieldGroup>
             </form>
@@ -453,113 +417,38 @@ export default function CreateEvent() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {/* ใส่อะไรก็ได้ตามที่อยากเพิ่มต่อ เช่น textarea / date / time */}
-            <FieldGroup>
+            <form
+              id="create-event-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+            >
               <FieldGroup>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  {packages.map((pkg) => {
-                    const isActive = selectedPackage === pkg.id;
-
+                <form.Field
+                  name="package"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
-                      <button
-                        key={pkg.id}
-                        type="button"
-                        onClick={() => setSelectedPackage(pkg.id)}
-                        className={cn(
-                          "relative flex h-full w-full flex-col rounded-2xl border px-6 py-5 text-left transition",
-                          "bg-slate-50",
-                          isActive
-                            ? "border-indigo-400 ring-2 ring-indigo-400/50"
-                            : "border-slate-100 text-slate-400 hover:border-indigo-200 hover:bg-indigo-50/40",
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name} className="-mb-3" />
+                        <CarouselPackage
+                          value={field.state.value}
+                          onChange={field.handleChange}
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
                         )}
-                      >
-                        {/* badge Auto-Selected มุมขวาบน */}
-                        {isActive && pkg.autoSelected && (
-                          <span className="absolute top-4 right-4 inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600">
-                            <CheckCircle2 className="h-3 w-3" />
-                            Auto-Selected
-                          </span>
-                        )}
-
-                        {/* icon กล่องมุมซ้ายบน */}
-                        <div
-                          className={cn(
-                            "mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl",
-                            isActive
-                              ? "bg-indigo-100 text-indigo-600"
-                              : "bg-slate-100 text-slate-300",
-                          )}
-                        >
-                          <PackageIcon className="h-7 w-7" />
-                        </div>
-
-                        {/* ชื่อแพ็กเกจ */}
-                        <h3
-                          className={cn(
-                            "text-lg font-semibold",
-                            isActive ? "text-slate-900" : "text-slate-400",
-                          )}
-                        >
-                          {pkg.name}
-                        </h3>
-
-                        {/* จำนวน item */}
-                        <p
-                          className={cn(
-                            "mt-1 text-sm",
-                            isActive ? "text-slate-500" : "text-slate-300",
-                          )}
-                        >
-                          {pkg.highlight}
-                        </p>
-
-                        {/* รายการอุปกรณ์ */}
-                        <ul className="mt-4 space-y-1 text-sm">
-                          {pkg.items.map((item) => (
-                            <li
-                              key={item}
-                              className={cn(
-                                "flex items-start gap-2",
-                                isActive ? "text-slate-700" : "text-slate-300",
-                              )}
-                            >
-                              <span
-                                className={cn(
-                                  "mt-1 h-1.5 w-1.5 rounded-full",
-                                  isActive ? "bg-indigo-400" : "bg-slate-300",
-                                )}
-                              />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-
-                        {/* ข้อความ more */}
-                        <p
-                          className={cn(
-                            "mt-3 text-sm italic",
-                            isActive ? "text-indigo-500" : "text-slate-300",
-                          )}
-                        >
-                          {pkg.moreText}
-                        </p>
-
-                        {/* ปุ่มลูกศรด้านขวา สำหรับการ์ดที่ยังไม่ active */}
-                        {/* {!isActive && (
-                <div className="absolute right-6 top-1/2 -translate-y-1/2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md">
-                    <ChevronRight className="h-4 w-4 text-slate-400" />
-                  </div>
-                </div>
-              )} */}
-                      </button>
+                      </Field>
                     );
-                  })}
-                </div>
+                  }}
+                />
               </FieldGroup>
-            </FieldGroup>
+            </form>
           </CardContent>
         </Card>
+
         {/* Equipment */}
         <Card>
           <CardHeader>
