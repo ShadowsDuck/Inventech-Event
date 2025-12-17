@@ -52,7 +52,7 @@ export default function CreatePackage() {
             {/* ✅ id ของ form ต้องตรงกับปุ่ม */}
             <Button size="add" type="submit" form="create-package-form">
               <Save size={18} strokeWidth={2.5} />
-              Create Package Ver 2.0
+              Create Package Ver 3.0
             </Button>
           </div>
         }
