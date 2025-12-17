@@ -3,6 +3,7 @@ import { PageSection } from "../components/layout/PageSection";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PackageCardGrid, type PackageCardItem } from "@/components/ui/package-card-grid";
+import { useNavigate } from "@tanstack/react-router";
 
 const PackageList = () => {
   const totalPackages = 5;
@@ -41,6 +42,7 @@ const PackageList = () => {
       included: ["1x Microphone", "1x Projector Screen", "1x Laptop", "2x Staff Members"],
     },
   ];
+  const navigate = useNavigate();
 
   return (
     <>
@@ -49,8 +51,17 @@ const PackageList = () => {
         count={totalPackages}
         countLabel="Package"
         actions={
-          <Button size="add">
-            <Plus strokeWidth={2.5} />
+          <Button
+            className=""
+            // variant="primary"
+            size="add"
+            onClick={() =>
+              navigate({
+                to: "/package/create",
+              })
+            }
+          >
+            <Plus size={18} strokeWidth={2.5} />
             Create Package
           </Button>
         }
