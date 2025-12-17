@@ -2,8 +2,7 @@ import * as React from "react";
 
 import { useForm } from "@tanstack/react-form";
 import { format } from "date-fns";
-import { Moon, Save, Sun } from "lucide-react";
-import { CheckCircle2, Package as PackageIcon } from "lucide-react";
+import { Save } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -13,18 +12,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import CarouselPackage from "@/components/ui/carousel-package";
 import { DatePicker } from "@/components/ui/date-picker";
-import Dropzone from "@/components/ui/dropzone";
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+import { FileUploader } from "@/components/ui/file-uploader";
 import FilterSelectCompany from "@/components/ui/filter-select-company";
 import { Input } from "@/components/ui/input";
 import SelectPeriod from "@/components/ui/select-period";
 import { TabEventType } from "@/components/ui/tab-event-type";
-import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
 
 import { PageHeader } from "../components/layout/PageHeader";
 
@@ -36,22 +35,30 @@ export default function CreateEvent() {
       title: "",
       company: "",
       type: "offline",
+      note: "",
       date: undefined as Date | undefined,
       start_time: "",
       end_time: "",
       time_period: "",
-      package: "",
-      attachments: [] as File[],
-      note: "",
+      package: "premium-event",
+      files: [] as File[],
       location: "",
     },
     // validators: {
     //   onSubmit: formSchema,
     // },
     onSubmit: async ({ value }) => {
+      // แปลง File Object เป็น Object ธรรมดา เพื่อให้มองเห็นใน JSON
+      const filesForDisplay = value.files.map((file) => ({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      }));
+
       const payload = {
         ...value,
         date: value.date ? format(value.date, "yyyy-MM-dd") : null,
+        files: filesForDisplay,
       };
 
       toast("You submitted the following values:", {
@@ -180,7 +187,15 @@ export default function CreateEvent() {
                           </FieldLabel>
                           <TabEventType
                             value={field.state.value}
-                            onChange={field.handleChange}
+                            onChange={(val) => {
+                              field.handleChange(val);
+
+                              if (val === "offline") {
+                                form.setFieldValue("package", "premium-event");
+                              } else {
+                                form.setFieldValue("package", "");
+                              }
+                            }}
                           />
                           {isInvalid && (
                             <FieldError errors={field.state.meta.errors} />
@@ -189,6 +204,37 @@ export default function CreateEvent() {
                       );
                     }}
                   />
+
+                  {/* Note */}
+                  <div className="md:col-span-2">
+                    <form.Field
+                      name="note"
+                      children={(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid;
+                        return (
+                          <Field data-invalid={isInvalid}>
+                            <FieldLabel htmlFor={field.name}>Note</FieldLabel>
+                            <Textarea
+                              id={field.name}
+                              name={field.name}
+                              value={field.state.value}
+                              onBlur={field.handleBlur}
+                              onChange={(e) =>
+                                field.handleChange(e.target.value)
+                              }
+                              placeholder="Write note here..."
+                              className="min-h-32"
+                            />
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        );
+                      }}
+                    />
+                  </div>
                 </section>
               </FieldGroup>
             </form>
@@ -425,22 +471,38 @@ export default function CreateEvent() {
               }}
             >
               <FieldGroup>
-                <form.Field
-                  name="package"
-                  children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
+                {/* 1. เรียกใช้ Subscribe เพื่อดักฟังค่า 'type' */}
+                <form.Subscribe
+                  selector={(state) => state.values.type} // เลือกฟังเฉพาะค่า type
+                  children={(eventType) => {
+                    //2. คำนวณ logic ตรงนี้
+                    const isLocked = eventType === "offline";
+
                     return (
-                      <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name} className="-mb-3" />
-                        <CarouselPackage
-                          value={field.state.value}
-                          onChange={field.handleChange}
-                        />
-                        {isInvalid && (
-                          <FieldError errors={field.state.meta.errors} />
-                        )}
-                      </Field>
+                      <form.Field
+                        name="package"
+                        children={(field) => {
+                          const isInvalid =
+                            field.state.meta.isTouched &&
+                            !field.state.meta.isValid;
+                          return (
+                            <Field data-invalid={isInvalid}>
+                              <FieldLabel
+                                htmlFor={field.name}
+                                className="-mb-3"
+                              />
+                              <CarouselPackage
+                                value={field.state.value}
+                                onChange={field.handleChange}
+                                disabled={isLocked}
+                              />
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
+                            </Field>
+                          );
+                        }}
+                      />
                     );
                   }}
                 />
@@ -477,85 +539,46 @@ export default function CreateEvent() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          {/*Files & Documents*/}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                <span className="h-6 w-1 rounded-full bg-blue-600" />
-                File and Document
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent className="w-full min-w-0 p-4 md:p-6">
-              <form.Field name="attachments">
-                {(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid;
-
-                  return (
-                    <Field data-invalid={isInvalid} className="min-w-0">
-                      <Dropzone
-                        value={field.state.value ?? []}
-                        onChange={field.handleChange}
-                        isInvalid={isInvalid}
-                        accept="image/*,.pdf"
-                        maxSizeMB={10}
-                        multiple
-                        placeholder="Drop files here or click to upload"
-                      />
-
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  );
-                }}
-              </form.Field>
-            </CardContent>
-          </Card>
-
-          {/** Note */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                <span className="h-6 w-1 rounded-full bg-blue-600" />
-                Note
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent className="w-full min-w-0 p-4 md:p-6">
-              <form.Field name="note">
-                {(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid;
-
-                  return (
-                    <Field data-invalid={isInvalid} className="min-w-0">
-                      <textarea
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="Write notes here..."
-                        className={cn(
-                          "min-h-[140px] w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm",
-                          "outline-none focus:border-blue-500",
-                          isInvalid && "border-destructive",
+        {/*Files & Documents*/}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+              <span className="h-6 w-1 rounded-full bg-blue-600" />
+              Files & Documents
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form
+              id="create-event-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+            >
+              <FieldGroup>
+                <form.Field
+                  name="files"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name} className="-mb-3" />
+                        <FileUploader
+                          value={field.state.value}
+                          onValueChange={field.handleChange}
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
                         )}
-                      />
-
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  );
-                }}
-              </form.Field>
-            </CardContent>
-          </Card>
-        </div>
+                      </Field>
+                    );
+                  }}
+                />
+              </FieldGroup>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

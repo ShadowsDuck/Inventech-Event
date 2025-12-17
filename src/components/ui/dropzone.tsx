@@ -1,18 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
+
 import { UploadCloud, X } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 type DropzoneProps = {
-  value: File[];                     // ไฟล์ที่เลือกแล้ว
+  value: File[]; // ไฟล์ที่เลือกแล้ว
   onChange: (files: File[]) => void; // ส่งไฟล์กลับไปให้ form
   multiple?: boolean;
-  accept?: string;                   // เช่น "image/*,.pdf"
-  maxSizeMB?: number;                // จำกัดขนาดต่อไฟล์
+  accept?: string; // เช่น "image/*,.pdf"
+  maxSizeMB?: number; // จำกัดขนาดต่อไฟล์
   isInvalid?: boolean;
   disabled?: boolean;
   placeholder?: string;
-  className?: string;   
-
+  className?: string;
 };
 
 export default function Dropzone({
@@ -24,7 +25,7 @@ export default function Dropzone({
   isInvalid,
   disabled,
   placeholder = "Drop files here or click to upload",
-  className
+  className,
 }: DropzoneProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -98,7 +99,9 @@ export default function Dropzone({
         role="button"
         tabIndex={0}
         onClick={handlePick}
-        onKeyDown={(e) => (e.key === "Enter" || e.key === " " ? handlePick() : null)}
+        onKeyDown={(e) =>
+          e.key === "Enter" || e.key === " " ? handlePick() : null
+        }
         onDrop={onDrop}
         onDragEnter={(e) => {
           e.preventDefault();
@@ -115,12 +118,11 @@ export default function Dropzone({
           "w-full rounded-xl border border-dashed p-4",
           "bg-gray-100 transition-colors",
           "flex items-center justify-between gap-3",
-          disabled && "opacity-60 cursor-not-allowed",
+          disabled && "cursor-not-allowed opacity-60",
           !disabled && "cursor-pointer hover:bg-gray-50",
-          isDragging && "bg-blue-50 border-blue-400",
+          isDragging && "border-blue-400 bg-blue-50",
           isInvalid && "border-destructive",
-          className 
-          
+          className,
         )}
       >
         <div className="min-w-0">
@@ -163,16 +165,18 @@ export default function Dropzone({
                 <img
                   src={p.url}
                   alt={p.file.name}
-                  className="h-9 w-9 rounded object-cover border"
+                  className="h-9 w-9 rounded border object-cover"
                 />
               ) : (
-                <div className="h-9 w-9 rounded border bg-gray-50 flex items-center justify-center text-xs text-gray-500">
+                <div className="flex h-9 w-9 items-center justify-center rounded border bg-gray-50 text-xs text-gray-500">
                   FILE
                 </div>
               )}
 
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm text-gray-900">{p.file.name}</div>
+                <div className="truncate text-sm text-gray-900">
+                  {p.file.name}
+                </div>
                 <div className="text-xs text-gray-500">
                   {(p.file.size / 1024).toFixed(0)} KB
                 </div>
@@ -181,7 +185,7 @@ export default function Dropzone({
               <button
                 type="button"
                 onClick={() => removeAt(idx)}
-                className="shrink-0 rounded-md p-1 text-gray-500 hover:text-red-600 hover:bg-red-50"
+                className="shrink-0 rounded-md p-1 text-gray-500 hover:bg-red-50 hover:text-red-600"
               >
                 <X className="size-4" />
               </button>
