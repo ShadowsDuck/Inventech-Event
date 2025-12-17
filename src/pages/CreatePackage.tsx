@@ -6,6 +6,12 @@ import { Save } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import PackageEquipmentPicker, {
+  type EquipmentMaster,
+  type EquipmentRow,
+} from "@/components/CreatePackageComponent/PackageEquipment";
+import PackageEquipmentSummary from "@/components/CreatePackageComponent/PackageEquipmentSummary";
+
 import {
   Field,
   FieldContent,
@@ -19,6 +25,8 @@ export default function CreatePackage() {
   const form = useForm({
     defaultValues: {
       name: "",
+      // ✅ เพิ่ม field นี้ เพื่อให้ submit ไปพร้อม form
+      equipment: [] as EquipmentRow[],
     },
     onSubmit: async ({ value }) => {
       toast("You submitted the following values:", {
@@ -28,15 +36,47 @@ export default function CreatePackage() {
           </pre>
         ),
         position: "bottom-right",
-        classNames: {
-          content: "flex flex-col gap-2",
-        },
+        classNames: { content: "flex flex-col gap-2" },
         style: {
           "--border-radius": "calc(var(--radius)  + 4px)",
         } as React.CSSProperties,
       });
     },
   });
+
+  const [equipmentRows, setEquipmentRows] = React.useState<EquipmentRow[]>([]);
+
+  const addEquipment = (item: EquipmentMaster) => {
+    setEquipmentRows((prev) => {
+      const exists = prev.find((r) => r.id === item.id);
+      if (exists) {
+        return prev.map((r) => (r.id === item.id ? { ...r, qty: r.qty + 1 } : r));
+      }
+      return [...prev, { id: item.id, name: item.name, qty: 1 }];
+    });
+  };
+
+  const changeQty = (id: string, delta: number) => {
+    setEquipmentRows((prev) =>
+      prev
+        .map((r) => {
+          if (r.id !== id) return r;
+          const next = r.qty + delta;
+          if (next <= 0) return null; // ✅ 0 แล้วลบทิ้ง
+          return { ...r, qty: next };
+        })
+        .filter(Boolean) as EquipmentRow[]
+    );
+  };
+
+  const removeRow = (id: string) => {
+    setEquipmentRows((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  // ✅ Sync equipmentRows -> form.values.equipment
+  React.useEffect(() => {
+    form.setFieldValue("equipment", equipmentRows);
+  }, [equipmentRows, form]);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -45,11 +85,17 @@ export default function CreatePackage() {
         countLabel="Create Package"
         actions={
           <div className="flex items-center gap-2">
-            <Button type="button" variant="outline" onClick={() => form.reset()}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                form.reset();
+                setEquipmentRows([]); // ✅ reset อุปกรณ์ด้วย
+              }}
+            >
               Reset
             </Button>
 
-            {/* ✅ id ของ form ต้องตรงกับปุ่ม */}
             <Button size="add" type="submit" form="create-package-form">
               <Save size={18} strokeWidth={2.5} />
               Create Package
@@ -59,6 +105,7 @@ export default function CreatePackage() {
       />
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-10 max-w-6xl mx-auto w-full space-y-8 pb-20">
+        {/* Package Info */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
@@ -99,17 +146,43 @@ export default function CreatePackage() {
                           />
                         </FieldContent>
 
-                        {isInvalid && (
-                          <FieldError errors={field.state.meta.errors} />
-                        )}
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
                       </Field>
                     );
                   }}
+                </form.Field>
+
+                {/* ✅ field equipment (ไม่ต้อง render UI ก็ได้ แค่มีไว้ให้ submit) */}
+                <form.Field name="equipment">
+                  {() => null}
                 </form.Field>
               </FieldGroup>
             </form>
           </CardContent>
         </Card>
+
+        {/* Equipment Picker */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+              <span className="h-6 w-1.5 rounded-full bg-blue-600" />
+              Add Equipment
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent className="p-5">
+            <PackageEquipmentPicker rows={equipmentRows} onAdd={addEquipment} />
+          </CardContent>
+        </Card>
+
+        {/* Summary (sticky) */}
+        <div className="sticky bottom-6 mt-6">
+          <PackageEquipmentSummary
+            rows={equipmentRows}
+            onChangeQty={changeQty}
+            onRemove={removeRow}
+          />
+        </div>
       </div>
     </div>
   );
