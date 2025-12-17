@@ -52,7 +52,11 @@ export default function CreatePackage() {
             {/* ✅ id ของ form ต้องตรงกับปุ่ม */}
             <Button size="add" type="submit" form="create-package-form">
               <Save size={18} strokeWidth={2.5} />
+<<<<<<< HEAD
               Create Package
+=======
+              Create Package Ver1.0
+>>>>>>> 7407a5aa7be636bfce490c7700624a9c71207542
             </Button>
           </div>
         }
@@ -63,7 +67,11 @@ export default function CreatePackage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
               <span className="h-6 w-1.5 rounded-full bg-blue-600" />
+<<<<<<< HEAD
               Package Information Test Ver 1.0
+=======
+              Package Information Test Ver
+>>>>>>> 7407a5aa7be636bfce490c7700624a9c71207542
             </CardTitle>
           </CardHeader>
 
