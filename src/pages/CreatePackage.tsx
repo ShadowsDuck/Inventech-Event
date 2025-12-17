@@ -63,7 +63,7 @@ export default function CreatePackage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
               <span className="h-6 w-1.5 rounded-full bg-blue-600" />
-              Package Information
+              Package Information Test Ver
             </CardTitle>
           </CardHeader>
 
