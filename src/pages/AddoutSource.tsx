@@ -6,8 +6,6 @@ import { toast } from "sonner";
 import { Card ,CardContent,CardHeader,CardTitle} from "@/components/ui/card";
 import StaffProfileFormFields from "@/components/AddStaffandOutsourceComponent/StaffProfileFormFields";
 
-
-
 export default function Addoutsource() {
     
     
