@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 import { EquipmentSection } from "@/components/CreateEventComponents/equipment-section";
 import StaffSection from "@/components/CreateEventComponents/staff-section";
+import { LocationPicker } from "@/components/form/location-picker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import CarouselPackage from "@/components/ui/carousel-package";
@@ -25,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import SelectPeriod from "@/components/ui/select-period";
 import { TabEventType } from "@/components/ui/tab-event-type";
 import { Textarea } from "@/components/ui/textarea";
+import { parseCoordinates } from "@/lib/utils";
 
 import { PageHeader } from "../components/layout/PageHeader";
 
@@ -43,14 +45,16 @@ export default function CreateEvent() {
       start_time: "",
       end_time: "",
       time_period: "",
+      location: "",
       package: DEFAULT_PACKAGE,
       files: [] as File[],
-      location: "",
     },
     // validators: {
     //   onSubmit: formSchema,
     // },
     onSubmit: async ({ value }) => {
+      const coords = parseCoordinates(value.location);
+
       // แปลง File Object เป็น Object ธรรมดา เพื่อให้มองเห็นใน JSON
       const filesForDisplay = value.files.map((file) => ({
         name: file.name,
@@ -61,6 +65,9 @@ export default function CreateEvent() {
       const payload = {
         ...value,
         date: value.date ? format(value.date, "yyyy-MM-dd") : null,
+        location: undefined,
+        latitude: coords ? coords[0] : null,
+        longitude: coords ? coords[1] : null,
         files: filesForDisplay,
       };
 
@@ -381,79 +388,49 @@ export default function CreateEvent() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-              <span className="h-6 w-1 rounded-full bg-blue-600" />
+              <span className="h-6 w-1.5 rounded-full bg-blue-600" />
               Location
             </CardTitle>
           </CardHeader>
-          <CardContent className="w-full min-w-0 p-4 md:p-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {/* ซ้าย: กรอกที่อยู่ */}
-              <form.Field name="location">
-                {(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid;
-
-                  return (
-                    <Field data-invalid={isInvalid} className="min-w-0">
-                      <FieldLabel htmlFor={field.name} className="mb-1">
-                        Address
-                      </FieldLabel>
-
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="e.g. ICONSIAM Bangkok"
-                        aria-invalid={isInvalid}
-                      />
-
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                      <p className="mt-2 text-xs text-gray-500">
-                        Tip: พิมพ์ชื่อสถานที่/ที่อยู่ แล้วแผนที่จะอัปเดตเอง
-                      </p>
-                    </Field>
-                  );
-                }}
-              </form.Field>
-
-              {/* Map */}
-              <div className="min-w-0">
-                <div className="mb-1 text-sm font-medium text-gray-900">
-                  Map Preview
-                </div>
-
-                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-                  <form.Subscribe
-                    selector={(state) => state.values.location}
-                    children={(location) => {
-                      const q = (location?.trim() || "Bangkok").toString();
-                      const src = `https://www.google.com/maps?q=${encodeURIComponent(
-                        q,
-                      )}&output=embed`;
-
-                      return (
-                        <iframe
-                          title="map"
-                          className="h-65 w-full"
-                          loading="lazy"
-                          referrerPolicy="no-referrer-when-downgrade"
-                          src={src}
+          <CardContent>
+            <form
+              id="create-event-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+            >
+              <FieldGroup>
+                <form.Field
+                  name="location"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>
+                          Venue Location
+                        </FieldLabel>
+                        <LocationPicker
+                          value={field.state.value}
+                          onChange={field.handleChange}
+                          onBlur={field.handleBlur}
+                          error={isInvalid ? "true" : undefined}
                         />
-                      );
-                    }}
-                  />
-                </div>
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
 
-                <div className="mt-2 text-xs text-gray-500">
-                  ถ้าพิมพ์กว้าง ๆ เช่น “CentralWorld” มันจะเดาให้ — ถ้าอยากแม่น
-                  ให้ใส่ “ชื่อ + เมือง”
-                </div>
-              </div>
-            </div>
+                        <p className="text-muted-foreground mt-2 text-xs">
+                          Enter coordinates in "latitude, longitude" format and
+                          click the pin icon.
+                        </p>
+                      </Field>
+                    );
+                  }}
+                />
+              </FieldGroup>
+            </form>
           </CardContent>
         </Card>
 
