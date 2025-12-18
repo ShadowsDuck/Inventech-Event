@@ -4,7 +4,8 @@ import { useForm } from "@tanstack/react-form";
 import { format } from "date-fns";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
-import * as z from "zod";
+
+// import * as z from "zod";
 
 import { EquipmentSection } from "@/components/CreateEventComponents/equipment-section";
 import StaffSection from "@/components/CreateEventComponents/staff-section";
@@ -29,6 +30,8 @@ import { PageHeader } from "../components/layout/PageHeader";
 
 // const formSchema = z.object({ ... });
 
+const DEFAULT_PACKAGE = "p1";
+
 export default function CreateEvent() {
   const form = useForm({
     defaultValues: {
@@ -40,7 +43,7 @@ export default function CreateEvent() {
       start_time: "",
       end_time: "",
       time_period: "",
-      package: "premium-event",
+      package: DEFAULT_PACKAGE,
       files: [] as File[],
       location: "",
     },
@@ -191,7 +194,7 @@ export default function CreateEvent() {
                               field.handleChange(val);
 
                               if (val === "offline") {
-                                form.setFieldValue("package", "premium-event");
+                                form.setFieldValue("package", DEFAULT_PACKAGE);
                               } else {
                                 form.setFieldValue("package", "");
                               }
@@ -435,7 +438,7 @@ export default function CreateEvent() {
                       return (
                         <iframe
                           title="map"
-                          className="h-[260px] w-full"
+                          className="h-65 w-full"
                           loading="lazy"
                           referrerPolicy="no-referrer-when-downgrade"
                           src={src}
