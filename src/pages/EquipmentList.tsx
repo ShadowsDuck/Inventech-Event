@@ -1,15 +1,21 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+
 import { PageHeader } from "../components/layout/PageHeader";
 import { PageSection } from "../components/layout/PageSection";
 import { SearchBar } from "../components/SearchBar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+
 import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
 
-import { Table } from "@/components/ui/table";
-import { Pagination } from "@/components/ui/pagination";
-import { getEquipmentColumns, type EquipmentRow } from "@/components/ui/equipment-columns";
+import { DataTable } from "@/components/ui/data-table";
+
+// ✅ ใช้ columns ที่คุณทำไว้
+import { equipmentColumns, type EquipmentRow } from "@/components/ui/column-equipment";
+
+// ✅ ดึงข้อมูลจาก constants
+import { EQUIPMENT_DATA } from "@/data/constants";
 
 const categoryOptions: FilterOption[] = [
   { value: "video", label: "Video" },
@@ -20,38 +26,29 @@ const categoryOptions: FilterOption[] = [
 ];
 
 const EquipmentList = () => {
-  const totalItems = 20;
-
   const [searchText, setSearchText] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  // pagination
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
-
-  // UI เปล่า ๆ (ไม่ mock data)
-  const rows: EquipmentRow[] = useMemo(() => [], []);
-  const columns = useMemo(() => getEquipmentColumns(), []);
-
   const navigate = useNavigate();
+
+  // ✅ แปลงข้อมูลให้เป็น shape ที่ DataTable ใช้
+  const rows: EquipmentRow[] = useMemo(() => {
+    return EQUIPMENT_DATA.map((e) => ({
+      id: e.id,
+      name: e.name,
+      category: e.category, // ใน data ตอนนี้เป็น "Audio" "Video" ฯลฯ
+      total: e.total,
+    }));
+  }, []);
 
   return (
     <>
       <PageHeader
         title="Equipment"
-        count={totalItems}
+        count={rows.length}
         countLabel="items"
         actions={
-          <Button
-            className=""
-            // variant="primary"
-            size="add"
-            onClick={() =>
-              navigate({
-                to: "/equipment/create",
-              })
-            }
-          >
+          <Button size="add" onClick={() => navigate({ to: "/equipment/create" })}>
             <Plus size={18} strokeWidth={2.5} />
             Add Equipment
           </Button>
@@ -75,23 +72,7 @@ const EquipmentList = () => {
       </div>
 
       <PageSection>
-        <Table
-          columns={columns}
-          rows={rows}
-          emptyTitle="No equipment found"
-          emptyDescription="Try adjusting your search or filters."
-        />
-
-        <Pagination
-          totalRows={totalItems}
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          onPageChange={setPageIndex}
-          onPageSizeChange={(n: number) => {
-            setPageSize(n);
-            setPageIndex(0);
-          }}
-        />
+        <DataTable columns={equipmentColumns} data={rows} />
       </PageSection>
     </>
   );
