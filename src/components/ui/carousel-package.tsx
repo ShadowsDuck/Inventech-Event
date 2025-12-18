@@ -8,7 +8,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { packages } from "@/data";
+import { PACKAGE_DATA as packages } from "@/data/constants";
 import { cn } from "@/lib/utils";
 
 interface CarouselPackageProps {
@@ -98,7 +98,7 @@ export default function CarouselPackage({
                           isSelected ? "text-blue-700" : "text-gray-900",
                         )}
                       >
-                        {pkg.title}
+                        {pkg.name}
                       </h3>
 
                       {/* Badge items */}
@@ -110,7 +110,7 @@ export default function CarouselPackage({
                             : "bg-gray-100 text-gray-600",
                         )}
                       >
-                        {pkg.itemsCount} items
+                        {pkg.items.length} items
                       </span>
                     </div>
 
@@ -125,7 +125,7 @@ export default function CarouselPackage({
 
                     <CardContent className="flex-1 px-6 pt-0 pb-6">
                       <ul className="space-y-3">
-                        {pkg.features.map((feature, i) => (
+                        {pkg.items.map((item, i) => (
                           <li key={i} className="flex items-start gap-3">
                             <Check
                               className={cn(
@@ -134,7 +134,7 @@ export default function CarouselPackage({
                               )}
                             />
                             <span className="text-sm leading-tight text-gray-600">
-                              {feature}
+                              {item}
                             </span>
                           </li>
                         ))}
