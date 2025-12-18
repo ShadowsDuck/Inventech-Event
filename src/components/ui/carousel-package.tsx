@@ -16,6 +16,7 @@ interface CarouselPackageProps {
   onChange?: (value: string) => void;
   readOnly?: boolean;
   disabled?: boolean;
+  className?: string;
 }
 
 export default function CarouselPackage({
@@ -23,6 +24,7 @@ export default function CarouselPackage({
   onChange,
   readOnly = false,
   disabled = false,
+  className,
 }: CarouselPackageProps) {
   return (
     <div className="flex w-full justify-center transition-opacity duration-300">
@@ -37,7 +39,7 @@ export default function CarouselPackage({
         }}
         className="w-full"
       >
-        <CarouselContent className="-ml-4">
+        <CarouselContent className={cn("-ml-4", className)}>
           {packages.map((pkg) => {
             const isSelected = value === pkg.id;
 
