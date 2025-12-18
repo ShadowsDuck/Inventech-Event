@@ -1,57 +1,47 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
 
 import { PageHeader } from "../components/layout/PageHeader";
 import { PageSection } from "../components/layout/PageSection";
 import { SearchBar } from "../components/SearchBar";
-import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  FilterMultiSelect,
-  type FilterOption,
-} from "@/components/ui/filter-multi-select";
-import { Table } from "@/components/ui/table";
-import { Pagination } from "@/components/ui/pagination";
-import {
-  getOutsourceColumns,
-  type OutsourceRow,
-} from "@/components/ui/outsource-columns";
 
-const staffOptions: FilterOption[] = [
-  { value: "alice", label: "Alice", description: "Host" },
-  { value: "bob", label: "Bob", description: "IT Support" },
-  { value: "charlie", label: "Charlie" },
-  { value: "john", label: "John" },
+import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
+import { DataTable } from "@/components/ui/data-table";
+
+import { columns, type StaffRow } from "@/components/ui/columns";
+import { OUTSOURCE_DATA } from "@/data/constants";
+import { RoleType } from "@/data/types";
+
+const roleOptions: FilterOption[] = [
+  { value: RoleType.HOST, label: "Host" },
+  { value: RoleType.IT_SUPPORT, label: "IT Support" },
+  { value: RoleType.MANAGER, label: "Manager" },
+  { value: RoleType.COORDINATOR, label: "Coordinator" },
+  { value: RoleType.SECURITY, label: "Security" },
 ];
-const OutsourceList = () => {
-  const totalOutsource = 12; // mock data
-  const [searchText, setSearchText] = useState("");
-  const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
 
-  const rows: OutsourceRow[] = useMemo(() => [], []);
-  const columns = useMemo(() => getOutsourceColumns(), []);
-
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+export default function OutsourceList() {
   const navigate = useNavigate();
+  const [searchText, setSearchText] = useState("");
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+
+  const rows = useMemo<StaffRow[]>(() => OUTSOURCE_DATA, []);
+
+  const roleFilteredRows = useMemo(() => {
+    if (selectedRoles.length === 0) return rows;
+    return rows.filter((r) => r.roles?.some((role) => selectedRoles.includes(role)));
+  }, [rows, selectedRoles]);
 
   return (
     <>
       <PageHeader
         title="Outsource"
-        count={totalOutsource}
+        count={roleFilteredRows.length}
         countLabel="outsourced staff"
         actions={
-          <Button
-            className=""
-            // variant="primary"
-            size="add"
-            onClick={() =>
-              navigate({
-                to: "/outsource/create",
-              })
-            }
-          >
+          <Button size="add" onClick={() => navigate({ to: "/outsource/create" })}>
             <Plus size={18} strokeWidth={2.5} />
             Add Outsource
           </Button>
@@ -66,35 +56,17 @@ const OutsourceList = () => {
           filterSlot={
             <FilterMultiSelect
               title="Role"
-              options={staffOptions}
-              selected={selectedStaff}
-              onChange={setSelectedStaff}
+              options={roleOptions}
+              selected={selectedRoles}
+              onChange={setSelectedRoles}
             />
           }
         />
       </div>
 
       <PageSection>
-        <Table
-          columns={columns}
-          rows={rows}
-          emptyTitle="No staff found"
-          emptyDescription="Try adjusting your search or filters."
-        />
-
-        <Pagination
-          totalRows={totalOutsource}
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          onPageChange={setPageIndex}
-          onPageSizeChange={(n: number) => {
-            setPageSize(n);
-            setPageIndex(0);
-          }}
-        />
+        <DataTable columns={columns} data={roleFilteredRows} />
       </PageSection>
     </>
   );
-};
-
-export default OutsourceList;
+}
