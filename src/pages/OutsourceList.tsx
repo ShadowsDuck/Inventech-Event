@@ -8,11 +8,12 @@ import { SearchBar } from "../components/SearchBar";
 import { Button } from "@/components/ui/button";
 
 import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
-import { DataTable } from "@/components/ui/data-table";
 
 import { columns, type StaffRow } from "@/components/ui/columns";
 import { OUTSOURCE_DATA } from "@/data/constants";
 import { RoleType } from "@/data/types";
+import { staffColumns } from "@/components/tables/outsource-column";
+import { DataTable } from "@/components/shadcn-studio/data-table/data-table";
 
 const roleOptions: FilterOption[] = [
   { value: RoleType.HOST, label: "Host" },
@@ -65,7 +66,7 @@ export default function OutsourceList() {
       </div>
 
       <PageSection>
-        <DataTable columns={columns} data={roleFilteredRows} />
+                <DataTable columns={staffColumns} data={roleFilteredRows} />
       </PageSection>
     </>
   );

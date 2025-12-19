@@ -1,21 +1,19 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
 
 import { PageHeader } from "../components/layout/PageHeader";
 import { PageSection } from "../components/layout/PageSection";
 import { SearchBar } from "../components/SearchBar";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 
-import {
-  FilterMultiSelect,
-  type FilterOption,
-} from "@/components/ui/filter-multi-select";
+import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
 
-import { DataTable } from "@/components/ui/data-table";
-import { equipmentColumns, type EquipmentRow } from "@/components/ui/column-equipment";
+// ✅ เปลี่ยนมาใช้จาก tables เหมือน outsource
 
 import { EQUIPMENT_DATA } from "@/data/constants";
+import { DataTable } from "@/components/shadcn-studio/data-table/data-table";
+import { equipmentColumns, type EquipmentRow } from "@/components/tables/Equipment-column";
 
 const categoryOptions: FilterOption[] = [
   { value: "video", label: "Video" },
@@ -30,10 +28,8 @@ const normalize = (v: unknown) => String(v ?? "").trim().toLowerCase();
 const EquipmentList = () => {
   const [searchText, setSearchText] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-
   const navigate = useNavigate();
 
-  // ✅ แปลงข้อมูลจาก constants เป็นแถวของตาราง
   const rows: EquipmentRow[] = useMemo(() => {
     return EQUIPMENT_DATA.map((e) => ({
       id: e.id,
@@ -43,7 +39,6 @@ const EquipmentList = () => {
     }));
   }, []);
 
-  // ✅ filter: search + category
   const filteredRows = useMemo(() => {
     let result = rows;
 
@@ -57,8 +52,8 @@ const EquipmentList = () => {
     }
 
     if (selectedCategories.length > 0) {
-      const selectedSet = new Set(selectedCategories.map(normalize)); // เช่น audio, video
-      result = result.filter((r) => selectedSet.has(normalize(r.category))); // Audio -> audio
+      const selectedSet = new Set(selectedCategories.map(normalize));
+      result = result.filter((r) => selectedSet.has(normalize(r.category)));
     }
 
     return result;

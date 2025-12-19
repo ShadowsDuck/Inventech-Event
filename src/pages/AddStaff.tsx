@@ -52,7 +52,7 @@ return(
                     </div>
                 }
             />
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-10 max-w-6xl mx-auto w-full space-y-8 pb-20">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-10 max-w-6xl mx-auto w-full space-y-8">
             <Card>
                 <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
