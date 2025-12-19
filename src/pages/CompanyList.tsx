@@ -1,69 +1,96 @@
-import { Plus, Users } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
+
 import PageHeader from "../components/layout/PageHeader";
 import PageSection from "../components/layout/PageSection";
-import { Button } from "@/components/ui/button";
 import SearchBar from "../components/SearchBar";
-import { useNavigate } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
 
-import {
-  FilterMultiSelect,
-  type FilterOption,
-} from "@/components/ui/filter-multi-select";
-import {
-  CompanyListCards,
-  type CompanyCardItem,
-} from "@/components/ui/company-list-cards";
-import { Pagination } from "@/components/ui/pagination";
+import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
 
-const staffOptions: FilterOption[] = [
-  { value: "alice", label: "Alice", description: "Host" },
-  { value: "bob", label: "Bob", description: "IT Support" },
-  { value: "charlie", label: "Charlie" },
-  { value: "john", label: "John" },
+import { COMPANY_DATA } from "@/data/constants";
+import { DataTable } from "@/components/shadcn-studio/data-table/data-table";
+import { companyColumns, type CompanyRow } from "@/components/tables/companies-column";
+
+// ✅ import columns ที่ทำไว้
+
+const industryOptions: FilterOption[] = [
+  { value: "Technology & Software", label: "Technology & Software" },
+  { value: "Retail & Shopping", label: "Retail & Shopping" },
+  { value: "Automotive", label: "Automotive" },
+  { value: "Real Estate", label: "Real Estate" },
+  { value: "Banking & Finance", label: "Banking & Finance" },
+  { value: "Technology & Travel", label: "Technology & Travel" },
+  { value: "Construction & Materials", label: "Construction & Materials" },
+  { value: "Telecommunications", label: "Telecommunications" },
+  { value: "Technology & Media", label: "Technology & Media" },
+  { value: "Hospitality & Food", label: "Hospitality & Food" },
+  { value: "Food & Beverage", label: "Food & Beverage" },
+  { value: "Airlines & Aviation", label: "Airlines & Aviation" },
+  { value: "E-commerce", label: "E-commerce" },
 ];
 
-const CompanyList = () => {
+const normalize = (v: unknown) => String(v ?? "").trim().toLowerCase();
+
+export default function CompanyList() {
   const navigate = useNavigate();
-  const totalCompanies = 15;
+
   const [searchText, setSearchText] = useState("");
-  const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
+  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
 
-  const companies: CompanyCardItem[] = useMemo((
-  ) => [
-    {
-      id: "1",
-      companyName: "Tech Innovators Ltd.",},
-    {
-      id: "2",
-      companyName: "Event Solutions Co.",},
-    {
-      id: "3",
-      companyName: "Global Conferences Inc.",},
-  ], []);
+  // ✅ rows จาก COMPANY_DATA ให้ตรงกับ CompanyRow
+  const rows = useMemo<CompanyRow[]>(
+    () =>
+      COMPANY_DATA.map((c) => ({
+        id: c.id,
+        companyName: c.companyName,
+        contactPerson: c.contactPerson,
+        role: c.role,
+        email: c.email,
+        phone: c.phone,
+        industry: c.industry,
+        createdAt: c.createdAt,
+        isFavorite: c.isFavorite,
+      })),
+    []
+  );
 
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  // ✅ filter: search + industry (ใช้ได้จริงกับ data)
+  const filteredRows = useMemo(() => {
+    let result = rows;
+
+    const q = normalize(searchText);
+    if (q) {
+      result = result.filter((c) => {
+        return (
+          normalize(c.companyName).includes(q) ||
+          normalize(c.contactPerson).includes(q) ||
+          normalize(c.email).includes(q) ||
+          normalize(c.phone).includes(q) ||
+          normalize(c.industry).includes(q)
+        );
+      });
+    }
+
+    if (selectedIndustries.length > 0) {
+      const set = new Set(selectedIndustries.map(normalize));
+      result = result.filter((c) => set.has(normalize(c.industry)));
+    }
+
+    return result;
+  }, [rows, searchText, selectedIndustries]);
 
   return (
     <>
       <PageHeader
         title="Company"
-        count={totalCompanies}
+        count={filteredRows.length}
         countLabel="companies"
         actions={
-          <Button
-            className=""
-            // variant="primary"
-            size="add"
-            onClick={() =>
-              navigate({
-                to: "/company/create",
-              })
-            }
-          >
+          <Button size="add" onClick={() => navigate({ to: "/company/create" })}>
             <Plus size={18} strokeWidth={2.5} />
-            Create Event
+            Add Company
           </Button>
         }
       />
@@ -72,35 +99,21 @@ const CompanyList = () => {
         <SearchBar
           value={searchText}
           onChange={setSearchText}
-          placeholder="Search Company..."
+          placeholder="Search company, contact, email..."
           filterSlot={
             <FilterMultiSelect
-              title="Company"
-              icon={Users}
-              options={staffOptions}
-              selected={selectedStaff}
-              onChange={setSelectedStaff}
+              title="Industry"
+              options={industryOptions}
+              selected={selectedIndustries}
+              onChange={setSelectedIndustries}
             />
           }
         />
       </div>
 
       <PageSection>
-        <CompanyListCards items={companies} />
-
-        <Pagination
-          totalRows={totalCompanies}
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          onPageChange={setPageIndex}
-          onPageSizeChange={(n: number) => {
-            setPageSize(n);
-            setPageIndex(0);
-          }}
-        />
+        <DataTable columns={companyColumns} data={filteredRows} />
       </PageSection>
     </>
   );
-};
-
-export default CompanyList;
+}
