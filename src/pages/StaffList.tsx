@@ -1,3 +1,5 @@
+// src/app/staff/StaffList.tsx
+
 import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
@@ -6,15 +8,15 @@ import { PageHeader } from "../components/layout/PageHeader";
 import { PageSection } from "../components/layout/PageSection";
 import { SearchBar } from "../components/SearchBar";
 import { Button } from "../components/ui/button";
-
 import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
-import { DataTable } from "@/components/ui/data-table";
 
-import { columns, type StaffRow } from "@/components/ui/columns";
+// Import Component Table และ Columns ที่แยกออกไป
+import { DataTable } from "@/components/shadcn-studio/data-table/data-table";
+
 import { STAFF_DATA } from "@/data/constants";
 import { RoleType } from "@/data/types";
+import { staffColumns, type StaffRow } from "@/components/tables/staff-column";
 
-// ✅ role options เป็น RoleType จริง
 const roleOptions: FilterOption[] = [
   { value: RoleType.HOST, label: "Host" },
   { value: RoleType.IT_SUPPORT, label: "IT Support" },
@@ -28,20 +30,33 @@ export default function StaffList() {
   const [searchText, setSearchText] = useState("");
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
-  // ✅ ใช้ข้อมูลจริง
+  // useMemo เพื่อประสิทธิภาพ (เหมือนเดิม)
   const rows = useMemo<StaffRow[]>(() => STAFF_DATA, []);
 
-  // ✅ filter แค่ role (roles เป็น array)
-  const roleFilteredRows = useMemo(() => {
-    if (selectedRoles.length === 0) return rows;
-    return rows.filter((r) => r.roles?.some((role) => selectedRoles.includes(role)));
-  }, [rows, selectedRoles]);
+  const filteredRows = useMemo(() => {
+    let result = rows;
+
+    if (selectedRoles.length > 0) {
+      result = result.filter((r) => r.roles?.some((role) => selectedRoles.includes(role)));
+    }
+
+    if (searchText) {
+      const lowerSearch = searchText.toLowerCase();
+      result = result.filter(
+        (r) =>
+          r.name?.toLowerCase().includes(lowerSearch) ||
+          r.email?.toLowerCase().includes(lowerSearch)
+      );
+    }
+
+    return result;
+  }, [rows, selectedRoles, searchText]);
 
   return (
     <>
       <PageHeader
         title="Staff"
-        count={roleFilteredRows.length}
+        count={filteredRows.length}
         countLabel="staff members"
         actions={
           <Button size="add" onClick={() => navigate({ to: "/staff/create" })}>
@@ -68,7 +83,8 @@ export default function StaffList() {
       </div>
 
       <PageSection>
-        <DataTable columns={columns} data={roleFilteredRows} />
+        {/* โค้ดเหลือแค่นี้ สั้นและอ่านง่าย */}
+        <DataTable columns={staffColumns} data={filteredRows} />
       </PageSection>
     </>
   );
