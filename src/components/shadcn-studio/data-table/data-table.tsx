@@ -131,6 +131,7 @@ export function DataTable<TData, TValue>({
             onValueChange={value => table.setPageSize(Number(value))}
           >
             <SelectTrigger id={id} className='w-fit whitespace-nowrap'>
+              <SelectValue placeholder='Select number of results' />
             </SelectTrigger>
             <SelectContent>
               {[5, 10, 25, 50].map(pageSize => (
