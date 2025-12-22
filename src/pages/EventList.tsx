@@ -18,6 +18,10 @@ import {
   type FilterOption,
 } from "@/components/ui/filter-multi-select";
 
+import { EVENT_DATA, STAFF_DATA, OUTSOURCE_DATA, COMPANY_DATA } from "@/data/constants";
+import { EventCalendar } from "@/components/Carlendar/evencalendar";
+import { DailyEventList } from "@/components/Carlendar/dailyeventlist";
+
 // mock data (เปลี่ยนทีหลังได้)
 const staffOptions: FilterOption[] = [
   { value: "alice", label: "Alice", description: "Host" },
@@ -156,22 +160,17 @@ const EventList = () => {
         </div>
 
         {/* เนื้อหาแต่ละ tab */}
-        <PageSection>
+       
           <TabsPanel value="calendar">
-            <p className="text-sm text-gray-700">
-              ตอนนี้อยู่ในโหมด{" "}
-              <span className="font-medium">Calendar View</span> (เดี๋ยวค่อยเอา
-              calendar component มาวางตรงนี้)
-            </p>
+           <EventCalendar events={EVENT_DATA} staff={STAFF_DATA} companies={COMPANY_DATA} />
           </TabsPanel>
 
           <TabsPanel value="daily">
-            <p className="text-sm text-gray-700">
-              ตอนนี้อยู่ในโหมด <span className="font-medium">Daily View</span>{" "}
-              (พื้นที่สำหรับ table / list รายวัน)
-            </p>
+            <DailyEventList date={new Date()} events={EVENT_DATA} staff={STAFF_DATA} companies={COMPANY_DATA} onBack={function (): void {
+            throw new Error("Function not implemented.");
+          } } />
           </TabsPanel>
-        </PageSection>
+      
       </Tabs>
     </>
   );
