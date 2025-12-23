@@ -79,6 +79,7 @@ export interface ClientContact {
 }
 
 export interface CompanyItem {
+  name: any;
   id: string;
   companyName: string;
   contactPerson: string; // Keep for backward compatibility/list view summary

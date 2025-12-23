@@ -1,54 +1,20 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import {
-  Search,
-  Plus,
-  Users,
-  Building2,
-  CalendarDays,
-  Check,
-} from "lucide-react";
+import { Search, Plus, Users, Building2, CalendarDays, Check } from "lucide-react";
 
 import { PageHeader } from "../components/layout/PageHeader";
-import { PageSection } from "../components/layout/PageSection";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
-import {
-  FilterMultiSelect,
-  type FilterOption,
-} from "@/components/ui/filter-multi-select";
+import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
 
 import { EVENT_DATA, STAFF_DATA, OUTSOURCE_DATA, COMPANY_DATA } from "@/data/constants";
 import { EventCalendar } from "@/components/Carlendar/evencalendar";
 import { DailyEventList } from "@/components/Carlendar/dailyeventlist";
 
-// mock data (เปลี่ยนทีหลังได้)
-const staffOptions: FilterOption[] = [
-  { value: "alice", label: "Alice", description: "Host" },
-  { value: "bob", label: "Bob", description: "IT Support" },
-  { value: "charlie", label: "Charlie" },
-  { value: "john", label: "John" },
-];
+// ---------- helpers ----------
+const normalize = (v: unknown) => String(v ?? "").trim().toLowerCase();
 
-const companyOptions: FilterOption[] = [
-  { value: "acme", label: "Acme Inc." },
-  { value: "globex", label: "Globex Corp." },
-];
-
-const eventTypeOptions: FilterOption[] = [
-  { value: "online", label: "Online" },
-  { value: "onsite", label: "On-site" },
-  { value: "webinar", label: "Webinar" },
-];
-
-const statusOptions: FilterOption[] = [
-  { value: "pending", label: "Pending" },
-  { value: "complete", label: "Complete" },
-  { value: "cancelled", label: "Cancelled" },
-];
-
-const EventList = () => {
-  const totalEvent = 15;
+export default function EventList() {
   const navigate = useNavigate();
 
   const [searchText, setSearchText] = useState("");
@@ -57,23 +23,103 @@ const EventList = () => {
   const [eventTypeFilter, setEventTypeFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
 
+  // ✅ staff รวม internal + outsource (เพราะ event.staffIds มีได้ทั้งคู่)
+  const allStaff = useMemo(() => [...STAFF_DATA, ...OUTSOURCE_DATA], []);
+
+  // ✅ options เอาจาก data จริง
+  const staffOptions: FilterOption[] = useMemo(
+    () =>
+      allStaff.map((s) => ({
+        value: s.id,
+        label: s.name,
+        description: s.roles?.[0] ?? undefined, // โชว์ role แรกเป็น subtext
+      })),
+    [allStaff]
+  );
+
+  const companyOptions: FilterOption[] = useMemo(
+    () =>
+      COMPANY_DATA.map((c) => ({
+        value: c.id,
+        label: c.companyName,
+      })),
+    []
+  );
+
+  // ✅ ให้ value ตรงกับ EventType ใน EVENT_DATA (ใน constants ของคุณคือ Online/Hybrid/Offline)
+  const eventTypeOptions: FilterOption[] = useMemo(
+    () => [
+      { value: "Online", label: "Online" },
+      { value: "Hybrid", label: "Hybrid" },
+      { value: "Offline", label: "Offline" },
+    ],
+    []
+  );
+
+  // ✅ ให้ value ตรงกับ status ใน EVENT_DATA (ของคุณใช้ Pending/Complete)
+  const statusOptions: FilterOption[] = useMemo(
+    () => [
+      { value: "Pending", label: "Pending" },
+      { value: "Complete", label: "Complete" },
+      // ถ้าอนาคตมี Cancelled ค่อยเปิดใช้ได้
+      // { value: "Cancelled", label: "Cancelled" },
+    ],
+    []
+  );
+
+  // filter events
+  const filteredEvents = useMemo(() => {
+    let result = EVENT_DATA;
+
+    const q = normalize(searchText);
+    if (q) {
+      result = result.filter((e) => {
+        const title = normalize(e.title);
+        const location = normalize(e.location);
+        const company = COMPANY_DATA.find((c) => c.id === e.companyId);
+        const companyName = normalize(company?.companyName);
+
+        return (
+          title.includes(q) ||
+          location.includes(q) ||
+          companyName.includes(q)
+        );
+      });
+    }
+
+    if (staffFilter.length > 0) {
+      const staffSet = new Set(staffFilter);
+      result = result.filter((e) => e.staffIds?.some((id) => staffSet.has(id)));
+    }
+
+    if (companyFilter.length > 0) {
+      const companySet = new Set(companyFilter);
+      result = result.filter((e) => companySet.has(e.companyId));
+    }
+
+    if (eventTypeFilter.length > 0) {
+      const typeSet = new Set(eventTypeFilter);
+      result = result.filter((e) => typeSet.has(e.type));
+    }
+
+    if (statusFilter.length > 0) {
+      const statusSet = new Set(statusFilter);
+      result = result.filter((e) => statusSet.has(e.status));
+    }
+
+    return result;
+  }, [searchText, staffFilter, companyFilter, eventTypeFilter, statusFilter]);
+
   return (
     <>
-      {/* Header บนสุด */}
       <PageHeader
         title="Event"
-        count={totalEvent}
+        count={filteredEvents.length}
         countLabel="Event"
         actions={
           <Button
-            className=""
-            // variant="primary"
             size="add"
-            onClick={() =>
-              navigate({
-                to: "/event/create",
-              })
-            }
+            onClick={() => navigate({ to: "/event/create" })}
           >
             <Plus size={18} strokeWidth={2.5} />
             Create Event
@@ -81,18 +127,15 @@ const EventList = () => {
         }
       />
 
-      {/* Tabs + Status chips + Content */}
       <Tabs defaultValue="calendar" className="flex flex-1 flex-col">
-        {/* แถบด้านบน: TabsList + status ด้านขวา */}
+        {/* Tabs + status chips */}
         <div className="px-6 pb-1 pt-6">
           <div className="flex items-center justify-between">
-            {/* ซ้าย: Tabs */}
             <TabsList>
               <TabsTab value="calendar">Calendar View</TabsTab>
               <TabsTab value="daily">Daily View</TabsTab>
             </TabsList>
 
-            {/* ขวา: status chips */}
             <div className="inline-flex items-center gap-3 rounded-md border border-gray-100 bg-white px-3 py-1 text-xs font-medium text-gray-600 shadow-sm">
               <span className="inline-flex items-center gap-1">
                 <span className="h-2 w-2 rounded-full bg-yellow-400" />
@@ -106,11 +149,10 @@ const EventList = () => {
           </div>
         </div>
 
-        {/* 🔹 แถว Search + Filter 4 อัน แบบในรูป */}
+        {/* Search + Filters */}
         <div className="px-6 pt-3 pb-2">
           <div className="flex items-center">
             <div className="flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm">
-              {/* ซ้าย: search box พื้นหลังเทาอ่อน */}
               <div className="flex flex-1 items-center gap-2 rounded-xl bg-slate-50 px-3 py-1">
                 <Search className="h-4 w-4 text-gray-400" />
                 <input
@@ -122,10 +164,8 @@ const EventList = () => {
                 />
               </div>
 
-              {/* เส้นแบ่งแนวตั้ง */}
               <div className="h-6 w-px bg-gray-200" />
 
-              {/* ปุ่ม Filters */}
               <FilterMultiSelect
                 title="Staff"
                 icon={Users}
@@ -133,6 +173,7 @@ const EventList = () => {
                 selected={staffFilter}
                 onChange={setStaffFilter}
               />
+
               <FilterMultiSelect
                 title="Company"
                 icon={Building2}
@@ -140,6 +181,7 @@ const EventList = () => {
                 selected={companyFilter}
                 onChange={setCompanyFilter}
               />
+
               <FilterMultiSelect
                 title="Event Type"
                 icon={CalendarDays}
@@ -147,6 +189,7 @@ const EventList = () => {
                 selected={eventTypeFilter}
                 onChange={setEventTypeFilter}
               />
+
               <FilterMultiSelect
                 title="Status"
                 icon={Check}
@@ -159,21 +202,27 @@ const EventList = () => {
           </div>
         </div>
 
-        {/* เนื้อหาแต่ละ tab */}
-       
-          <TabsPanel value="calendar">
-           <EventCalendar events={EVENT_DATA} staff={STAFF_DATA} companies={COMPANY_DATA} />
-          </TabsPanel>
+        {/* Content */}
+        <TabsPanel value="calendar">
+          {/* ✅ ส่ง filteredEvents เข้าไป */}
+          <EventCalendar
+            events={filteredEvents}
+            staff={allStaff}
+            companies={COMPANY_DATA}
+          />
+        </TabsPanel>
 
-          <TabsPanel value="daily">
-            <DailyEventList date={new Date()} events={EVENT_DATA} staff={STAFF_DATA} companies={COMPANY_DATA} onBack={function (): void {
-            throw new Error("Function not implemented.");
-          } } />
-          </TabsPanel>
-      
+        <TabsPanel value="daily">
+          {/* ✅ ส่ง filteredEvents เข้าไป */}
+          <DailyEventList
+            date={new Date()}
+            events={filteredEvents}
+            staff={allStaff}
+            companies={COMPANY_DATA}
+            onBack={() => {}}
+          />
+        </TabsPanel>
       </Tabs>
     </>
   );
-};
-
-export default EventList;
+}
