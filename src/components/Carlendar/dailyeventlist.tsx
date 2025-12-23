@@ -25,6 +25,7 @@ import { type EventItem, type StaffMember, type CompanyItem } from '@/data/types
 import { PACKAGE_DATA } from '@/data/constants';
 // import { EventDetailView } from './EventDetailView';
 
+// import { EventDetailView } from './eventdetailview';
 interface DailyEventListProps {
   date: Date;
   events: EventItem[];
@@ -213,7 +214,7 @@ export const DailyEventList: React.FC<DailyEventListProps> = ({ date, events, st
     if (selectedEvent) {
        const company = companies.find(c => c.id === selectedEvent.companyId);
        return (
-          <EventDetailView 
+          <EventDetailView
              event={selectedEvent} 
              company={company}
              staffList={staff}

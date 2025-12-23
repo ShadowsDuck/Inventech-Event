@@ -360,8 +360,7 @@ export const COMPANY_DATA: CompanyItem[] = [
     // Detailed Data
     industry: "Technology & Software",
     locationName: "ปาร์คเวนเชอร์ อีโคเพล็กซ์ (Park Ventures Ecoplex)",
-    address:
-      "14th Floor ปาร์คเวนเชอร์ อีโคเพล็กซ์ 57 ถ. วิทยุ แขวงลุมพินี เขตปทุมวัน กรุงเทพมหานคร 10330",
+    address: "14th Floor ปาร์คเวนเชอร์ อีโคเพล็กซ์ 57 ถ. วิทยุ แขวงลุมพินี เขตปทุมวัน กรุงเทพมหานคร 10330",
     officeHours: "เปิดอยู่ · ปิดเวลา 18:30",
     contacts: [
       {
@@ -389,6 +388,7 @@ export const COMPANY_DATA: CompanyItem[] = [
         isPrimary: false,
       },
     ],
+    name: undefined
   },
   {
     id: "c2",
@@ -412,6 +412,7 @@ export const COMPANY_DATA: CompanyItem[] = [
         isPrimary: true,
       },
     ],
+    name: undefined
   },
   {
     id: "c3",
@@ -423,8 +424,8 @@ export const COMPANY_DATA: CompanyItem[] = [
     isFavorite: true,
     createdAt: "2023-03-10T11:15:00Z",
     industry: "Automotive",
-    address:
-      "186/1 Moo 1, Old Railway Road, Samrong Tai, Phra Pradaeng, Samut Prakan 10130",
+    address: "186/1 Moo 1, Old Railway Road, Samrong Tai, Phra Pradaeng, Samut Prakan 10130",
+    name: undefined
   },
   {
     id: "c4",
@@ -436,6 +437,7 @@ export const COMPANY_DATA: CompanyItem[] = [
     isFavorite: false,
     createdAt: "2023-01-05T16:45:00Z",
     industry: "Real Estate",
+    name: undefined
   },
   {
     id: "c5",
@@ -447,6 +449,7 @@ export const COMPANY_DATA: CompanyItem[] = [
     isFavorite: false,
     createdAt: "2023-04-01T10:00:00Z",
     industry: "Banking & Finance",
+    name: undefined
   },
   {
     id: "c6",
@@ -458,6 +461,7 @@ export const COMPANY_DATA: CompanyItem[] = [
     isFavorite: true,
     createdAt: "2023-05-12T13:20:00Z",
     industry: "Technology & Travel",
+    name: undefined
   },
   {
     id: "c7",
@@ -469,6 +473,7 @@ export const COMPANY_DATA: CompanyItem[] = [
     isFavorite: false,
     createdAt: "2023-02-28T09:45:00Z",
     industry: "Construction & Materials",
+    name: undefined
   },
   {
     id: "c8",
@@ -480,6 +485,7 @@ export const COMPANY_DATA: CompanyItem[] = [
     isFavorite: false,
     createdAt: "2023-06-15T15:30:00Z",
     industry: "Telecommunications",
+    name: undefined
   },
   {
     id: "c9",
@@ -491,6 +497,7 @@ export const COMPANY_DATA: CompanyItem[] = [
     isFavorite: true,
     createdAt: "2023-03-22T11:00:00Z",
     industry: "Technology & Media",
+    name: undefined
   },
   {
     id: "c10",
@@ -502,6 +509,7 @@ export const COMPANY_DATA: CompanyItem[] = [
     isFavorite: false,
     createdAt: "2023-01-20T08:30:00Z",
     industry: "Telecommunications",
+    name: undefined
   },
   {
     id: "c11",
@@ -513,6 +521,7 @@ export const COMPANY_DATA: CompanyItem[] = [
     isFavorite: false,
     createdAt: "2023-07-05T14:10:00Z",
     industry: "Hospitality & Food",
+    name: undefined
   },
   {
     id: "c12",
@@ -524,6 +533,7 @@ export const COMPANY_DATA: CompanyItem[] = [
     isFavorite: false,
     createdAt: "2023-04-18T10:50:00Z",
     industry: "Food & Beverage",
+    name: undefined
   },
   {
     id: "c13",
@@ -535,6 +545,7 @@ export const COMPANY_DATA: CompanyItem[] = [
     isFavorite: true,
     createdAt: "2023-05-30T09:15:00Z",
     industry: "Airlines & Aviation",
+    name: undefined
   },
   {
     id: "c14",
@@ -546,6 +557,7 @@ export const COMPANY_DATA: CompanyItem[] = [
     isFavorite: false,
     createdAt: "2023-02-14T13:00:00Z",
     industry: "E-commerce",
+    name: undefined
   },
   {
     id: "c15",
@@ -557,6 +569,7 @@ export const COMPANY_DATA: CompanyItem[] = [
     isFavorite: false,
     createdAt: "2023-06-01T16:20:00Z",
     industry: "E-commerce",
+    name: undefined
   },
 ];
 
