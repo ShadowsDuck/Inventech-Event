@@ -1,21 +1,23 @@
 // src/app/staff/StaffList.tsx
-
 import { useMemo, useState } from "react";
+
 import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
-import { PageHeader } from "../components/layout/PageHeader";
-import { PageSection } from "../components/layout/PageSection";
-import { SearchBar } from "../components/SearchBar";
-import { Button } from "../components/ui/button";
-import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
-
 // Import Component Table และ Columns ที่แยกออกไป
-import { DataTable } from "@/components/shadcn-studio/data-table/data-table";
-
+import { DataTable } from "@/components/tables/data-table";
+import { type StaffRow, staffColumns } from "@/components/tables/staff-column";
+import {
+  FilterMultiSelect,
+  type FilterOption,
+} from "@/components/ui/filter-multi-select";
 import { STAFF_DATA } from "@/data/constants";
 import { RoleType } from "@/data/types";
-import { staffColumns, type StaffRow } from "@/components/tables/staff-column";
+
+import { SearchBar } from "../components/SearchBar";
+import { PageHeader } from "../components/layout/PageHeader";
+import { PageSection } from "../components/layout/PageSection";
+import { Button } from "../components/ui/button";
 
 const roleOptions: FilterOption[] = [
   { value: RoleType.HOST, label: "Host" },
@@ -37,7 +39,9 @@ export default function StaffList() {
     let result = rows;
 
     if (selectedRoles.length > 0) {
-      result = result.filter((r) => r.roles?.some((role) => selectedRoles.includes(role)));
+      result = result.filter((r) =>
+        r.roles?.some((role) => selectedRoles.includes(role)),
+      );
     }
 
     if (searchText) {
@@ -45,7 +49,7 @@ export default function StaffList() {
       result = result.filter(
         (r) =>
           r.name?.toLowerCase().includes(lowerSearch) ||
-          r.email?.toLowerCase().includes(lowerSearch)
+          r.email?.toLowerCase().includes(lowerSearch),
       );
     }
 

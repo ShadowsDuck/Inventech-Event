@@ -1,19 +1,23 @@
 import { useMemo, useState } from "react";
+
 import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
+import {
+  type CompanyRow,
+  companyColumns,
+} from "@/components/tables/companies-column";
+import { DataTable } from "@/components/tables/data-table";
+import { Button } from "@/components/ui/button";
+import {
+  FilterMultiSelect,
+  type FilterOption,
+} from "@/components/ui/filter-multi-select";
+import { COMPANY_DATA } from "@/data/constants";
+
+import SearchBar from "../components/SearchBar";
 import PageHeader from "../components/layout/PageHeader";
 import PageSection from "../components/layout/PageSection";
-import SearchBar from "../components/SearchBar";
-import { Button } from "@/components/ui/button";
-
-import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
-
-import { COMPANY_DATA } from "@/data/constants";
-import { DataTable } from "@/components/shadcn-studio/data-table/data-table";
-import { companyColumns, type CompanyRow } from "@/components/tables/companies-column";
-
-// ✅ import columns ที่ทำไว้
 
 const industryOptions: FilterOption[] = [
   { value: "Technology & Software", label: "Technology & Software" },
@@ -31,7 +35,10 @@ const industryOptions: FilterOption[] = [
   { value: "E-commerce", label: "E-commerce" },
 ];
 
-const normalize = (v: unknown) => String(v ?? "").trim().toLowerCase();
+const normalize = (v: unknown) =>
+  String(v ?? "")
+    .trim()
+    .toLowerCase();
 
 export default function CompanyList() {
   const navigate = useNavigate();
@@ -53,7 +60,7 @@ export default function CompanyList() {
         createdAt: c.createdAt,
         isFavorite: c.isFavorite,
       })),
-    []
+    [],
   );
 
   // ✅ filter: search + industry (ใช้ได้จริงกับ data)
@@ -88,7 +95,10 @@ export default function CompanyList() {
         count={filteredRows.length}
         countLabel="companies"
         actions={
-          <Button size="add" onClick={() => navigate({ to: "/company/create" })}>
+          <Button
+            size="add"
+            onClick={() => navigate({ to: "/company/create" })}
+          >
             <Plus size={18} strokeWidth={2.5} />
             Add Company
           </Button>

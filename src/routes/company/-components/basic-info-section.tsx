@@ -9,13 +9,12 @@ import FilterSelectCompany from "@/components/ui/filter-select-company";
 import { Input } from "@/components/ui/input";
 import { TabEventType } from "@/components/ui/tab-event-type";
 import { Textarea } from "@/components/ui/textarea";
+import { DEFAULT_PACKAGE_OFFLINE } from "@/data/hardcode";
 import type { EventFormApi } from "@/types/event-form";
 
 interface SectionProps {
   form: EventFormApi;
 }
-
-const DEFAULT_PACKAGE_OFFLINE = "p1";
 
 export function BasicInfoSection({ form }: SectionProps) {
   return (
