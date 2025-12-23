@@ -1,18 +1,37 @@
 import { useMemo, useState } from "react";
+
 import { useNavigate } from "@tanstack/react-router";
-import { Search, Plus, Users, Building2, CalendarDays, Check } from "lucide-react";
+import {
+  Building2,
+  CalendarDays,
+  Check,
+  Plus,
+  Search,
+  Users,
+} from "lucide-react";
+
+import { DailyEventList } from "@/components/daily-event-list";
+import { EventCalendar } from "@/components/event-calendar";
+import { Button } from "@/components/ui/button";
+import {
+  FilterMultiSelect,
+  type FilterOption,
+} from "@/components/ui/filter-multi-select";
+import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
+import {
+  COMPANY_DATA,
+  EVENT_DATA,
+  OUTSOURCE_DATA,
+  STAFF_DATA,
+} from "@/data/constants";
 
 import { PageHeader } from "../components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
-import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
-
-import { EVENT_DATA, STAFF_DATA, OUTSOURCE_DATA, COMPANY_DATA } from "@/data/constants";
-import { EventCalendar } from "@/components/Carlendar/evencalendar";
-import { DailyEventList } from "@/components/Carlendar/dailyeventlist";
 
 // ---------- helpers ----------
-const normalize = (v: unknown) => String(v ?? "").trim().toLowerCase();
+const normalize = (v: unknown) =>
+  String(v ?? "")
+    .trim()
+    .toLowerCase();
 
 export default function EventList() {
   const navigate = useNavigate();
@@ -34,7 +53,7 @@ export default function EventList() {
         label: s.name,
         description: s.roles?.[0] ?? undefined, // โชว์ role แรกเป็น subtext
       })),
-    [allStaff]
+    [allStaff],
   );
 
   const companyOptions: FilterOption[] = useMemo(
@@ -43,7 +62,7 @@ export default function EventList() {
         value: c.id,
         label: c.companyName,
       })),
-    []
+    [],
   );
 
   // ✅ ให้ value ตรงกับ EventType ใน EVENT_DATA (ใน constants ของคุณคือ Online/Hybrid/Offline)
@@ -53,7 +72,7 @@ export default function EventList() {
       { value: "Hybrid", label: "Hybrid" },
       { value: "Offline", label: "Offline" },
     ],
-    []
+    [],
   );
 
   // ✅ ให้ value ตรงกับ status ใน EVENT_DATA (ของคุณใช้ Pending/Complete)
@@ -64,7 +83,7 @@ export default function EventList() {
       // ถ้าอนาคตมี Cancelled ค่อยเปิดใช้ได้
       // { value: "Cancelled", label: "Cancelled" },
     ],
-    []
+    [],
   );
 
   // filter events
@@ -80,9 +99,7 @@ export default function EventList() {
         const companyName = normalize(company?.companyName);
 
         return (
-          title.includes(q) ||
-          location.includes(q) ||
-          companyName.includes(q)
+          title.includes(q) || location.includes(q) || companyName.includes(q)
         );
       });
     }
@@ -117,10 +134,7 @@ export default function EventList() {
         count={filteredEvents.length}
         countLabel="Event"
         actions={
-          <Button
-            size="add"
-            onClick={() => navigate({ to: "/event/create" })}
-          >
+          <Button size="add" onClick={() => navigate({ to: "/event/create" })}>
             <Plus size={18} strokeWidth={2.5} />
             Create Event
           </Button>
@@ -129,7 +143,7 @@ export default function EventList() {
 
       <Tabs defaultValue="calendar" className="flex flex-1 flex-col">
         {/* Tabs + status chips */}
-        <div className="px-6 pb-1 pt-6">
+        <div className="px-6 pt-6 pb-1">
           <div className="flex items-center justify-between">
             <TabsList>
               <TabsTab value="calendar">Calendar View</TabsTab>

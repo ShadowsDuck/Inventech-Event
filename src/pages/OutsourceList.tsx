@@ -1,19 +1,22 @@
 import { useMemo, useState } from "react";
+
 import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
-import { PageHeader } from "../components/layout/PageHeader";
-import { PageSection } from "../components/layout/PageSection";
-import { SearchBar } from "../components/SearchBar";
+import { DataTable } from "@/components/tables/data-table";
+import { staffColumns } from "@/components/tables/outsource-column";
 import { Button } from "@/components/ui/button";
-
-import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
-
-import { columns, type StaffRow } from "@/components/ui/columns";
+import { type StaffRow, columns } from "@/components/ui/columns";
+import {
+  FilterMultiSelect,
+  type FilterOption,
+} from "@/components/ui/filter-multi-select";
 import { OUTSOURCE_DATA } from "@/data/constants";
 import { RoleType } from "@/data/types";
-import { staffColumns } from "@/components/tables/outsource-column";
-import { DataTable } from "@/components/shadcn-studio/data-table/data-table";
+
+import { SearchBar } from "../components/SearchBar";
+import { PageHeader } from "../components/layout/PageHeader";
+import { PageSection } from "../components/layout/PageSection";
 
 const roleOptions: FilterOption[] = [
   { value: RoleType.HOST, label: "Host" },
@@ -32,7 +35,9 @@ export default function OutsourceList() {
 
   const roleFilteredRows = useMemo(() => {
     if (selectedRoles.length === 0) return rows;
-    return rows.filter((r) => r.roles?.some((role) => selectedRoles.includes(role)));
+    return rows.filter((r) =>
+      r.roles?.some((role) => selectedRoles.includes(role)),
+    );
   }, [rows, selectedRoles]);
 
   return (
@@ -42,7 +47,10 @@ export default function OutsourceList() {
         count={roleFilteredRows.length}
         countLabel="outsourced staff"
         actions={
-          <Button size="add" onClick={() => navigate({ to: "/outsource/create" })}>
+          <Button
+            size="add"
+            onClick={() => navigate({ to: "/outsource/create" })}
+          >
             <Plus size={18} strokeWidth={2.5} />
             Add Outsource
           </Button>
@@ -66,7 +74,7 @@ export default function OutsourceList() {
       </div>
 
       <PageSection>
-                <DataTable columns={staffColumns} data={roleFilteredRows} />
+        <DataTable columns={staffColumns} data={roleFilteredRows} />
       </PageSection>
     </>
   );

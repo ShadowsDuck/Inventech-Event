@@ -1,19 +1,25 @@
 import { useMemo, useState } from "react";
+
 import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
-import { PageHeader } from "../components/layout/PageHeader";
-import { PageSection } from "../components/layout/PageSection";
-import { SearchBar } from "../components/SearchBar";
+import { DataTable } from "@/components/tables/data-table";
+import {
+  type EquipmentRow,
+  equipmentColumns,
+} from "@/components/tables/equipment-column";
 import { Button } from "@/components/ui/button";
-
-import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
-
+import {
+  FilterMultiSelect,
+  type FilterOption,
+} from "@/components/ui/filter-multi-select";
 // ✅ เปลี่ยนมาใช้จาก tables เหมือน outsource
 
 import { EQUIPMENT_DATA } from "@/data/constants";
-import { DataTable } from "@/components/shadcn-studio/data-table/data-table";
-import { equipmentColumns, type EquipmentRow } from "@/components/tables/Equipment-column";
+
+import { SearchBar } from "../components/SearchBar";
+import { PageHeader } from "../components/layout/PageHeader";
+import { PageSection } from "../components/layout/PageSection";
 
 const categoryOptions: FilterOption[] = [
   { value: "video", label: "Video" },
@@ -23,7 +29,10 @@ const categoryOptions: FilterOption[] = [
   { value: "cables", label: "Cables" },
 ];
 
-const normalize = (v: unknown) => String(v ?? "").trim().toLowerCase();
+const normalize = (v: unknown) =>
+  String(v ?? "")
+    .trim()
+    .toLowerCase();
 
 const EquipmentList = () => {
   const [searchText, setSearchText] = useState("");
@@ -66,7 +75,10 @@ const EquipmentList = () => {
         count={filteredRows.length}
         countLabel="items"
         actions={
-          <Button size="add" onClick={() => navigate({ to: "/equipment/create" })}>
+          <Button
+            size="add"
+            onClick={() => navigate({ to: "/equipment/create" })}
+          >
             <Plus size={18} strokeWidth={2.5} />
             Add Equipment
           </Button>

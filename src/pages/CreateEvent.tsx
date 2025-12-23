@@ -8,6 +8,7 @@ import { toast } from "sonner";
 // import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
+import { DEFAULT_PACKAGE_OFFLINE } from "@/data/hardcode";
 import { parseCoordinates } from "@/lib/utils";
 import { BasicInfoSection } from "@/routes/company/-components/basic-info-section";
 import { FilesSection } from "@/routes/company/-components/files-section";
@@ -34,7 +35,7 @@ export default function CreateEvent() {
       location: "",
       latitude: null,
       longitude: null,
-      package: "",
+      package: DEFAULT_PACKAGE_OFFLINE,
       files: [],
     } as EventFormSchema,
 
