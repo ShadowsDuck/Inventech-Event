@@ -42,7 +42,7 @@ export function DataTable<TData, TValue>({
 
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 5
+    pageSize: 10
   })
 
   const [sorting, setSorting] = useState<SortingState>([])
@@ -134,7 +134,7 @@ export function DataTable<TData, TValue>({
               <SelectValue placeholder='Select number of results' />
             </SelectTrigger>
             <SelectContent>
-              {[5, 10, 25, 50].map(pageSize => (
+              {[10, 25, 50].map(pageSize => (
                 <SelectItem key={pageSize} value={pageSize.toString()}>{pageSize}</SelectItem>
               ))}
             </SelectContent>
