@@ -94,7 +94,7 @@ export const staffColumns: ColumnDef<StaffRow>[] = [
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="w-36">
-          {/* UI อย่างเดียว ยังไม่ต้องทำงาน */}
+          {/* UI EDIT AND DELETE */}
           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
             Edit
           </DropdownMenuItem>

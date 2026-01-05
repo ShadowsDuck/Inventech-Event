@@ -1,5 +1,11 @@
 import { useMemo, useState } from "react";
 
+
+import Daily from "@/components/event/daily";
+import Year from "@/components/event/year";
+import Month from "@/components/event/month";
+
+
 import { useNavigate } from "@tanstack/react-router";
 import {
   Building2,
@@ -10,8 +16,6 @@ import {
   Users,
 } from "lucide-react";
 
-import { DailyEventList } from "@/components/daily-event-list";
-import { EventCalendar } from "@/components/event-calendar";
 import { Button } from "@/components/ui/button";
 import {
   FilterMultiSelect,
@@ -26,6 +30,7 @@ import {
 } from "@/data/constants";
 
 import { PageHeader } from "../components/layout/PageHeader";
+import DailyViewOnly from "@/components/event/daily";
 
 // ---------- helpers ----------
 const normalize = (v: unknown) =>
@@ -146,8 +151,9 @@ export default function EventList() {
         <div className="px-6 pt-6 pb-1">
           <div className="flex items-center justify-between">
             <TabsList>
-              <TabsTab value="calendar">Calendar View</TabsTab>
               <TabsTab value="daily">Daily View</TabsTab>
+              <TabsTab value="calendar">Month View</TabsTab>
+              <TabsTab value="year">Year View</TabsTab>
             </TabsList>
 
             <div className="inline-flex items-center gap-3 rounded-md border border-gray-100 bg-white px-3 py-1 text-xs font-medium text-gray-600 shadow-sm">
@@ -217,25 +223,18 @@ export default function EventList() {
         </div>
 
         {/* Content */}
+        <TabsPanel value="year">
+          <Year />
+        </TabsPanel>
         <TabsPanel value="calendar">
-          {/* ✅ ส่ง filteredEvents เข้าไป */}
-          <EventCalendar
-            events={filteredEvents}
-            staff={allStaff}
-            companies={COMPANY_DATA}
-          />
+          <Month />
         </TabsPanel>
 
         <TabsPanel value="daily">
-          {/* ✅ ส่ง filteredEvents เข้าไป */}
-          <DailyEventList
-            date={new Date()}
-            events={filteredEvents}
-            staff={allStaff}
-            companies={COMPANY_DATA}
-            onBack={() => {}}
-          />
+          <DailyViewOnly />
         </TabsPanel>
+          
+        
       </Tabs>
     </>
   );
