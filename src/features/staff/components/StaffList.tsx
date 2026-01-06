@@ -4,20 +4,19 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
+import SearchBar from "@/components/SearchBar";
+import PageHeader from "@/components/layout/PageHeader";
+import PageSection from "@/components/layout/PageSection";
 // Import Component Table และ Columns ที่แยกออกไป
 import { DataTable } from "@/components/tables/data-table";
 import { type StaffRow, staffColumns } from "@/components/tables/staff-column";
+import { Button } from "@/components/ui/button";
 import {
   FilterMultiSelect,
   type FilterOption,
 } from "@/components/ui/filter-multi-select";
 import { STAFF_DATA } from "@/data/constants";
 import { RoleType } from "@/data/types";
-
-import { SearchBar } from "../components/SearchBar";
-import { PageHeader } from "../components/layout/PageHeader";
-import { PageSection } from "../components/layout/PageSection";
-import { Button } from "../components/ui/button";
 
 const roleOptions: FilterOption[] = [
   { value: RoleType.HOST, label: "Host" },

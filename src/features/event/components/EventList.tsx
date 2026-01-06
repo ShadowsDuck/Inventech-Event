@@ -10,8 +10,7 @@ import {
   Users,
 } from "lucide-react";
 
-import { DailyEventList } from "@/components/daily-event-list";
-import { EventCalendar } from "@/components/event-calendar";
+import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
   FilterMultiSelect,
@@ -25,7 +24,9 @@ import {
   STAFF_DATA,
 } from "@/data/constants";
 
-import { PageHeader } from "../components/layout/PageHeader";
+import DailyView from "./daily-view";
+import MonthView from "./month-view";
+import YearView from "./year-view";
 
 // ---------- helpers ----------
 const normalize = (v: unknown) =>
@@ -217,24 +218,14 @@ export default function EventList() {
         </div>
 
         {/* Content */}
-        <TabsPanel value="calendar">
-          {/* ✅ ส่ง filteredEvents เข้าไป */}
-          <EventCalendar
-            events={filteredEvents}
-            staff={allStaff}
-            companies={COMPANY_DATA}
-          />
+        <TabsPanel value="year">
+          <YearView />
         </TabsPanel>
-
+        <TabsPanel value="calendar">
+          <MonthView />
+        </TabsPanel>
         <TabsPanel value="daily">
-          {/* ✅ ส่ง filteredEvents เข้าไป */}
-          <DailyEventList
-            date={new Date()}
-            events={filteredEvents}
-            staff={allStaff}
-            companies={COMPANY_DATA}
-            onBack={() => {}}
-          />
+          <DailyView />
         </TabsPanel>
       </Tabs>
     </>

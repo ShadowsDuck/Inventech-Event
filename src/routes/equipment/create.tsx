@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import AddEquipment from "@/pages/AddEquipment";
+
+import AddEquipment from "@/features/equipment/components/AddEquipment";
 
 export const Route = createFileRoute("/equipment/create")({
   component: AddEquipment,
@@ -7,5 +8,3 @@ export const Route = createFileRoute("/equipment/create")({
     title: "Create Event",
   },
 });
-
-
