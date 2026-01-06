@@ -24,6 +24,7 @@ import { Route as SidebarLayoutOutsourceRouteImport } from './routes/_sidebarLay
 import { Route as SidebarLayoutEventRouteImport } from './routes/_sidebarLayout/event'
 import { Route as SidebarLayoutEquipmentRouteImport } from './routes/_sidebarLayout/equipment'
 import { Route as SidebarLayoutCompanyRouteImport } from './routes/_sidebarLayout/company'
+import { Route as StaffStaffIdEditRouteImport } from './routes/staff/$staffId/edit'
 
 const SidebarLayoutRouteRoute = SidebarLayoutRouteRouteImport.update({
   id: '/_sidebarLayout',
@@ -99,6 +100,11 @@ const SidebarLayoutCompanyRoute = SidebarLayoutCompanyRouteImport.update({
   path: '/company',
   getParentRoute: () => SidebarLayoutRouteRoute,
 } as any)
+const StaffStaffIdEditRoute = StaffStaffIdEditRouteImport.update({
+  id: '/staff/$staffId/edit',
+  path: '/staff/$staffId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/company': typeof SidebarLayoutCompanyRoute
@@ -115,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/package/create': typeof PackageCreateRoute
   '/staff/create': typeof StaffCreateRoute
   '/': typeof SidebarLayoutIndexRoute
+  '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
 }
 export interface FileRoutesByTo {
   '/company': typeof SidebarLayoutCompanyRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/package/create': typeof PackageCreateRoute
   '/staff/create': typeof StaffCreateRoute
   '/': typeof SidebarLayoutIndexRoute
+  '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/package/create': typeof PackageCreateRoute
   '/staff/create': typeof StaffCreateRoute
   '/_sidebarLayout/': typeof SidebarLayoutIndexRoute
+  '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/package/create'
     | '/staff/create'
     | '/'
+    | '/staff/$staffId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/company'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/package/create'
     | '/staff/create'
     | '/'
+    | '/staff/$staffId/edit'
   id:
     | '__root__'
     | '/_sidebarLayout'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/package/create'
     | '/staff/create'
     | '/_sidebarLayout/'
+    | '/staff/$staffId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -211,6 +223,7 @@ export interface RootRouteChildren {
   OutsourceCreateRoute: typeof OutsourceCreateRoute
   PackageCreateRoute: typeof PackageCreateRoute
   StaffCreateRoute: typeof StaffCreateRoute
+  StaffStaffIdEditRoute: typeof StaffStaffIdEditRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -320,6 +333,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SidebarLayoutCompanyRouteImport
       parentRoute: typeof SidebarLayoutRouteRoute
     }
+    '/staff/$staffId/edit': {
+      id: '/staff/$staffId/edit'
+      path: '/staff/$staffId/edit'
+      fullPath: '/staff/$staffId/edit'
+      preLoaderRoute: typeof StaffStaffIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -355,6 +375,7 @@ const rootRouteChildren: RootRouteChildren = {
   OutsourceCreateRoute: OutsourceCreateRoute,
   PackageCreateRoute: PackageCreateRoute,
   StaffCreateRoute: StaffCreateRoute,
+  StaffStaffIdEditRoute: StaffStaffIdEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
