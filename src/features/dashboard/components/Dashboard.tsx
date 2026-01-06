@@ -1,5 +1,5 @@
-import { PageHeader } from "../components/layout/PageHeader";
-import { PageSection } from "../components/layout/PageSection";
+import PageHeader from "@/components/layout/PageHeader";
+import PageSection from "@/components/layout/PageSection";
 
 const Dashboard = () => {
   return (

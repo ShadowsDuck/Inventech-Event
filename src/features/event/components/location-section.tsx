@@ -1,4 +1,4 @@
-import { LocationPicker } from "@/components/form/location-picker";
+import { LocationPicker } from "@/components/location-picker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,

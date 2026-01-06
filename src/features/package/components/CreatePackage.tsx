@@ -1,17 +1,17 @@
 import * as React from "react";
-import PageHeader from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
+
 import { useForm } from "@tanstack/react-form";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import PackageEquipmentPicker, {
   type EquipmentMaster,
   type EquipmentRow,
 } from "@/components/CreatePackageComponent/PackageEquipment";
 import PackageEquipmentSummary from "@/components/CreatePackageComponent/PackageEquipmentSummary";
-
+import PageHeader from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
   FieldContent,
@@ -50,22 +50,25 @@ export default function CreatePackage() {
     setEquipmentRows((prev) => {
       const exists = prev.find((r) => r.id === item.id);
       if (exists) {
-        return prev.map((r) => (r.id === item.id ? { ...r, qty: r.qty + 1 } : r));
+        return prev.map((r) =>
+          r.id === item.id ? { ...r, qty: r.qty + 1 } : r,
+        );
       }
       return [...prev, { id: item.id, name: item.name, qty: 1 }];
     });
   };
 
   const changeQty = (id: string, delta: number) => {
-    setEquipmentRows((prev) =>
-      prev
-        .map((r) => {
-          if (r.id !== id) return r;
-          const next = r.qty + delta;
-          if (next <= 0) return null; // ✅ 0 แล้วลบทิ้ง
-          return { ...r, qty: next };
-        })
-        .filter(Boolean) as EquipmentRow[]
+    setEquipmentRows(
+      (prev) =>
+        prev
+          .map((r) => {
+            if (r.id !== id) return r;
+            const next = r.qty + delta;
+            if (next <= 0) return null; // ✅ 0 แล้วลบทิ้ง
+            return { ...r, qty: next };
+          })
+          .filter(Boolean) as EquipmentRow[],
     );
   };
 
@@ -104,7 +107,7 @@ export default function CreatePackage() {
         }
       />
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-10 max-w-6xl mx-auto w-full space-y-8 pb-20">
+      <div className="custom-scrollbar mx-auto w-full max-w-6xl flex-1 space-y-8 overflow-y-auto p-6 pb-20 lg:p-10">
         {/* Package Info */}
         <Card>
           <CardHeader>
@@ -146,16 +149,16 @@ export default function CreatePackage() {
                           />
                         </FieldContent>
 
-                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
                       </Field>
                     );
                   }}
                 </form.Field>
 
                 {/* ✅ field equipment (ไม่ต้อง render UI ก็ได้ แค่มีไว้ให้ submit) */}
-                <form.Field name="equipment">
-                  {() => null}
-                </form.Field>
+                <form.Field name="equipment">{() => null}</form.Field>
               </FieldGroup>
             </form>
           </CardContent>

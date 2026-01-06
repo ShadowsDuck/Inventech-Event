@@ -1,9 +1,14 @@
 import * as React from "react";
-import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
-import { Save } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { useForm } from "@tanstack/react-form";
+import { Save } from "lucide-react";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
+
+import ContactPersonsSection, {
+  newContact,
+} from "@/components/CreateCompanyComponent/contactpersons-section";
+import type { Contact } from "@/components/CreateCompanyComponent/contactpersons-section";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -13,12 +18,8 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { PageHeader } from "../components/layout/PageHeader";
-import { Plus } from "lucide-react";
-import ContactPersonsSection, {
-  newContact,
-} from "@/components/CreateCompanyComponent/contactpersons-section";
-import type { Contact } from "@/components/CreateCompanyComponent/contactpersons-section";
+
+import { PageHeader } from "../../../components/layout/PageHeader";
 
 type CreateCompanyFormValues = {
   companyName: string;
@@ -36,7 +37,7 @@ export default function CreateCompany() {
     onSubmit: async ({ value }) => {
       toast("You submitted the following values:", {
         description: (
-          <pre className="bg-black text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
+          <pre className="text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md bg-black p-4">
             <code>{JSON.stringify(value, null, 2)}</code>
           </pre>
         ),
@@ -48,6 +49,7 @@ export default function CreateCompany() {
       });
     },
   });
+
   const [contacts, setContacts] = React.useState<Contact[]>([newContact(true)]);
   const addContact = () => {
     setContacts((prev) => [...prev, newContact(false)]);
@@ -75,11 +77,11 @@ export default function CreateCompany() {
         }
       />
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-10 max-w-6xl mx-auto w-full space-y-8 pb-20">
+      <div className="custom-scrollbar mx-auto w-full max-w-6xl flex-1 space-y-8 overflow-y-auto p-6 pb-20 lg:p-10">
         <Card>
           <CardHeader className="pb-1">
-            <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-blue-600 rounded-full" />
+            <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+              <span className="h-6 w-1.5 rounded-full bg-blue-600" />
               Basic Information
             </CardTitle>
           </CardHeader>
@@ -124,42 +126,6 @@ export default function CreateCompany() {
                     }}
                   </form.Field>
 
-                  {/* Industry (Optional) */}
-                  <form.Field name="industry">
-                    {(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-
-                      return (
-                        <Field data-invalid={isInvalid} className="min-w-0">
-                          <div className="flex items-baseline gap-2">
-                            <FieldLabel htmlFor={field.name} className="mb-1">
-                              Industry / Business Type
-                            </FieldLabel>
-                            <span className="text-xs text-gray-400">
-                              (Optional)
-                            </span>
-                          </div>
-
-                          <Input
-                            id={field.name}
-                            name={field.name}
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            aria-invalid={isInvalid}
-                            placeholder="e.g. Technology, Retail, Finance"
-                            autoComplete="off"
-                          />
-
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </Field>
-                      );
-                    }}
-                  </form.Field>
-
                   {/* Address + Map */}
                   <form.Field name="address">
                     {(field) => {
@@ -170,7 +136,7 @@ export default function CreateCompany() {
                         field.state.value?.trim() || "Bangkok"
                       ).toString();
                       const src = `https://www.google.com/maps?q=${encodeURIComponent(
-                        q
+                        q,
                       )}&output=embed`;
 
                       return (
@@ -194,7 +160,7 @@ export default function CreateCompany() {
                           <div className="mt-4 overflow-hidden rounded-2xl border border-gray-200 bg-gray-50">
                             <iframe
                               title="company-map"
-                              className="h-[220px] w-full"
+                              className="h-55 w-full"
                               loading="lazy"
                               referrerPolicy="no-referrer-when-downgrade"
                               src={src}
@@ -214,7 +180,7 @@ export default function CreateCompany() {
           </CardContent>
         </Card>
 
-        {/**Contact */}
+        {/* Contact */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
@@ -226,7 +192,7 @@ export default function CreateCompany() {
               type="button"
               variant="outline"
               onClick={addContact}
-              className="border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue"
+              className="hover:text-blue border-blue-600 text-blue-600 hover:bg-blue-50"
             >
               <Plus className="size-4" />
               Add Contact

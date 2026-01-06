@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { parseCoordinates } from "@/lib/utils";
 
-import MapPreview from "../map-preview";
+import MapPreview from "./map-preview";
 
 interface LocationPickerProps {
   value: string;

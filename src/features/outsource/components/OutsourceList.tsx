@@ -3,6 +3,9 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
+import SearchBar from "@/components/SearchBar";
+import PageHeader from "@/components/layout/PageHeader";
+import PageSection from "@/components/layout/PageSection";
 import { DataTable } from "@/components/tables/data-table";
 import { staffColumns } from "@/components/tables/outsource-column";
 import { Button } from "@/components/ui/button";
@@ -13,10 +16,6 @@ import {
 } from "@/components/ui/filter-multi-select";
 import { OUTSOURCE_DATA } from "@/data/constants";
 import { RoleType } from "@/data/types";
-
-import { SearchBar } from "../components/SearchBar";
-import { PageHeader } from "../components/layout/PageHeader";
-import { PageSection } from "../components/layout/PageSection";
 
 const roleOptions: FilterOption[] = [
   { value: RoleType.HOST, label: "Host" },
