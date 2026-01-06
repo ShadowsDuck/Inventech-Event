@@ -86,7 +86,7 @@ const MonthView = () => {
           {days.map((day, index) => (
             <div
               key={index}
-              className={`min-h-25 border-r border-b border-gray-50 p-2 last:border-r-0 ${!day ? "bg-gray-50/20" : "transition-colors hover:bg-gray-50/50"}`}
+              className={`min-h-[100px] border-r border-b border-gray-50 p-2 last:border-r-0 ${!day ? "bg-gray-50/20" : "transition-colors hover:bg-gray-50/50"}`}
             >
               {day && (
                 <span

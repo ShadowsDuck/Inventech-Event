@@ -40,7 +40,7 @@ const YearView = () => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-300 rounded-[32px] bg-white p-8 font-sans shadow-sm">
+    <div className="mx-auto w-full max-w-[1200px] rounded-[32px] bg-white p-8 font-sans shadow-sm">
       {/* Header */}
       <div className="mb-12 flex items-center justify-between">
         <div>
