@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/filter-multi-select";
 import { COMPANY_DATA } from "@/data/constants";
 
-import SearchBar from "../components/SearchBar";
-import PageHeader from "../components/layout/PageHeader";
-import PageSection from "../components/layout/PageSection";
+import SearchBar from "../../../components/SearchBar";
+import PageHeader from "../../../components/layout/PageHeader";
+import PageSection from "../../../components/layout/PageSection";
 
 const industryOptions: FilterOption[] = [
   { value: "Technology & Software", label: "Technology & Software" },

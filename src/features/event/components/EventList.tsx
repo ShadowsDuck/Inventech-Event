@@ -1,11 +1,5 @@
 import { useMemo, useState } from "react";
 
-
-import Daily from "@/components/event/daily";
-import Year from "@/components/event/year";
-import Month from "@/components/event/month";
-
-
 import { useNavigate } from "@tanstack/react-router";
 import {
   Building2,
@@ -16,6 +10,10 @@ import {
   Users,
 } from "lucide-react";
 
+import Daily from "@/components/event/daily";
+import Month from "@/components/event/month";
+import Year from "@/components/event/year";
+import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
   FilterMultiSelect,
@@ -29,8 +27,9 @@ import {
   STAFF_DATA,
 } from "@/data/constants";
 
-import { PageHeader } from "../components/layout/PageHeader";
-import DailyViewOnly from "@/components/event/daily";
+import DailyView from "./daily-view";
+import MonthView from "./month-view";
+import YearView from "./year-view";
 
 // ---------- helpers ----------
 const normalize = (v: unknown) =>
@@ -224,17 +223,14 @@ export default function EventList() {
 
         {/* Content */}
         <TabsPanel value="year">
-          <Year />
+          <YearView />
         </TabsPanel>
         <TabsPanel value="calendar">
-          <Month />
+          <MonthView />
         </TabsPanel>
-
         <TabsPanel value="daily">
-          <DailyViewOnly />
+          <DailyView />
         </TabsPanel>
-          
-        
       </Tabs>
     </>
   );

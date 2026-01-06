@@ -5,19 +5,19 @@ import { format } from "date-fns";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
 
+import PageHeader from "@/components/layout/PageHeader";
 // import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import { DEFAULT_PACKAGE_OFFLINE } from "@/data/hardcode";
 import { parseCoordinates } from "@/lib/utils";
-import { BasicInfoSection } from "@/routes/company/-components/basic-info-section";
-import { FilesSection } from "@/routes/company/-components/files-section";
-import { LocationSection } from "@/routes/company/-components/location-section";
-import { PackageSection } from "@/routes/company/-components/package-section";
-import { ScheduleSection } from "@/routes/company/-components/schedule-section";
 import type { EventFormSchema } from "@/types/event-form";
 
-import { PageHeader } from "../components/layout/PageHeader";
+import { BasicInfoSection } from "./basic-info-section";
+import { FilesSection } from "./files-section";
+import { LocationSection } from "./location-section";
+import { PackageSection } from "./package-section";
+import { ScheduleSection } from "./schedule-section";
 
 // const formSchema = z.object({ ... });
 

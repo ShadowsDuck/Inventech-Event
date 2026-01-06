@@ -1,11 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
+import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import CarouselPackage from "@/components/ui/carousel-package";
 import { PACKAGE_DATA as packages } from "@/data/constants";
-
-import { PageHeader } from "../components/layout/PageHeader";
 
 const PackageList = () => {
   const navigate = useNavigate();
