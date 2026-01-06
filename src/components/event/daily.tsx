@@ -198,7 +198,49 @@ export default function DailyListView({
                         </div>
                       </div>
                     </div>
+                    {/* ✅ Equipment Package */}
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <p className="text-gray-600 font-medium mb-3">Equipment Package</p>
+              {event.equipmentList?.length ? (
+                <ul className="space-y-2 text-sm">
+                  {event.equipmentList.slice(0, 5).map((it) => (
+                    <li key={it.id} className="flex justify-between gap-4">
+                      <span className="text-gray-700">{it.name}</span>
+                      <span className="text-gray-500">{it.inPackage + it.extra}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-400">—</p>
+              )}
+            </div>
 
+            {/* ✅ Documents */}
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <p className="text-gray-600 font-medium mb-3">Documents</p>
+              {event.documents?.length ? (
+                <div className="space-y-3">
+                  {event.documents.map((d) => (
+                    <div
+                      key={d.name}
+                      className="flex items-center gap-3 rounded-lg bg-white border border-gray-100 px-3 py-2"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center">
+                        <span className="text-[10px] font-bold text-gray-500">
+                          {String(d.type).toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-800">{d.name}</p>
+                        <p className="text-xs text-gray-400">{d.size}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400">—</p>
+              )}
+            </div>
                     {/* Notes */}
                     <div className="md:col-span-2 p-4 bg-gray-50 rounded-lg border border-gray-100">
                       <p className="text-gray-600 font-medium mb-3">

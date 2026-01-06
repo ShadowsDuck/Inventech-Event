@@ -10,7 +10,7 @@ import { Building2, CalendarDays, Check, Plus, Search, Users } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
-import { COMPANY_DATA, EVENT_DATA, OUTSOURCE_DATA, STAFF_DATA } from "@/data/constants";
+import { COMPANY_DATA, EVENT_DATA, OUTSOURCE_DATA, STAFF_DATA,PACKAGE_DATA } from "@/data/constants";
 import { PageHeader } from "../components/layout/PageHeader";
 
 // helpers
