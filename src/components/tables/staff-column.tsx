@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useNavigate } from "@tanstack/react-router";
 
 
 // กำหนด Type ตรงนี้ หรือ import มาจากไฟล์ types กลาง
@@ -79,35 +80,49 @@ export const staffColumns: ColumnDef<StaffRow>[] = [
       )
     }
   },
-  {
+{
   id: "actions",
   header: "",
-  size: 50  ,
+  size: 50,
   enableSorting: false,
-  cell: () => (
-    <div className="flex justify-end">
-      <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
+  cell: ({ row }) => {
+    const navigate = useNavigate();
+    const staff = row.original; // 👈 ข้อมูลทั้งแถว
 
-        <DropdownMenuContent align="end" className="w-36">
-          {/* UI อย่างเดียว ยังไม่ต้องทำงาน */}
-          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-            Edit
-          </DropdownMenuItem>
+    return (
+      <div className="flex justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
 
-          <DropdownMenuItem
-            onSelect={(e) => e.preventDefault()}
-            className="text-destructive focus:text-destructive"
-          >
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  ),
+          <DropdownMenuContent align="end" className="w-36">
+            <DropdownMenuItem
+              onClick={() =>
+                navigate({
+                  to: "/staff/$staffId/edit",
+                  params: { staffId: staff.id },
+                })
+              }
+            >
+              Edit
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              className="text-destructive focus:text-destructive"
+              onClick={() => {
+                console.log("delete", staff.id);
+              }}
+            >
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
+  },
 }
+
 ]

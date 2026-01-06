@@ -10,6 +10,9 @@ import {
   Users,
 } from "lucide-react";
 
+import Daily from "@/components/event/daily";
+import Month from "@/components/event/month";
+import Year from "@/components/event/year";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -147,8 +150,9 @@ export default function EventList() {
         <div className="px-6 pt-6 pb-1">
           <div className="flex items-center justify-between">
             <TabsList>
-              <TabsTab value="calendar">Calendar View</TabsTab>
               <TabsTab value="daily">Daily View</TabsTab>
+              <TabsTab value="calendar">Month View</TabsTab>
+              <TabsTab value="year">Year View</TabsTab>
             </TabsList>
 
             <div className="inline-flex items-center gap-3 rounded-md border border-gray-100 bg-white px-3 py-1 text-xs font-medium text-gray-600 shadow-sm">
