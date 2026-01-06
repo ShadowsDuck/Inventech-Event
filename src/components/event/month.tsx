@@ -33,14 +33,14 @@ const Month = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 p-6 font-sans text-gray-700">
+    <div className="flex flex-col h-screen bg-gray-50 px-8 font-sans text-gray-700">
       <div className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-50">
-          <h2 className="text-xl font-bold">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-3xl font-bold">
             {months[month]}
-            <span className="text-gray-400 font-normal ml-1">{year}</span>
+            <span className="text-gray-400 font-normal px-2 ml-1">{year}</span>
           </h2>
 
           <div className="flex space-x-4">
@@ -60,7 +60,7 @@ const Month = () => {
         </div>
 
         {/* Days of Week */}
-        <div className="grid grid-cols-7 border-b border-gray-50 bg-gray-50/30">
+        <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-100/60">
           {daysOfWeek.map(day => (
             <div key={day} className="py-3 text-center text-xs font-bold text-gray-400 tracking-wider">
               {day}
@@ -73,7 +73,7 @@ const Month = () => {
           {days.map((day, index) => (
             <div
               key={index}
-              className={`min-h-[100px] p-2 border-r border-b border-gray-50 last:border-r-0
+              className={`min-h-[100px] p-2 border-r border-b border-gray-200 last:border-r-0
                 ${!day ? 'bg-gray-50/20' : 'hover:bg-gray-50/50 transition-colors'}`}
             >
               {day && (
