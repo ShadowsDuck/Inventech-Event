@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
@@ -18,6 +19,7 @@ import { COMPANY_DATA } from "@/data/constants";
 import SearchBar from "../../../components/SearchBar";
 import PageHeader from "../../../components/layout/PageHeader";
 import PageSection from "../../../components/layout/PageSection";
+import { companiesQuery } from "../api/getCompanies";
 
 const industryOptions: FilterOption[] = [
   { value: "Technology & Software", label: "Technology & Software" },
@@ -88,6 +90,8 @@ export default function CompanyList() {
     return result;
   }, [rows, searchText, selectedIndustries]);
 
+  const { data } = useSuspenseQuery(companiesQuery);
+
   return (
     <>
       <PageHeader
@@ -122,7 +126,17 @@ export default function CompanyList() {
       </div>
 
       <PageSection>
-        <DataTable columns={companyColumns} data={filteredRows} />
+        {/* <DataTable columns={companyColumns} data={filteredRows} />*/}
+        <div className="p-4">
+          <h2 className="mb-4 text-xl font-bold">Company List</h2>
+          <ul className="space-y-2">
+            {data?.map((company) => (
+              <li key={company.id} className="rounded border p-2 shadow-sm">
+                {company.title}{" "}
+              </li>
+            ))}
+          </ul>
+        </div>
       </PageSection>
     </>
   );
