@@ -1,17 +1,25 @@
 import { useMemo, useState } from "react";
 
-import DailyViewOnly from "@/components/event/daily";
-import Year from "@/components/event/year";
-import Month from "@/components/event/month";
-
 import { useNavigate } from "@tanstack/react-router";
 import { Building2, CalendarDays, Check, Plus, Search, Users } from "lucide-react";
 
+import Daily from "@/components/event/daily";
+import Month from "@/components/event/month";
+import Year from "@/components/event/year";
+import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
-import { COMPANY_DATA, EVENT_DATA, OUTSOURCE_DATA, STAFF_DATA,PACKAGE_DATA } from "@/data/constants";
-import { PageHeader } from "../components/layout/PageHeader";
+import {
+  COMPANY_DATA,
+  EVENT_DATA,
+  OUTSOURCE_DATA,
+  STAFF_DATA,
+} from "@/data/constants";
+
+import DailyView from "./daily-view";
+import MonthView from "./month-view";
+import YearView from "./year-view";
 
 // helpers
 const normalize = (v: unknown) =>
@@ -216,13 +224,13 @@ const todayEvents = useMemo(
 
         {/* Content */}
         <TabsPanel value="year">
-          <Year />
+          <YearView />
         </TabsPanel>
         <TabsPanel value="calendar">
-          <Month />
+          <MonthView />
         </TabsPanel>
         <TabsPanel value="daily">
-          <DailyViewOnly events={todayEvents} date={todayYMD} />
+          <DailyView />
         </TabsPanel>
       </Tabs>
     </>

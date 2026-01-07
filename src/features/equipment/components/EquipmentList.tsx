@@ -3,6 +3,9 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
+import SearchBar from "@/components/SearchBar";
+import PageHeader from "@/components/layout/PageHeader";
+import PageSection from "@/components/layout/PageSection";
 import { DataTable } from "@/components/tables/data-table";
 import {
   type EquipmentRow,
@@ -16,10 +19,6 @@ import {
 // ✅ เปลี่ยนมาใช้จาก tables เหมือน outsource
 
 import { EQUIPMENT_DATA } from "@/data/constants";
-
-import { SearchBar } from "../components/SearchBar";
-import { PageHeader } from "../components/layout/PageHeader";
-import { PageSection } from "../components/layout/PageSection";
 
 const categoryOptions: FilterOption[] = [
   { value: "video", label: "Video" },
