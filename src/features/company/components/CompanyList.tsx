@@ -15,88 +15,75 @@ import {
   type FilterOption,
 } from "@/components/ui/filter-multi-select";
 import { COMPANY_DATA } from "@/data/constants";
+import type { CompanyType } from "@/types/company";
 
 import SearchBar from "../../../components/SearchBar";
 import PageHeader from "../../../components/layout/PageHeader";
 import PageSection from "../../../components/layout/PageSection";
 import { companiesQuery } from "../api/getCompanies";
 
-const industryOptions: FilterOption[] = [
-  { value: "Technology & Software", label: "Technology & Software" },
-  { value: "Retail & Shopping", label: "Retail & Shopping" },
-  { value: "Automotive", label: "Automotive" },
-  { value: "Real Estate", label: "Real Estate" },
-  { value: "Banking & Finance", label: "Banking & Finance" },
-  { value: "Technology & Travel", label: "Technology & Travel" },
-  { value: "Construction & Materials", label: "Construction & Materials" },
-  { value: "Telecommunications", label: "Telecommunications" },
-  { value: "Technology & Media", label: "Technology & Media" },
-  { value: "Hospitality & Food", label: "Hospitality & Food" },
-  { value: "Food & Beverage", label: "Food & Beverage" },
-  { value: "Airlines & Aviation", label: "Airlines & Aviation" },
-  { value: "E-commerce", label: "E-commerce" },
-];
-
-const normalize = (v: unknown) =>
-  String(v ?? "")
-    .trim()
-    .toLowerCase();
+// const normalize = (v: unknown) =>
+//   String(v ?? "")
+//     .trim()
+//     .toLowerCase();
 
 export default function CompanyList() {
   const navigate = useNavigate();
 
-  const [searchText, setSearchText] = useState("");
-  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+  // const [searchText, setSearchText] = useState("");
+  // const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
 
-  // ✅ rows จาก COMPANY_DATA ให้ตรงกับ CompanyRow
-  const rows = useMemo<CompanyRow[]>(
-    () =>
-      COMPANY_DATA.map((c) => ({
-        id: c.id,
-        companyName: c.companyName,
-        contactPerson: c.contactPerson,
-        role: c.role,
-        email: c.email,
-        phone: c.phone,
-        industry: c.industry,
-        createdAt: c.createdAt,
-        isFavorite: c.isFavorite,
-      })),
-    [],
-  );
+  // // ✅ rows จาก COMPANY_DATA ให้ตรงกับ CompanyRow
+  // const rows = useMemo<CompanyRow[]>(
+  //   () =>
+  //     COMPANY_DATA.map((c) => ({
+  //       id: c.id,
+  //       companyName: c.companyName,
+  //       contactPerson: c.contactPerson,
+  //       role: c.role,
+  //       email: c.email,
+  //       phone: c.phone,
+  //       industry: c.industry,
+  //       createdAt: c.createdAt,
+  //       isFavorite: c.isFavorite,
+  //     })),
+  //   [],
+  // );
 
-  // ✅ filter: search + industry (ใช้ได้จริงกับ data)
-  const filteredRows = useMemo(() => {
-    let result = rows;
+  // // ✅ filter: search + industry (ใช้ได้จริงกับ data)
+  // const filteredRows = useMemo(() => {
+  //   let result = rows;
 
-    const q = normalize(searchText);
-    if (q) {
-      result = result.filter((c) => {
-        return (
-          normalize(c.companyName).includes(q) ||
-          normalize(c.contactPerson).includes(q) ||
-          normalize(c.email).includes(q) ||
-          normalize(c.phone).includes(q) ||
-          normalize(c.industry).includes(q)
-        );
-      });
-    }
+  //   const q = normalize(searchText);
+  //   if (q) {
+  //     result = result.filter((c) => {
+  //       return (
+  //         normalize(c.companyName).includes(q) ||
+  //         normalize(c.contactPerson).includes(q) ||
+  //         normalize(c.email).includes(q) ||
+  //         normalize(c.phone).includes(q) ||
+  //         normalize(c.industry).includes(q)
+  //       );
+  //     });
+  //   }
 
-    if (selectedIndustries.length > 0) {
-      const set = new Set(selectedIndustries.map(normalize));
-      result = result.filter((c) => set.has(normalize(c.industry)));
-    }
+  //   if (selectedIndustries.length > 0) {
+  //     const set = new Set(selectedIndustries.map(normalize));
+  //     result = result.filter((c) => set.has(normalize(c.industry)));
+  //   }
 
-    return result;
-  }, [rows, searchText, selectedIndustries]);
+  //   return result;
+  // }, [rows, searchText, selectedIndustries]);
 
-  const { data } = useSuspenseQuery(companiesQuery);
+  const { data }: { data: CompanyType[] } = useSuspenseQuery(companiesQuery);
+
+  console.log(data);
 
   return (
     <>
       <PageHeader
         title="Company"
-        count={filteredRows.length}
+        count={data.length}
         countLabel="companies"
         actions={
           <Button
@@ -110,7 +97,7 @@ export default function CompanyList() {
       />
 
       <div className="px-6 pt-4 pb-2">
-        <SearchBar
+        {/*<SearchBar
           value={searchText}
           onChange={setSearchText}
           placeholder="Search company, contact, email..."
@@ -122,21 +109,11 @@ export default function CompanyList() {
               onChange={setSelectedIndustries}
             />
           }
-        />
+        />*/}
       </div>
 
       <PageSection>
-        {/* <DataTable columns={companyColumns} data={filteredRows} />*/}
-        <div className="p-4">
-          <h2 className="mb-4 text-xl font-bold">Company List</h2>
-          <ul className="space-y-2">
-            {data?.map((company) => (
-              <li key={company.id} className="rounded border p-2 shadow-sm">
-                {company.title}{" "}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <DataTable columns={companyColumns} data={data} />
       </PageSection>
     </>
   );

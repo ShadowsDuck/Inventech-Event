@@ -1,6 +1,6 @@
-export interface Package {
-    PackageId: number;
-    PackageName: string;
-    CreatedAt: Date;
-    UpdatedAt: Date;
+export interface PackageType {
+  packageId: number;
+  packageName: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

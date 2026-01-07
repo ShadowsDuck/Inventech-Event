@@ -1,8 +1,15 @@
-export interface Outsource {
-    OutsourceId: number;
-    FullName: string;
-    Email: string;
-    PhoneNumber: string;
-    CreatedAt: Date;
-    UpdatedAt: Date;
-}   
+export interface OutsourceType {
+  outsourceId: number;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface EventOutsourceType {
+  eventId: number;
+  outsourceId: number;
+  roldId: number;
+  roldName: string;
+}
