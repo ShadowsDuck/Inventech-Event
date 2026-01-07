@@ -1,0 +1,11 @@
+import { queryOptions } from "@tanstack/react-query";
+
+const getCompanies = async () => {
+  const res = await fetch("https://localhost:7268/api/Company");
+  return res.json();
+};
+
+export const companiesQuery = queryOptions({
+  queryKey: ["companies"], // 🔑 Key สำคัญมาก! ใช้ระบุตัวตนของข้อมูลนี้ unique ไม่ซ้ำกับอันอื่น
+  queryFn: getCompanies, // ฟังก์ชันยิง API
+});
