@@ -14,45 +14,35 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { OutsourceType } from "@/types/outsource";
 
 
 // กำหนด Type ตรงนี้ หรือ import มาจากไฟล์ types กลาง
-export type StaffRow = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  status?: string;
-};
+  // export type StaffRow = {
+  //   id: string;
+  //   name: string;
+  //   email: string;
+  //   phone: string;
+  //   status?: string;
+  // };
 
-export const staffColumns: ColumnDef<StaffRow>[] = [
+export const outsourceColumns: ColumnDef<OutsourceType>[] = [
  
   {
     accessorKey: 'name',
-    header: ({ column }) => (
-      <div
-        className="flex items-center gap-2 cursor-pointer select-none"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Name
-        {column.getIsSorted() === "asc" ? (
-          <ChevronUpIcon className="w-4 h-4 opacity-60" />
-        ) : column.getIsSorted() === "desc" ? (
-          <ChevronDownIcon className="w-4 h-4 opacity-60" />
-        ) : null}
-      </div>
-    ),
-    cell: ({ row }) => <div className='font-medium'>{row.getValue('name')}</div>
+    header: 'Name',
+    cell: ({ row }) => <div className='font-medium'>{row.original.fullName}</div>
+   
   },
   {
     accessorKey: 'email',
     header: 'Email',
-    cell: ({ row }) => <div className='text-muted-foreground'>{row.getValue('email')}</div>
+    cell: ({ row }) => <div className='text-muted-foreground'>{row.original.email}</div>
   },
   {
     accessorKey: 'phone',
     header: 'Phone',
-    cell: ({ row }) => <div className='text-muted-foreground'>{row.getValue('phone')}</div>
+    cell: ({ row }) => <div className='text-muted-foreground'>{row.original.phoneNumber}</div>
   },
   {
   id: "actions",

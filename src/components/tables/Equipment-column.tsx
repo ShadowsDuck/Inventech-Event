@@ -8,27 +8,28 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { EquipmentType } from "@/types/equipment";
 
-export type EquipmentRow = {
-  id: string;
-  name: string;
-  category: string;
-  total: number;
-};
+// export type EquipmentRow = {
+//   id: string;
+//   name: string;
+//   category: string;
+//   total: number;
+// };
 
-export const equipmentColumns: ColumnDef<EquipmentRow>[] = [
+export const equipmentColumns: ColumnDef<EquipmentType>[] = [
   {
     header: "Equipment",
-    accessorKey: "name",
+    accessorKey: "equipmentName",
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("name") as string}</div>
+      <div className="font-medium">{row.original.equipmentName}</div>
     ),
   },
   {
     header: "Category",
     accessorKey: "category",
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("category") as string}</div>
+      <div className="font-medium">{row.original.categoryName}</div>
     ),
   },
   {

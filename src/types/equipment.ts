@@ -3,6 +3,8 @@ export interface EquipmentType {
   equipmentName: string;
   createdAt: Date;
   updatedAt: Date;
+  categoryId: number;
+  categoryName: string;
 }
 
 export interface EquipmentSetType {
@@ -13,4 +15,8 @@ export interface EquipmentSetType {
 export interface EventExtraEquipmentType {
   eventId: number;
   equipmentId: number;
+}
+export interface CategoryType {
+  categoryId: number;
+  categoryName: string;
 }

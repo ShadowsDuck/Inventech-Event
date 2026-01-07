@@ -5,7 +5,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
 import {
-  type CompanyRow,
+    
   companyColumns,
 } from "@/components/tables/companies-column";
 import { DataTable } from "@/components/tables/data-table";

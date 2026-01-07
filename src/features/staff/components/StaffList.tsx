@@ -9,57 +9,60 @@ import PageHeader from "@/components/layout/PageHeader";
 import PageSection from "@/components/layout/PageSection";
 // Import Component Table และ Columns ที่แยกออกไป
 import { DataTable } from "@/components/tables/data-table";
-import { type StaffRow, staffColumns } from "@/components/tables/staff-column";
+import { staffColumns } from "@/components/tables/staff-column";
 import { Button } from "@/components/ui/button";
 import {
   FilterMultiSelect,
   type FilterOption,
 } from "@/components/ui/filter-multi-select";
-import { STAFF_DATA } from "@/data/constants";
-import { RoleType } from "@/data/types";
+// import { STAFF_DATA } from "@/data/constants";
+// import { RoleType } from "@/data/types";
 
-const roleOptions: FilterOption[] = [
-  { value: RoleType.HOST, label: "Host" },
-  { value: RoleType.IT_SUPPORT, label: "IT Support" },
-  { value: RoleType.MANAGER, label: "Manager" },
-  { value: RoleType.COORDINATOR, label: "Coordinator" },
-  { value: RoleType.SECURITY, label: "Security" },
-];
+// const roleOptions: FilterOption[] = [
+//   { value: RoleType.HOST, label: "Host" },
+//   { value: RoleType.IT_SUPPORT, label: "IT Support" },
+//   { value: RoleType.MANAGER, label: "Manager" },
+//   { value: RoleType.COORDINATOR, label: "Coordinator" },
+//   { value: RoleType.SECURITY, label: "Security" },
+// ];
+import type { StaffType } from "@/types/staff";
+import { useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
+import { staffQuery } from "../api/getStaff";
 
 export default function StaffList() {
   const navigate = useNavigate();
-  const [searchText, setSearchText] = useState("");
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  // const [searchText, setSearchText] = useState("");
+  // const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
   // useMemo เพื่อประสิทธิภาพ (เหมือนเดิม)
-  const rows = useMemo<StaffRow[]>(() => STAFF_DATA, []);
+  // const rows = useMemo<StaffRow[]>(() => STAFF_DATA, []);
 
-  const filteredRows = useMemo(() => {
-    let result = rows;
+  // const filteredRows = useMemo(() => {
+  //   let result = rows;
 
-    if (selectedRoles.length > 0) {
-      result = result.filter((r) =>
-        r.roles?.some((role) => selectedRoles.includes(role)),
-      );
-    }
+  //   if (selectedRoles.length > 0) {
+  //     result = result.filter((r) =>
+  //       r.roles?.some((role) => selectedRoles.includes(role)),
+  //     );
+  //   }
 
-    if (searchText) {
-      const lowerSearch = searchText.toLowerCase();
-      result = result.filter(
-        (r) =>
-          r.name?.toLowerCase().includes(lowerSearch) ||
-          r.email?.toLowerCase().includes(lowerSearch),
-      );
-    }
+  //   if (searchText) {
+  //     const lowerSearch = searchText.toLowerCase();
+  //     result = result.filter(
+  //       (r) =>
+  //         r.name?.toLowerCase().includes(lowerSearch) ||
+  //         r.email?.toLowerCase().includes(lowerSearch),
+  //     );
+  //   }
 
-    return result;
-  }, [rows, selectedRoles, searchText]);
-
+  //   return result;
+  // }, [rows, selectedRoles, searchText]);
+const {data}:{data: StaffType[]} =  useSuspenseQuery(staffQuery);
   return (
     <>
       <PageHeader
         title="Staff"
-        count={filteredRows.length}
+        count={data.length}
         countLabel="staff members"
         actions={
           <Button size="add" onClick={() => navigate({ to: "/staff/create" })}>
@@ -70,7 +73,7 @@ export default function StaffList() {
       />
 
       <div className="px-6 pt-4 pb-2">
-        <SearchBar
+        {/* <SearchBar
           value={searchText}
           onChange={setSearchText}
           placeholder="Search by name or email..."
@@ -82,12 +85,11 @@ export default function StaffList() {
               onChange={setSelectedRoles}
             />
           }
-        />
+        /> */}
       </div>
 
       <PageSection>
-        {/* โค้ดเหลือแค่นี้ สั้นและอ่านง่าย */}
-        <DataTable columns={staffColumns} data={filteredRows} />
+        <DataTable columns={staffColumns} data={data} />
       </PageSection>
     </>
   );
