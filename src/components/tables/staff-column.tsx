@@ -46,11 +46,16 @@ export const staffColumns: ColumnDef<StaffType>[] = [
     cell: ({ row }) => <div className='text-muted-foreground'>{row.original.phoneNumber}</div>
   },
   {
-    accessorKey: 'roles',
-    header: 'Roles',
-    cell: ({ row }) => {
-      const roles = row.getValue('roles') as RoleType[]
-    }},
+  accessorKey: "staffRoles",
+  header: "Roles",
+  cell: ({ row }) => {
+  const roleNames =
+    row.original.staffRoles.map((sr) => sr.role?.roleName).filter(Boolean) ?? [];
+
+  return <div>{roleNames.length ? roleNames.join(", ") : "-"}</div>;
+}
+
+},
   // {
   //   accessorKey: 'roles',
   //   header: 'Roles',

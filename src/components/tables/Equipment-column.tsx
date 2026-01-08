@@ -29,9 +29,10 @@ export const equipmentColumns: ColumnDef<EquipmentType>[] = [
     header: "Category",
     accessorKey: "category",
     cell: ({ row }) => (
-      <div className="font-medium">{row.original.categoryName}</div>
+      <div className="text-muted-foreground">{row.original.category.categoryName}</div>
     ),
   },
+   
   {
     id: "actions",
     header: "",

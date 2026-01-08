@@ -7,7 +7,6 @@ import { Plus } from "lucide-react";
 import SearchBar from "@/components/SearchBar";
 import PageHeader from "@/components/layout/PageHeader";
 import PageSection from "@/components/layout/PageSection";
-// Import Component Table และ Columns ที่แยกออกไป
 import { DataTable } from "@/components/tables/data-table";
 import { staffColumns } from "@/components/tables/staff-column";
 import { Button } from "@/components/ui/button";
@@ -15,54 +14,43 @@ import {
   FilterMultiSelect,
   type FilterOption,
 } from "@/components/ui/filter-multi-select";
-// import { STAFF_DATA } from "@/data/constants";
-// import { RoleType } from "@/data/types";
 
-// const roleOptions: FilterOption[] = [
-//   { value: RoleType.HOST, label: "Host" },
-//   { value: RoleType.IT_SUPPORT, label: "IT Support" },
-//   { value: RoleType.MANAGER, label: "Manager" },
-//   { value: RoleType.COORDINATOR, label: "Coordinator" },
-//   { value: RoleType.SECURITY, label: "Security" },
-// ];
 import type { StaffType } from "@/types/staff";
 import { useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { staffQuery } from "../api/getStaff";
+import { Route } from "@/routes/_sidebarLayout/staff";
+import { useDebouncedCallback } from "@tanstack/react-pacer";
 
 export default function StaffList() {
-  const navigate = useNavigate();
-  // const [searchText, setSearchText] = useState("");
-  // const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const navigate = Route.useNavigate();
+  const {q} = Route.useSearch();
 
-  // useMemo เพื่อประสิทธิภาพ (เหมือนเดิม)
-  // const rows = useMemo<StaffRow[]>(() => STAFF_DATA, []);
+  const {data : staff} = useSuspenseQuery(staffQuery({q}));
+  const [searchValue, setSearchValue] = useState(q || "");
 
-  // const filteredRows = useMemo(() => {
-  //   let result = rows;
+  const handleSearch = useDebouncedCallback(
+    (value: string) => {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          q: value || undefined,
+        }),
+        replace: true,
+      });
+    },
+    { wait: 500 },
+  );
 
-  //   if (selectedRoles.length > 0) {
-  //     result = result.filter((r) =>
-  //       r.roles?.some((role) => selectedRoles.includes(role)),
-  //     );
-  //   }
+  const onSearchChange = (value: string) => {
+    setSearchValue(value);
+    handleSearch(value);
+  };
 
-  //   if (searchText) {
-  //     const lowerSearch = searchText.toLowerCase();
-  //     result = result.filter(
-  //       (r) =>
-  //         r.name?.toLowerCase().includes(lowerSearch) ||
-  //         r.email?.toLowerCase().includes(lowerSearch),
-  //     );
-  //   }
-
-  //   return result;
-  // }, [rows, selectedRoles, searchText]);
-const {data}:{data: StaffType[]} =  useSuspenseQuery(staffQuery);
   return (
     <>
       <PageHeader
         title="Staff"
-        count={data.length}
+        count={staff.length}
         countLabel="staff members"
         actions={
           <Button size="add" onClick={() => navigate({ to: "/staff/create" })}>
@@ -73,23 +61,15 @@ const {data}:{data: StaffType[]} =  useSuspenseQuery(staffQuery);
       />
 
       <div className="px-6 pt-4 pb-2">
-        {/* <SearchBar
-          value={searchText}
-          onChange={setSearchText}
-          placeholder="Search by name or email..."
-          filterSlot={
-            <FilterMultiSelect
-              title="Role"
-              options={roleOptions}
-              selected={selectedRoles}
-              onChange={setSelectedRoles}
-            />
-          }
-        /> */}
+        <SearchBar
+        value={searchValue}
+        onChange={onSearchChange}
+        placeholder="Search staff..."
+      />
       </div>
 
       <PageSection>
-        <DataTable columns={staffColumns} data={data} />
+        <DataTable columns={staffColumns} data={staff} />
       </PageSection>
     </>
   );
