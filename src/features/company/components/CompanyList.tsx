@@ -1,89 +1,50 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
+import { useDebouncedCallback } from "@tanstack/react-pacer";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
-import {
-    
-  companyColumns,
-} from "@/components/tables/companies-column";
+import { companyColumns } from "@/components/tables/companies-column";
 import { DataTable } from "@/components/tables/data-table";
 import { Button } from "@/components/ui/button";
-import {
-  FilterMultiSelect,
-  type FilterOption,
-} from "@/components/ui/filter-multi-select";
-import { COMPANY_DATA } from "@/data/constants";
-import type { CompanyType } from "@/types/company";
+import { Route } from "@/routes/_sidebarLayout/company";
 
 import SearchBar from "../../../components/SearchBar";
 import PageHeader from "../../../components/layout/PageHeader";
 import PageSection from "../../../components/layout/PageSection";
 import { companiesQuery } from "../api/getCompanies";
 
-// const normalize = (v: unknown) =>
-//   String(v ?? "")
-//     .trim()
-//     .toLowerCase();
-
 export default function CompanyList() {
-  const navigate = useNavigate();
+  const navigate = Route.useNavigate();
+  const { q } = Route.useSearch();
 
-  // const [searchText, setSearchText] = useState("");
-  // const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+  const { data: companies } = useSuspenseQuery(companiesQuery({ q }));
 
-  // // ✅ rows จาก COMPANY_DATA ให้ตรงกับ CompanyRow
-  // const rows = useMemo<CompanyRow[]>(
-  //   () =>
-  //     COMPANY_DATA.map((c) => ({
-  //       id: c.id,
-  //       companyName: c.companyName,
-  //       contactPerson: c.contactPerson,
-  //       role: c.role,
-  //       email: c.email,
-  //       phone: c.phone,
-  //       industry: c.industry,
-  //       createdAt: c.createdAt,
-  //       isFavorite: c.isFavorite,
-  //     })),
-  //   [],
-  // );
+  const [searchValue, setSearchValue] = useState(q || "");
 
-  // // ✅ filter: search + industry (ใช้ได้จริงกับ data)
-  // const filteredRows = useMemo(() => {
-  //   let result = rows;
+  const handleSearch = useDebouncedCallback(
+    (value: string) => {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          q: value || undefined,
+        }),
+        replace: true,
+      });
+    },
+    { wait: 500 },
+  );
 
-  //   const q = normalize(searchText);
-  //   if (q) {
-  //     result = result.filter((c) => {
-  //       return (
-  //         normalize(c.companyName).includes(q) ||
-  //         normalize(c.contactPerson).includes(q) ||
-  //         normalize(c.email).includes(q) ||
-  //         normalize(c.phone).includes(q) ||
-  //         normalize(c.industry).includes(q)
-  //       );
-  //     });
-  //   }
-
-  //   if (selectedIndustries.length > 0) {
-  //     const set = new Set(selectedIndustries.map(normalize));
-  //     result = result.filter((c) => set.has(normalize(c.industry)));
-  //   }
-
-  //   return result;
-  // }, [rows, searchText, selectedIndustries]);
-
-  const { data }: { data: CompanyType[] } = useSuspenseQuery(companiesQuery);
-
-  console.log(data);
+  const onSearchChange = (value: string) => {
+    setSearchValue(value);
+    handleSearch(value);
+  };
 
   return (
     <>
       <PageHeader
         title="Company"
-        count={data.length}
+        count={companies.length}
         countLabel="companies"
         actions={
           <Button
@@ -97,23 +58,15 @@ export default function CompanyList() {
       />
 
       <div className="px-6 pt-4 pb-2">
-        {/*<SearchBar
-          value={searchText}
-          onChange={setSearchText}
-          placeholder="Search company, contact, email..."
-          filterSlot={
-            <FilterMultiSelect
-              title="Industry"
-              options={industryOptions}
-              selected={selectedIndustries}
-              onChange={setSelectedIndustries}
-            />
-          }
-        />*/}
+        <SearchBar
+          value={searchValue}
+          onChange={onSearchChange}
+          placeholder="Search company..."
+        />
       </div>
 
       <PageSection>
-        <DataTable columns={companyColumns} data={data} />
+        <DataTable columns={companyColumns} data={companies} />
       </PageSection>
     </>
   );

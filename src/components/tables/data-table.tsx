@@ -81,7 +81,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4 md:w-full">
-      <div className="rounded-md border">
+      <div className="rounded-xl border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -91,7 +91,7 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       style={{ width: `${header.getSize()}px` }}
-                      className="h-11"
+                      className="bg-muted/50 h-11"
                     >
                       {header.isPlaceholder ? null : header.column.getCanSort() ? (
                         <div
