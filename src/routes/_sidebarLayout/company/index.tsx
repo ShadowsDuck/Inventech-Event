@@ -9,7 +9,7 @@ const companySearchParamsSchema = z.object({
   q: z.string().trim().optional().catch(undefined),
 });
 
-export const Route = createFileRoute("/_sidebarLayout/company")({
+export const Route = createFileRoute("/_sidebarLayout/company/")({
   component: CompanyList,
   staticData: {
     title: "CompanyList",
