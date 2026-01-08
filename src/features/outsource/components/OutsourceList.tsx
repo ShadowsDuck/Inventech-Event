@@ -17,36 +17,43 @@ import {
 import { OUTSOURCE_DATA } from "@/data/constants";
 import { RoleType } from "@/data/types";
 
-// const roleOptions: FilterOption[] = [
-//   { value: RoleType.HOST, label: "Host" },
-//   { value: RoleType.IT_SUPPORT, label: "IT Support" },
-//   { value: RoleType.MANAGER, label: "Manager" },
-//   { value: RoleType.COORDINATOR, label: "Coordinator" },
-//   { value: RoleType.SECURITY, label: "Security" },
-// ];
+
 import type { OutsourceType } from "@/types/outsource";
 import { outsourceQuery } from "../api/getOutsource";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { Route } from "@/routes/_sidebarLayout/outsource";
+import { useDebouncedCallback } from "@tanstack/react-pacer";
 
 export default function OutsourceList() {
-  const navigate = useNavigate();
-//   const [searchText, setSearchText] = useState("");
-//   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const navigate = Route.useNavigate();
+  const {q} = Route.useSearch();
 
-//   const rows = useMemo<StaffRow[]>(() => OUTSOURCE_DATA, []);
+  const {data:outsource} = useSuspenseQuery(outsourceQuery({q}));
+  const [searchValue, setSearchValue] = useState(q || "");
 
-//   const roleFilteredRows = useMemo(() => {
-//     if (selectedRoles.length === 0) return rows;
-//     return rows.filter((r) =>
-//       r.roles?.some((role) => selectedRoles.includes(role)),
-//     );
-//   }, [rows, selectedRoles]);
-const {data}:{data: OutsourceType[]} =  useSuspenseQuery(outsourceQuery);
+  const handleSearch = useDebouncedCallback(
+    (value: string) => {
+      navigate({
+        search: (prev) => ({ 
+          ...prev,
+          q: value || undefined,
+        }),
+        replace: true,
+      });
+    },
+    {wait: 500},
+  );
+
+  const onSearchChange = (value: string) => {
+    setSearchValue(value);
+    handleSearch(value);
+  };
+
   return (
     <>
       <PageHeader
         title="Outsource"
-        count={data.length}
+        count={outsource.length}
         countLabel="outsourced staff"
         actions={
           <Button
@@ -60,23 +67,15 @@ const {data}:{data: OutsourceType[]} =  useSuspenseQuery(outsourceQuery);
       />
 
       <div className="px-6 pt-4 pb-2">
-          {/* <SearchBar
-            value={searchText}
-            onChange={setSearchText}
-            placeholder="Search by name or email..."
-            filterSlot={
-              <FilterMultiSelect
-                title="Role"
-                options={roleOptions}
-                selected={selectedRoles}
-                onChange={setSelectedRoles}
-              />
-            }
-          /> */}
+        <SearchBar
+        value={searchValue}
+        onChange={onSearchChange}
+        placeholder="Search outsource..."
+      />
       </div>
 
       <PageSection>
-        <DataTable columns={outsourceColumns} data={data} />
+        <DataTable columns={outsourceColumns} data={outsource} />
       </PageSection>
     </>
   );
