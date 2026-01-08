@@ -4,9 +4,9 @@ import { useDebouncedCallback } from "@tanstack/react-pacer";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 
-import { companyColumns } from "@/components/tables/companies-column";
 import { DataTable } from "@/components/tables/data-table";
 import { Button } from "@/components/ui/button";
+import { companyColumns } from "@/features/company/components/companies-column";
 import { Route } from "@/routes/_sidebarLayout/company";
 
 import SearchBar from "../../../components/SearchBar";
@@ -66,7 +66,16 @@ export default function CompanyList() {
       </div>
 
       <PageSection>
-        <DataTable columns={companyColumns} data={companies} />
+        <DataTable
+          columns={companyColumns}
+          data={companies}
+          onRowClick={(row) =>
+            navigate({
+              to: "/company/$companyId",
+              params: { companyId: row.companyId.toString() },
+            })
+          }
+        />
       </PageSection>
     </>
   );

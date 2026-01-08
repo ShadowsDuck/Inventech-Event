@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 
+import { useNavigate } from "@tanstack/react-router";
 import {
   type ColumnDef,
   type PaginationState,
@@ -49,12 +50,16 @@ import { cn } from "@/lib/utils";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
+  const navigate = useNavigate();
+
   const id = useId();
 
   const [pagination, setPagination] = useState<PaginationState>({
@@ -150,6 +155,8 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className={onRowClick && "hover:bg-muted cursor-pointer"}
+                  onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
