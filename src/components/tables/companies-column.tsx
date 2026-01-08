@@ -10,39 +10,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { CompanyType } from "@/types/company";
 
-// const SortableHeader = ({
-//   title,
-//   column,
-//   className,
-// }: {
-//   title: string;
-//   column: any;
-//   className?: string;
-// }) => (
-//   <div
-//     className={cn(
-//       "flex cursor-pointer items-center gap-2 select-none",
-//       className,
-//     )}
-//     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-//     role="button"
-//     tabIndex={0}
-//     onKeyDown={(e) => {
-//       if (e.key === "Enter" || e.key === " ") {
-//         e.preventDefault();
-//         column.toggleSorting(column.getIsSorted() === "asc");
-//       }
-//     }}
-//   >
-//     {title}
-//     {column.getIsSorted() === "asc" ? (
-//       <ChevronUpIcon className="h-4 w-4 opacity-60" />
-//     ) : column.getIsSorted() === "desc" ? (
-//       <ChevronDownIcon className="h-4 w-4 opacity-60" />
-//     ) : null}
-//   </div>
-// );
-
 export const companyColumns: ColumnDef<CompanyType>[] = [
   {
     accessorKey: "companyName",
