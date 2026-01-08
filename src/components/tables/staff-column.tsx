@@ -45,6 +45,12 @@ export const staffColumns: ColumnDef<StaffType>[] = [
     header: 'Phone',
     cell: ({ row }) => <div className='text-muted-foreground'>{row.original.phoneNumber}</div>
   },
+  {
+    accessorKey: 'roles',
+    header: 'Roles',
+    cell: ({ row }) => {
+      const roles = row.getValue('roles') as RoleType[]
+    }},
   // {
   //   accessorKey: 'roles',
   //   header: 'Roles',
