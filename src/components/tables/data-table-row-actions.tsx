@@ -89,22 +89,30 @@ export function DataTableRowActions({
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.preventDefault();
-                onDelete();
+
+                try {
+                  await onDelete();
+
+                  setIsAlertOpen(false);
+                  setOpen(false);
+                } catch (err) {
+                  console.error("Delete failed", err);
+                }
               }}
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-destructive hover:bg-destructive/90 w-[sm]"
               disabled={isDeleting}
             >
               {isDeleting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
                 </>
               ) : (
                 "Delete"
               )}
             </AlertDialogAction>
+
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -6,15 +6,15 @@ import { useDeleteCompany } from "../api/deleteCompany";
 
 export function CompanyActions({ company }: { company: CompanyType }) {
   // const router = useRouter();
-  const { mutate: deleteCompany, isPending } = useDeleteCompany();
+    const { mutateAsync: deleteCompany, isPending } = useDeleteCompany();
 
   const handleEdit = () => {
     // ตัวอย่าง: router.navigate({ to: `/company/${company.companyId}/edit` })
     console.log("Edit company", company.companyId);
   };
 
-  const handleDelete = () => {
-    deleteCompany(company.companyId);
+  const handleDelete = async () => {
+    return await deleteCompany(company.companyId); 
   };
 
   return (

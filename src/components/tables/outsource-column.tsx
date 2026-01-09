@@ -29,7 +29,7 @@ import type { OutsourceType } from "@/types/outsource";
 export const outsourceColumns: ColumnDef<OutsourceType>[] = [
  
   {
-    accessorKey: 'name',
+    accessorKey: 'fullName',
     header: 'Name',
     cell: ({ row }) => <div className='font-medium'>{row.original.fullName}</div>
    

@@ -13,7 +13,7 @@ export const companyColumns: ColumnDef<CompanyType>[] = [
     ),
   },
   {
-    accessorKey: "contactNameRole",
+    accessorKey: "FullName",
     header: "Contact",
     cell: ({ row }) => {
       const primaryContact = row.original.companyContacts?.find(
