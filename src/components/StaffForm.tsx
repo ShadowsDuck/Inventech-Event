@@ -12,13 +12,18 @@ import {
 import StaffProfileFormFields from "@/components/AddStaffandOutsourceComponent/StaffProfileFormFields";
 
 import { useMatch, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo } from "react";
-import { STAFF_DATA } from "@/data/constants";
+import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { staffByIdQuery } from "@/features/staff/api/getStaffById";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function StaffForm() {
   const navigate = useNavigate();
 
-  // ✅ ดึง id เฉพาะตอนอยู่ route edit
+  // ===============================
+  // Route params (edit mode)
+  // ===============================
   const editMatch = useMatch({
     from: "/staff/$staffId/edit",
     shouldThrow: false,
@@ -27,12 +32,17 @@ export default function StaffForm() {
   const staffId = editMatch?.params.staffId;
   const isEditMode = !!staffId;
 
-  // ✅ หา staff
-  const staff = useMemo(() => {
-    if (!isEditMode) return null;
-    return STAFF_DATA.find((s) => s.id === staffId) ?? null;
-  }, [staffId, isEditMode]);
+  // ===============================
+  // Fetch staff by id (EDIT only)
+  // ===============================
+const { data: staff, isLoading } = useQuery({
+  ...staffByIdQuery(Number(staffId)),
+  enabled: isEditMode,
+});
 
+  // ===============================
+  // Form
+  // ===============================
   const form = useForm({
     defaultValues: {
       avatar: null as File | null,
@@ -42,43 +52,66 @@ export default function StaffForm() {
       roles: [] as string[],
     },
     onSubmit: async ({ value }) => {
-      if (isEditMode) {
-        console.log("UPDATE STAFF", staffId, value);
-      } else {
-        console.log("CREATE STAFF", value);
+      try {
+        if (isEditMode) {
+          await fetch(`${API_URL}/api/Staff/${staffId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(value),
+          });
+        } else {
+          await fetch(`${API_URL}/api/Staff`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(value),
+          });
+        }
+
+        toast(isEditMode ? "Staff updated" : "Staff created", {
+          position: "bottom-right",
+        });
+
+        navigate({ to: "/staff" });
+      } catch (err) {
+        toast("Something went wrong", {
+          description: String(err),
+        });
       }
-
-      toast(isEditMode ? "Staff updated" : "Staff created", {
-        description: (
-          <pre className="bg-black text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-            <code>{JSON.stringify(value, null, 2)}</code>
-          </pre>
-        ),
-        position: "bottom-right",
-      });
-
-      navigate({ to: "/staff" });
     },
   });
 
-  // ✅ เติมข้อมูลเข้า form ตอน Edit
+  // ===============================
+  // Fill form when editing
+  // ===============================
   useEffect(() => {
     if (!staff) return;
 
     form.reset({
       avatar: null,
-      fullName: staff.name,
-      email: staff.email,
-      phone: staff.phone,
-      roles: staff.roles,
+      fullName: staff.fullName,
+      email: staff.email ?? "",
+      phone: staff.phoneNumber ?? "",
+      roles:
+        staff.staffRoles
+          ?.map((sr) => sr.role?.roleName)
+          .filter(Boolean) ?? [],
     });
   }, [staff]);
 
-  // ❌ กรณี id ผิด
+  // ===============================
+  // States
+  // ===============================
+  if (isEditMode && isLoading) {
+    return <div className="p-10">Loading...</div>;
+  }
+
   if (isEditMode && !staff) {
     return <div className="p-10">Staff not found</div>;
   }
 
+  // ===============================
+  // UI
+  // ===============================
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <PageHeader
