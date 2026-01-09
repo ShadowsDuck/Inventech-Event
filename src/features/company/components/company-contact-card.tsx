@@ -1,24 +1,140 @@
-import React from 'react'
-import { Phone } from 'lucide-react';
-import { Mail } from 'lucide-react';
+import { Mail, Phone, User } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 
-import { CircleUserRound } from 'lucide-react';
+interface CompanyContactCardProps {
+  primary: boolean;
+}
 
-export default function CompanyContactCard() {
+export default function CompanyContactCard({
+  primary,
+}: CompanyContactCardProps) {
   return (
-    <div className="border border-gray-300 rounded-xl p-4 mb-4">
-    
-    <div className="flex gap-4"><CircleUserRound className="w-20 h-20 text-blue-400" strokeWidth="0.75"/>
-    <div>
-      <h3 className="text-2xl font-bold ">John Doe</h3>
-      <h3 className="text-md font-semibold text-blue-600">Partnership Manager</h3>
-        <div className="flex mt-2 gap-4">
-      <p className="flex items-center text-sm text-gray-600 border border-blue-600 rounded-lg p-2 " ><Phone className="flex w-4 h-4 ml-1 mr-2 text-primary " />(123) 456-7890</p>
-      <p className="flex items-center text-sm text-gray-600 border bg-muted rounded-lg p-2"><Mail className="flex w-4 h-4 ml-1 mr-2 text-primary" />john.doe@example.com</p>
-      </div>
-      </div>
+    <div
+      className={cn(
+        "relative h-full overflow-hidden rounded-xl border",
+        primary ? "border-primary/30 p-6" : "border-gray-100 p-3",
+      )}
+    >
+      {/* Badge */}
+      {primary && (
+        <div className="bg-primary absolute top-0 right-0 rounded-bl-xl px-4 py-1.5">
+          <p className="text-[10px] font-bold tracking-wider text-white uppercase">
+            Primary Contact
+          </p>
+        </div>
+      )}
+
+      <div
+        className={cn(
+          "flex",
+          primary
+            ? "flex flex-col items-center justify-center gap-6 sm:flex-row sm:justify-normal"
+            : "gap-4",
+        )}
+      >
+        {/* Icon Avatar */}
+        <div
+          className={cn(
+            primary
+              ? "border-primary/20 flex h-18 w-18 shrink-0 items-center justify-center rounded-full border-2"
+              : "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-100 bg-gray-50",
+          )}
+        >
+          <User
+            className={cn(
+              primary ? "text-primary h-10 w-10" : "h-5 w-5 text-gray-400",
+            )}
+            strokeWidth="1.5"
+          />
+        </div>
+
+        <div>
+          {/* Name */}
+          <h3
+            className={cn(
+              primary
+                ? "-mb-0.5 text-center text-lg font-bold sm:justify-self-start"
+                : "text-md font-bold",
+            )}
+          >
+            Nancy Drew
+          </h3>
+
+          {/* Position */}
+          <p
+            className={cn(
+              "uppercase",
+              primary
+                ? "text-primary text-center text-[13px] font-semibold sm:justify-self-start"
+                : "text-muted-foreground text-[11px] font-bold",
+            )}
+          >
+            Partnership Manager
+          </p>
+
+          <div
+            className={cn(
+              "flex",
+              primary ? "mt-4 gap-3" : "mt-2 flex-col gap-1",
+            )}
+          >
+            {/* Phone Badge */}
+            <div
+              className={cn(
+                "flex items-center",
+                primary
+                  ? "rounded-lg border border-gray-100 bg-gray-50 px-3 py-1.5"
+                  : "",
+              )}
+            >
+              <Phone
+                className={cn(
+                  "mr-2",
+                  primary
+                    ? "text-chart-2 h-4 w-4"
+                    : "text-muted-foreground h-3 w-3",
+                )}
+              />
+              <span
+                className={cn(
+                  "text-[12px] font-medium",
+                  primary ? "text-black/70" : "text-black/55",
+                )}
+              >
+                012-456-7890
+              </span>
+            </div>
+
+            {/* Email Badge */}
+            <div
+              className={cn(
+                "flex items-center",
+                primary
+                  ? "rounded-lg border border-gray-100 bg-gray-50 px-3 py-1.5"
+                  : "",
+              )}
+            >
+              <Mail
+                className={cn(
+                  "mr-2",
+                  primary
+                    ? "text-chart-2 h-4 w-4"
+                    : "text-muted-foreground h-3 w-3",
+                )}
+              />
+              <span
+                className={cn(
+                  "text-[12px] font-medium",
+                  primary ? "text-black/70" : "text-black/55",
+                )}
+              >
+                john.doe@example.com
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  )
+  );
 }

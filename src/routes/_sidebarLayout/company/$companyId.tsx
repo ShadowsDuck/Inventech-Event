@@ -1,11 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import CompanyDetail from "@/features/company/components/CompanyDetail";
 
+import CompanyDetail from "@/features/company/components/CompanyDetail";
 
 export const Route = createFileRoute("/_sidebarLayout/company/$companyId")({
   component: CompanyDetail,
 });
-
-function RouteComponent() {
-  return <div>Hello "/company/$companyId"!</div>;
-}
