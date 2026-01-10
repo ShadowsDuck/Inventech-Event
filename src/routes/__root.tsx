@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { Progress, ProgressProvider } from "@bprogress/react";
+import { ProgressProvider } from "@bprogress/react";
 import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {

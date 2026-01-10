@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   Building2,
   CalendarDays,
@@ -10,16 +11,21 @@ import {
 
 import PageHeader from "@/components/layout/PageHeader";
 import MapPreview from "@/components/map-preview";
+import { DataTable } from "@/components/tables/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 
+import { companiesQuery } from "../api/getCompanies";
 import CompanyContactCard from "./company-contact-card";
+import { companyProjectsColumns } from "./company-projects-column";
 
 export default function CompanyDetail() {
   const [activeTab, setActiveTab] = useState<"overview" | "history">(
     "overview",
   );
+
+  const { data: companies } = useSuspenseQuery(companiesQuery());
 
   return (
     <>
@@ -119,6 +125,13 @@ export default function CompanyDetail() {
             </Card>
           </div>
         </>
+      )}
+
+      {activeTab === "history" && (
+        <div className="flex flex-col gap-4 p-6">
+          <h1 className="font-bold">Project History</h1>
+          <DataTable columns={companyProjectsColumns} data={companies} />
+        </div>
       )}
     </>
   );
