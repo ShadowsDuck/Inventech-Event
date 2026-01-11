@@ -1,9 +1,16 @@
+import type { EventType } from "./event";
+
 export interface CompanyType {
   companyId: number;
   companyName: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
   companyContacts?: ContactPersonType[];
+  events?: EventType[];
 }
 
 export interface ContactPersonType {

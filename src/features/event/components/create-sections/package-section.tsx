@@ -1,15 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import CarouselPackage from "@/features/package/components/carousel-package";
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import type { EventFormApi } from "@/types/event-form";
+import CarouselPackage from "@/features/package/components/carousel-package";
+import type { EventTypeSchema } from "@/types/event";
 
 interface SectionProps {
-  form: EventFormApi;
+  form: EventTypeSchema;
 }
 
 export function PackageSection({ form }: SectionProps) {

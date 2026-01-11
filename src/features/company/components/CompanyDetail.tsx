@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 import {
   Building2,
   CalendarDays,
@@ -10,20 +12,39 @@ import {
 
 import PageHeader from "@/components/layout/PageHeader";
 import MapPreview from "@/components/map-preview";
+import { DataTable } from "@/components/tables/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
+import { Route } from "@/routes/_sidebarLayout/company/$companyId";
 
+import { companyQuery } from "../api/getCompany";
 import CompanyContactCard from "./company-contact-card";
+import { companyProjectsColumns } from "./company-projects-column";
 
 export default function CompanyDetail() {
   const [activeTab, setActiveTab] = useState<"overview" | "history">(
     "overview",
   );
 
+  const { companyId } = Route.useParams();
+  const { data: company } = useSuspenseQuery(companyQuery(companyId));
+
+  const primaryContact = company.companyContacts?.find((c) => c.isPrimary);
+
+  const lat = company?.latitude ? Number(company.latitude) : null;
+  const lng = company?.longitude ? Number(company.longitude) : null;
+  const position: [number, number] | null = lat && lng ? [lat, lng] : null;
+
   return (
     <>
-      <PageHeader title="Company Detail" />
+      <PageHeader
+        title={company.companyName}
+        subtitle={company.address}
+        backButton={true}
+        showStatusBadge={true}
+        isDeleted={company.isDeleted}
+      />
 
       <Tabs
         value={activeTab}
@@ -66,8 +87,7 @@ export default function CompanyDetail() {
                 </div>
                 <div className="flex flex-col">
                   <div className="flex items-center gap-3">
-                    <h1 className="text-xl font-bold">Acme Corporation</h1>
-                    <Badge variant="success">Active</Badge>
+                    <h1 className="text-xl font-bold">{company.companyName}</h1>
                   </div>
 
                   {/* System Metadata Line */}
@@ -75,7 +95,8 @@ export default function CompanyDetail() {
                     <div className="flex gap-1.5">
                       <CalendarDays className="h-3.5 w-3.5 opacity-70" />
                       <span className="text-xs">
-                        Customer since January 24, 2024
+                        Customer since{" "}
+                        {format(company.createdAt, "MMMM d, yyyy")}
                       </span>
                     </div>
                   </div>
@@ -86,13 +107,23 @@ export default function CompanyDetail() {
 
               {/* Contact Persons */}
               <p className="text-muted-foreground -mb-2 text-[11px] font-bold tracking-wider uppercase">
-                Contact Persons (3)
+                Contact Persons ({company.companyContacts?.length || 0})
               </p>
-              <CompanyContactCard primary={true} />
+
+              {primaryContact && (
+                <CompanyContactCard contact={primaryContact} primary={true} />
+              )}
 
               <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-4">
-                <CompanyContactCard primary={false} />
-                <CompanyContactCard primary={false} />
+                {company.companyContacts
+                  ?.filter((contact) => !contact.isPrimary)
+                  .map((contact) => (
+                    <CompanyContactCard
+                      key={contact.companyContactId}
+                      contact={contact}
+                      primary={false}
+                    />
+                  ))}
               </div>
             </Card>
 
@@ -105,20 +136,26 @@ export default function CompanyDetail() {
               </div>
 
               {/* Map Preview */}
-              <MapPreview
-                position={[13.7563, 100.5018]}
-                popUp="Acme Corporation"
-              />
+              <MapPreview position={position} popUp={company.companyName} />
               <div className="flex flex-col gap-1">
-                <h1 className="text-[15px] font-bold">Acme Corporation</h1>
+                <h1 className="text-[15px] font-bold">{company.companyName}</h1>
                 <p className="text-muted-foreground text-xs">
-                  186/1 Moo 1, Old Railway Road, Samrong Tai, Phra Pradaeng,
-                  Samut Prakan 10130
+                  {company.address || "No address provided"}
                 </p>
               </div>
             </Card>
           </div>
         </>
+      )}
+
+      {activeTab === "history" && (
+        <div className="flex flex-col gap-4 p-6">
+          <h1 className="font-bold">Project History</h1>
+          {/*<DataTable
+            columns={companyProjectsColumns}
+            data={company.events || []}
+          />*/}
+        </div>
       )}
     </>
   );

@@ -1,18 +1,21 @@
 import { Mail, Phone, User } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import type { ContactPersonType } from "@/types/company";
 
 interface CompanyContactCardProps {
   primary: boolean;
+  contact: ContactPersonType;
 }
 
 export default function CompanyContactCard({
   primary,
+  contact,
 }: CompanyContactCardProps) {
   return (
     <div
       className={cn(
-        "relative h-full overflow-hidden rounded-xl border",
+        "relative overflow-hidden rounded-xl border",
         primary ? "border-primary/30 p-6" : "border-gray-100 p-3",
       )}
     >
@@ -58,7 +61,7 @@ export default function CompanyContactCard({
                 : "text-md font-bold",
             )}
           >
-            Nancy Drew
+            {contact.fullName}
           </h3>
 
           {/* Position */}
@@ -70,7 +73,7 @@ export default function CompanyContactCard({
                 : "text-muted-foreground text-[11px] font-bold",
             )}
           >
-            Partnership Manager
+            {contact.position}
           </p>
 
           <div
@@ -102,7 +105,7 @@ export default function CompanyContactCard({
                   primary ? "text-black/70" : "text-black/55",
                 )}
               >
-                012-456-7890
+                {contact.phoneNumber || "-"}
               </span>
             </div>
 
@@ -129,7 +132,7 @@ export default function CompanyContactCard({
                   primary ? "text-black/70" : "text-black/55",
                 )}
               >
-                john.doe@example.com
+                {contact.email || "-"}
               </span>
             </div>
           </div>

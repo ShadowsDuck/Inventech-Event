@@ -8,10 +8,10 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import SelectPeriod from "@/components/ui/select-period";
-import type { EventFormApi } from "@/types/event-form";
+import type { EventTypeSchema } from "@/types/event";
 
 interface SectionProps {
-  form: EventFormApi;
+  form: EventTypeSchema;
 }
 
 export function ScheduleSection({ form }: SectionProps) {

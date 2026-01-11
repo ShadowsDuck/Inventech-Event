@@ -11,23 +11,22 @@ import { Route } from "@/routes/_sidebarLayout/company";
 
 import SearchBar from "../../../components/SearchBar";
 import PageHeader from "../../../components/layout/PageHeader";
-import PageSection from "../../../components/layout/PageSection";
 import { companiesQuery } from "../api/getCompanies";
 
 export default function CompanyList() {
   const navigate = Route.useNavigate();
-  const { q } = Route.useSearch();
+  const { companyName } = Route.useSearch();
 
-  const { data: companies } = useSuspenseQuery(companiesQuery({ q }));
+  const { data: companies } = useSuspenseQuery(companiesQuery({ companyName }));
 
-  const [searchValue, setSearchValue] = useState(q || "");
+  const [searchValue, setSearchValue] = useState(companyName || "");
 
   const handleSearch = useDebouncedCallback(
     (value: string) => {
       navigate({
         search: (prev) => ({
           ...prev,
-          q: value || undefined,
+          companyName: value || undefined,
         }),
         replace: true,
       });
@@ -57,15 +56,13 @@ export default function CompanyList() {
         }
       />
 
-      <div className="px-6 pt-4 pb-2">
+      <div className="flex flex-col gap-4 px-6 pt-4">
         <SearchBar
           value={searchValue}
           onChange={onSearchChange}
           placeholder="Search company..."
         />
-      </div>
 
-      <PageSection>
         <DataTable
           columns={companyColumns}
           data={companies}
@@ -76,7 +73,7 @@ export default function CompanyList() {
             })
           }
         />
-      </PageSection>
+      </div>
     </>
   );
 }

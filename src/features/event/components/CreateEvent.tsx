@@ -11,33 +11,35 @@ import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { DEFAULT_PACKAGE_OFFLINE } from "@/data/hardcode";
 import { parseCoordinates } from "@/lib/utils";
-import type { EventFormSchema } from "@/types/event-form";
+import type { EventType } from "@/types/event";
 
-import { BasicInfoSection } from "./basic-info-section";
-import { FilesSection } from "./files-section";
-import { LocationSection } from "./location-section";
-import { PackageSection } from "./package-section";
-import { ScheduleSection } from "./schedule-section";
+import { BasicInfoSection } from "./create-sections/basic-info-section";
+import { FilesSection } from "./create-sections/files-section";
+import { LocationSection } from "./create-sections/location-section";
+import { PackageSection } from "./create-sections/package-section";
+import { ScheduleSection } from "./create-sections/schedule-section";
 
 // const formSchema = z.object({ ... });
 
 export default function CreateEvent() {
   const form = useForm({
     defaultValues: {
-      event_name: "",
-      company: "",
-      event_type: "offline",
+      eventId: 0,
+      eventName: "",
+      eventType: "Offline",
+      meetingDate: "",
+      registrationTime: "",
+      startTime: "",
+      endTime: "",
+      period: "Morning",
+      latitude: 0,
+      longitude: 0,
       note: "",
-      date: undefined,
-      start_time: "",
-      end_time: "",
-      time_period: "",
-      location: "",
-      latitude: null,
-      longitude: null,
-      package: DEFAULT_PACKAGE_OFFLINE,
-      files: [],
-    } as EventFormSchema,
+      documentUrl: "",
+      isDeleted: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as EventType,
 
     // validators: {
     //   onSubmit: formSchema,
