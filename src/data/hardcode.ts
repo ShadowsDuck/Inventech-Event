@@ -1,1 +1,1 @@
-export const DEFAULT_PACKAGE_OFFLINE = "p1";
+export const DEFAULT_PACKAGE_OFFLINE = "1";

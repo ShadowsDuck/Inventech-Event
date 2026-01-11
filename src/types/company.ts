@@ -7,8 +7,8 @@ export interface CompanyType {
   latitude: number;
   longitude: number;
   isDeleted: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   companyContacts?: ContactPersonType[];
   events?: EventType[];
 }
@@ -20,6 +20,6 @@ export interface ContactPersonType {
   phoneNumber: string;
   position: string;
   isPrimary: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }

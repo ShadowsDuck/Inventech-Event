@@ -31,7 +31,7 @@ export function BasicInfoSection({ form }: SectionProps) {
             {/* Event Name */}
             <div className="md:col-span-2">
               <form.Field
-                name="event_name"
+                name="eventName"
                 children={(field) => {
                   const isInvalid =
                     field.state.meta.isTouched && !field.state.meta.isValid;
@@ -58,7 +58,7 @@ export function BasicInfoSection({ form }: SectionProps) {
             </div>
 
             {/* Company */}
-            <form.Field name="company">
+            <form.Field name="companyId">
               {(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
@@ -80,7 +80,7 @@ export function BasicInfoSection({ form }: SectionProps) {
 
             {/* Event Type */}
             <form.Field
-              name="event_type"
+              name="eventType"
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
@@ -91,13 +91,13 @@ export function BasicInfoSection({ form }: SectionProps) {
                       value={field.state.value}
                       onChange={(val) => {
                         field.handleChange(val);
-                        if (val === "offline") {
+                        if (val === "Offline") {
                           form.setFieldValue(
-                            "package",
+                            "packageId",
                             DEFAULT_PACKAGE_OFFLINE,
                           );
                         } else {
-                          form.setFieldValue("package", "");
+                          form.setFieldValue("packageId", 0);
                         }
                       }}
                     />
