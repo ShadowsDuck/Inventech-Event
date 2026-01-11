@@ -9,7 +9,7 @@ export interface EquipmentSetType {
 export interface PackageType {
   packageId: number;
   packageName: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   equipmentSets: EquipmentSetType[];
 }

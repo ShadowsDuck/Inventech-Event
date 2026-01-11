@@ -11,7 +11,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { DEFAULT_PACKAGE_OFFLINE } from "@/data/hardcode";
 import { parseCoordinates } from "@/lib/utils";
-import type { EventType } from "@/types/event";
+import type { EventFormType } from "@/types/event";
 
 import { BasicInfoSection } from "./create-sections/basic-info-section";
 import { FilesSection } from "./create-sections/files-section";
@@ -32,51 +32,156 @@ export default function CreateEvent() {
       startTime: "",
       endTime: "",
       period: "Morning",
+      location: "",
       latitude: 0,
       longitude: 0,
       note: "",
-      documentUrl: "",
+      createdByStaffId: 0,
+      companyId: 0,
+      packageId: 0,
+      eventAttachments: [],
+      eventStaff: [],
+      eventOutsources: [],
+      eventExtraEquipments: [],
+      newFiles: [],
       isDeleted: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    } as EventType,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    } as EventFormType,
 
     // validators: {
     //   onSubmit: formSchema,
     // },
     onSubmit: async ({ value }) => {
+      // 1. จัดการ Location
       const coords = parseCoordinates(value.location);
+      const finalLat = coords ? coords[0] : value.latitude;
+      const finalLng = coords ? coords[1] : value.longitude;
 
-      // แปลง File Object เป็น Object ธรรมดา เพื่อให้มองเห็นใน JSON
-      const filesForDisplay = value.files.map((file) => ({
-        name: file.name,
-        size: file.size,
-        type: file.type,
-      }));
+      // 2. สร้าง FormData
+      const formData = new FormData();
 
-      const payload = {
-        ...value,
-        date: value.date ? format(value.date, "yyyy-MM-dd") : null,
-        location: undefined,
-        latitude: coords ? coords[0] : null,
-        longitude: coords ? coords[1] : null,
-        files: filesForDisplay,
+      // ---------------------------------------------------------
+      // 2.1 ข้อมูลพื้นฐาน (Basic Info)
+      // ---------------------------------------------------------
+      formData.append("EventId", value.eventId.toString());
+      formData.append("EventName", value.eventName);
+      formData.append("EventType", value.eventType);
+
+      // Date & Time
+      const formattedDate = value.meetingDate
+        ? format(new Date(value.meetingDate), "yyyy-MM-dd")
+        : "";
+      formData.append("MeetingDate", formattedDate);
+      formData.append("RegistrationTime", value.registrationTime);
+      formData.append("StartTime", value.startTime);
+      formData.append("EndTime", value.endTime);
+      formData.append("Period", value.period);
+
+      // Location & Note
+      formData.append("Latitude", finalLat?.toString() || "0");
+      formData.append("Longitude", finalLng?.toString() || "0");
+      formData.append("Note", value.note || "");
+      formData.append("IsDeleted", value.isDeleted.toString());
+
+      // ---------------------------------------------------------
+      // 2.2 Foreign Keys (ต้องมี)
+      // ---------------------------------------------------------
+      formData.append("CompanyId", value.companyId.toString());
+      formData.append("PackageId", value.packageId.toString());
+      formData.append("CreatedByStaffId", value.createdByStaffId.toString());
+
+      // ---------------------------------------------------------
+      // 2.3 Collections (Loop ใส่ Index) 🔥 จุดสำคัญ
+      // Backend C# จะแกะข้อมูลได้ ต้องใช้ชื่อ key แบบนี้:
+      // PropertyName[index].FieldName
+      // ---------------------------------------------------------
+
+      // (1) Staff
+      if (value.eventStaff?.length > 0) {
+        value.eventStaff.forEach((item, index) => {
+          // ส่งแค่ StaffId ก็พอ (EventId Backend จัดการเอง)
+          formData.append(
+            `EventStaff[${index}].StaffId`,
+            item.staffId.toString(),
+          );
+        });
+      }
+
+      // (2) Outsource
+      if (value.eventOutsources?.length > 0) {
+        value.eventOutsources.forEach((item, index) => {
+          formData.append(
+            `EventOutsources[${index}].OutsourceId`,
+            item.outsourceId.toString(),
+          );
+          formData.append(
+            `EventOutsources[${index}].RoleId`,
+            item.roleId.toString(),
+          );
+        });
+      }
+
+      // (3) Equipment
+      if (value.eventExtraEquipments?.length > 0) {
+        value.eventExtraEquipments.forEach((item, index) => {
+          formData.append(
+            `EventExtraEquipments[${index}].EquipmentId`,
+            item.equipmentId.toString(),
+          );
+          formData.append(
+            `EventExtraEquipments[${index}].Quantity`,
+            item.quantity.toString(),
+          );
+        });
+      }
+
+      // ---------------------------------------------------------
+      // 2.4 Files Upload (ไฟล์ใหม่)
+      // ---------------------------------------------------------
+      if (value.newFiles?.length > 0) {
+        value.newFiles.forEach((file) => {
+          formData.append("Files", file); // ชื่อ "Files" ต้องตรงกับ Backend
+        });
+      }
+
+      // ---------------------------------------------------------
+      // 3. Debug Payload (โชว์ Toast)
+      // ---------------------------------------------------------
+      const debugPayload = {
+        eventName: value.eventName,
+        staffCount: value.eventStaff.length,
+        outsourceCount: value.eventOutsources.length,
+        equipmentCount: value.eventExtraEquipments.length,
+        filesCount: value.newFiles.length,
+        // ลอง Log ดูว่า FormData หน้าตา key เป็นยังไง (ดูยากหน่อยใน Console)
       };
 
-      toast("You submitted the following values:", {
+      toast("กำลังส่งข้อมูล...", {
         description: (
-          <pre className="text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md bg-black p-4">
-            <code>{JSON.stringify(payload, null, 2)}</code>
-          </pre>
+          <div className="flex flex-col gap-2">
+            <p className="text-muted-foreground text-xs">
+              ส่งข้อมูลทั้งหมดรวมถึง Staff, Outsource, Equipment และ Files
+            </p>
+            <pre className="text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md bg-black p-4 text-xs">
+              <code>{JSON.stringify(debugPayload, null, 2)}</code>
+            </pre>
+          </div>
         ),
         position: "bottom-right",
-        classNames: {
-          content: "flex flex-col gap-2",
-        },
-        style: {
-          "--border-radius": "calc(var(--radius)  + 4px)",
-        } as React.CSSProperties,
       });
+
+      // 4. ยิง API (ตัวอย่าง)
+      /*
+      try {
+         const res = await fetch('https://your-api.com/api/events', {
+            method: 'POST',
+            body: formData // 👈 Browser จะจัดการ Header และ Boundary ให้เอง ห้าม set Content-Type
+         });
+         if(res.ok) toast.success("บันทึกสำเร็จ");
+         else toast.error("เกิดข้อผิดพลาด");
+      } catch(e) { console.error(e); }
+      */
     },
   });
 
@@ -115,7 +220,7 @@ export default function CreateEvent() {
           <BasicInfoSection form={form} />
           <ScheduleSection form={form} />
           <LocationSection form={form} />
-          <PackageSection form={form} />
+          {/*<PackageSection form={form} />*/}
 
           {/* Equipment */}
           {/* <Card>

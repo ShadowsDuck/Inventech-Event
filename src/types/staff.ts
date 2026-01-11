@@ -1,37 +1,23 @@
-//Role
-export interface Role {
-  roleId: number;
-  roleName: string;
-}
+import type { RoleType } from "./role";
 
-// ตารางกลาง staff_roles
 export interface StaffRoleType {
   staffId: number;
   roleId: number;
-  role: Role; 
+  role: RoleType;
 }
 
-// staff
+export interface StaffPermissionType {
+  permissionId: number;
+  staffId: number;
+}
+
 export interface StaffType {
   staffId: number;
   fullName: string;
   email: string;
   phoneNumber: string;
   avatarUrl: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-
-  staffRoles: StaffRoleType[]; 
-}
-
-
-export interface StaffPermissionType {
-  permissionId: number;
-  staffId: number;
-}
-export interface EventStaffType {
-  eventId: number;
-  staffId: number;
-  assignedAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
+  staffRoles: StaffRoleType[];
 }

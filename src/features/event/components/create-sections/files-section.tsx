@@ -24,7 +24,7 @@ export function FilesSection({ form }: SectionProps) {
       <CardContent>
         <FieldGroup>
           <form.Field
-            name="files"
+            name="newFiles"
             children={(field) => {
               // field.state.value จะรู้ว่าเป็น File[] โดยอัตโนมัติ
               const isInvalid =
