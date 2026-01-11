@@ -10,10 +10,10 @@ import { Input } from "@/components/ui/input";
 import { TabEventType } from "@/components/ui/tab-event-type";
 import { Textarea } from "@/components/ui/textarea";
 import { DEFAULT_PACKAGE_OFFLINE } from "@/data/hardcode";
-import type { EventFormApi } from "@/types/event-form";
+import type { EventTypeSchema } from "@/types/event";
 
 interface SectionProps {
-  form: EventFormApi;
+  form: EventTypeSchema;
 }
 
 export function BasicInfoSection({ form }: SectionProps) {

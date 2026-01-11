@@ -15,18 +15,18 @@ import { companiesQuery } from "../api/getCompanies";
 
 export default function CompanyList() {
   const navigate = Route.useNavigate();
-  const { q } = Route.useSearch();
+  const { companyName } = Route.useSearch();
 
-  const { data: companies } = useSuspenseQuery(companiesQuery({ q }));
+  const { data: companies } = useSuspenseQuery(companiesQuery({ companyName }));
 
-  const [searchValue, setSearchValue] = useState(q || "");
+  const [searchValue, setSearchValue] = useState(companyName || "");
 
   const handleSearch = useDebouncedCallback(
     (value: string) => {
       navigate({
         search: (prev) => ({
           ...prev,
-          q: value || undefined,
+          companyName: value || undefined,
         }),
         replace: true,
       });

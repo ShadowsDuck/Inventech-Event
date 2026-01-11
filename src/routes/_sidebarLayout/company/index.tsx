@@ -6,7 +6,7 @@ import { companiesQuery } from "@/features/company/api/getCompanies";
 import CompanyList from "@/features/company/components/CompanyList";
 
 const companySearchParamsSchema = z.object({
-  q: z.string().trim().optional().catch(undefined),
+  companyName: z.string().trim().optional().catch(undefined),
 });
 
 export const Route = createFileRoute("/_sidebarLayout/company/")({
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_sidebarLayout/company/")({
   },
   validateSearch: zodValidator(companySearchParamsSchema),
   loaderDeps: ({ search }) => ({
-    q: search.q,
+    companyName: search.companyName,
   }),
   loader: async ({ context: { queryClient }, deps }) => {
     return queryClient.ensureQueryData(companiesQuery({ ...deps }));

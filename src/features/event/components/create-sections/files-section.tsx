@@ -1,4 +1,3 @@
-import { LocationPicker } from "@/components/location-picker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
@@ -6,42 +5,38 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import type { EventFormApi } from "@/types/event-form";
+import { FileUploader } from "@/components/ui/file-uploader";
+import type { EventTypeSchema } from "@/types/event";
 
 interface SectionProps {
-  form: EventFormApi;
+  form: EventTypeSchema;
 }
 
-export function LocationSection({ form }: SectionProps) {
+export function FilesSection({ form }: SectionProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-          <span className="h-6 w-1.5 rounded-full bg-blue-600" />
-          Location
+          <span className="h-6 w-1 rounded-full bg-blue-600" />
+          Files & Documents
         </CardTitle>
       </CardHeader>
       <CardContent>
         <FieldGroup>
           <form.Field
-            name="location"
+            name="files"
             children={(field) => {
+              // field.state.value จะรู้ว่าเป็น File[] โดยอัตโนมัติ
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Venue Location</FieldLabel>
-                  <LocationPicker
+                  <FieldLabel htmlFor={field.name} className="-mb-3" />
+                  <FileUploader
                     value={field.state.value}
-                    onChange={field.handleChange}
-                    onBlur={field.handleBlur}
-                    error={isInvalid ? "true" : undefined}
+                    onValueChange={field.handleChange}
                   />
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                  <p className="text-muted-foreground mt-2 text-xs">
-                    Enter coordinates in "latitude, longitude" format and click
-                    the pin icon.
-                  </p>
                 </Field>
               );
             }}

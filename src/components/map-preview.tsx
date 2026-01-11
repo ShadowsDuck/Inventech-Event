@@ -1,12 +1,13 @@
 import { useEffect } from "react";
 
 import { Icon, type LatLngTuple } from "leaflet";
+import { ExternalLink } from "lucide-react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 
 import markerIconPng from "../assets/marker-icon.png";
 
 interface MapPreviewProps {
-  position: LatLngTuple | null;
+  position?: LatLngTuple | null;
   popUp?: string;
 }
 
@@ -18,7 +19,7 @@ const customIcon = new Icon({
   className: "fill-black drop-shadow-sm drop-shadow-black/50",
 });
 
-function MapController({ position }: { position: LatLngTuple | null }) {
+function MapController({ position }: { position?: LatLngTuple | null }) {
   const map = useMap();
 
   // ดึงค่า lat, lng ออกมาเพื่อเช็ค dependency
@@ -69,7 +70,25 @@ function MapPreview({ position, popUp }: MapPreviewProps) {
 
       {position && (
         <Marker position={position} icon={customIcon}>
-          <Popup>{popUp || "Location"}</Popup>
+          <Popup>
+            <div className="flex min-w-37.5 flex-col items-center gap-1">
+              <span className="text-sm font-bold text-gray-800">
+                {popUp || "ตำแหน่งที่ตั้ง"}
+              </span>
+
+              <hr className="my-1 w-full border-gray-200" />
+
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${position[0]},${position[1]}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                <span>เปิดใน Google Maps</span>
+                <ExternalLink size={14} />
+              </a>
+            </div>
+          </Popup>
         </Marker>
       )}
     </MapContainer>

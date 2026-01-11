@@ -100,7 +100,7 @@ export function DataTable<TData, TValue>({
                         <div
                           className={cn(
                             header.column.getCanSort() &&
-                              "group flex h-full w-full cursor-pointer items-center justify-start gap-2 px-4 py-3 transition-colors select-none hover:bg-gray-100",
+                              "group flex h-full w-full cursor-pointer items-center justify-start gap-2 px-4 py-3 transition-colors select-none hover:bg-gray-200/40",
                           )}
                           onClick={header.column.getToggleSortingHandler()}
                           onKeyDown={(e) => {
@@ -180,7 +180,7 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-24 bg-white text-center"
                 >
                   No results.
                 </TableCell>

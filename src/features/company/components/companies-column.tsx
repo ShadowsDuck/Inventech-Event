@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Mail, Phone } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import type { CompanyType } from "@/types/company";
 
 import { CompanyActions } from "./company-actions";
@@ -9,18 +10,19 @@ export const companyColumns: ColumnDef<CompanyType>[] = [
   {
     accessorKey: "companyName",
     header: "Company Name",
+    size: 250,
     cell: ({ row }) => (
       <div className="font-medium">{row.getValue("companyName") as string}</div>
     ),
   },
   {
-    // Contact ใช้ accessorFn ดึงชื่อออกมา เพื่อให้ Sort ตามชื่อคนได้
     id: "contactName",
     accessorFn: (row) => {
       const primary = row.companyContacts?.find((c) => c.isPrimary);
       return primary?.fullName || "";
     },
     header: "Primary Contact",
+    size: 200,
     cell: ({ row }) => {
       const primaryContact = row.original.companyContacts?.find(
         (c) => c.isPrimary,
@@ -37,14 +39,12 @@ export const companyColumns: ColumnDef<CompanyType>[] = [
     },
   },
   {
-    // Email: เปลี่ยนจาก accessorKey เป็น accessorFn
     id: "email",
     accessorFn: (row) => row.companyContacts?.find((c) => c.isPrimary)?.email,
     header: "Email",
+    size: 200,
     enableSorting: false,
     cell: ({ row }) => {
-      // ใช้ getValue() ได้เลย เพราะเรา return ค่า email มาจาก accessorFn แล้ว
-      // หรือจะใช้ logic เดิมก็ได้ แต่ getValue() จะตรงกับค่าที่ใช้ sort
       const email = row.getValue("email") as string;
 
       return (
@@ -56,11 +56,11 @@ export const companyColumns: ColumnDef<CompanyType>[] = [
     },
   },
   {
-    // Phone: ใช้ accessorFn เช่นกัน
     id: "phoneNumber",
     accessorFn: (row) =>
       row.companyContacts?.find((c) => c.isPrimary)?.phoneNumber,
     header: "Phone",
+    size: 150,
     enableSorting: false,
     cell: ({ row }) => {
       const phone = row.getValue("phoneNumber") as string;
@@ -72,6 +72,20 @@ export const companyColumns: ColumnDef<CompanyType>[] = [
         </div>
       );
     },
+  },
+  {
+    accessorKey: "isDeleted",
+    header: "Status",
+    size: 100,
+    cell: ({ row }) => (
+      <div className="font-medium">
+        {row.getValue("isDeleted") ? (
+          <Badge variant="secondary">Inactive</Badge>
+        ) : (
+          <Badge variant="success">Active</Badge>
+        )}
+      </div>
+    ),
   },
   {
     id: "actions",
