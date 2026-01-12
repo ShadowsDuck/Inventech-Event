@@ -43,6 +43,9 @@ export const staffColumns: ColumnDef<StaffType>[] = [
   {
     accessorKey: "staffRoles",
     header: "Roles",
+    filterFn:(row,id,value)=> {
+      return value.include(row.getValue(id));
+    },
     cell: ({ row }) => {
       const roleNames =
         row.original.staffRoles

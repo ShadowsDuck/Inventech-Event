@@ -6,6 +6,8 @@ import {
   type ColumnDef,
   type PaginationState,
   type SortingState,
+  type ColumnFiltersState,
+  getFilteredRowModel,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -46,17 +48,20 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-// กำหนด Props ให้รับ columns และ data เข้ามา
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onRowClick?: (row: TData) => void;
+  globalFilter?: string;
+  columnFilter?: ColumnFiltersState;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   onRowClick,
+  globalFilter,
+  columnFilter,
 }: DataTableProps<TData, TValue>) {
   const id = useId();
 
@@ -76,10 +81,15 @@ export function DataTable<TData, TValue>({
     enableSortingRemoval: false,
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
+    getFilteredRowModel:getFilteredRowModel(),
     state: {
       sorting,
       pagination,
+      globalFilter:globalFilter,
+      columnFilters:columnFilter,
     },
+    onGlobalFilterChange: () =>{},
+    onColumnFiltersChange: () =>{}
   });
 
   return (
