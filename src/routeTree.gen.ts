@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SidebarLayoutRouteRouteImport } from './routes/_sidebarLayout/route'
+import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as SidebarLayoutIndexRouteImport } from './routes/_sidebarLayout/index'
 import { Route as StaffCreateRouteImport } from './routes/staff/create'
 import { Route as PackageCreateRouteImport } from './routes/package/create'
@@ -29,6 +30,11 @@ import { Route as SidebarLayoutCompanyCompanyIdRouteImport } from './routes/_sid
 
 const SidebarLayoutRouteRoute = SidebarLayoutRouteRouteImport.update({
   id: '/_sidebarLayout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginIndexRoute = LoginIndexRouteImport.update({
+  id: '/login/',
+  path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SidebarLayoutIndexRoute = SidebarLayoutIndexRouteImport.update({
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/package/create': typeof PackageCreateRoute
   '/staff/create': typeof StaffCreateRoute
   '/': typeof SidebarLayoutIndexRoute
+  '/login': typeof LoginIndexRoute
   '/company/$companyId': typeof SidebarLayoutCompanyCompanyIdRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
   '/company': typeof SidebarLayoutCompanyIndexRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/package/create': typeof PackageCreateRoute
   '/staff/create': typeof StaffCreateRoute
   '/': typeof SidebarLayoutIndexRoute
+  '/login': typeof LoginIndexRoute
   '/company/$companyId': typeof SidebarLayoutCompanyCompanyIdRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
   '/company': typeof SidebarLayoutCompanyIndexRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/package/create': typeof PackageCreateRoute
   '/staff/create': typeof StaffCreateRoute
   '/_sidebarLayout/': typeof SidebarLayoutIndexRoute
+  '/login/': typeof LoginIndexRoute
   '/_sidebarLayout/company/$companyId': typeof SidebarLayoutCompanyCompanyIdRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
   '/_sidebarLayout/company/': typeof SidebarLayoutCompanyIndexRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/package/create'
     | '/staff/create'
     | '/'
+    | '/login'
     | '/company/$companyId'
     | '/staff/$staffId/edit'
     | '/company'
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/package/create'
     | '/staff/create'
     | '/'
+    | '/login'
     | '/company/$companyId'
     | '/staff/$staffId/edit'
     | '/company'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '/package/create'
     | '/staff/create'
     | '/_sidebarLayout/'
+    | '/login/'
     | '/_sidebarLayout/company/$companyId'
     | '/staff/$staffId/edit'
     | '/_sidebarLayout/company/'
@@ -237,6 +249,7 @@ export interface RootRouteChildren {
   OutsourceCreateRoute: typeof OutsourceCreateRoute
   PackageCreateRoute: typeof PackageCreateRoute
   StaffCreateRoute: typeof StaffCreateRoute
+  LoginIndexRoute: typeof LoginIndexRoute
   StaffStaffIdEditRoute: typeof StaffStaffIdEditRoute
 }
 
@@ -247,6 +260,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof SidebarLayoutRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login/': {
+      id: '/login/'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_sidebarLayout/': {
@@ -398,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   OutsourceCreateRoute: OutsourceCreateRoute,
   PackageCreateRoute: PackageCreateRoute,
   StaffCreateRoute: StaffCreateRoute,
+  LoginIndexRoute: LoginIndexRoute,
   StaffStaffIdEditRoute: StaffStaffIdEditRoute,
 }
 export const routeTree = rootRouteImport

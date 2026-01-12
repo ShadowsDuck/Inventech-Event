@@ -10,7 +10,7 @@ const getEquipment = async (params: { q?: string }): Promise<EquipmentType[]> =>
     if (params.q) {
         searchParams.append("q", params.q);
     }
-    const equipment = await fetch(`${API_URL}/api/Equipment?${searchParams}`);
+    const equipment = await fetch(`${API_URL}/api/equipments?${searchParams}`);
     if (!equipment.ok) {
         throw new Error("Failed to fetch equipment");
     }

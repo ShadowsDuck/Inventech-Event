@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
 const getPackage = async () => { 
-    const pack = await fetch("https://localhost:7268/api/Package");
+    const pack = await fetch("https://localhost:7268/api/packages");
     return pack.json();
 }
 

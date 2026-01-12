@@ -10,7 +10,7 @@ const getOutsource = async (params: { q?: string }): Promise<OutsourceType[]> =>
     }
     const query = searchParams.toString();
 
-    const res = await fetch(`${API_URL}/api/Outsource${query ? `?${query}` : ""}`);
+    const res = await fetch(`${API_URL}/api/outsources${query ? `?${query}` : ""}`);
 
     if (!res.ok) {
         throw new Error("Failed to fetch outsource");

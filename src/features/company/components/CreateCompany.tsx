@@ -9,6 +9,7 @@ import ContactPersonsSection, {
   newContact,
 } from "@/components/CreateCompanyComponent/contactpersons-section";
 import type { Contact } from "@/components/CreateCompanyComponent/contactpersons-section";
+import { LocationPicker } from "@/components/location-picker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -23,16 +24,16 @@ import { PageHeader } from "../../../components/layout/PageHeader";
 
 type CreateCompanyFormValues = {
   companyName: string;
-  industry: string;
   address: string;
+  location: string;
 };
 
 export default function CreateCompany() {
   const form = useForm({
     defaultValues: {
       companyName: "",
-      industry: "",
       address: "",
+      location: "",
     },
     onSubmit: async ({ value }) => {
       toast("You submitted the following values:", {
@@ -126,18 +127,10 @@ export default function CreateCompany() {
                     }}
                   </form.Field>
 
-                  {/* Address + Map */}
                   <form.Field name="address">
                     {(field) => {
                       const isInvalid =
                         field.state.meta.isTouched && !field.state.meta.isValid;
-
-                      const q = (
-                        field.state.value?.trim() || "Bangkok"
-                      ).toString();
-                      const src = `https://www.google.com/maps?q=${encodeURIComponent(
-                        q,
-                      )}&output=embed`;
 
                       return (
                         <Field data-invalid={isInvalid} className="min-w-0">
@@ -152,20 +145,35 @@ export default function CreateCompany() {
                             onBlur={field.handleBlur}
                             onChange={(e) => field.handleChange(e.target.value)}
                             aria-invalid={isInvalid}
-                            placeholder="Building, Street, City..."
+                            placeholder="e.g. 123 Main St, Springfield"
                             autoComplete="off"
                           />
 
-                          {/* Map Preview (แสดงตำแหน่งให้รู้) */}
-                          <div className="mt-4 overflow-hidden rounded-2xl border border-gray-200 bg-gray-50">
-                            <iframe
-                              title="company-map"
-                              className="h-55 w-full"
-                              loading="lazy"
-                              referrerPolicy="no-referrer-when-downgrade"
-                              src={src}
-                            />
-                          </div>
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      );
+                    }}
+                  </form.Field>
+
+                  {/* Address + Map */}
+                  <form.Field name="location">
+                    {(field) => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+
+                      return (
+                        <Field data-invalid={isInvalid} className="min-w-0">
+                          <FieldLabel htmlFor={field.name} className="mb-1">
+                            Location
+                          </FieldLabel>
+                          <LocationPicker
+                            value={field.state.value}
+                            onChange={field.handleChange}
+                            onBlur={field.handleBlur}
+                            error={isInvalid ? "true" : undefined}
+                          />
 
                           {isInvalid && (
                             <FieldError errors={field.state.meta.errors} />
