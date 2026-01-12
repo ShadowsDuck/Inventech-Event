@@ -4,12 +4,12 @@ import { useId, useState } from "react";
 
 import {
   type ColumnDef,
+  type ColumnFiltersState,
   type PaginationState,
   type SortingState,
-  type ColumnFiltersState,
-  getFilteredRowModel,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
@@ -81,15 +81,15 @@ export function DataTable<TData, TValue>({
     enableSortingRemoval: false,
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
-    getFilteredRowModel:getFilteredRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
       pagination,
-      globalFilter:globalFilter,
-      columnFilters:columnFilter,
+      globalFilter: globalFilter,
+      columnFilters: columnFilter,
     },
-    onGlobalFilterChange: () =>{},
-    onColumnFiltersChange: () =>{}
+    onGlobalFilterChange: () => {},
+    onColumnFiltersChange: () => {},
   });
 
   return (
@@ -104,7 +104,7 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       style={{ width: `${header.getSize()}px` }}
-                      className="bg-muted/50 text-muted-foreground p-0 text-xs font-bold uppercase"
+                      className="bg-muted/50 text-muted-foreground/90 p-0 text-xs font-semibold tracking-wide uppercase"
                     >
                       {header.isPlaceholder ? null : header.column.getCanSort() ? (
                         <div
@@ -177,7 +177,14 @@ export function DataTable<TData, TValue>({
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="h-15 px-4">
+                    <TableCell
+                      key={cell.id}
+                      className="h-15 px-4"
+                      style={{
+                        width: cell.column.getSize(),
+                        maxWidth: cell.column.getSize(),
+                      }}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),

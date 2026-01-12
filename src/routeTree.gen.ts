@@ -15,7 +15,6 @@ import { Route as SidebarLayoutIndexRouteImport } from './routes/_sidebarLayout/
 import { Route as StaffCreateRouteImport } from './routes/staff/create'
 import { Route as PackageCreateRouteImport } from './routes/package/create'
 import { Route as OutsourceCreateRouteImport } from './routes/outsource/create'
-import { Route as EventDetailRouteImport } from './routes/event/detail'
 import { Route as EventCreateRouteImport } from './routes/event/create'
 import { Route as EquipmentCreateRouteImport } from './routes/equipment/create'
 import { Route as CompanyCreateRouteImport } from './routes/company/create'
@@ -55,11 +54,6 @@ const PackageCreateRoute = PackageCreateRouteImport.update({
 const OutsourceCreateRoute = OutsourceCreateRouteImport.update({
   id: '/outsource/create',
   path: '/outsource/create',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EventDetailRoute = EventDetailRouteImport.update({
-  id: '/event/detail',
-  path: '/event/detail',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventCreateRoute = EventCreateRouteImport.update({
@@ -129,7 +123,6 @@ export interface FileRoutesByFullPath {
   '/company/create': typeof CompanyCreateRoute
   '/equipment/create': typeof EquipmentCreateRoute
   '/event/create': typeof EventCreateRoute
-  '/event/detail': typeof EventDetailRoute
   '/outsource/create': typeof OutsourceCreateRoute
   '/package/create': typeof PackageCreateRoute
   '/staff/create': typeof StaffCreateRoute
@@ -148,7 +141,6 @@ export interface FileRoutesByTo {
   '/company/create': typeof CompanyCreateRoute
   '/equipment/create': typeof EquipmentCreateRoute
   '/event/create': typeof EventCreateRoute
-  '/event/detail': typeof EventDetailRoute
   '/outsource/create': typeof OutsourceCreateRoute
   '/package/create': typeof PackageCreateRoute
   '/staff/create': typeof StaffCreateRoute
@@ -169,7 +161,6 @@ export interface FileRoutesById {
   '/company/create': typeof CompanyCreateRoute
   '/equipment/create': typeof EquipmentCreateRoute
   '/event/create': typeof EventCreateRoute
-  '/event/detail': typeof EventDetailRoute
   '/outsource/create': typeof OutsourceCreateRoute
   '/package/create': typeof PackageCreateRoute
   '/staff/create': typeof StaffCreateRoute
@@ -190,7 +181,6 @@ export interface FileRouteTypes {
     | '/company/create'
     | '/equipment/create'
     | '/event/create'
-    | '/event/detail'
     | '/outsource/create'
     | '/package/create'
     | '/staff/create'
@@ -209,7 +199,6 @@ export interface FileRouteTypes {
     | '/company/create'
     | '/equipment/create'
     | '/event/create'
-    | '/event/detail'
     | '/outsource/create'
     | '/package/create'
     | '/staff/create'
@@ -229,7 +218,6 @@ export interface FileRouteTypes {
     | '/company/create'
     | '/equipment/create'
     | '/event/create'
-    | '/event/detail'
     | '/outsource/create'
     | '/package/create'
     | '/staff/create'
@@ -245,7 +233,6 @@ export interface RootRouteChildren {
   CompanyCreateRoute: typeof CompanyCreateRoute
   EquipmentCreateRoute: typeof EquipmentCreateRoute
   EventCreateRoute: typeof EventCreateRoute
-  EventDetailRoute: typeof EventDetailRoute
   OutsourceCreateRoute: typeof OutsourceCreateRoute
   PackageCreateRoute: typeof PackageCreateRoute
   StaffCreateRoute: typeof StaffCreateRoute
@@ -295,13 +282,6 @@ declare module '@tanstack/react-router' {
       path: '/outsource/create'
       fullPath: '/outsource/create'
       preLoaderRoute: typeof OutsourceCreateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/event/detail': {
-      id: '/event/detail'
-      path: '/event/detail'
-      fullPath: '/event/detail'
-      preLoaderRoute: typeof EventDetailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/event/create': {
@@ -414,7 +394,6 @@ const rootRouteChildren: RootRouteChildren = {
   CompanyCreateRoute: CompanyCreateRoute,
   EquipmentCreateRoute: EquipmentCreateRoute,
   EventCreateRoute: EventCreateRoute,
-  EventDetailRoute: EventDetailRoute,
   OutsourceCreateRoute: OutsourceCreateRoute,
   PackageCreateRoute: PackageCreateRoute,
   StaffCreateRoute: StaffCreateRoute,

@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Mail, Phone } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { formatPhoneNumberDisplay } from "@/lib/format";
 import type { CompanyType } from "@/types/company";
 
 import { CompanyActions } from "./company-actions";
@@ -12,7 +13,12 @@ export const companyColumns: ColumnDef<CompanyType>[] = [
     header: "Company Name",
     size: 250,
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("companyName") as string}</div>
+      <div
+        className="truncate font-medium"
+        title={row.getValue("companyName") as string}
+      >
+        {row.getValue("companyName") as string}
+      </div>
     ),
   },
   {
@@ -29,9 +35,14 @@ export const companyColumns: ColumnDef<CompanyType>[] = [
       );
 
       return (
-        <div className="flex flex-col">
-          <span className="font-medium">{primaryContact?.fullName || "-"}</span>
-          <span className="text-muted-foreground text-[11px] font-medium uppercase">
+        <div className="flex flex-col overflow-hidden">
+          <span
+            className="truncate font-medium"
+            title={primaryContact?.fullName}
+          >
+            {primaryContact?.fullName || "-"}
+          </span>
+          <span className="text-muted-foreground truncate text-[11px] font-medium uppercase">
             {primaryContact?.position || ""}
           </span>
         </div>
@@ -48,9 +59,11 @@ export const companyColumns: ColumnDef<CompanyType>[] = [
       const email = row.getValue("email") as string;
 
       return (
-        <div className="flex items-center gap-2">
-          <Mail className="text-muted-foreground h-4 w-4 opacity-70" />
-          <span className="text-muted-foreground">{email || "-"}</span>
+        <div className="flex min-w-0 items-center gap-2">
+          <Mail className="text-muted-foreground h-4 w-4 shrink-0 opacity-70" />{" "}
+          <span className="text-muted-foreground truncate" title={email}>
+            {email || "-"}
+          </span>
         </div>
       );
     },
@@ -68,7 +81,9 @@ export const companyColumns: ColumnDef<CompanyType>[] = [
       return (
         <div className="flex items-center gap-2">
           <Phone className="text-muted-foreground h-4 w-4 opacity-70" />
-          <span className="text-muted-foreground">{phone || "-"}</span>
+          <span className="text-muted-foreground">
+            {formatPhoneNumberDisplay(phone)}
+          </span>
         </div>
       );
     },

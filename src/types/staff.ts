@@ -14,10 +14,11 @@ export interface StaffPermissionType {
 export interface StaffType {
   staffId: number;
   fullName: string;
-  email: string;
-  phoneNumber: string;
-  avatarUrl: string | null;
+  email?: string;
+  phoneNumber?: string;
+  avatar?: string;
+  isDeleted: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   staffRoles: StaffRoleType[];
 }
