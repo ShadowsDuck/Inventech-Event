@@ -1,5 +1,17 @@
+import {
+  type ComponentPropsWithoutRef,
+  type ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import { CheckIcon, ChevronsUpDownIcon, XIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -15,17 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  type ComponentPropsWithoutRef,
-  type ReactNode,
-} from "react";
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 type MultiSelectContextType = {
   open: boolean;
@@ -50,7 +52,7 @@ export function MultiSelect({
 }) {
   const [open, setOpen] = useState(false);
   const [internalValues, setInternalValues] = useState(
-    new Set<string>(values ?? defaultValues)
+    new Set<string>(values ?? defaultValues),
   );
   const selectedValues = values ? new Set(values) : internalValues;
   const [items, setItems] = useState<Map<string, ReactNode>>(new Map());
@@ -112,8 +114,8 @@ export function MultiSelectTrigger({
         role={props.role ?? "combobox"}
         aria-expanded={props["aria-expanded"] ?? open}
         className={cn(
-          "flex h-auto min-h-9 w-fit items-center justify-between gap-2 overflow-hidden rounded-md border border-input bg-transparent px-3 py-1.5 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
-          className
+          "border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='text-'])]:text-muted-foreground flex h-auto min-h-10 w-fit items-center justify-between gap-2 overflow-hidden rounded-md border bg-transparent px-3 py-1.5 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+          className,
         )}
       >
         {children}
@@ -149,7 +151,7 @@ export function MultiSelectValue({
     const containerElement = valueRef.current;
     const overflowElement = overflowRef.current;
     const items = containerElement.querySelectorAll<HTMLElement>(
-      "[data-selected-item]"
+      "[data-selected-item]",
     );
 
     if (overflowElement != null) overflowElement.style.display = "none";
@@ -187,12 +189,12 @@ export function MultiSelectValue({
         valueRef.current = null;
       };
     },
-    [checkOverflow]
+    [checkOverflow],
   );
 
   if (selectedValues.size === 0 && placeholder) {
     return (
-      <span className="min-w-0 overflow-hidden font-normal text-muted-foreground">
+      <span className="text-muted-foreground min-w-0 overflow-hidden font-normal">
         {placeholder}
       </span>
     );
@@ -205,7 +207,7 @@ export function MultiSelectValue({
       className={cn(
         "flex w-full gap-1.5 overflow-hidden",
         shouldWrap && "h-full flex-wrap",
-        className
+        className,
       )}
     >
       {[...selectedValues]
@@ -227,7 +229,7 @@ export function MultiSelectValue({
           >
             {items.get(value)}
             {clickToRemove && (
-              <XIcon className="size-2 text-muted-foreground group-hover:text-destructive" />
+              <XIcon className="text-muted-foreground group-hover:text-destructive size-2" />
             )}
           </Badge>
         ))}
@@ -266,7 +268,7 @@ export function MultiSelectContent({
         </Command>
       </div>
       <PopoverContent
-        className="w-fit p-0 rounded-xl overflow-hidden"
+        className="w-fit overflow-hidden rounded-xl p-0"
         align={align}
       >
         <Command {...props}>
@@ -279,6 +281,9 @@ export function MultiSelectContent({
           ) : (
             <button autoFocus className="sr-only" />
           )}
+
+          <div className="border-input/70 my-2 border-b" />
+
           <CommandList>
             {canSearch && (
               <CommandEmpty>
@@ -288,9 +293,9 @@ export function MultiSelectContent({
             {children}
           </CommandList>
           {onClear && (
-            <div className="border-t p-1 bg-popover sticky bottom-0 z-10">
+            <div className="bg-popover border-input/70 sticky bottom-0 z-10 mt-2 border-t p-1">
               <button
-                className="w-full text-xs text-center p-2 text-destructive hover:bg-destructive/5 rounded-lg flex gap-1 items-center justify-center transition-colors cursor-pointer"
+                className="text-destructive hover:bg-destructive/5 flex w-full cursor-pointer items-center justify-center gap-1 rounded-lg p-2 text-center text-xs transition-colors"
                 onClick={(e) => {
                   e.stopPropagation(); // กัน Popover ปิด
                   onClear();
@@ -335,20 +340,20 @@ export function MultiSelectItem({
         onSelect?.(value);
       }}
       className={cn(
-        "cursor-pointer rounded-lg mx-1 transition-colors group",
+        "group mx-1 cursor-pointer rounded-lg transition-colors",
         "data-[selected=true]:bg-transparent data-[selected=true]:text-inherit",
-        "hover:bg-gray-200/20!"
+        "hover:bg-gray-200/20!",
       )}
     >
       {/* ส่วนสร้าง Checkbox Box */}
       <div
         className={cn(
-          "ml-1 mr-1 flex h-3.5 w-3.5 items-center justify-center rounded-md border border-gray-400 transition-all",
+          "mr-1 ml-1 flex h-3.5 w-3.5 items-center justify-center rounded-md border border-gray-400 transition-all",
           hasDescription && "-mt-2.5",
           isSelected
             ? "bg-primary text-primary-foreground border-0"
             : "opacity-50 [&_svg]:invisible",
-          !isSelected && "group-hover:border-blue-400 group-hover:opacity-100"
+          !isSelected && "group-hover:border-blue-400 group-hover:opacity-100",
         )}
       >
         <CheckIcon className="h-3! w-3!" color="white" />
@@ -359,13 +364,13 @@ export function MultiSelectItem({
 }
 
 export function MultiSelectGroup(
-  props: ComponentPropsWithoutRef<typeof CommandGroup>
+  props: ComponentPropsWithoutRef<typeof CommandGroup>,
 ) {
   return <CommandGroup {...props} />;
 }
 
 export function MultiSelectSeparator(
-  props: ComponentPropsWithoutRef<typeof CommandSeparator>
+  props: ComponentPropsWithoutRef<typeof CommandSeparator>,
 ) {
   return <CommandSeparator {...props} />;
 }
@@ -374,7 +379,7 @@ function useMultiSelectContext() {
   const context = useContext(MultiSelectContext);
   if (context == null) {
     throw new Error(
-      "useMultiSelectContext must be used within a MultiSelectContext"
+      "useMultiSelectContext must be used within a MultiSelectContext",
     );
   }
   return context;
@@ -382,7 +387,7 @@ function useMultiSelectContext() {
 
 function debounce<T extends (...args: never[]) => void>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout> | null = null;
   return function (this: unknown, ...args: Parameters<T>) {

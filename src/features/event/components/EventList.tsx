@@ -1,14 +1,21 @@
 import { useMemo, useState } from "react";
 
 import { useNavigate } from "@tanstack/react-router";
-import { Building2, CalendarDays, Check, Plus, Search, Users } from "lucide-react";
+import {
+  Building2,
+  CalendarDays,
+  Check,
+  Plus,
+  Search,
+  Users,
+} from "lucide-react";
 
-import Daily from "@/components/event/daily";
-import Month from "@/components/event/month";
-import Year from "@/components/event/year";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { FilterMultiSelect, type FilterOption } from "@/components/ui/filter-multi-select";
+import {
+  FilterMultiSelect,
+  type FilterOption,
+} from "@/components/ui/filter-multi-select";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import {
   COMPANY_DATA,
@@ -23,12 +30,16 @@ import YearView from "./year-view";
 
 // helpers
 const normalize = (v: unknown) =>
-  String(v ?? "").trim().toLowerCase();
+  String(v ?? "")
+    .trim()
+    .toLowerCase();
 
 export default function EventList() {
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<"daily" | "calendar" | "year">("calendar");
+  const [activeTab, setActiveTab] = useState<"daily" | "calendar" | "year">(
+    "calendar",
+  );
 
   const [searchText, setSearchText] = useState("");
   const [staffFilter, setStaffFilter] = useState<string[]>([]);
@@ -85,7 +96,9 @@ export default function EventList() {
         const company = COMPANY_DATA.find((c) => c.id === e.companyId);
         const companyName = normalize(company?.companyName);
 
-        return title.includes(q) || location.includes(q) || companyName.includes(q);
+        return (
+          title.includes(q) || location.includes(q) || companyName.includes(q)
+        );
       });
     }
 
@@ -113,18 +126,18 @@ export default function EventList() {
   }, [searchText, staffFilter, companyFilter, eventTypeFilter, statusFilter]);
 
   const toYMD = (d: Date) => {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-};
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
 
-const todayYMD = toYMD(new Date());
+  const todayYMD = toYMD(new Date());
 
-const todayEvents = useMemo(
-  () => filteredEvents.filter((e) => e.date === todayYMD),
-  [filteredEvents, todayYMD],
-);
+  const todayEvents = useMemo(
+    () => filteredEvents.filter((e) => e.date === todayYMD),
+    [filteredEvents, todayYMD],
+  );
 
   return (
     <>

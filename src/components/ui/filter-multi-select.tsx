@@ -1,12 +1,13 @@
 import * as React from "react";
-import { X } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
 import {
   MultiSelect,
   MultiSelectContent,
   MultiSelectItem,
   MultiSelectTrigger,
 } from "./multi-select";
-import { cn } from "@/lib/utils";
 
 export interface FilterOption {
   value: string;
@@ -41,13 +42,13 @@ export function FilterMultiSelect({
       <MultiSelectTrigger
         className={cn(
           // Style ปกติ (ยังไม่ได้เลือก) -> Border dashed, พื้นใส
-          "h-8 w-fit border rounded-xl bg-transparent hover:bg-muted/50",
+          "hover:bg-muted/50 h-8 w-fit rounded-xl border bg-transparent",
 
           // Style เมื่อมีการเลือก (Active) -> Border solid, พื้นสีฟ้าอ่อน, ตัวหนังสือสีน้ำเงิน
           isActive &&
             "border-solid border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
 
-          className
+          className,
         )}
       >
         <div className="flex items-center gap-2">
@@ -56,7 +57,7 @@ export function FilterMultiSelect({
             <Icon
               className={cn(
                 "h-4 w-4",
-                isActive ? "text-blue-700" : "text-muted-foreground"
+                isActive ? "text-blue-700" : "text-muted-foreground",
               )}
             />
           )}
@@ -65,7 +66,7 @@ export function FilterMultiSelect({
           <span
             className={cn(
               "text-sm font-medium",
-              isActive ? "text-blue-700" : "text-muted-foreground"
+              isActive ? "text-blue-700" : "text-muted-foreground",
             )}
           >
             {title}
@@ -96,14 +97,14 @@ export function FilterMultiSelect({
           >
             {/* ถ้ามี Icon */}
             {option.icon && (
-              <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+              <option.icon className="text-muted-foreground mr-2 h-4 w-4" />
             )}
 
             {/* ส่วนแสดงผล Text และ Description */}
             <div className="flex flex-col">
               <span className="leading-snug">{option.label}</span>
               {option.description && (
-                <span className="text-[11px] text-muted-foreground/80">
+                <span className="text-muted-foreground/80 text-[11px]">
                   {option.description}
                 </span>
               )}
