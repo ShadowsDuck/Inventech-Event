@@ -25,8 +25,11 @@ export const TextField = ({
 }: TextFieldProps) => {
   const field = useFieldContext<string>();
 
+  const isSubmitted = field.form.state.isSubmitted;
+
   const hasError =
-    field.state.meta.isTouched && field.state.meta.errors.length > 0;
+    (field.state.meta.isTouched || isSubmitted) &&
+    field.state.meta.errors.length > 0;
 
   return (
     <div>
@@ -53,11 +56,11 @@ export const TextField = ({
         }}
         placeholder={placeholder}
         aria-invalid={hasError}
-        className="pl-9"
+        className={startIcon && "pl-9"}
         startIcon={startIcon}
       />
 
-      <FieldErrors meta={field.state.meta} />
+      {hasError && <FieldErrors meta={field.state.meta} />}
     </div>
   );
 };
