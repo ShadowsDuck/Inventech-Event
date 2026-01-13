@@ -1,14 +1,14 @@
-import { createFormHook,createFormHookContexts } from "@tanstack/react-form";
-import { TextField } from "./text-field";
+import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
+
 import { LocationField } from "./location-field";
-import { PhoneField } from "./phone-field";
+import { TextField } from "./text-field";
 
-export const {fieldContext,useFieldContext, formContext,useFormContext} = 
-createFormHookContexts();
+export const { fieldContext, useFieldContext, formContext, useFormContext } =
+  createFormHookContexts();
 
-export const {useAppForm} =createFormHook({
- fieldComponents:{TextField,LocationField,PhoneField},
- formComponents:{},
- fieldContext, 
- formContext,
+export const { useAppForm } = createFormHook({
+  fieldComponents: { TextField, LocationField },
+  formComponents: {},
+  fieldContext,
+  formContext,
 });

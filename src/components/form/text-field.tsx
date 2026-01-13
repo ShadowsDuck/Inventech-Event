@@ -1,27 +1,63 @@
+import type { LucideIcon } from "lucide-react";
+
+import { formatPhoneNumberInput } from "@/lib/format";
+import { cn } from "@/lib/utils";
+
 import { useFieldContext } from ".";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { FieldErrors } from "./field-error";
 
-type TextFieldProps ={
-    label:string;
-    placeholder?:string
+type TextFieldProps = {
+  label: string;
+  type: string;
+  placeholder?: string;
+  startIcon?: LucideIcon;
+  required?: boolean;
 };
 
-export const TextField = ({label,placeholder}:TextFieldProps) => {
+export const TextField = ({
+  label,
+  type,
+  placeholder,
+  startIcon,
+  required,
+}: TextFieldProps) => {
   const field = useFieldContext<string>();
 
+  const hasError =
+    field.state.meta.isTouched && field.state.meta.errors.length > 0;
+
   return (
-    <div className="space-y-6">
-    <Label htmlFor={field.name}>{label}</Label>
-    <Input
-      placeholder={placeholder}
-      id={field.name}
-      value={field.state.value}
-      onChange={(e) => field.handleChange(e.target.value)}
-      onBlur={field.handleBlur}
-    />
-    <FieldErrors meta = {field.state.meta}/>
+    <div>
+      <Label
+        htmlFor={field.name}
+        className={cn("mb-3", hasError ? "text-destructive" : "")}
+      >
+        {label} {required && <span className="text-destructive -ml-1">*</span>}
+      </Label>
+
+      <Input
+        id={field.name}
+        name={field.name}
+        type={type}
+        value={field.state.value}
+        onBlur={field.handleBlur}
+        onChange={(e) => {
+          if (type === "tel") {
+            const formatted = formatPhoneNumberInput(e.target.value);
+            field.handleChange(formatted);
+          } else {
+            field.handleChange(e.target.value);
+          }
+        }}
+        placeholder={placeholder}
+        aria-invalid={hasError}
+        className="pl-9"
+        startIcon={startIcon}
+      />
+
+      <FieldErrors meta={field.state.meta} />
     </div>
   );
 };

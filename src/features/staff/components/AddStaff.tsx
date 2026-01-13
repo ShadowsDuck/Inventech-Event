@@ -1,25 +1,30 @@
-import { useForm } from "@tanstack/react-form";
+import { revalidateLogic } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { Loader2, Mail, Phone, Save, User } from "lucide-react";
 import z from "zod";
 
-import StaffProfileFormFields from "@/components/AddStaffandOutsourceComponent/StaffProfileFormFields";
 import { useAppForm } from "@/components/form";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { formatPhoneNumberInput } from "@/lib/format";
-import type { StaffType } from "@/types/staff";
 
-import { type CreateStaffInput, useCreateStaff } from "../api/createStaff";
+import { useCreateStaff } from "../api/createStaff";
 
-const staffFormSchema = z.object({
-  fullName: z.string().min(1).max(255),
+const StaffSchema = z.object({
+  fullName: z
+    .string()
+    .min(2, "Full name should be at least 2 characters.")
+    .max(255, "Full name should not exceed 255 characters."),
   email: z.email().optional(),
-  phoneNumber: z.string().min(12).max(12).optional(),
+  phoneNumber: z
+    .string()
+    .regex(/^0/, "The phone number must start with 0")
+    .min(12, "The phone number is too short.")
+    .max(12, "The phone number is too short.")
+    .optional(),
 });
+
+type CreateStaffInput = z.infer<typeof StaffSchema>;
 
 export default function AddStaff() {
   const navigate = useNavigate();
@@ -33,10 +38,13 @@ export default function AddStaff() {
       // avatar: null as File | null,
       // roles: [] as string[],
     } as CreateStaffInput,
-
     validators: {
-      onSubmit: staffFormSchema,
+      onChange: StaffSchema,
     },
+    validationLogic: revalidateLogic({
+      mode: "submit",
+      modeAfterSubmission: "blur",
+    }),
     onSubmit: async ({ value }) => {
       const payload = {
         ...value,
@@ -100,34 +108,49 @@ export default function AddStaff() {
                 form.handleSubmit();
               }}
               className="space-y-8"
+              noValidate
             >
               {/* Full Name */}
               <form.AppField
                 name="fullName"
                 children={(field) => (
                   <field.TextField
-                    label="Staff Name"
-                    placeholder="สมพง สมใจ"
+                    label="Full Name"
+                    type="text"
+                    placeholder="e.g. Somchai Jaidee"
+                    startIcon={User}
+                    required
                   />
                 )}
               />
-              <div className="grid grid-cols-2 gap-4">
-              <form.AppField
-                name="email"
-                children={(field) => (
-                  <field.TextField label="Email" placeholder="Email@gmail.com" />
-                )}
-              />
-              <form.AppField
-                name="phoneNumber"
-                children={(field) => (
-                  <field.PhoneField
-                    label="Phone Number"
-                    placeholder="Phone Number"
-                    
-                  />
-                )}
-              /></div>
+
+              <div className="grid grid-cols-2 gap-6">
+                {/* Email */}
+                <form.AppField
+                  name="email"
+                  children={(field) => (
+                    <field.TextField
+                      label="Email Address"
+                      type="email"
+                      placeholder="staff@inventecvt.com"
+                      startIcon={Mail}
+                    />
+                  )}
+                />
+
+                {/* Phone Number */}
+                <form.AppField
+                  name="phoneNumber"
+                  children={(field) => (
+                    <field.TextField
+                      label="Phone Number"
+                      type="tel"
+                      placeholder="081-234-5678"
+                      startIcon={Phone}
+                    />
+                  )}
+                />
+              </div>
             </form>
 
             {/*<StaffProfileFormFields
