@@ -125,7 +125,6 @@ export default function ContactPersonsSection({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <form.AppField
                 name={`contacts[${idx}].phone`}
-                // แก้ไขตรงนี้: ใส่ :any ให้ subField
                 children={(subField: any) => (
                   <subField.TextField
                     label="Phone"

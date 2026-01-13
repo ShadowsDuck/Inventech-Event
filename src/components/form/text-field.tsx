@@ -1,6 +1,7 @@
 import { useFieldContext } from ".";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { FieldErrors } from "./field-error";
 
 type TextFieldProps ={
     label:string;
@@ -19,6 +20,8 @@ export const TextField = ({label,placeholder}:TextFieldProps) => {
       value={field.state.value}
       onChange={(e) => field.handleChange(e.target.value)}
       onBlur={field.handleBlur}
-    /></div>
+    />
+    <FieldErrors meta = {field.state.meta}/>
+    </div>
   );
 };

@@ -12,6 +12,7 @@ import { Route } from "@/routes/_sidebarLayout/company";
 import SearchBar from "../../../components/SearchBar";
 import PageHeader from "../../../components/layout/PageHeader";
 import { companiesQuery } from "../api/getCompanies";
+import { useAppForm } from "@/components/form";
 
 export default function CompanyList() {
   const navigate = Route.useNavigate();
@@ -38,7 +39,7 @@ export default function CompanyList() {
     setSearchValue(value);
     handleSearch(value);
   };
-
+  
   return (
     <>
       <PageHeader

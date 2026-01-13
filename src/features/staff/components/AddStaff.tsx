@@ -4,6 +4,7 @@ import { Loader2, Mail, Phone, Save, User } from "lucide-react";
 import z from "zod";
 
 import StaffProfileFormFields from "@/components/AddStaffandOutsourceComponent/StaffProfileFormFields";
+import { useAppForm } from "@/components/form";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +25,7 @@ export default function AddStaff() {
   const navigate = useNavigate();
   const { mutate, isPending } = useCreateStaff();
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: {
       fullName: "",
       email: "",
@@ -101,106 +102,32 @@ export default function AddStaff() {
               className="space-y-8"
             >
               {/* Full Name */}
-              <form.Field
+              <form.AppField
                 name="fullName"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid;
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name} className="gap-1">
-                        <span>Full Name</span>
-                        <span className="text-destructive">*</span>
-                      </FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        placeholder="e.g. Somchai Jaidee"
-                        autoComplete="off"
-                        className="pl-9"
-                        startIcon={User}
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  );
-                }}
+                children={(field) => (
+                  <field.TextField
+                    label="Staff Name"
+                    placeholder="สมพง สมใจ"
+                  />
+                )}
               />
-
-              <div className="grid grid-cols-2 gap-8">
-                {/* Email Address */}
-                <form.Field
-                  name="email"
-                  children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name} className="gap-1">
-                          <span>Email Address</span>
-                          <span className="text-destructive">*</span>
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          aria-invalid={isInvalid}
-                          placeholder="staff@example.com"
-                          autoComplete="off"
-                          startIcon={Mail}
-                        />
-                        {isInvalid && (
-                          <FieldError errors={field.state.meta.errors} />
-                        )}
-                      </Field>
-                    );
-                  }}
-                />
-
-                {/* Phone Number */}
-                <form.Field
-                  name="phoneNumber"
-                  children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name} className="gap-1">
-                          <span>Phone Number</span>
-                          <span className="text-destructive">*</span>
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => {
-                            const formatted = formatPhoneNumberInput(
-                              e.target.value,
-                            );
-                            field.handleChange(formatted);
-                          }}
-                          aria-invalid={isInvalid}
-                          placeholder="081-234-5678"
-                          autoComplete="off"
-                          startIcon={Phone}
-                          maxLength={12}
-                        />
-                        {isInvalid && (
-                          <FieldError errors={field.state.meta.errors} />
-                        )}
-                      </Field>
-                    );
-                  }}
-                />
-              </div>
+              <div className="grid grid-cols-2 gap-4">
+              <form.AppField
+                name="email"
+                children={(field) => (
+                  <field.TextField label="Email" placeholder="Email@gmail.com" />
+                )}
+              />
+              <form.AppField
+                name="phoneNumber"
+                children={(field) => (
+                  <field.PhoneField
+                    label="Phone Number"
+                    placeholder="Phone Number"
+                    
+                  />
+                )}
+              /></div>
             </form>
 
             {/*<StaffProfileFormFields

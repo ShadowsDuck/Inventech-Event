@@ -17,5 +17,5 @@ export const staffByIdQuery = (staffId: number) =>
   queryOptions({
     queryKey: ["staff", "detail", staffId],
     queryFn: () => getStaffById(staffId),
-    enabled: !!staffId, // ป้องกันกรณี id เป็น undefined
+    enabled: !!staffId, 
   });
