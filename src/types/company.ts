@@ -3,9 +3,9 @@ import type { EventType } from "./event";
 export interface CompanyType {
   companyId: number;
   companyName: string;
-  address: string;
-  latitude: number;
-  longitude: number;
+  address?: string | null;
+  latitude?: number;
+  longitude?: number;
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
