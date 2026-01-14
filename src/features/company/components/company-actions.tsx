@@ -10,11 +10,5 @@ export function CompanyActions({ company }: { company: CompanyType }) {
     navigate({ to: `/company/${company.companyId}/edit` });
   };
 
-  return (
-    <DataTableRowActions
-      resourceName="Company"
-      rowLabel={company.companyName}
-      onEdit={handleEdit}
-    />
-  );
+  return <DataTableRowActions resourceName="Company" onEdit={handleEdit} />;
 }
