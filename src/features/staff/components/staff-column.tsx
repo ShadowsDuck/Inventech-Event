@@ -15,6 +15,8 @@ import { formatPhoneNumberDisplay } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import type { StaffType } from "@/types/staff";
 
+import { StaffActions } from "./staff-actions";
+
 export const staffColumns: ColumnDef<StaffType>[] = [
   {
     accessorKey: "fullName",
@@ -60,7 +62,7 @@ export const staffColumns: ColumnDef<StaffType>[] = [
             className="text-chart-4/90 border-primary/30 inline-block max-w-full truncate rounded-full border px-3 py-1 align-middle"
             title={email}
           >
-            {email}
+            {email ? email : "-"}
           </div>
         </div>
       );
@@ -124,43 +126,6 @@ export const staffColumns: ColumnDef<StaffType>[] = [
     header: "",
     size: 50,
     enableSorting: false,
-    cell: ({ row }) => {
-      const navigate = useNavigate();
-      const staff = row.original;
-
-      return (
-        <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end" className="w-36">
-              <DropdownMenuItem
-                onClick={() =>
-                  navigate({
-                    to: "/staff/$staffId/edit",
-                    params: { staffId: String(staff.staffId) },
-                  })
-                }
-              >
-                Edit
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
-                onClick={() => {
-                  console.log("delete", staff.staffId);
-                }}
-              >
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
-    },
+    cell: ({ row }) => <StaffActions staff={row.original} />,
   },
 ];
