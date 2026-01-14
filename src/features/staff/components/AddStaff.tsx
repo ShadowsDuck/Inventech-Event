@@ -1,27 +1,32 @@
 import { revalidateLogic } from "@tanstack/react-form";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Loader2, Mail, Phone, Save, User } from "lucide-react";
-import z from "zod";
+import z from "zod"; // ลบ { number } ออก เพราะไม่ได้ใช้จาก zod
 
 import { useAppForm } from "@/components/form";
+import { MultiSelectField } from "@/components/form/multiselect-field";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { useCreateStaff } from "../api/createStaff";
+import { roleQuery } from "../api/getRole";
 
 const StaffSchema = z.object({
   fullName: z
     .string()
     .min(2, "Full name should be at least 2 characters.")
     .max(255, "Full name should not exceed 255 characters."),
-  email: z.email().optional(),
+  email: z.email().optional().or(z.literal("")),
   phoneNumber: z
     .string()
     .regex(/^0/, "The phone number must start with 0")
-    .min(12, "The phone number is too short.")
-    .max(12, "The phone number is too short.")
-    .optional(),
+    .min(10, "Invalid phone number")
+    .max(12, "Invalid phone number")
+    .optional()
+    .or(z.literal("")),
+  roles: z.array(z.string()).min(1, "Please select at least one role."),
 });
 
 type CreateStaffInput = z.infer<typeof StaffSchema>;
@@ -30,13 +35,19 @@ export default function AddStaff() {
   const navigate = useNavigate();
   const { mutate, isPending } = useCreateStaff();
 
+  const { data: rolesData } = useSuspenseQuery(roleQuery());
+
+  const roleOptions = rolesData.map((role) => ({
+    label: role.roleName,
+    value: role.roleId.toString(),
+  }));
+
   const form = useAppForm({
     defaultValues: {
       fullName: "",
       email: "",
       phoneNumber: "",
-      // avatar: null as File | null,
-      // roles: [] as string[],
+      roles: [],
     } as CreateStaffInput,
     validators: {
       onChange: StaffSchema,
@@ -46,10 +57,21 @@ export default function AddStaff() {
       modeAfterSubmission: "blur",
     }),
     onSubmit: async ({ value }) => {
+      // --- จุดที่แก้ไข (TRANSFORM DATA) ---
+      
       const payload = {
-        ...value,
-        phoneNumber: value.phoneNumber?.replace(/-/g, "") || "",
+        fullName: value.fullName,
+        // ถ้าเป็น string ว่างให้ส่ง undefined (API จะได้ไม่ validate format email)
+        email: value.email || undefined, 
+        // ตัดขีดออกจากเบอร์โทร
+        phoneNumber: value.phoneNumber?.replace(/-/g, "") || undefined,
+        
+        // แปลง Array String ["1", "2"] -> Array Number [1, 2]
+        // และส่งด้วยชื่อ field "roleIds" ตามที่ Backend (.NET) มักจะต้องการ
+        roleIds: value.roles.map((id) => Number(id)), 
       };
+
+      console.log("Payload to API:", payload); 
 
       mutate(payload, {
         onSuccess: () => {
@@ -97,7 +119,7 @@ export default function AddStaff() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
               <span className="h-6 w-1 rounded-full bg-blue-600" />
-              Staff Infomation
+              Staff Information
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -105,12 +127,12 @@ export default function AddStaff() {
               id="add-staff-form"
               onSubmit={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 form.handleSubmit();
               }}
-              className="space-y-8"
+              className="space-y-6"
               noValidate
             >
-              {/* Full Name */}
               <form.AppField
                 name="fullName"
                 children={(field) => (
@@ -124,8 +146,7 @@ export default function AddStaff() {
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-6">
-                {/* Email */}
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <form.AppField
                   name="email"
                   children={(field) => (
@@ -138,7 +159,6 @@ export default function AddStaff() {
                   )}
                 />
 
-                {/* Phone Number */}
                 <form.AppField
                   name="phoneNumber"
                   children={(field) => (
@@ -151,17 +171,20 @@ export default function AddStaff() {
                   )}
                 />
               </div>
-            </form>
 
-            {/*<StaffProfileFormFields
-              form={form}
-              roleOptions={[
-                "Host",
-                "Technician",
-                "Project Manager",
-                "Coordinator",
-              ]}
-            />*/}
+              {/* Roles MultiSelect */}
+              <form.AppField
+                name="roles"
+                children={(field) => (
+                  <MultiSelectField
+                    label="Roles"
+                    options={roleOptions}
+                    placeholder="Select roles"
+                    required
+                  />
+                )}
+              />
+            </form>
           </CardContent>
         </Card>
       </div>
