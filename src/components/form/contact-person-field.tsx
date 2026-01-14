@@ -3,18 +3,10 @@ import { Briefcase, Mail, Phone, Plus, Trash2, User } from "lucide-react";
 import { useFieldContext } from "@/components/form";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import type { ContactData } from "@/features/company/components/company-form";
 import { cn } from "@/lib/utils";
 
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-
-type Contact = {
-  id: string;
-  fullName: string;
-  position: string;
-  phoneNumber: string;
-  email: string;
-  isPrimary: boolean;
-};
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type AnyForm = any;
@@ -26,13 +18,12 @@ type ContactPersonFieldProps = {
 };
 
 export function ContactPersonField({ form }: ContactPersonFieldProps) {
-  const field = useFieldContext<Contact[]>();
+  const field = useFieldContext<ContactData[]>();
   const contacts = field.state.value;
 
   const addContact = () => {
     const isFirstContact = contacts.length === 0;
     field.pushValue({
-      id: crypto.randomUUID(),
       fullName: "",
       position: "",
       phoneNumber: "",
@@ -102,7 +93,7 @@ export function ContactPersonField({ form }: ContactPersonFieldProps) {
             const isSwitchDisabled = contacts.length === 1 && c.isPrimary;
             return (
               <div
-                key={c.id || idx}
+                key={idx}
                 className={cn(
                   "rounded-2xl border bg-white p-5 shadow-sm transition-colors",
                   c.isPrimary

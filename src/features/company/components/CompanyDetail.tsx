@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
 import { format } from "date-fns";
 import {
   Building2,
@@ -27,6 +28,7 @@ export default function CompanyDetail() {
     "overview",
   );
 
+  const navigate = useRouter();
   const { companyId } = Route.useParams();
   const { data: company } = useSuspenseQuery(companyQuery(companyId));
 
@@ -40,7 +42,7 @@ export default function CompanyDetail() {
     <>
       <PageHeader
         title={company.companyName}
-        subtitle={company.address}
+        subtitle={company.address || ""}
         backButton={true}
         showStatusBadge={true}
         isDeleted={company.isDeleted}
