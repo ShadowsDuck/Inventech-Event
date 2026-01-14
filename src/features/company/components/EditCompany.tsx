@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
 
+import { formatPhoneNumberDisplay, formatPhoneNumberInput } from "@/lib/format";
 import { Route } from "@/routes/company/$companyId/edit";
 
 import { companyQuery } from "../api/getCompany";
@@ -12,18 +12,8 @@ export default function EditCompany() {
   const navigate = useNavigate();
 
   const { companyId } = Route.useParams();
-  const { data: companyData, isPending: isLoadingData } = useQuery(
-    companyQuery(companyId),
-  );
+  const { data: companyData } = useSuspenseQuery(companyQuery(companyId));
   const { mutate, isPending: isSaving } = useUpdateCompany();
-
-  if (isLoadingData) {
-    return (
-      <div className="flex h-full flex-1 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
-      </div>
-    );
-  }
 
   // ถ้าโหลดเสร็จแล้วแต่ไม่เจอข้อมูล
   if (!companyData) {
@@ -46,15 +36,16 @@ export default function EditCompany() {
         fullName: contact.fullName,
         position: contact.position ?? "",
         email: contact.email ?? "",
-        phoneNumber: contact.phoneNumber ?? "",
+        phoneNumber: formatPhoneNumberDisplay(contact.phoneNumber) ?? "",
         isPrimary: contact.isPrimary ?? false,
       })) ?? [],
   };
 
+  // แปลงจาก Form -> DB
   const handleEditSubmit = (values: CompanyData) => {
     const [latStr, lngStr] = values.location?.split(",") || [];
-    const latitude = latStr ? parseFloat(latStr.trim()) : undefined;
-    const longitude = lngStr ? parseFloat(lngStr.trim()) : undefined;
+    const latitude = latStr ? parseFloat(latStr.trim()) : null;
+    const longitude = lngStr ? parseFloat(lngStr.trim()) : null;
 
     const payload = {
       id: companyId,
@@ -69,7 +60,9 @@ export default function EditCompany() {
         fullName: contact.fullName,
         position: contact.position,
         email: contact.email,
-        phoneNumber: contact.phoneNumber?.replace(/-/g, "") || "",
+        phoneNumber: formatPhoneNumberInput(
+          contact.phoneNumber ? contact.phoneNumber : "",
+        ),
         isPrimary: contact.isPrimary,
       })),
     };
@@ -91,7 +84,6 @@ export default function EditCompany() {
       isPending={isSaving}
       initialValues={initialValues}
       onSubmit={handleEditSubmit}
-      // onCancel={() => navigate({ to: ".." })}
     />
   );
 }

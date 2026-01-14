@@ -55,7 +55,6 @@ interface CompanyFormProps {
   initialValues?: Partial<CompanyData>;
   onSubmit: (values: CompanyData) => void;
   isPending: boolean;
-  onCancel?: () => void;
   mode: "create" | "edit";
 }
 
@@ -63,7 +62,6 @@ export function CompanyForm({
   initialValues,
   onSubmit,
   isPending,
-  onCancel,
   mode,
 }: CompanyFormProps) {
   const defaultValues: CompanyData = {
@@ -110,7 +108,6 @@ export function CompanyForm({
               variant="outline"
               onClick={() => {
                 form.reset();
-                onCancel?.();
               }}
             >
               Reset
