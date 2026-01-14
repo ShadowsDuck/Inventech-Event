@@ -42,7 +42,7 @@ export function FilterMultiSelect({
       <MultiSelectTrigger
         className={cn(
           // Style ปกติ (ยังไม่ได้เลือก) -> Border dashed, พื้นใส
-          "hover:bg-muted/50 h-8 w-fit rounded-xl border bg-transparent",
+          "hover:bg-hover h-8 w-fit rounded-xl border bg-white transition-colors",
 
           // Style เมื่อมีการเลือก (Active) -> Border solid, พื้นสีฟ้าอ่อน, ตัวหนังสือสีน้ำเงิน
           isActive &&
