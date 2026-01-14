@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { revalidateLogic } from "@tanstack/react-form";
 import { Save } from "lucide-react";
 import z from "zod";
@@ -5,6 +7,8 @@ import z from "zod";
 import { useAppForm } from "@/components/form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 
 import { PageHeader } from "../../../components/layout/PageHeader";
 
@@ -42,6 +46,7 @@ const CompanySchema = z.object({
     .max(500, "Address must be less than 500 characters")
     .optional(),
   location: z.string().optional(),
+  isDeleted: z.boolean(),
   companyContacts: z
     .array(PersonSchema)
     .min(1, "At least one contact person is required"),
@@ -64,10 +69,13 @@ export function CompanyForm({
   isPending,
   mode,
 }: CompanyFormProps) {
+  const [isDeleted, setIsDeleted] = useState(initialValues?.isDeleted ?? false);
+
   const defaultValues: CompanyData = {
     companyName: initialValues?.companyName ?? "",
     address: initialValues?.address ?? "",
     location: initialValues?.location ?? "",
+    isDeleted: isDeleted,
     companyContacts: initialValues?.companyContacts ?? [
       {
         fullName: "",
@@ -100,7 +108,8 @@ export function CompanyForm({
     <div className="flex min-h-0 flex-1 flex-col">
       <PageHeader
         title={title}
-        countLabel={title}
+        backButton
+        subtitle="Create a new company profile and add contact persons"
         actions={
           <div className="flex items-center gap-2">
             <Button
@@ -136,9 +145,28 @@ export function CompanyForm({
         >
           <Card className="mb-8">
             <CardHeader className="pb-1">
-              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                <span className="h-6 w-1.5 rounded-full bg-blue-600" />
-                Basic Information
+              <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
+                <div className="flex items-center gap-2">
+                  <span className="h-6 w-1.5 rounded-full bg-blue-600" />
+                  <p>Basic Information</p>
+                </div>
+                {mode === "edit" && (
+                  <div className="bg-muted/50 flex items-center gap-3 rounded-xl border border-gray-200 p-2 px-4">
+                    <p
+                      className={cn(
+                        "text-xs font-medium",
+                        isDeleted ? "text-muted-foreground" : "text-green-700",
+                      )}
+                    >
+                      {isDeleted ? "Inactive" : "Active"}
+                    </p>
+                    <Switch
+                      checked={!isDeleted}
+                      onCheckedChange={(checked) => setIsDeleted(!checked)}
+                      className="cursor-pointer data-checked:bg-green-500"
+                    />
+                  </div>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>

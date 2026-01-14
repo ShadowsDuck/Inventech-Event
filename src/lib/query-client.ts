@@ -37,10 +37,16 @@ export const queryClient = new QueryClient({
         toast.error(meta.errorMessage);
       }
     },
-    onSettled: (_data, _error, _variables, _context, mutation) => {
+    onSettled: async (_data, _error, _variables, _context, mutation) => {
       const meta = mutation.meta;
       if (meta?.invalidatesQuery) {
-        queryClient.invalidateQueries({ queryKey: meta.invalidatesQuery });
+        // เปลี่ยนจาก invalidateQueries เป็น refetchQueries
+        // invalidateQueries มันแค่ทำให้ query เป็น stale
+        // พอ component mount มันถึงค่อย refetch → เลยกระพริบ
+        // ต้องใช้ refetchQueries แล้วรอให้เสร็จก่อน navigate ถึงจะไม่กระพริบ
+        await queryClient.refetchQueries({
+          queryKey: meta.invalidatesQuery,
+        });
       }
     },
   }),

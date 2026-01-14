@@ -28,6 +28,7 @@ export default function EditCompany() {
       companyData.latitude && companyData.longitude
         ? `${companyData.latitude}, ${companyData.longitude}`
         : "",
+    isDeleted: companyData.isDeleted ?? false,
 
     // Map Contacts array
     companyContacts:

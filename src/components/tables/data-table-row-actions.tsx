@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { MoreHorizontal, Pencil } from "lucide-react";
+import { MoreHorizontal, SquarePen } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,16 +28,20 @@ export function DataTableRowActions({ onEdit }: DataTableRowActionsProps) {
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuContent
+            align="end"
+            sideOffset={0}
+            className="w-16 rounded-xl"
+          >
             <DropdownMenuItem
               onClick={() => {
                 setOpen(false);
                 onEdit();
               }}
-              className="cursor-pointer"
+              className="hover:bg-hover! cursor-pointer px-2 transition-colors hover:rounded-lg"
             >
-              <Pencil className="mr-2 h-3.5 w-3.5" />
-              Edit
+              <SquarePen className="mr-0.5 h-3.5 w-3.5" />
+              <p className="font-light">Edit</p>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
