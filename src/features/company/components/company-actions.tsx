@@ -1,20 +1,13 @@
-// import { useRouter } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
+
 import { DataTableRowActions } from "@/components/tables/data-table-row-actions";
 import type { CompanyType } from "@/types/company";
 
-import { useDeleteCompany } from "../api/deleteCompany";
-
 export function CompanyActions({ company }: { company: CompanyType }) {
-  // const router = useRouter();
-    const { mutateAsync: deleteCompany, isPending } = useDeleteCompany();
+  const navigate = useNavigate();
 
   const handleEdit = () => {
-    // ตัวอย่าง: router.navigate({ to: `/company/${company.companyId}/edit` })
-    console.log("Edit company", company.companyId);
-  };
-
-  const handleDelete = async () => {
-    return await deleteCompany(company.companyId); 
+    navigate({ to: `/company/${company.companyId}/edit` });
   };
 
   return (
@@ -22,8 +15,6 @@ export function CompanyActions({ company }: { company: CompanyType }) {
       resourceName="Company"
       rowLabel={company.companyName}
       onEdit={handleEdit}
-      onDelete={handleDelete}
-      isDeleting={isPending}
     />
   );
 }

@@ -25,6 +25,7 @@ import { Route as SidebarLayoutEventRouteImport } from './routes/_sidebarLayout/
 import { Route as SidebarLayoutEquipmentRouteImport } from './routes/_sidebarLayout/equipment'
 import { Route as SidebarLayoutCompanyIndexRouteImport } from './routes/_sidebarLayout/company/index'
 import { Route as StaffStaffIdEditRouteImport } from './routes/staff/$staffId/edit'
+import { Route as CompanyCompanyIdEditRouteImport } from './routes/company/$companyId/edit'
 import { Route as SidebarLayoutCompanyCompanyIdRouteImport } from './routes/_sidebarLayout/company/$companyId'
 
 const SidebarLayoutRouteRoute = SidebarLayoutRouteRouteImport.update({
@@ -107,6 +108,11 @@ const StaffStaffIdEditRoute = StaffStaffIdEditRouteImport.update({
   path: '/staff/$staffId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompanyCompanyIdEditRoute = CompanyCompanyIdEditRouteImport.update({
+  id: '/company/$companyId/edit',
+  path: '/company/$companyId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SidebarLayoutCompanyCompanyIdRoute =
   SidebarLayoutCompanyCompanyIdRouteImport.update({
     id: '/company/$companyId',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/': typeof SidebarLayoutIndexRoute
   '/login': typeof LoginIndexRoute
   '/company/$companyId': typeof SidebarLayoutCompanyCompanyIdRoute
+  '/company/$companyId/edit': typeof CompanyCompanyIdEditRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
   '/company': typeof SidebarLayoutCompanyIndexRoute
 }
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/': typeof SidebarLayoutIndexRoute
   '/login': typeof LoginIndexRoute
   '/company/$companyId': typeof SidebarLayoutCompanyCompanyIdRoute
+  '/company/$companyId/edit': typeof CompanyCompanyIdEditRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
   '/company': typeof SidebarLayoutCompanyIndexRoute
 }
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/_sidebarLayout/': typeof SidebarLayoutIndexRoute
   '/login/': typeof LoginIndexRoute
   '/_sidebarLayout/company/$companyId': typeof SidebarLayoutCompanyCompanyIdRoute
+  '/company/$companyId/edit': typeof CompanyCompanyIdEditRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
   '/_sidebarLayout/company/': typeof SidebarLayoutCompanyIndexRoute
 }
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/company/$companyId'
+    | '/company/$companyId/edit'
     | '/staff/$staffId/edit'
     | '/company'
   fileRoutesByTo: FileRoutesByTo
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/company/$companyId'
+    | '/company/$companyId/edit'
     | '/staff/$staffId/edit'
     | '/company'
   id:
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/_sidebarLayout/'
     | '/login/'
     | '/_sidebarLayout/company/$companyId'
+    | '/company/$companyId/edit'
     | '/staff/$staffId/edit'
     | '/_sidebarLayout/company/'
   fileRoutesById: FileRoutesById
@@ -237,6 +249,7 @@ export interface RootRouteChildren {
   PackageCreateRoute: typeof PackageCreateRoute
   StaffCreateRoute: typeof StaffCreateRoute
   LoginIndexRoute: typeof LoginIndexRoute
+  CompanyCompanyIdEditRoute: typeof CompanyCompanyIdEditRoute
   StaffStaffIdEditRoute: typeof StaffStaffIdEditRoute
 }
 
@@ -354,6 +367,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffStaffIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/company/$companyId/edit': {
+      id: '/company/$companyId/edit'
+      path: '/company/$companyId/edit'
+      fullPath: '/company/$companyId/edit'
+      preLoaderRoute: typeof CompanyCompanyIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_sidebarLayout/company/$companyId': {
       id: '/_sidebarLayout/company/$companyId'
       path: '/company/$companyId'
@@ -398,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   PackageCreateRoute: PackageCreateRoute,
   StaffCreateRoute: StaffCreateRoute,
   LoginIndexRoute: LoginIndexRoute,
+  CompanyCompanyIdEditRoute: CompanyCompanyIdEditRoute,
   StaffStaffIdEditRoute: StaffStaffIdEditRoute,
 }
 export const routeTree = rootRouteImport

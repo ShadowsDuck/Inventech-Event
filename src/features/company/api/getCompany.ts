@@ -15,6 +15,6 @@ const getCompany = async (id: string): Promise<CompanyType> => {
 
 export const companyQuery = (id: string) =>
   queryOptions({
-    queryKey: ["company", "detail", id],
+    queryKey: ["companies", "detail", id],
     queryFn: () => getCompany(id),
   });

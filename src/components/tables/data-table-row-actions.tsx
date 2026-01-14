@@ -25,16 +25,12 @@ interface DataTableRowActionsProps {
   rowLabel: string; // ชื่อที่จะแสดงใน Dialog เช่น ชื่อบริษัท
   resourceName: string; // ชื่อประเภท เช่น "Company", "Staff"
   onEdit: () => void; // ฟังก์ชันเมื่อกด Edit
-  onDelete: () => void; // ฟังก์ชันเมื่อกด Delete (ยิง API)
-  isDeleting: boolean; // สถานะ Loading
 }
 
 export function DataTableRowActions({
   rowLabel,
   resourceName,
   onEdit,
-  onDelete,
-  isDeleting,
 }: DataTableRowActionsProps) {
   const [open, setOpen] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -76,7 +72,7 @@ export function DataTableRowActions({
         </DropdownMenu>
       </div>
 
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+      {/*<AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -112,10 +108,9 @@ export function DataTableRowActions({
                 "Delete"
               )}
             </AlertDialogAction>
-
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog>*/}
     </div>
   );
 }
