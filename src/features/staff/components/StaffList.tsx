@@ -78,6 +78,7 @@ export default function StaffList() {
             selected={filters.role}
             onChange={handleFilterChange("role")}
           />
+
           <FilterSelect
             title="Status"
             icon={ListFilter}

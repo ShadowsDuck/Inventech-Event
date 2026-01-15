@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+
 import { useCreateStaff } from "../api/createStaff";
 import { StaffForm, type StaffFormData } from "./staff-form";
 
@@ -12,8 +13,8 @@ export default function AddStaff() {
       fullName: values.fullName,
       email: values.email || undefined,
       phoneNumber: values.phoneNumber?.replace(/-/g, "") || undefined,
-      // แปลง Array String เป็น Array Number ตรงนี้
-      roleIds: values.roles.map((id) => Number(id)),
+      roleIds: values.roles,
+      avatar: values.avatar,
     };
 
     console.log("Create Payload:", payload);

@@ -1,22 +1,13 @@
-import { useNavigate } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
 
 import { DataBadge } from "@/components/data-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import { formatPhoneNumberDisplay } from "@/lib/format";
-import { getInitials } from "@/lib/get-initials";
+import { getImageUrl, getInitials } from "@/lib/utils";
 import type { StaffType } from "@/types/staff";
 
 import { StaffActions } from "./staff-actions";
-import { Badge } from "@/components/ui/badge";
 
 export const staffColumns: ColumnDef<StaffType>[] = [
   {
@@ -26,13 +17,13 @@ export const staffColumns: ColumnDef<StaffType>[] = [
     cell: ({ row }) => {
       const staff = row.original;
       const fullName = staff.fullName;
-      const profileImage = staff.avatar;
+      const avatarUrl = getImageUrl(staff.avatar);
 
       return (
         <div className="flex items-center gap-3.5">
           <Avatar className="h-9 w-9">
             <AvatarImage
-              src={profileImage || ""}
+              src={avatarUrl || ""}
               alt={fullName}
               className="object-cover"
             />
