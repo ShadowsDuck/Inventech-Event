@@ -14,7 +14,7 @@ export default function AddStaff() {
       email: values.email || undefined,
       phoneNumber: values.phoneNumber?.replace(/-/g, "") || undefined,
       roleIds: values.roles,
-      avatar: values.avatar,
+      avatar: values.avatar instanceof File ? values.avatar : null,
     };
 
     console.log("Create Payload:", payload);

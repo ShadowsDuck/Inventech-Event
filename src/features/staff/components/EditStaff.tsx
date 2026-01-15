@@ -6,13 +6,13 @@ import { Route } from "@/routes/staff/$staffId/edit";
 
 import { staffByIdQuery } from "../api/getStaffById";
 import { useUpdateStaff } from "../api/updateStaff";
-import { type StaffFormData, StaffForm } from "./staff-form";
+import { StaffForm, type StaffFormData } from "./staff-form";
 
 export default function EditStaff() {
   const navigate = useNavigate();
+
   const { staffId } = Route.useParams();
   const numericStaffId = Number(staffId);
-
   const { data: staffData } = useSuspenseQuery(staffByIdQuery(numericStaffId));
   const { mutate, isPending: isSaving } = useUpdateStaff();
 
@@ -20,41 +20,37 @@ export default function EditStaff() {
     return <div className="p-10 text-center">Staff not found</div>;
   }
 
-  // --- 1. Map ค่าจาก DB -> Form ---
   const initialValues: StaffFormData = {
     fullName: staffData.fullName,
     email: staffData.email ?? "",
     phoneNumber: formatPhoneNumberDisplay(staffData.phoneNumber) ?? "",
-    roles: staffData.staffRoles?.map((r: any) => r.roleId.toString()) ?? [],
-    
-    // เพิ่ม: ดึงค่า isDeleted เดิมมาแสดง
-    isDeleted: staffData.isDeleted ?? false, 
+    isDeleted: staffData.isDeleted ?? false,
+    roles: staffData.staffRoles?.map((r) => r.roleId.toString()) ?? [],
+    avatar: staffData.avatar
   };
 
   const handleEditSubmit = (values: StaffFormData) => {
-    
-    // --- 2. Map ค่าจาก Form -> API Payload ---
     const payload = {
       id: numericStaffId,
       staffId: numericStaffId,
       fullName: values.fullName,
       email: values.email || undefined,
-      phoneNumber: formatPhoneNumberInput(values.phoneNumber ?? "") || undefined,
-      roleIds: values.roles.map((id) => Number(id)),
+      isDeleted: values.isDeleted ?? false,
+      phoneNumber:
+        formatPhoneNumberInput(values.phoneNumber ?? "") || undefined,
 
-      // เพิ่ม: ส่งค่า isDeleted กลับไปที่ Backend (ถ้า undefined ให้เป็น false)
-      isDeleted: values.isDeleted ?? false, 
+      roleIds: values.roles.map((id) => String(id)),
     };
 
     console.log("Submitting Update Payload:", payload);
 
     mutate(payload, {
       onSuccess: () => {
-        navigate({ to: ".." });
+        navigate({ to: "/staff" });
       },
       onError: (error) => {
         console.error("Update failed:", error);
-      }
+      },
     });
   };
 
