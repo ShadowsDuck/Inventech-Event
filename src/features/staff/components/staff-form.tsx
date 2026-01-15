@@ -2,26 +2,16 @@ import { useState } from "react";
 
 import { revalidateLogic } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import {
-  ImagePlus,
-  Loader2,
-  Mail,
-  Phone,
-  Save,
-  Trash2,
-  Upload,
-  User,
-  X,
-} from "lucide-react";
+import { Loader2, Mail, Phone, Save, User } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
 import { MultiSelectField } from "@/components/form/multiselect-field";
 import PageHeader from "@/components/layout/PageHeader";
+import AvatarUpload from "@/components/ui/avatar-upload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { cn, getImageUrl } from "@/lib/utils";
+import { getImageUrl } from "@/lib/utils";
 
 import { roleQuery } from "../api/getRole";
 
@@ -39,7 +29,7 @@ export const StaffSchema = z.object({
     .max(12, "Invalid phone number")
     .optional()
     .or(z.literal("")),
-  isDeleted: z.boolean().optional(),
+  isDeleted: z.boolean(),
   roles: z.array(z.string()).min(1, "Please select at least one role."),
   avatar: z
     .union([z.instanceof(File), z.string()])
@@ -47,14 +37,13 @@ export const StaffSchema = z.object({
     .nullable(),
 });
 
-export type StaffFormData = z.infer<typeof StaffSchema>;
+export type StaffData = z.infer<typeof StaffSchema>;
 
 interface StaffFormProps {
-  initialValues?: Partial<StaffFormData>;
-  onSubmit: (values: StaffFormData) => void;
+  initialValues?: Partial<StaffData>;
+  onSubmit: (values: StaffData) => void;
   isPending: boolean;
   mode: "create" | "edit";
-  onCancel?: () => void;
 }
 
 export function StaffForm({
@@ -63,6 +52,7 @@ export function StaffForm({
   isPending,
   mode,
 }: StaffFormProps) {
+  const [resetKey, setResetKey] = useState(0);
 
   const { data: rolesData } = useSuspenseQuery(roleQuery());
 
@@ -80,7 +70,7 @@ export function StaffForm({
       roles: initialValues?.roles ?? [],
       isDeleted: initialValues?.isDeleted ?? false,
       avatar: initialValues?.avatar ?? null,
-    } as StaffFormData,
+    } as StaffData,
     validators: {
       onChange: StaffSchema,
     },
@@ -89,7 +79,6 @@ export function StaffForm({
       modeAfterSubmission: "blur",
     }),
     onSubmit: async ({ value }) => {
-      console.log("AvatarFile: " + value.avatar);
       onSubmit(value);
     },
   });
@@ -114,7 +103,10 @@ export function StaffForm({
             <Button
               type="button"
               variant="outline"
-              onClick={() => form.reset()}
+              onClick={() => {
+                form.reset();
+                setResetKey((prev) => prev + 1);
+              }}
               disabled={isPending}
             >
               Reset
@@ -171,111 +163,40 @@ export function StaffForm({
               className="space-y-6"
               noValidate
             >
-              {/* ✅ ส่วนอัปโหลดรูปภาพ (UI ใหม่: Centered Style) */}
+              {/* Avatar Upload */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-900">
-                  Avatar Profile
-                </label>
                 <form.Field
                   name="avatar"
-                  children={(field) => {
-                    const previewUrl =
-                      field.state.value instanceof File
-                        ? URL.createObjectURL(field.state.value)
-                        : getImageUrl(field.state.value);
-
-                    return (
-                      <div className="flex flex-col items-center justify-center gap-5 rounded-xl border border-dashed border-gray-300 bg-gray-50/50 p-8 transition-colors hover:bg-gray-100/50">
-                        {/* 1. ส่วนแสดงผลรูปภาพ (Avatar Preview) - อยู่ตรงกลาง */}
-
-                        <div className="group relative">
-                          <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-white shadow-md ring-1 ring-gray-200">
-                            {previewUrl ? (
-                              <img
-                                src={previewUrl}
-                                alt="Avatar Preview"
-                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center bg-white text-gray-300">
-                                <User size={64} strokeWidth={1} />
-                              </div>
-                            )}
-                          </div>
-
-                          {/* ปุ่มลบ (Floating Action) */}
-                          {field.state.value && (
-                            <button
-                              type="button"
-                              onClick={() => field.handleChange(null)}
-                              className="bg-destructive hover:bg-destructive/90 absolute top-0 right-0 flex h-8 w-8 translate-x-1 -translate-y-1 items-center justify-center rounded-full text-white shadow-sm ring-2 ring-white transition-all"
-                              title="Remove image"
-                            >
-                              <X size={16} />
-                            </button>
-                          )}
-                        </div>
-
-                        {/* 2. ส่วนควบคุมและข้อความ - จัดกึ่งกลาง */}
-                        <div className="flex w-full flex-col items-center gap-3">
-                          <input
-                            type="file"
-                            accept="image/png, image/jpeg, image/jpg"
-                            id="avatar-upload"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                field.handleChange(file);
-                              }
-                              e.target.value = "";
-                            }}
-                          />
-
-                          <div className="flex items-center gap-3">
-                            <Button
-                              type="button"
-                              variant={
-                                field.state.value ? "outline" : "default"
-                              }
-                              size="sm"
-                              className={cn(
-                                "min-w-[140px] gap-2 shadow-sm",
-                                !field.state.value &&
-                                  "bg-blue-600 hover:bg-blue-700",
-                              )}
-                              onClick={() =>
-                                document
-                                  .getElementById("avatar-upload")
-                                  ?.click()
-                              }
-                            >
-                              <Upload size={16} />
-                              {field.state.value
-                                ? "Change Photo"
-                                : "Upload Photo"}
-                            </Button>
-                          </div>
-
-                          <div className="space-y-1 text-center">
-                            <p className="text-muted-foreground text-xs">
-                              Allowed *.jpeg, *.jpg, *.png
-                            </p>
-                            <p className="text-muted-foreground text-xs">
-                              Max size of 5 MB
-                            </p>
-                          </div>
-
-                          {/* Error Message */}
-                          {field.state.meta.errors.length > 0 && (
-                            <p className="text-destructive animate-pulse text-sm font-medium">
-                              {field.state.meta.errors.join(", ")}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  }}
+                  children={(field) => (
+                    <div>
+                      <AvatarUpload
+                        key={resetKey}
+                        maxSize={5 * 1024 * 1024}
+                        // ถ้าค่าใน Form เป็น String (URL) ให้แสดงเป็นรูปเริ่มต้น
+                        // ถ้าเป็น File (อัปใหม่) Component จะจัดการ Preview เอง
+                        defaultAvatar={
+                          typeof field.state.value === "string"
+                            ? getImageUrl(field.state.value)
+                            : undefined
+                        }
+                        onFileChange={(fileWithPreview) => {
+                          // ถ้ามีไฟล์ส่งมา ให้เก็บ File object
+                          // ถ้าเป็น null (ลบ) ให้เก็บ null
+                          field.handleChange(
+                            fileWithPreview
+                              ? (fileWithPreview.file as File)
+                              : null,
+                          );
+                        }}
+                      />
+                      {/* แสดง Error Message จาก Form Validations (ถ้ามี) */}
+                      {field.state.meta.errors.length > 0 && (
+                        <p className="text-destructive mt-2 animate-pulse text-center text-sm font-medium">
+                          {field.state.meta.errors.join(", ")}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 />
               </div>
 
