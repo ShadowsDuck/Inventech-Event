@@ -23,8 +23,12 @@ export function DataTableRowActions({ onEdit }: DataTableRowActionsProps) {
       <div className="flex justify-end">
         <DropdownMenu open={open} onOpenChange={setOpen}>
           <DropdownMenuTrigger>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-chart-1/10 group h-8 w-8 hover:rounded-lg"
+            >
+              <MoreHorizontal className="text-muted-foreground/80 group-hover:text-primary/90 h-4 w-4 transition-colors" />
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>
