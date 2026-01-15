@@ -10,6 +10,7 @@ export type UpdateStaffPayload = {
   phoneNumber?: string;
   roleIds: string[];
   avatar?: File | null; 
+  isDeleted: boolean;
 };
 
 const updateStaff = async ({ id, ...data }: UpdateStaffPayload): Promise<void> => {
@@ -31,6 +32,9 @@ const updateStaff = async ({ id, ...data }: UpdateStaffPayload): Promise<void> =
       formData.append("RoleIds", roleId);
     });
   }
+
+    formData.append("IsDeleted",data.isDeleted.toString());
+  
 
   const response = await fetch(`${API_URL}/api/staff/${id}`, {
     method: "PUT", 

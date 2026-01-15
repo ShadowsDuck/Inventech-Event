@@ -16,6 +16,8 @@ export default function EditStaff() {
   const { data: staffData } = useSuspenseQuery(staffByIdQuery(numericStaffId));
   const { mutate, isPending: isSaving } = useUpdateStaff();
 
+
+
   if (!staffData) {
     return <div className="p-10 text-center">Staff not found</div>;
   }
@@ -30,6 +32,9 @@ export default function EditStaff() {
   };
 
   const handleEditSubmit = (values: StaffFormData) => {
+    const newAvatarFile = values.avatar instanceof File ? values.avatar : undefined;
+
+
     const payload = {
       id: numericStaffId,
       staffId: numericStaffId,
@@ -40,6 +45,7 @@ export default function EditStaff() {
         formatPhoneNumberInput(values.phoneNumber ?? "") || undefined,
 
       roleIds: values.roles.map((id) => String(id)),
+      avatar: newAvatarFile,
     };
 
     console.log("Submitting Update Payload:", payload);
