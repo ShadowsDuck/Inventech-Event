@@ -13,7 +13,7 @@ const getStaff = async (): Promise<StaffType[]> => {
   return res.json();
 };
 
-export const staffQuery = () =>
+export const staffQuery = (staffId: string) =>
   queryOptions({
     queryKey: ["staff", "list"],
     queryFn: () => getStaff(),
