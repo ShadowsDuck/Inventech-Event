@@ -49,12 +49,11 @@ if (filters.status && filters.status !== "") {
         const currentStatus = c.isDeleted ? "inactive" : "active";
 
         return currentStatus === filters.status;
-      });
+      });console.log(filters.status)
     }
 
     return result;
-  }, [staff, filters.role, searchValue]);
-
+  }, [staff, filters.role,filters.status, searchValue,]);
   return {
     searchValue,
     setSearchValue,
@@ -62,4 +61,5 @@ if (filters.status && filters.status !== "") {
     handleFilterChange: updateFilter,
     filteredData,
   };
+  
 }
