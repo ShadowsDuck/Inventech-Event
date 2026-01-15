@@ -10,6 +10,7 @@ export type UpdateStaffPayload = {
   email?: string;
   phoneNumber?: string;
   roleIds: number[];   
+  isDeleted: boolean;
 };
 
 const updateStaff = async ({ id, ...data }: UpdateStaffPayload): Promise<void> => {

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { revalidateLogic } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Loader2, Mail, Phone, Save, User } from "lucide-react";
@@ -8,6 +9,8 @@ import { MultiSelectField } from "@/components/form/multiselect-field";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch"; // เพิ่ม Switch
+import { cn } from "@/lib/utils"; // เพิ่ม cn
 
 import { roleQuery } from "../api/getRole";
 
@@ -25,7 +28,8 @@ export const StaffSchema = z.object({
     .max(12, "Invalid phone number")
     .optional()
     .or(z.literal("")),
-  // Form จัดการ Roles เป็น Array<String> ไปก่อน แล้วค่อยแปลงตอน Submit ใน Parent
+  // เพิ่ม isDeleted
+  isDeleted: z.boolean().optional(),
   roles: z.array(z.string()).min(1, "Please select at least one role."),
 });
 
@@ -36,7 +40,7 @@ interface StaffFormProps {
   onSubmit: (values: StaffFormData) => void;
   isPending: boolean;
   mode: "create" | "edit";
-  onCancel?: () => void; // เพิ่มปุ่ม Cancel/Back ถ้าต้องการ
+  onCancel?: () => void;
 }
 
 export function StaffForm({
@@ -46,6 +50,9 @@ export function StaffForm({
   mode,
   onCancel,
 }: StaffFormProps) {
+  // --- State สำหรับ Switch (ดึงค่าเริ่มต้นมาจาก DB) ---
+  const [isDeleted, setIsDeleted] = useState(initialValues?.isDeleted ?? false);
+
   // --- Data Fetching (Roles) ---
   const { data: rolesData } = useSuspenseQuery(roleQuery());
 
@@ -61,6 +68,7 @@ export function StaffForm({
       email: initialValues?.email ?? "",
       phoneNumber: initialValues?.phoneNumber ?? "",
       roles: initialValues?.roles ?? [],
+      isDeleted: isDeleted, // กำหนดค่าเริ่มต้น
     } as StaffFormData,
     validators: {
       onChange: StaffSchema,
@@ -120,9 +128,40 @@ export function StaffForm({
       <div className="custom-scrollbar mx-auto w-full max-w-6xl flex-1 space-y-8 overflow-y-auto p-6 lg:p-10">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-              <span className="h-6 w-1 rounded-full bg-blue-600" />
-              Staff Information
+            <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
+              <div className="flex items-center gap-2">
+                <span className="h-6 w-1 rounded-full bg-blue-600" />
+                Staff Information
+              </div>
+
+              {/* --- แสดง Switch เฉพาะโหมด Edit เท่านั้น --- */}
+              {mode === "edit" && (
+                <div className="bg-muted/50 flex items-center gap-3 rounded-xl border border-gray-200 p-2 px-4">
+                  <p
+                    className={cn(
+                      "text-xs font-medium",
+                      isDeleted ? "text-muted-foreground" : "text-green-700"
+                    )}
+                  >
+                    {isDeleted ? "Inactive" : "Active"}
+                  </p>
+                  <form.Field
+                    name="isDeleted"
+                    children={(field) => (
+                      <Switch
+                        // ถ้า checked = true แปลว่า "Active" (!isDeleted)
+                        checked={!isDeleted}
+                        onCheckedChange={(checked) => {
+                          const newIsDeleted = !checked; // ถ้าปิด switch = true (inactive)
+                          setIsDeleted(newIsDeleted); // อัปเดต UI
+                          field.handleChange(newIsDeleted); // อัปเดตค่าใน Form
+                        }}
+                        className="cursor-pointer data-checked:bg-green-500"
+                      />
+                    )}
+                  />
+                </div>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -184,8 +223,7 @@ export function StaffForm({
                     options={roleOptions}
                     placeholder="Select roles"
                     required
-                    // MultiSelectField ของคุณน่าจะรองรับ field state จาก tanstack-form
-                    value={field.state.value} 
+                    value={field.state.value}
                     onChange={field.handleChange}
                   />
                 )}

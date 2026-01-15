@@ -16,6 +16,7 @@ import { getInitials } from "@/lib/get-initials";
 import type { StaffType } from "@/types/staff";
 
 import { StaffActions } from "./staff-actions";
+import { Badge } from "@/components/ui/badge";
 
 export const staffColumns: ColumnDef<StaffType>[] = [
   {
@@ -120,6 +121,20 @@ export const staffColumns: ColumnDef<StaffType>[] = [
         </div>
       );
     },
+  },
+  {
+    accessorKey: "isDeleted",
+    header: "Status",
+    size: 100,
+    cell: ({ row }) => (
+      <div className="font-medium">
+        {row.getValue("isDeleted") ? (
+          <Badge variant="secondary">Inactive</Badge>
+        ) : (
+          <Badge variant="success">Active</Badge>
+        )}
+      </div>
+    ),
   },
   {
     id: "actions",
