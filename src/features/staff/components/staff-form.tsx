@@ -1,7 +1,8 @@
 import { useState } from "react";
+
 import { revalidateLogic } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Loader2, Mail, Phone, Save, User } from "lucide-react";
+import { ImagePlus, Loader2, Mail, Phone, Save, User, X } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
@@ -9,8 +10,8 @@ import { MultiSelectField } from "@/components/form/multiselect-field";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch"; // เพิ่ม Switch
-import { cn } from "@/lib/utils"; // เพิ่ม cn
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 
 import { roleQuery } from "../api/getRole";
 
@@ -31,6 +32,7 @@ export const StaffSchema = z.object({
   // เพิ่ม isDeleted
   isDeleted: z.boolean().optional(),
   roles: z.array(z.string()).min(1, "Please select at least one role."),
+  avatar: z.instanceof(File).optional().nullable(),
 });
 
 export type StaffFormData = z.infer<typeof StaffSchema>;
@@ -48,12 +50,9 @@ export function StaffForm({
   onSubmit,
   isPending,
   mode,
-  onCancel,
 }: StaffFormProps) {
-  // --- State สำหรับ Switch (ดึงค่าเริ่มต้นมาจาก DB) ---
   const [isDeleted, setIsDeleted] = useState(initialValues?.isDeleted ?? false);
 
-  // --- Data Fetching (Roles) ---
   const { data: rolesData } = useSuspenseQuery(roleQuery());
 
   const roleOptions = rolesData.map((role) => ({
@@ -68,7 +67,8 @@ export function StaffForm({
       email: initialValues?.email ?? "",
       phoneNumber: initialValues?.phoneNumber ?? "",
       roles: initialValues?.roles ?? [],
-      isDeleted: isDeleted, // กำหนดค่าเริ่มต้น
+      isDeleted: isDeleted,
+      avatar: initialValues?.avatar ?? null,
     } as StaffFormData,
     validators: {
       onChange: StaffSchema,
@@ -78,7 +78,7 @@ export function StaffForm({
       modeAfterSubmission: "blur",
     }),
     onSubmit: async ({ value }) => {
-      // ส่งค่า Raw Data กลับไปให้ Parent จัดการ Transform เอง
+      console.log("AvatarFile: " + value.avatar);
       onSubmit(value);
     },
   });
@@ -140,7 +140,7 @@ export function StaffForm({
                   <p
                     className={cn(
                       "text-xs font-medium",
-                      isDeleted ? "text-muted-foreground" : "text-green-700"
+                      isDeleted ? "text-muted-foreground" : "text-green-700",
                     )}
                   >
                     {isDeleted ? "Inactive" : "Active"}
@@ -175,6 +175,62 @@ export function StaffForm({
               className="space-y-6"
               noValidate
             >
+              {/* ✅ ส่วนอัปโหลดรูปภาพ (เพิ่มใหม่) */}
+              <div className="flex flex-col gap-4">
+                <label className="text-sm font-medium">Avatar</label>
+                <form.Field
+                  name="avatar"
+                  children={(field) => (
+                    <div className="flex items-center gap-4">
+                      {/* Preview ถ้ามีการเลือกไฟล์ */}
+                      {field.state.value && (
+                        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border">
+                          <img
+                            src={URL.createObjectURL(field.state.value)}
+                            alt="Preview"
+                            className="h-full w-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => field.handleChange(null)}
+                            className="absolute top-0 right-0 bg-red-500 p-1 text-white"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Input File */}
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          id="avatar-upload"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              field.handleChange(file);
+                            }
+                          }}
+                        />
+                        <label
+                          htmlFor="avatar-upload"
+                          className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed p-2 hover:bg-gray-50"
+                        >
+                          <ImagePlus size={20} className="text-gray-500" />
+                          <span className="text-sm text-gray-600">
+                            {field.state.value
+                              ? "Change Image"
+                              : "Upload Avatar"}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                />
+              </div>
+
               <form.AppField
                 name="fullName"
                 children={(field) => (
