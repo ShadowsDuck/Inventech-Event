@@ -10,9 +10,11 @@ export function useCompanyFilter(company: CompanyType[] | undefined) {
     status: "",
   });
 
+  // Filter
   const filteredData = useMemo(() => {
     let result = company || [];
 
+    // Search
     if (searchValue) {
       const lowerSearch = searchValue.toLowerCase();
       result = result.filter((c) =>
@@ -20,6 +22,7 @@ export function useCompanyFilter(company: CompanyType[] | undefined) {
       );
     }
 
+    // Status
     if (filters.status && filters.status !== "") {
       result = result.filter((c) => {
         const currentStatus = c.isDeleted ? "inactive" : "active";

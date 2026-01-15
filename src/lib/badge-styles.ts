@@ -6,27 +6,33 @@ export type BadgeStyle = {
   dotColor?: string;
 };
 
+const DEFAULT_TEXT = "uppercase text-[10px] font-bold tracking-wide";
+
 // Config ของ ROLE
 const ROLE_STYLES: Record<string, BadgeStyle> = {
   Admin: {
-    bg: "bg-green-100",
-    text: "text-green-700",
+    bg: "bg-green-50",
+    text: `text-green-700 ${DEFAULT_TEXT}`,
     border: "border-green-200",
   },
-  Host: { bg: "bg-red-100", text: "text-red-700", border: "border-red-200" },
+  Host: {
+    bg: "bg-red-50",
+    text: `text-red-700 ${DEFAULT_TEXT}`,
+    border: "border-red-200",
+  },
   "": {
-    bg: "bg-purple-100",
-    text: "text-purple-700",
+    bg: "bg-purple-50",
+    text: `text-purple-700 ${DEFAULT_TEXT}`,
     border: "border-purple-200",
   },
   "": {
-    bg: "bg-blue-100",
-    text: "text-blue-700",
+    bg: "bg-blue-50",
+    text: `text-blue-700 ${DEFAULT_TEXT}`,
     border: "border-blue-200",
   },
   "": {
-    bg: "bg-gray-100",
-    text: "text-gray-700",
+    bg: "bg-gray-50",
+    text: `text-gray-700 ${DEFAULT_TEXT}`,
     border: "border-gray-200",
   },
 };
@@ -71,8 +77,8 @@ const CATEGORY_STYLES: Record<string, BadgeStyle> = {
 
 // Default Style
 export const DEFAULT_STYLE: BadgeStyle = {
-  bg: "bg-slate-100",
-  text: "text-slate-700",
+  bg: "bg-slate-50",
+  text: `text-slate-600 ${DEFAULT_TEXT}`,
   border: "border-slate-200",
   dotColor: "bg-slate-500",
 };

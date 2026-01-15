@@ -65,9 +65,21 @@ export function PageHeader({
 
             {showStatusBadge &&
               (isDeleted ? (
-                <Badge variant="secondary">Inactive</Badge>
+                <Badge variant="unsuccess">
+                  <span
+                    className="bg-secondary-foreground/30 mr-0.5 size-1.25 rounded-full"
+                    aria-hidden="true"
+                  />
+                  Inactive
+                </Badge>
               ) : (
-                <Badge variant="success">Active</Badge>
+                <Badge variant="success">
+                  <span
+                    className="mr-0.5 size-1.25 rounded-full bg-green-600/60"
+                    aria-hidden="true"
+                  />
+                  Active
+                </Badge>
               ))}
           </div>
 
