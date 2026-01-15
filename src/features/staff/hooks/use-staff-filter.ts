@@ -21,7 +21,7 @@ export function useStaffFilter(staff: StaffType[] | undefined) {
 
   // --- อันใหม่ ---
   const { filters, updateFilter } = useFilterState({
-    role: [] as string[],
+    role: [] as string[],status: "",
   });
 
   // Logic การ Search และ Filter
@@ -42,6 +42,14 @@ export function useStaffFilter(staff: StaffType[] | undefined) {
       result = result.filter((s) =>
         s.staffRoles?.some((sr) => roleSet.has(sr.roleId.toString())),
       );
+    }
+
+if (filters.status && filters.status !== "") {
+      result = result.filter((c) => {
+        const currentStatus = c.isDeleted ? "inactive" : "active";
+
+        return currentStatus === filters.status;
+      });
     }
 
     return result;

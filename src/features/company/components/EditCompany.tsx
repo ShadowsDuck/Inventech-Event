@@ -67,7 +67,7 @@ export default function EditCompany() {
         isPrimary: contact.isPrimary,
       })),
     };
-
+console.log("Submitting Update Payload:", payload);
     mutate(payload, {
       onSuccess: () => {
         navigate({
@@ -78,7 +78,7 @@ export default function EditCompany() {
       },
     });
   };
-
+    
   return (
     <CompanyForm
       mode="edit"

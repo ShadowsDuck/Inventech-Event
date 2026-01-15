@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 
 import { useQueries } from "@tanstack/react-query";
-import { Plus, Users } from "lucide-react";
+import { CircleCheck, CircleX, ListFilter, Plus, Users } from "lucide-react";
 
 import SearchBar from "@/components/SearchBar";
 import PageHeader from "@/components/layout/PageHeader";
 import { DataTable } from "@/components/tables/data-table";
 import { Button } from "@/components/ui/button";
 import { FilterMultiSelect } from "@/components/ui/filter-multi-select";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { staffColumns } from "@/features/staff/components/staff-column";
 import { Route } from "@/routes/_sidebarLayout/staff";
 
@@ -33,6 +34,13 @@ export default function StaffList() {
   const onSearchChange = (value: string) => {
     setSearchValue(value);
   };
+  const selectOptions = useMemo(() => {
+    return [
+      { icon: ListFilter, value: "", label: "All Status" },
+      { icon: CircleCheck, value: "active", label: "Active" },
+      { icon: CircleX, value: "inactive", label: "Inactive" },
+    ];
+  }, []);
 
   const roleOptions = useMemo(() => {
     return roles?.map((role) => ({
@@ -69,6 +77,13 @@ export default function StaffList() {
             options={roleOptions || []}
             selected={filters.role}
             onChange={handleFilterChange("role")}
+          />
+          <FilterSelect
+            title="Status"
+            icon={ListFilter}
+            options={selectOptions}
+            value={filters.status}
+            onChange={handleFilterChange("status")}
           />
         </div>
 
