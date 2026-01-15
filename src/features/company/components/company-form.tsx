@@ -1,14 +1,10 @@
-import { useState } from "react";
-
 import { revalidateLogic } from "@tanstack/react-form";
-import { Save } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
 
 import { PageHeader } from "../../../components/layout/PageHeader";
 
@@ -69,13 +65,11 @@ export function CompanyForm({
   isPending,
   mode,
 }: CompanyFormProps) {
-  const [isDeleted, setIsDeleted] = useState(initialValues?.isDeleted ?? false);
-
   const defaultValues: CompanyData = {
     companyName: initialValues?.companyName ?? "",
     address: initialValues?.address ?? "",
     location: initialValues?.location ?? "",
-    isDeleted: isDeleted,
+    isDeleted: initialValues?.isDeleted ?? false,
     companyContacts: initialValues?.companyContacts ?? [
       {
         fullName: "",
@@ -101,15 +95,21 @@ export function CompanyForm({
     },
   });
 
+  // --- UI Labels ---
   const title = mode === "create" ? "Create Company" : "Edit Company";
+  const subtitle =
+    mode === "create"
+      ? "Create a new company profile and add contact persons"
+      : "Update company details and contacts";
   const saveLabel = mode === "create" ? "Create Company" : "Save Changes";
+  const loadingLabel = mode === "create" ? "Creating..." : "Saving...";
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <PageHeader
         title={title}
         backButton
-        subtitle="Create a new company profile and add contact persons"
+        subtitle={subtitle}
         actions={
           <div className="flex items-center gap-2">
             <Button
@@ -127,8 +127,12 @@ export function CompanyForm({
               form="company-form-id"
               disabled={isPending}
             >
-              <Save size={18} strokeWidth={2.5} />
-              {saveLabel}
+              {isPending ? (
+                <Loader2 className="animate-spin" size={18} />
+              ) : (
+                <Save size={18} strokeWidth={2.5} />
+              )}
+              {isPending ? loadingLabel : saveLabel}
             </Button>
           </div>
         }
@@ -150,22 +154,18 @@ export function CompanyForm({
                   <span className="h-6 w-1.5 rounded-full bg-blue-600" />
                   <p>Basic Information</p>
                 </div>
+                {/* Switch */}
                 {mode === "edit" && (
-                  <div className="bg-muted/50 flex items-center gap-3 rounded-xl border border-gray-200 p-2 px-4">
-                    <p
-                      className={cn(
-                        "text-xs font-medium",
-                        isDeleted ? "text-muted-foreground" : "text-green-700",
-                      )}
-                    >
-                      {isDeleted ? "Inactive" : "Active"}
-                    </p>
-                    <Switch
-                      checked={!isDeleted}
-                      onCheckedChange={(checked) => setIsDeleted(!checked)}
-                      className="cursor-pointer data-checked:bg-green-500"
-                    />
-                  </div>
+                  <form.AppField
+                    name="isDeleted"
+                    children={(field) => (
+                      <field.SwitchField
+                        invert={true}
+                        onLabel="Active"
+                        offLabel="Inactive"
+                      />
+                    )}
+                  />
                 )}
               </CardTitle>
             </CardHeader>
