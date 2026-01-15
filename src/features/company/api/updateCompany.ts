@@ -4,12 +4,15 @@ import type { CompanyData } from "../components/company-form";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-type UpdateCompany = CompanyData & {
+type UpdateCompanyData = CompanyData & {
   id: string; // เอาไว้ทำ URL Update
   companyId: number; // เอาไว้ส่งไปใน Body ให้ Backend
 };
 
-const updateCompany = async ({ id, ...data }: UpdateCompany): Promise<void> => {
+const updateCompany = async ({
+  id,
+  ...data
+}: UpdateCompanyData): Promise<void> => {
   await fetch(`${API_URL}/api/companies/${id}`, {
     method: "PUT",
     headers: {

@@ -1,43 +1,44 @@
 import { useMutation } from "@tanstack/react-query";
 
+import type { StaffData } from "../components/staff-form";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
-export type UpdateStaffPayload = {
-  id: string | number; 
-  staffId?: number;  
-  fullName: string;
-  email?: string;
-  phoneNumber?: string;
-  roleIds: string[];
-  avatar?: File | null; 
-  isDeleted: boolean;
+type UpdateStaffData = StaffData & {
+  id: string; // เอาไว้ทำ URL Update
+  staffId: number; // เอาไว้ส่งไปใน Body ให้ Backend
+  deleteAvatar?: boolean;
 };
 
-const updateStaff = async ({ id, ...data }: UpdateStaffPayload): Promise<void> => {
+const updateStaff = async ({ id, ...data }: UpdateStaffData): Promise<void> => {
   const formData = new FormData();
 
   formData.append("FullName", data.fullName);
-  
+
   if (data.email) formData.append("Email", data.email);
+
   if (data.phoneNumber) formData.append("PhoneNumber", data.phoneNumber);
 
   if (data.staffId) formData.append("StaffId", data.staffId.toString());
 
-  if (data.avatar) {
+  if (data.avatar instanceof File) {
+    // กรณีมีไฟล์ใหม่
     formData.append("AvatarFile", data.avatar);
+  } else if (data.deleteAvatar) {
+    // กรณีสั่งลบ
+    formData.append("DeleteAvatar", "true");
   }
 
-  if (data.roleIds && data.roleIds.length > 0) {
-    data.roleIds.forEach((roleId) => {
+  if (data.roles && data.roles.length > 0) {
+    data.roles.forEach((roleId) => {
       formData.append("RoleIds", roleId);
     });
   }
 
-    formData.append("IsDeleted",data.isDeleted.toString());
-  
+  formData.append("IsDeleted", data.isDeleted.toString());
 
   const response = await fetch(`${API_URL}/api/staff/${id}`, {
-    method: "PUT", 
+    method: "PUT",
     body: formData,
   });
 
@@ -45,7 +46,7 @@ const updateStaff = async ({ id, ...data }: UpdateStaffPayload): Promise<void> =
     throw new Error("Failed to update staff");
   }
 
-  return
+  return;
 };
 
 export const useUpdateStaff = () =>
