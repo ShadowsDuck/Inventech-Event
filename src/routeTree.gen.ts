@@ -25,6 +25,7 @@ import { Route as SidebarLayoutEventRouteImport } from './routes/_sidebarLayout/
 import { Route as SidebarLayoutEquipmentRouteImport } from './routes/_sidebarLayout/equipment'
 import { Route as SidebarLayoutCompanyIndexRouteImport } from './routes/_sidebarLayout/company/index'
 import { Route as StaffStaffIdEditRouteImport } from './routes/staff/$staffId/edit'
+import { Route as OutsourceOutsourceIdEditRouteImport } from './routes/outsource/$outsourceId/edit'
 import { Route as CompanyCompanyIdEditRouteImport } from './routes/company/$companyId/edit'
 import { Route as SidebarLayoutStaffStaffIdRouteImport } from './routes/_sidebarLayout/staff/$staffId'
 import { Route as SidebarLayoutCompanyCompanyIdRouteImport } from './routes/_sidebarLayout/company/$companyId'
@@ -109,6 +110,12 @@ const StaffStaffIdEditRoute = StaffStaffIdEditRouteImport.update({
   path: '/staff/$staffId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OutsourceOutsourceIdEditRoute =
+  OutsourceOutsourceIdEditRouteImport.update({
+    id: '/outsource/$outsourceId/edit',
+    path: '/outsource/$outsourceId/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CompanyCompanyIdEditRoute = CompanyCompanyIdEditRouteImport.update({
   id: '/company/$companyId/edit',
   path: '/company/$companyId/edit',
@@ -144,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/company/$companyId': typeof SidebarLayoutCompanyCompanyIdRoute
   '/staff/$staffId': typeof SidebarLayoutStaffStaffIdRoute
   '/company/$companyId/edit': typeof CompanyCompanyIdEditRoute
+  '/outsource/$outsourceId/edit': typeof OutsourceOutsourceIdEditRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
   '/company': typeof SidebarLayoutCompanyIndexRoute
 }
@@ -164,6 +172,7 @@ export interface FileRoutesByTo {
   '/company/$companyId': typeof SidebarLayoutCompanyCompanyIdRoute
   '/staff/$staffId': typeof SidebarLayoutStaffStaffIdRoute
   '/company/$companyId/edit': typeof CompanyCompanyIdEditRoute
+  '/outsource/$outsourceId/edit': typeof OutsourceOutsourceIdEditRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
   '/company': typeof SidebarLayoutCompanyIndexRoute
 }
@@ -186,6 +195,7 @@ export interface FileRoutesById {
   '/_sidebarLayout/company/$companyId': typeof SidebarLayoutCompanyCompanyIdRoute
   '/_sidebarLayout/staff/$staffId': typeof SidebarLayoutStaffStaffIdRoute
   '/company/$companyId/edit': typeof CompanyCompanyIdEditRoute
+  '/outsource/$outsourceId/edit': typeof OutsourceOutsourceIdEditRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
   '/_sidebarLayout/company/': typeof SidebarLayoutCompanyIndexRoute
 }
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/company/$companyId'
     | '/staff/$staffId'
     | '/company/$companyId/edit'
+    | '/outsource/$outsourceId/edit'
     | '/staff/$staffId/edit'
     | '/company'
   fileRoutesByTo: FileRoutesByTo
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/company/$companyId'
     | '/staff/$staffId'
     | '/company/$companyId/edit'
+    | '/outsource/$outsourceId/edit'
     | '/staff/$staffId/edit'
     | '/company'
   id:
@@ -249,6 +261,7 @@ export interface FileRouteTypes {
     | '/_sidebarLayout/company/$companyId'
     | '/_sidebarLayout/staff/$staffId'
     | '/company/$companyId/edit'
+    | '/outsource/$outsourceId/edit'
     | '/staff/$staffId/edit'
     | '/_sidebarLayout/company/'
   fileRoutesById: FileRoutesById
@@ -263,6 +276,7 @@ export interface RootRouteChildren {
   StaffCreateRoute: typeof StaffCreateRoute
   LoginIndexRoute: typeof LoginIndexRoute
   CompanyCompanyIdEditRoute: typeof CompanyCompanyIdEditRoute
+  OutsourceOutsourceIdEditRoute: typeof OutsourceOutsourceIdEditRoute
   StaffStaffIdEditRoute: typeof StaffStaffIdEditRoute
 }
 
@@ -380,6 +394,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffStaffIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/outsource/$outsourceId/edit': {
+      id: '/outsource/$outsourceId/edit'
+      path: '/outsource/$outsourceId/edit'
+      fullPath: '/outsource/$outsourceId/edit'
+      preLoaderRoute: typeof OutsourceOutsourceIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/company/$companyId/edit': {
       id: '/company/$companyId/edit'
       path: '/company/$companyId/edit'
@@ -450,6 +471,7 @@ const rootRouteChildren: RootRouteChildren = {
   StaffCreateRoute: StaffCreateRoute,
   LoginIndexRoute: LoginIndexRoute,
   CompanyCompanyIdEditRoute: CompanyCompanyIdEditRoute,
+  OutsourceOutsourceIdEditRoute: OutsourceOutsourceIdEditRoute,
   StaffStaffIdEditRoute: StaffStaffIdEditRoute,
 }
 export const routeTree = rootRouteImport

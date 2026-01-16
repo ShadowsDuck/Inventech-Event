@@ -5,4 +5,5 @@ export interface OutsourceType {
   phoneNumber: string;
   createdAt: string;
   updatedAt: string;
+  isDeleted: boolean;
 }
