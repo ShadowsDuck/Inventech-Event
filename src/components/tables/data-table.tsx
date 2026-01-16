@@ -104,13 +104,13 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       style={{ width: `${header.getSize()}px` }}
-                      className="bg-muted/50 text-muted-foreground/90 p-0 text-xs font-semibold tracking-wide uppercase"
+                      className="text-muted-foreground/90 bg-sidebar-muted p-0 text-xs font-semibold uppercase"
                     >
                       {header.isPlaceholder ? null : header.column.getCanSort() ? (
                         <div
                           className={cn(
                             header.column.getCanSort() &&
-                              "group flex h-full w-full cursor-pointer items-center justify-start gap-2 px-4 py-3 transition-colors select-none hover:bg-gray-200/40",
+                              "group hover:bg-hover flex h-full w-full cursor-pointer items-center justify-start gap-2 px-6 py-3 transition-colors select-none",
                           )}
                           onClick={header.column.getToggleSortingHandler()}
                           onKeyDown={(e) => {
@@ -151,7 +151,7 @@ export function DataTable<TData, TValue>({
                           )}
                         </div>
                       ) : (
-                        <div className="flex h-full w-full items-center px-4 py-3">
+                        <div className="flex h-full w-full items-center px-6 py-3">
                           {flexRender(
                             header.column.columnDef.header,
                             header.getContext(),
@@ -171,15 +171,15 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className={cn(
-                    "bg-white",
-                    onRowClick && "hover:bg-muted cursor-pointer",
+                    "hover:bg-hover-primary bg-white",
+                    onRowClick && "cursor-pointer",
                   )}
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="h-15 px-4"
+                      className="h-15 px-6"
                       style={{
                         width: cell.column.getSize(),
                         maxWidth: cell.column.getSize(),
@@ -207,7 +207,7 @@ export function DataTable<TData, TValue>({
         </Table>
 
         {/* Pagination Control Section */}
-        <div className="flex items-center justify-between gap-8 border-t bg-white px-4 py-4">
+        <div className="flex items-center justify-between gap-8 border-t bg-white px-6 py-4">
           <div className="flex items-center gap-3">
             <Label htmlFor={id} className="max-sm:sr-only">
               Rows per page

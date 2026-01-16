@@ -5,7 +5,7 @@ import type { StaffType } from "@/types/staff";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const getStaffById = async (id: string): Promise<StaffType> => {
-  const res = await fetch(`${API_URL}/api/Staff/${id}`);
+  const res = await fetch(`${API_URL}/api/staff/${id}`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch staff by id");

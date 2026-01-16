@@ -14,7 +14,7 @@ export const companyColumns: ColumnDef<CompanyType>[] = [
     size: 250,
     cell: ({ row }) => (
       <div
-        className="truncate font-medium"
+        className="truncate font-semibold"
         title={row.getValue("companyName") as string}
       >
         {row.getValue("companyName") as string}

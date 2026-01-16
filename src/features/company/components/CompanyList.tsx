@@ -29,6 +29,10 @@ export default function CompanyList() {
   const filteredCompanies = useMemo(() => {
     let result = companies;
 
+    // .filter() เหมือนคนตรวจบัตรหน้าประตู:
+    // - หยิบบริษัทมาตรวจทีละแห่ง (c) แล้วตรวจสอบ 2 ด่าน (ชื่อ, สถานะ)
+    // - ถ้าบริษัทนั้นผ่าน "ทุกด่าน" (true && true) -> จะถูกเก็บไว้ในรายการที่จะแสดงผล
+    // - ถ้าไม่ผ่านแม้แต่ด่านเดียว (ผลลัพธ์มี false) -> จะถูกคัดออกทันที
     result = result.filter((c) => {
       // search กับ status(All) ถ้าไม่ได้เลือกจะเป็น ""
       // และ "" มีค่าเป็น false
@@ -54,7 +58,7 @@ export default function CompanyList() {
     <>
       <PageHeader
         title="Company"
-        count={companies.length}
+        count={filteredCompanies.length}
         countLabel="companies"
         actions={
           <Button

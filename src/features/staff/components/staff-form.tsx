@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { revalidateLogic } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getImageUrl } from "@/lib/utils";
 
-import { roleQuery } from "../api/getRole";
+import { rolesQuery } from "../api/getRoles";
 
 // --- Schema & Types ---
 export const StaffSchema = z.object({
@@ -54,12 +54,14 @@ export function StaffForm({
 }: StaffFormProps) {
   const [resetKey, setResetKey] = useState(0);
 
-  const { data: rolesData } = useSuspenseQuery(roleQuery());
+  const { data: roles } = useSuspenseQuery(rolesQuery());
 
-  const roleOptions = rolesData.map((role) => ({
-    label: role.roleName,
-    value: role.roleId.toString(),
-  }));
+  const roleOptions = useMemo(() => {
+    return roles?.map((role) => ({
+      value: role.roleId.toString(),
+      label: role.roleName,
+    }));
+  }, [roles]);
 
   // --- Form Setup ---
   const form = useAppForm({

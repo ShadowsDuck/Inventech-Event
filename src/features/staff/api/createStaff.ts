@@ -1,12 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 
-import type { StaffType } from "@/types/staff";
-
 import type { StaffData } from "../components/staff-form";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const createStaff = async (newStaff: StaffData): Promise<StaffType> => {
+const createStaff = async (newStaff: StaffData): Promise<void> => {
   const formData = new FormData();
 
   formData.append("FullName", newStaff.fullName);
@@ -26,16 +24,12 @@ const createStaff = async (newStaff: StaffData): Promise<StaffType> => {
     });
   }
 
-  const response = await fetch(`${API_URL}/api/staff`, {
+  await fetch(`${API_URL}/api/staff`, {
     method: "POST",
     body: formData,
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to create staff");
-  }
-
-  return response.json();
+  return;
 };
 
 export const useCreateStaff = () =>
