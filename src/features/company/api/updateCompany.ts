@@ -11,14 +11,14 @@ type UpdateCompanyData = CompanyData & {
 
 const updateCompany = async ({
   id,
-  ...data
+  ...company
 }: UpdateCompanyData): Promise<void> => {
   await fetch(`${API_URL}/api/companies/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(company),
   });
 
   return;
