@@ -2,14 +2,15 @@ import { useMemo, useState } from "react";
 
 import { revalidateLogic } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Loader2, Mail, Phone, Save, User } from "lucide-react";
+import { Mail, Phone, User } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
+import { CreateFormButton } from "@/components/form/create-form-button";
 import { MultiSelectField } from "@/components/form/multiselect-field";
+import { ResetFormButton } from "@/components/form/reset-form-button";
 import PageHeader from "@/components/layout/PageHeader";
 import AvatarUpload from "@/components/ui/avatar-upload";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getImageUrl } from "@/lib/utils";
 
@@ -102,30 +103,21 @@ export function StaffForm({
         backButton={true}
         actions={
           <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
+            <ResetFormButton
               onClick={() => {
                 form.reset();
                 setResetKey((prev) => prev + 1);
               }}
-              disabled={isPending}
-            >
-              Reset
-            </Button>
-            <Button
-              size="add"
-              type="submit"
+            />
+            <CreateFormButton
+              saveLabel={saveLabel}
+              loadingLabel={loadingLabel}
               form="staff-form-id"
-              disabled={isPending}
-            >
-              {isPending ? (
-                <Loader2 className="animate-spin" size={18} />
-              ) : (
-                <Save size={18} strokeWidth={2.5} />
-              )}
-              {isPending ? loadingLabel : saveLabel}
-            </Button>
+              isPending={isPending}
+              onClick={() => {
+                form.handleSubmit();
+              }}
+            />
           </div>
         }
       />

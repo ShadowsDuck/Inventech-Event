@@ -1,11 +1,11 @@
 import { revalidateLogic } from "@tanstack/react-form";
-import { Loader2, Save } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { CreateFormButton } from "../../../components/form/create-form-button";
+import { ResetFormButton } from "../../../components/form/reset-form-button";
 import { PageHeader } from "../../../components/layout/PageHeader";
 
 const PersonSchema = z.object({
@@ -112,28 +112,20 @@ export function CompanyForm({
         subtitle={subtitle}
         actions={
           <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
+            <ResetFormButton
               onClick={() => {
                 form.reset();
               }}
-            >
-              Reset
-            </Button>
-            <Button
-              size="add"
-              type="submit"
+            />
+            <CreateFormButton
+              saveLabel={saveLabel}
+              loadingLabel={loadingLabel}
               form="company-form-id"
-              disabled={isPending}
-            >
-              {isPending ? (
-                <Loader2 className="animate-spin" size={18} />
-              ) : (
-                <Save size={18} strokeWidth={2.5} />
-              )}
-              {isPending ? loadingLabel : saveLabel}
-            </Button>
+              isPending={isPending}
+              onClick={() => {
+                form.handleSubmit();
+              }}
+            />
           </div>
         }
       />
