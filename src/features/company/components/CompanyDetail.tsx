@@ -20,7 +20,10 @@ import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import { Route } from "@/routes/_sidebarLayout/company/$companyId";
 
 import { companyQuery } from "../api/getCompany";
-import CompanyContactCard from "./company-contact-card";
+import {
+  PrimaryContactCard,
+  StandardContactCard,
+} from "./company-contact-card";
 import { companyProjectsColumns } from "./company-projects-column";
 
 export default function CompanyDetail() {
@@ -107,23 +110,21 @@ export default function CompanyDetail() {
 
               <div className="border-t border-gray-200" />
 
-              {/* Contact Persons */}
               <p className="text-muted-foreground -mb-2 text-[11px] font-bold tracking-wider uppercase">
                 Contact Persons ({company.companyContacts?.length || 0})
               </p>
 
               {primaryContact && (
-                <CompanyContactCard contact={primaryContact} primary={true} />
+                <PrimaryContactCard contact={primaryContact} />
               )}
 
               <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-4">
                 {company.companyContacts
                   ?.filter((contact) => !contact.isPrimary)
                   .map((contact) => (
-                    <CompanyContactCard
+                    <StandardContactCard
                       key={contact.companyContactId}
                       contact={contact}
-                      primary={false}
                     />
                   ))}
               </div>
