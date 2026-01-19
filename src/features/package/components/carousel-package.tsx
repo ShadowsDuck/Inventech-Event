@@ -117,11 +117,12 @@ export default function CarouselPackage({
 
                     <CardContent className="flex-1 px-6 pt-0 pb-6">
                       {!pkg.equipmentSets || pkg.equipmentSets.length === 0 ? (
-                        <p className="text-sm text-gray-500">ยังไม่มีรายการอุปกรณ์</p>
+                        <p className="text-sm text-gray-500">
+                          ยังไม่มีรายการอุปกรณ์
+                        </p>
                       ) : (
                         <ul className="space-y-3">
                           {pkg.equipmentSets.map((es: any, i: number) => {
-                            // ✅ ของจริงอยู่ใน es.equipment
                             const eq = es.equipment;
                             const equipmentName =
                               eq?.equipmentName ?? eq?.EquipmentName ?? "-";
