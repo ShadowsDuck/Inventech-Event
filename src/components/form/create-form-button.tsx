@@ -7,7 +7,6 @@ interface CreateFormButtonProps {
   loadingLabel: string;
   form: string;
   isPending: boolean;
-  onClick: () => void;
 }
 
 export function CreateFormButton({
@@ -15,7 +14,6 @@ export function CreateFormButton({
   loadingLabel,
   form,
   isPending,
-  onClick,
 }: CreateFormButtonProps) {
   return (
     <Button
@@ -23,7 +21,6 @@ export function CreateFormButton({
       type="submit"
       form={form}
       variant="default"
-      onClick={onClick}
       disabled={isPending}
     >
       {isPending ? (

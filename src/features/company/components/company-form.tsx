@@ -122,9 +122,6 @@ export function CompanyForm({
               loadingLabel={loadingLabel}
               form="company-form-id"
               isPending={isPending}
-              onClick={() => {
-                form.handleSubmit();
-              }}
             />
           </div>
         }

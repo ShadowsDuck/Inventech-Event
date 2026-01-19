@@ -57,7 +57,7 @@ export default function EditCompany() {
         ),
       })),
     };
-
+console.log(payload)
     mutate(payload, {
       onSuccess: () => {
         navigate({
