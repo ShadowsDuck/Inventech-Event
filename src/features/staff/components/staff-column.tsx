@@ -27,7 +27,7 @@ export const staffColumns: ColumnDef<StaffType>[] = [
               alt={fullName}
               className="object-cover"
             />
-            {/* Fallback จะทำงานอัตโนมัติเมื่อไม่มี src หรือรูปโหลดไม่ได้ */}
+
             <AvatarFallback className="bg-blue-100 text-xs font-medium text-blue-700">
               {getInitials(fullName)}
             </AvatarFallback>

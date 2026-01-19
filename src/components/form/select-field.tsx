@@ -30,6 +30,9 @@ type SelectFieldProps = {
   options: Option[];
   placeholder?: string;
   required?: boolean;
+  value?: string;
+  onChange?: (value: string) => void;
+
   icon?: React.ComponentType<{ className?: string }>;
 };
 

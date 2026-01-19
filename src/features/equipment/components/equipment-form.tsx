@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { revalidateLogic } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Loader2, Mail, Phone, Save, User } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
@@ -49,7 +49,6 @@ export function EquipmentForm({
   const form = useAppForm({
     defaultValues: {
       equipmentName: initialValues?.equipmentName ?? "",
-
       category: initialValues?.category ?? "",
       isDeleted: initialValues?.isDeleted ?? false,
     } as EquipmentData,
@@ -66,7 +65,7 @@ export function EquipmentForm({
   });
 
   // --- UI Labels ---
-  const title = mode === "create" ? "Add New Staff" : "Edit Staff";
+  const title = mode === "create" ? "Add Equipment" : "Edit Equipment";
   const subtitle =
     mode === "create" ? "Create Equipment" : "Update Equipment information";
   const saveLabel = mode === "create" ? "Add Staff" : "Save Changes";
@@ -94,7 +93,7 @@ export function EquipmentForm({
             <Button
               size="add"
               type="submit"
-              form="staff-form-id"
+              form="equipment-form-id"
               disabled={isPending}
             >
               {isPending ? (
@@ -134,7 +133,7 @@ export function EquipmentForm({
           </CardHeader>
           <CardContent>
             <form
-              id="staff-form-id"
+              id="equipment-form-id"
               onSubmit={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -150,13 +149,12 @@ export function EquipmentForm({
                     label="Equipment Name"
                     type="text"
                     placeholder="e.g. Microphone"
-                    startIcon={User}
                     required
                   />
                 )}
               />
 
-              {/* Roles MultiSelect */}
+              {/* Category Select */}
               <form.AppField
                 name="category"
                 children={(field) => (

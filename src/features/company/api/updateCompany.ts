@@ -5,8 +5,8 @@ import type { CompanyData } from "../components/company-form";
 const API_URL = import.meta.env.VITE_API_URL;
 
 type UpdateCompanyData = CompanyData & {
-  id: string; // เอาไว้ทำ URL Update
-  companyId: number; // เอาไว้ส่งไปใน Body ให้ Backend
+  id: string;
+  companyId: number;
 };
 
 const updateCompany = async ({
