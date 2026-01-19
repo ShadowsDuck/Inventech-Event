@@ -1,10 +1,10 @@
 import { type ColumnDef } from "@tanstack/react-table";
 
-import { DataBadge } from "@/components/data-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { getBadgeStyle } from "@/lib/badge-styles";
 import { formatPhoneNumberDisplay } from "@/lib/format";
-import { getImageUrl, getInitials } from "@/lib/utils";
+import { cn, getImageUrl, getInitials } from "@/lib/utils";
 import type { StaffType } from "@/types/staff";
 
 import { StaffActions } from "./staff-actions";
@@ -91,24 +91,36 @@ export const staffColumns: ColumnDef<StaffType>[] = [
       );
     },
     cell: ({ row }) => {
-      // 1. ดึง array ของ roles ออกมา
       const staffRoles = row.original.staffRoles || [];
 
-      // 2. ถ้าไม่มี role ให้แสดงขีด
       if (staffRoles.length === 0) {
         return <span className="text-muted-foreground">-</span>;
       }
 
-      // 3. วนลูปสร้าง Badge ทีละอัน
       return (
         <div className="flex flex-wrap gap-2">
-          {staffRoles.map((sr) => (
-            <DataBadge
-              key={sr.roleId}
-              type="role"
-              value={sr.role?.roleName || "Unknown"}
-            />
-          ))}
+          {staffRoles.map((sr) => {
+            // ดึงค่า Role Name
+            const roleName = sr.role?.roleName || "Unknown";
+
+            // เรียกหา Style
+            const style = getBadgeStyle("role", roleName);
+
+            return (
+              <Badge
+                key={sr.roleId}
+                variant="outline"
+                className={cn(
+                  "gap-2 rounded-xl border px-2.5 py-0.5 font-medium",
+                  style.bg,
+                  style.text,
+                  style.border,
+                )}
+              >
+                {roleName}
+              </Badge>
+            );
+          })}
         </div>
       );
     },

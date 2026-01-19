@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { outsourcesQuery } from "@/features/outsource/api/getOutsource";
-import EditOutsource from "@/features/outsource/components/EditOutsource";
+import OutsourceList from "@/features/outsource/components/OutsourceList";
 
-export const Route = createFileRoute("/outsource/$outsourceId/edit")({
-  component: EditOutsource,
+export const Route = createFileRoute("/_sidebarLayout/outsource/")({
+  component: OutsourceList,
   staticData: {
-    title: "Edit Outsource",
+    title: "OutsourceList",
   },
   loader: async ({ context: { queryClient } }) => {
     return queryClient.ensureQueryData(outsourcesQuery());

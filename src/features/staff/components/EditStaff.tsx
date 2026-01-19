@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 
-import { formatPhoneNumberDisplay, formatPhoneNumberInput } from "@/lib/format";
+import { formatPhoneNumberInput } from "@/lib/format";
 import { Route } from "@/routes/staff/$staffId/edit";
 
 import { staffByIdQuery } from "../api/getStaffById";
@@ -15,19 +15,17 @@ export default function EditStaff() {
   const { data: staffData } = useSuspenseQuery(staffByIdQuery(staffId));
   const { mutate, isPending: isSaving } = useUpdateStaff();
 
-  if (!staffData) {
-    return <div className="p-10 text-center">Staff not found</div>;
-  }
-
+  // แปลงจาก DB -> Form
   const initialValues: StaffData = {
     fullName: staffData.fullName,
     email: staffData.email ?? "",
-    phoneNumber: formatPhoneNumberDisplay(staffData.phoneNumber) ?? "",
+    phoneNumber: formatPhoneNumberInput(staffData.phoneNumber ?? ""),
     isDeleted: staffData.isDeleted ?? false,
     roles: staffData.staffRoles?.map((r) => r.roleId.toString()) ?? [],
     avatar: staffData.avatar,
   };
 
+  // แปลงจาก Form -> DB
   const handleEditSubmit = (values: StaffData) => {
     // ถ้า avatar เป็น null แสดงว่าผู้ใช้กดลบรูป
     const shouldDelete = values.avatar === null;
@@ -37,14 +35,10 @@ export default function EditStaff() {
       values.avatar instanceof File ? values.avatar : undefined;
 
     const payload = {
+      ...values,
       id: staffId,
       staffId: parseInt(staffId),
-      fullName: values.fullName,
-      email: values.email || undefined,
-      isDeleted: values.isDeleted ?? false,
-      phoneNumber:
-        formatPhoneNumberInput(values.phoneNumber ?? "") || undefined,
-      roles: values.roles.map((id) => String(id)),
+      phoneNumber: formatPhoneNumberInput(values.phoneNumber ?? ""),
       avatar: newAvatarFile,
       deleteAvatar: shouldDelete,
     };

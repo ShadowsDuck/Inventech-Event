@@ -18,11 +18,11 @@ import { Route as OutsourceCreateRouteImport } from './routes/outsource/create'
 import { Route as EventCreateRouteImport } from './routes/event/create'
 import { Route as EquipmentCreateRouteImport } from './routes/equipment/create'
 import { Route as CompanyCreateRouteImport } from './routes/company/create'
-import { Route as SidebarLayoutStaffRouteImport } from './routes/_sidebarLayout/staff'
 import { Route as SidebarLayoutPackageRouteImport } from './routes/_sidebarLayout/package'
-import { Route as SidebarLayoutOutsourceRouteImport } from './routes/_sidebarLayout/outsource'
 import { Route as SidebarLayoutEventRouteImport } from './routes/_sidebarLayout/event'
 import { Route as SidebarLayoutEquipmentRouteImport } from './routes/_sidebarLayout/equipment'
+import { Route as SidebarLayoutStaffIndexRouteImport } from './routes/_sidebarLayout/staff/index'
+import { Route as SidebarLayoutOutsourceIndexRouteImport } from './routes/_sidebarLayout/outsource/index'
 import { Route as SidebarLayoutCompanyIndexRouteImport } from './routes/_sidebarLayout/company/index'
 import { Route as StaffStaffIdEditRouteImport } from './routes/staff/$staffId/edit'
 import { Route as OutsourceOutsourceIdEditRouteImport } from './routes/outsource/$outsourceId/edit'
@@ -75,19 +75,9 @@ const CompanyCreateRoute = CompanyCreateRouteImport.update({
   path: '/company/create',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SidebarLayoutStaffRoute = SidebarLayoutStaffRouteImport.update({
-  id: '/staff',
-  path: '/staff',
-  getParentRoute: () => SidebarLayoutRouteRoute,
-} as any)
 const SidebarLayoutPackageRoute = SidebarLayoutPackageRouteImport.update({
   id: '/package',
   path: '/package',
-  getParentRoute: () => SidebarLayoutRouteRoute,
-} as any)
-const SidebarLayoutOutsourceRoute = SidebarLayoutOutsourceRouteImport.update({
-  id: '/outsource',
-  path: '/outsource',
   getParentRoute: () => SidebarLayoutRouteRoute,
 } as any)
 const SidebarLayoutEventRoute = SidebarLayoutEventRouteImport.update({
@@ -100,6 +90,17 @@ const SidebarLayoutEquipmentRoute = SidebarLayoutEquipmentRouteImport.update({
   path: '/equipment',
   getParentRoute: () => SidebarLayoutRouteRoute,
 } as any)
+const SidebarLayoutStaffIndexRoute = SidebarLayoutStaffIndexRouteImport.update({
+  id: '/staff/',
+  path: '/staff/',
+  getParentRoute: () => SidebarLayoutRouteRoute,
+} as any)
+const SidebarLayoutOutsourceIndexRoute =
+  SidebarLayoutOutsourceIndexRouteImport.update({
+    id: '/outsource/',
+    path: '/outsource/',
+    getParentRoute: () => SidebarLayoutRouteRoute,
+  } as any)
 const SidebarLayoutCompanyIndexRoute =
   SidebarLayoutCompanyIndexRouteImport.update({
     id: '/company/',
@@ -130,9 +131,9 @@ const CompanyCompanyIdEditRoute = CompanyCompanyIdEditRouteImport.update({
 } as any)
 const SidebarLayoutStaffStaffIdRoute =
   SidebarLayoutStaffStaffIdRouteImport.update({
-    id: '/$staffId',
-    path: '/$staffId',
-    getParentRoute: () => SidebarLayoutStaffRoute,
+    id: '/staff/$staffId',
+    path: '/staff/$staffId',
+    getParentRoute: () => SidebarLayoutRouteRoute,
   } as any)
 const SidebarLayoutCompanyCompanyIdRoute =
   SidebarLayoutCompanyCompanyIdRouteImport.update({
@@ -144,9 +145,7 @@ const SidebarLayoutCompanyCompanyIdRoute =
 export interface FileRoutesByFullPath {
   '/equipment': typeof SidebarLayoutEquipmentRoute
   '/event': typeof SidebarLayoutEventRoute
-  '/outsource': typeof SidebarLayoutOutsourceRoute
   '/package': typeof SidebarLayoutPackageRoute
-  '/staff': typeof SidebarLayoutStaffRouteWithChildren
   '/company/create': typeof CompanyCreateRoute
   '/equipment/create': typeof EquipmentCreateRoute
   '/event/create': typeof EventCreateRoute
@@ -162,13 +161,13 @@ export interface FileRoutesByFullPath {
   '/outsource/$outsourceId/edit': typeof OutsourceOutsourceIdEditRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
   '/company': typeof SidebarLayoutCompanyIndexRoute
+  '/outsource': typeof SidebarLayoutOutsourceIndexRoute
+  '/staff': typeof SidebarLayoutStaffIndexRoute
 }
 export interface FileRoutesByTo {
   '/equipment': typeof SidebarLayoutEquipmentRoute
   '/event': typeof SidebarLayoutEventRoute
-  '/outsource': typeof SidebarLayoutOutsourceRoute
   '/package': typeof SidebarLayoutPackageRoute
-  '/staff': typeof SidebarLayoutStaffRouteWithChildren
   '/company/create': typeof CompanyCreateRoute
   '/equipment/create': typeof EquipmentCreateRoute
   '/event/create': typeof EventCreateRoute
@@ -184,15 +183,15 @@ export interface FileRoutesByTo {
   '/outsource/$outsourceId/edit': typeof OutsourceOutsourceIdEditRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
   '/company': typeof SidebarLayoutCompanyIndexRoute
+  '/outsource': typeof SidebarLayoutOutsourceIndexRoute
+  '/staff': typeof SidebarLayoutStaffIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_sidebarLayout': typeof SidebarLayoutRouteRouteWithChildren
   '/_sidebarLayout/equipment': typeof SidebarLayoutEquipmentRoute
   '/_sidebarLayout/event': typeof SidebarLayoutEventRoute
-  '/_sidebarLayout/outsource': typeof SidebarLayoutOutsourceRoute
   '/_sidebarLayout/package': typeof SidebarLayoutPackageRoute
-  '/_sidebarLayout/staff': typeof SidebarLayoutStaffRouteWithChildren
   '/company/create': typeof CompanyCreateRoute
   '/equipment/create': typeof EquipmentCreateRoute
   '/event/create': typeof EventCreateRoute
@@ -208,15 +207,15 @@ export interface FileRoutesById {
   '/outsource/$outsourceId/edit': typeof OutsourceOutsourceIdEditRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
   '/_sidebarLayout/company/': typeof SidebarLayoutCompanyIndexRoute
+  '/_sidebarLayout/outsource/': typeof SidebarLayoutOutsourceIndexRoute
+  '/_sidebarLayout/staff/': typeof SidebarLayoutStaffIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/equipment'
     | '/event'
-    | '/outsource'
     | '/package'
-    | '/staff'
     | '/company/create'
     | '/equipment/create'
     | '/event/create'
@@ -232,13 +231,13 @@ export interface FileRouteTypes {
     | '/outsource/$outsourceId/edit'
     | '/staff/$staffId/edit'
     | '/company'
+    | '/outsource'
+    | '/staff'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/equipment'
     | '/event'
-    | '/outsource'
     | '/package'
-    | '/staff'
     | '/company/create'
     | '/equipment/create'
     | '/event/create'
@@ -254,14 +253,14 @@ export interface FileRouteTypes {
     | '/outsource/$outsourceId/edit'
     | '/staff/$staffId/edit'
     | '/company'
+    | '/outsource'
+    | '/staff'
   id:
     | '__root__'
     | '/_sidebarLayout'
     | '/_sidebarLayout/equipment'
     | '/_sidebarLayout/event'
-    | '/_sidebarLayout/outsource'
     | '/_sidebarLayout/package'
-    | '/_sidebarLayout/staff'
     | '/company/create'
     | '/equipment/create'
     | '/event/create'
@@ -277,6 +276,8 @@ export interface FileRouteTypes {
     | '/outsource/$outsourceId/edit'
     | '/staff/$staffId/edit'
     | '/_sidebarLayout/company/'
+    | '/_sidebarLayout/outsource/'
+    | '/_sidebarLayout/staff/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -359,25 +360,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompanyCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_sidebarLayout/staff': {
-      id: '/_sidebarLayout/staff'
-      path: '/staff'
-      fullPath: '/staff'
-      preLoaderRoute: typeof SidebarLayoutStaffRouteImport
-      parentRoute: typeof SidebarLayoutRouteRoute
-    }
     '/_sidebarLayout/package': {
       id: '/_sidebarLayout/package'
       path: '/package'
       fullPath: '/package'
       preLoaderRoute: typeof SidebarLayoutPackageRouteImport
-      parentRoute: typeof SidebarLayoutRouteRoute
-    }
-    '/_sidebarLayout/outsource': {
-      id: '/_sidebarLayout/outsource'
-      path: '/outsource'
-      fullPath: '/outsource'
-      preLoaderRoute: typeof SidebarLayoutOutsourceRouteImport
       parentRoute: typeof SidebarLayoutRouteRoute
     }
     '/_sidebarLayout/event': {
@@ -392,6 +379,20 @@ declare module '@tanstack/react-router' {
       path: '/equipment'
       fullPath: '/equipment'
       preLoaderRoute: typeof SidebarLayoutEquipmentRouteImport
+      parentRoute: typeof SidebarLayoutRouteRoute
+    }
+    '/_sidebarLayout/staff/': {
+      id: '/_sidebarLayout/staff/'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof SidebarLayoutStaffIndexRouteImport
+      parentRoute: typeof SidebarLayoutRouteRoute
+    }
+    '/_sidebarLayout/outsource/': {
+      id: '/_sidebarLayout/outsource/'
+      path: '/outsource'
+      fullPath: '/outsource'
+      preLoaderRoute: typeof SidebarLayoutOutsourceIndexRouteImport
       parentRoute: typeof SidebarLayoutRouteRoute
     }
     '/_sidebarLayout/company/': {
@@ -431,10 +432,10 @@ declare module '@tanstack/react-router' {
     }
     '/_sidebarLayout/staff/$staffId': {
       id: '/_sidebarLayout/staff/$staffId'
-      path: '/$staffId'
+      path: '/staff/$staffId'
       fullPath: '/staff/$staffId'
       preLoaderRoute: typeof SidebarLayoutStaffStaffIdRouteImport
-      parentRoute: typeof SidebarLayoutStaffRoute
+      parentRoute: typeof SidebarLayoutRouteRoute
     }
     '/_sidebarLayout/company/$companyId': {
       id: '/_sidebarLayout/company/$companyId'
@@ -446,37 +447,28 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface SidebarLayoutStaffRouteChildren {
-  SidebarLayoutStaffStaffIdRoute: typeof SidebarLayoutStaffStaffIdRoute
-}
-
-const SidebarLayoutStaffRouteChildren: SidebarLayoutStaffRouteChildren = {
-  SidebarLayoutStaffStaffIdRoute: SidebarLayoutStaffStaffIdRoute,
-}
-
-const SidebarLayoutStaffRouteWithChildren =
-  SidebarLayoutStaffRoute._addFileChildren(SidebarLayoutStaffRouteChildren)
-
 interface SidebarLayoutRouteRouteChildren {
   SidebarLayoutEquipmentRoute: typeof SidebarLayoutEquipmentRoute
   SidebarLayoutEventRoute: typeof SidebarLayoutEventRoute
-  SidebarLayoutOutsourceRoute: typeof SidebarLayoutOutsourceRoute
   SidebarLayoutPackageRoute: typeof SidebarLayoutPackageRoute
-  SidebarLayoutStaffRoute: typeof SidebarLayoutStaffRouteWithChildren
   SidebarLayoutIndexRoute: typeof SidebarLayoutIndexRoute
   SidebarLayoutCompanyCompanyIdRoute: typeof SidebarLayoutCompanyCompanyIdRoute
+  SidebarLayoutStaffStaffIdRoute: typeof SidebarLayoutStaffStaffIdRoute
   SidebarLayoutCompanyIndexRoute: typeof SidebarLayoutCompanyIndexRoute
+  SidebarLayoutOutsourceIndexRoute: typeof SidebarLayoutOutsourceIndexRoute
+  SidebarLayoutStaffIndexRoute: typeof SidebarLayoutStaffIndexRoute
 }
 
 const SidebarLayoutRouteRouteChildren: SidebarLayoutRouteRouteChildren = {
   SidebarLayoutEquipmentRoute: SidebarLayoutEquipmentRoute,
   SidebarLayoutEventRoute: SidebarLayoutEventRoute,
-  SidebarLayoutOutsourceRoute: SidebarLayoutOutsourceRoute,
   SidebarLayoutPackageRoute: SidebarLayoutPackageRoute,
-  SidebarLayoutStaffRoute: SidebarLayoutStaffRouteWithChildren,
   SidebarLayoutIndexRoute: SidebarLayoutIndexRoute,
   SidebarLayoutCompanyCompanyIdRoute: SidebarLayoutCompanyCompanyIdRoute,
+  SidebarLayoutStaffStaffIdRoute: SidebarLayoutStaffStaffIdRoute,
   SidebarLayoutCompanyIndexRoute: SidebarLayoutCompanyIndexRoute,
+  SidebarLayoutOutsourceIndexRoute: SidebarLayoutOutsourceIndexRoute,
+  SidebarLayoutStaffIndexRoute: SidebarLayoutStaffIndexRoute,
 }
 
 const SidebarLayoutRouteRouteWithChildren =

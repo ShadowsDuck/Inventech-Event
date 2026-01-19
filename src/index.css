@@ -40,7 +40,9 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
-  --hover: oklchoklch(0.97 0 0 / 60%);
+  --hover: oklch(0.967 0.0029 264.54);
+  --hover-primary: oklch(0.9904 0.0045 258.32);
+  --sidebar-muted: oklch(0.9846 0.0017 247.84 / 95%);
 }
 
 .dark {
@@ -118,7 +120,9 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  --color-hover: oklch(0.97 0 0 / 60%);
+  --color-hover: oklch(0.967 0.0029 264.54);
+  --color-hover-primary: oklch(0.9904 0.0045 258.32);
+  --color-sidebar-muted: oklch(0.9846 0.0017 247.84 / 95%);
 }
 
 @layer base {

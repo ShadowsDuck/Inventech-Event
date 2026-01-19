@@ -10,6 +10,7 @@ const getCompany = async (id: string): Promise<CompanyType> => {
   if (!res.ok) {
     throw new Error("Failed to fetch company");
   }
+
   return res.json();
 };
 

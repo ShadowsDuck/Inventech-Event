@@ -9,6 +9,7 @@ export default function CreateCompany() {
   const navigate = useNavigate();
   const { mutate, isPending } = useCreateCompany();
 
+  // แปลงจาก Form -> DB
   const handleCreateSubmit = (values: CompanyData) => {
     const [latStr, lngStr] = values.location?.split(",") || [];
     const latitude = latStr ? parseFloat(latStr.trim()) : null;

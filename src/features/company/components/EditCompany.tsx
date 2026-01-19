@@ -15,11 +15,6 @@ export default function EditCompany() {
   const { data: companyData } = useSuspenseQuery(companyQuery(companyId));
   const { mutate, isPending: isSaving } = useUpdateCompany();
 
-  // ถ้าโหลดเสร็จแล้วแต่ไม่เจอข้อมูล
-  if (!companyData) {
-    return <div className="p-10 text-center">Company not found</div>;
-  }
-
   // แปลงจาก DB -> Form
   const initialValues: CompanyData = {
     companyName: companyData.companyName,
@@ -49,22 +44,17 @@ export default function EditCompany() {
     const longitude = lngStr ? parseFloat(lngStr.trim()) : null;
 
     const payload = {
+      ...values,
       id: companyId,
       companyId: parseInt(companyId),
-      ...values,
       latitude,
       longitude,
       location: undefined,
-
       companyContacts: values.companyContacts.map((contact) => ({
-        companyContactId: contact.companyContactId,
-        fullName: contact.fullName,
-        position: contact.position,
-        email: contact.email,
+        ...contact,
         phoneNumber: formatPhoneNumberInput(
           contact.phoneNumber ? contact.phoneNumber : "",
         ),
-        isPrimary: contact.isPrimary,
       })),
     };
 

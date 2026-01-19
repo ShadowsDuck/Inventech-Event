@@ -10,6 +10,7 @@ const getStaff = async (): Promise<StaffType[]> => {
   if (!res.ok) {
     throw new Error("Failed to fetch staff");
   }
+
   return res.json();
 };
 
