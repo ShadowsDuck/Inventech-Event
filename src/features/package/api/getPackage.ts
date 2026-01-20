@@ -1,11 +1,18 @@
 import { queryOptions } from "@tanstack/react-query";
 
-const getPackage = async () => { 
-    const pack = await fetch("https://localhost:7268/api/packages");
-    return pack.json();
-}
+import type { PackageType } from "@/types/package";
 
-export const packageQueryOptions = queryOptions({
-    queryKey: ["package"],
-    queryFn: getPackage
-});
+const API_URL = import.meta.env.VITE_API_URL;
+const getPackage = async (): Promise<PackageType[]> => {
+  const response = await fetch(`${API_URL}/api/packages`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch packages");
+  }
+  return response.json();
+};
+
+export const packageQuerys = () =>
+  queryOptions({
+    queryKey: ["package", "list"],
+    queryFn: getPackage,
+  });

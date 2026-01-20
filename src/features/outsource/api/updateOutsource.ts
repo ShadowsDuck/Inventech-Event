@@ -5,8 +5,8 @@ import type { OutsourceData } from "../components/outsource-form";
 const API_URL = import.meta.env.VITE_API_URL;
 
 type UpdateOutsourceData = OutsourceData & {
-  id: string; // เอาไว้ทำ URL Update
-  outsourceId: number; // เอาไว้ส่งไปใน Body ให้ Backend
+  id: string;
+  outsourceId: number;
 };
 
 const updateOutsource = async ({

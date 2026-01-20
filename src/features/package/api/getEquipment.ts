@@ -1,9 +1,12 @@
+// api/getEquipment.ts
 import { queryOptions } from "@tanstack/react-query";
+
+import { type EquipmentType } from "@/types/equipment";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const getEquipment = async (): Promise<void> => {
-  const res = await fetch(`${API_URL}/s`);
+const getEquipment = async (): Promise<EquipmentType[]> => {
+  const res = await fetch(`${API_URL}/api/equipments`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch equipment");
@@ -11,7 +14,7 @@ const getEquipment = async (): Promise<void> => {
   return res.json();
 };
 
-export const useEquipment = () =>
+export const equipmentQuery = () =>
   queryOptions({
     queryKey: ["equipment", "list"],
     queryFn: () => getEquipment(),

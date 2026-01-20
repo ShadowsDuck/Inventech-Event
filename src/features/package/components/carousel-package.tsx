@@ -1,5 +1,6 @@
 import { Check, CircleCheck, Package as PackageIcon } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
@@ -10,6 +11,9 @@ import {
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 import type { PackageType } from "@/types/package";
+
+// Import Component ที่เตรียมไว้
+import { PackageAction } from "./package-action";
 
 interface CarouselPackageProps {
   packages: PackageType[];
@@ -77,12 +81,22 @@ export default function CarouselPackage({
                           <PackageIcon className="h-6 w-6" />
                         </div>
 
-                        {isSelected && !readOnly && (
-                          <span className="flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 transition-colors">
-                            {disabled ? "Auto-" : ""}Selected
-                            <CircleCheck size={14} />
-                          </span>
-                        )}
+                        {/* ส่วนขวาบน: Badge และ Action Menu */}
+                        <div className="flex items-center gap-2">
+                          {isSelected && !readOnly && (
+                            <span className="flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 transition-colors">
+                              {disabled ? "Auto-" : ""}Selected
+                              <CircleCheck size={14} />
+                            </span>
+                          )}
+
+                          <div
+                            onClick={(e) => e.stopPropagation()}
+                            className="relative z-20" // เพิ่ม z-index และ stopPropagation เพื่อไม่ให้ trigger การเลือก Card
+                          >
+                            <PackageAction packages={pkg} />
+                          </div>
+                        </div>
                       </div>
 
                       <h3
@@ -105,7 +119,6 @@ export default function CarouselPackage({
                         {pkg.equipmentSets?.length ?? 0} items
                       </span>
                     </div>
-
                     <div className="px-6">
                       <div className="mb-4 flex items-center gap-4">
                         <p className="text-xs font-bold tracking-wider whitespace-nowrap text-gray-400 uppercase">
@@ -114,7 +127,6 @@ export default function CarouselPackage({
                         <div className="h-px flex-1 bg-gray-200" />
                       </div>
                     </div>
-
                     <CardContent className="flex-1 px-6 pt-0 pb-6">
                       {!pkg.equipmentSets || pkg.equipmentSets.length === 0 ? (
                         <p className="text-sm text-gray-500">

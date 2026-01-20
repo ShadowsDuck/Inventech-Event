@@ -6,9 +6,9 @@ import { Switch } from "../ui/switch";
 import { FieldErrors } from "./field-error";
 
 type SwitchFieldProps = {
-  onLabel?: string; // ข้อความตอนเปิด (เช่น "Active")
-  offLabel?: string; // ข้อความตอนปิด (เช่น "Inactive")
-  invert?: boolean; // กลับด้านค่า (สำหรับ isDeleted)
+  onLabel?: string;
+  offLabel?: string;
+  invert?: boolean;
 };
 
 export const SwitchField = ({
@@ -58,7 +58,6 @@ export const SwitchField = ({
           id={field.name}
           checked={isChecked}
           onCheckedChange={(checked) => {
-            // ส่งค่ากลับไปหา Form (ถ้า invert อยู่ ต้องกลับค่าก่อนส่ง)
             field.handleChange(invert ? !checked : checked);
           }}
           aria-invalid={hasError}

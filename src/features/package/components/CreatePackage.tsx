@@ -15,17 +15,18 @@ export default function CreatePackage() {
 
   const handleCreateSubmit = (values: PackageData) => {
     const payload = {
-      category: values.category,
       packageName: values.packageName,
+      equipment: values.equipment,
     };
 
     mutate(payload, {
       onSuccess: () => {
         toast.success("Package created successfully");
         navigate({
-          to: "/package", // หรือ path ที่ต้องการหลัง save เสร็จ
+          to: "/package",
           replace: true,
         });
+        console.log(payload);
       },
       onError: (error) => {
         toast.error(error.message || "Failed to create package");

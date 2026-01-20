@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface DataTableRowActionsProps {
-  resourceName: string; // ชื่อประเภท เช่น "Company", "Staff"
-  onEdit: () => void; // ฟังก์ชันเมื่อกด Edit
+  resourceName: string;
+  onEdit: () => void;
 }
 
 export function DataTableRowActions({ onEdit }: DataTableRowActionsProps) {

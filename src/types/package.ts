@@ -1,9 +1,18 @@
-import type { EquipmentType } from "./equipment";
+export interface CategoryType {
+  categoryId: number;
+  categoryName: string;
+}
 
-export interface EquipmentSetType {
+export interface EquipmentType {
   equipmentId: number;
-  packageId: number;
-  equipment: EquipmentType; // 👈 ของจริงอยู่ในนี้
+  equipmentName: string;
+  categoryId: number;
+  category: CategoryType;
+  isDeleted?: boolean;
+}
+
+export interface PackageEquipmentType extends EquipmentType {
+  quantity: number;
 }
 
 export interface PackageType {
@@ -11,5 +20,12 @@ export interface PackageType {
   packageName: string;
   createdAt: string;
   updatedAt: string;
-  equipmentSets: EquipmentSetType[];
+
+  equipment: PackageEquipmentType[];
+
+  equipmentSets?: {
+    equipmentId: number;
+    packageId: number;
+    quantity: number;
+  }[];
 }

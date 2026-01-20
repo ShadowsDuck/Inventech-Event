@@ -1,0 +1,15 @@
+import { createFileRoute } from "@tanstack/react-router";
+
+import { useEditPackage } from "@/features/package/api/editPackage";
+import { packageByIdQuery } from "@/features/package/api/getPackageById";
+import EditPackage from "@/features/package/components/Edit-package";
+
+export const Route = createFileRoute("/package/$packageId/edit")({
+  component: EditPackage,
+  staticData: {
+    title: "Edit Package",
+  },
+  loader: ({ context: { queryClient }, params: { packageId } }) => {
+    return queryClient.ensureQueryData(packageByIdQuery(packageId));
+  },
+});
