@@ -15,8 +15,8 @@ import { FieldErrors } from "./field-error";
 // --- ลบ getCategoryIcon Helper ออกแล้ว ---
 
 type SelectedItemState = {
-  id: string;
-  name: string;
+  equipmentId: string;
+  equipmentName: string;
   category: string;
   quantity: number;
 };
@@ -89,7 +89,9 @@ export const EquipmentSelectField = ({
   // --- Handlers ---
   const handleQuantityChange = (eq: EquipmentType, delta: number) => {
     const eqId = String(eq.equipmentId);
-    const existingIndex = selectedItems.findIndex((i) => i.id === eqId);
+    const existingIndex = selectedItems.findIndex(
+      (i) => i.equipmentId === eqId,
+    );
     let updated = [...selectedItems];
 
     if (existingIndex >= 0) {
@@ -104,8 +106,8 @@ export const EquipmentSelectField = ({
       }
     } else if (delta > 0) {
       updated.push({
-        id: eqId,
-        name: eq.equipmentName,
+        equipmentId: eqId,
+        equipmentName: eq.equipmentName,
         category: String(eq.categoryId),
         quantity: delta,
       });
@@ -114,7 +116,7 @@ export const EquipmentSelectField = ({
   };
 
   const removeItem = (id: string) => {
-    field.handleChange(selectedItems.filter((i) => i.id !== id));
+    field.handleChange(selectedItems.filter((i) => i.equipmentId !== id));
   };
 
   // --- Render Row: รายการให้เลือก (Available) ---
@@ -131,7 +133,7 @@ export const EquipmentSelectField = ({
       >
         <div className="flex items-center gap-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
-            {/* ✅ ใช้ Icon Box เป็น Default สำหรับทุกอัน */}
+            {/*ใช้ Icon Box เป็น Default สำหรับทุกอัน */}
             <Box size={20} />
           </div>
           <span className="text-sm font-semibold text-gray-700">
@@ -273,8 +275,9 @@ export const EquipmentSelectField = ({
           <div className="divide-y divide-gray-100">
             {selectedItems.map((item, idx) => {
               const originalItem =
-                equipmentList.find((e) => String(e.equipmentId) === item.id) ||
-                ({} as EquipmentType);
+                equipmentList.find(
+                  (e) => String(e.equipmentId) === item.equipmentId,
+                ) || ({} as EquipmentType);
 
               return (
                 <div
@@ -283,11 +286,11 @@ export const EquipmentSelectField = ({
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gray-100 text-gray-400">
-                      {/* ✅ ใช้ Icon Box เป็น Default ใน Summary ด้วย */}
+                      {/* ใช้ Icon Box เป็น Default ใน Summary ด้วย */}
                       <Box size={20} />
                     </div>
                     <span className="text-sm font-medium text-gray-700">
-                      {item.name}
+                      {item.equipmentName}
                     </span>
                   </div>
 
@@ -313,7 +316,7 @@ export const EquipmentSelectField = ({
                     </div>
                     <button
                       type="button"
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.equipmentId)}
                       className="text-gray-400 transition-colors hover:text-red-500"
                     >
                       <Trash2 size={16} />

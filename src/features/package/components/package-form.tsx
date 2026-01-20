@@ -17,15 +17,15 @@ import { FieldGroup } from "@/components/ui/field";
 import { equipmentQuery } from "../api/getEquipment";
 
 const EquipmentItemSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  category: z.string(),
+  equipmentId: z.string(),
   quantity: z.number().min(1),
+  category: z.string(),
+  equipmentName: z.string(),
 });
 
 export const PackageSchema = z.object({
   packageName: z.string().min(1, "Package Name is required"),
-  equipment: z
+  equipmentSets: z
     .array(EquipmentItemSchema)
     .min(1, "Please select at least one equipment"),
 });
@@ -54,7 +54,7 @@ export default function PackageForm({
   const form = useAppForm({
     defaultValues: {
       packageName: initialValues?.packageName ?? "",
-      equipment: initialValues?.equipment ?? [],
+      equipmentSets: initialValues?.equipmentSets ?? [],
     } as PackageData,
     onSubmit: async ({ value }) => {
       onSubmit(value);
@@ -135,9 +135,9 @@ export default function PackageForm({
 
           <CardContent className="p-5">
             <form.AppField
-              name="equipment"
+              name="equipmentSets"
               validators={{
-                onChange: PackageSchema.shape.equipment,
+                onChange: PackageSchema.shape.equipmentSets,
               }}
               children={() => (
                 <EquipmentSelectField

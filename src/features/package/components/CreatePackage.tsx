@@ -16,7 +16,12 @@ export default function CreatePackage() {
   const handleCreateSubmit = (values: PackageData) => {
     const payload = {
       packageName: values.packageName,
-      equipment: values.equipment,
+      equipmentSets: values.equipmentSets.map((item) => ({
+        equipmentId: item.equipmentId,
+        quantity: Number(item.quantity),
+        category: item.category,
+        equipmentName: item.equipmentName,
+      })),
     };
 
     mutate(payload, {

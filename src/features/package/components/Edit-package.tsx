@@ -18,8 +18,8 @@ export default function EditPackage() {
   const initialValues: PackageData = {
     packageName: packageData.packageName,
     equipment: (packageData.equipment ?? []).map((item) => ({
-      id: String(item.equipmentId),
-      name: item.equipmentName,
+      equipmentId: String(item.equipmentId),
+      equipmentName: item.equipmentName,
       category: item.category.categoryName,
       quantity: item.quantity,
     })),
@@ -30,7 +30,7 @@ export default function EditPackage() {
       id: packageId,
       packageName: values.packageName,
       equipment: (values.equipment ?? []).map((item) => ({
-        equipmentId: Number(item.id),
+        equipmentId: Number(item.equipmentId),
         quantity: Number(item.quantity),
       })),
     };
