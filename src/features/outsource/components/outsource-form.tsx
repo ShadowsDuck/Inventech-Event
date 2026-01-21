@@ -1,12 +1,11 @@
-import { useState } from "react";
-
 import { revalidateLogic } from "@tanstack/react-form";
-import { Loader2, Mail, Phone, Save, User } from "lucide-react";
+import { Mail, Phone, User } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
+import { CreateFormButton } from "@/components/form/ui/create-form-button";
+import { ResetFormButton } from "@/components/form/ui/reset-form-button";
 import PageHeader from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // --- Schema & Types ---
@@ -78,29 +77,17 @@ export function OutsourceForm({
         backButton={true}
         actions={
           <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
+            <ResetFormButton
               onClick={() => {
                 form.reset();
               }}
-              disabled={isPending}
-            >
-              Reset
-            </Button>
-            <Button
-              size="add"
-              type="submit"
-              form="staff-form-id"
-              disabled={isPending}
-            >
-              {isPending ? (
-                <Loader2 className="animate-spin" size={18} />
-              ) : (
-                <Save size={18} strokeWidth={2.5} />
-              )}
-              {isPending ? loadingLabel : saveLabel}
-            </Button>
+            />
+            <CreateFormButton
+              saveLabel={saveLabel}
+              loadingLabel={loadingLabel}
+              form="outsource-form-id"
+              isPending={isPending}
+            />
           </div>
         }
       />
@@ -111,7 +98,7 @@ export function OutsourceForm({
             <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
               <div className="flex items-center gap-2">
                 <span className="h-6 w-1 rounded-full bg-blue-600" />
-                Staff Information
+                Outsource Information
               </div>
 
               {/* --- แสดง Switch เฉพาะโหมด Edit เท่านั้น --- */}
@@ -131,7 +118,7 @@ export function OutsourceForm({
           </CardHeader>
           <CardContent>
             <form
-              id="staff-form-id"
+              id="outsource-form-id"
               onSubmit={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -140,6 +127,7 @@ export function OutsourceForm({
               className="space-y-6"
               noValidate
             >
+              {/* Full Name */}
               <form.AppField
                 name="fullName"
                 children={(field) => (
@@ -152,6 +140,8 @@ export function OutsourceForm({
                   />
                 )}
               />
+
+              {/* Email */}
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <form.AppField
                   name="email"
@@ -159,12 +149,13 @@ export function OutsourceForm({
                     <field.TextField
                       label="Email Address"
                       type="email"
-                      placeholder="staff@inventecvt.com"
+                      placeholder="outsource@inventecvt.com"
                       startIcon={Mail}
                     />
                   )}
                 />
 
+                {/* Phone Number */}
                 <form.AppField
                   name="phoneNumber"
                   children={(field) => (

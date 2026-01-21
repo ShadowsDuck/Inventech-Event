@@ -14,6 +14,6 @@ const getPackageById = async (id: string): Promise<PackageType> => {
 };
 export const packageByIdQuery = (id: string) =>
   queryOptions({
-    queryKey: ["package", "byId", id],
+    queryKey: ["packages", "detail", id],
     queryFn: () => getPackageById(id),
   });

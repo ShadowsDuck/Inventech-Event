@@ -1,19 +1,9 @@
-// src/app/staff/staff-columns.tsx (หรือ path ที่คุณเก็บไฟล์)
 import { type ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
 import type { OutsourceType } from "@/types/outsource";
 
 import { OutsourceActions } from "./outsource-action";
-
-// กำหนด Type ตรงนี้ หรือ import มาจากไฟล์ types กลาง
-// export type StaffRow = {
-//   id: string;
-//   name: string;
-//   email: string;
-//   phone: string;
-//   status?: string;
-// };
 
 export const outsourceColumns: ColumnDef<OutsourceType>[] = [
   {

@@ -22,13 +22,15 @@ export default function OutsourceList() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
 
-  const filteredCompanies = useMemo(() => {
+  const filteredOutsources = useMemo(() => {
     let result = outsources;
 
     result = result.filter((c) => {
       const matchesSearch =
         !search || c.fullName.toLowerCase().includes(search.toLowerCase());
+
       const matchesStatus = !status || c.isDeleted === (status === "inactive");
+
       return matchesSearch && matchesStatus;
     });
 
@@ -39,8 +41,8 @@ export default function OutsourceList() {
     <>
       <PageHeader
         title="Outsource"
-        count={filteredCompanies.length}
-        countLabel="outsourced staff"
+        count={filteredOutsources.length}
+        countLabel="outsource members"
         actions={
           <Button
             size="add"
@@ -57,7 +59,7 @@ export default function OutsourceList() {
           <SearchBar
             value={search}
             onChange={(value) => setSearch(value)}
-            placeholder="Search staff..."
+            placeholder="Search outsources..."
           />
 
           <FilterSelect
@@ -69,7 +71,7 @@ export default function OutsourceList() {
           />
         </div>
 
-        <DataTable columns={outsourceColumns} data={filteredCompanies} />
+        <DataTable columns={outsourceColumns} data={filteredOutsources} />
       </div>
     </>
   );

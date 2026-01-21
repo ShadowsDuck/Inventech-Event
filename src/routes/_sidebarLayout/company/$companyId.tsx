@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { companyQuery } from "@/features/company/api/getCompany";
-import CompanyDetail from "@/features/company/components/CompanyDetail";
+import CompanyDetail from "@/features/company/components/pages/CompanyDetail";
 
 export const Route = createFileRoute("/_sidebarLayout/company/$companyId")({
   component: CompanyDetail,

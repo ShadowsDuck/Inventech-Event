@@ -14,8 +14,8 @@ const getStaff = async (): Promise<StaffType[]> => {
   return res.json();
 };
 
-export const staffQuery = (staffId: string) =>
+export const staffQuery = () =>
   queryOptions({
-    queryKey: ["staff", "list", staffId],
+    queryKey: ["staff", "list"],
     queryFn: () => getStaff(),
   });

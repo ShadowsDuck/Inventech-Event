@@ -8,7 +8,6 @@ export const Route = createFileRoute("/package/create")({
   staticData: {
     title: "Create Package",
   },
-
   loader: ({ context: { queryClient } }) => {
     return queryClient.ensureQueryData(packageQuerys());
   },

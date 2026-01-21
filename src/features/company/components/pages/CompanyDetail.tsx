@@ -19,12 +19,12 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import { Route } from "@/routes/_sidebarLayout/company/$companyId";
 
-import { companyQuery } from "../api/getCompany";
+import { companyQuery } from "../../api/getCompany";
 import {
   PrimaryContactCard,
   StandardContactCard,
-} from "./company-contact-card";
-import { companyProjectsColumns } from "./company-projects-column";
+} from "./../company-contact-card";
+import { companyProjectsColumns } from "./../company-projects-column";
 
 export default function CompanyDetail() {
   const [activeTab, setActiveTab] = useState<"overview" | "history">(

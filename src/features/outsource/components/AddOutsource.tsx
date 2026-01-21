@@ -17,7 +17,7 @@ export default function Addoutsource() {
         values.phoneNumber ? values.phoneNumber : "",
       ),
     };
-    console.log(payload);
+
     mutate(payload, {
       onSuccess: () => {
         navigate({ to: "..", replace: true });
