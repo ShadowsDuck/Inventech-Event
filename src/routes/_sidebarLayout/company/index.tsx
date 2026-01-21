@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_sidebarLayout/company/")({
   staticData: {
     title: "CompanyList",
   },
-  loader: async ({ context: { queryClient } }) => {
+  loader: ({ context: { queryClient } }) => {
     return queryClient.ensureQueryData(companiesQuery());
   },
 });

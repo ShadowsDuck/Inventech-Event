@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_sidebarLayout/outsource/")({
   staticData: {
     title: "OutsourceList",
   },
-  loader: async ({ context: { queryClient } }) => {
+  loader: ({ context: { queryClient } }) => {
     return queryClient.ensureQueryData(outsourcesQuery());
   },
 });

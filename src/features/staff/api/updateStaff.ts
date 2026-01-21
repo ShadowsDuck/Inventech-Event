@@ -37,10 +37,15 @@ const updateStaff = async ({ id, ...data }: UpdateStaffData): Promise<void> => {
 
   formData.append("IsDeleted", data.isDeleted.toString());
 
-  await fetch(`${API_URL}/api/staff/${id}`, {
+  const res = await fetch(`${API_URL}/api/staff/${id}`, {
     method: "PUT",
     body: formData,
   });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to update staff");
+  }
 
   return;
 };

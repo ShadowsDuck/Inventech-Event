@@ -9,8 +9,8 @@ export const Route = createFileRoute("/_sidebarLayout/staff/")({
   staticData: {
     title: "StaffList",
   },
-  loader: async ({ context: { queryClient } }) => {
-    await Promise.all([
+  loader: ({ context: { queryClient } }) => {
+    return Promise.all([
       queryClient.ensureQueryData(staffQuery()),
       queryClient.ensureQueryData(rolesQuery()),
     ]);

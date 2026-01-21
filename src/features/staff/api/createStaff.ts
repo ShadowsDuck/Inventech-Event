@@ -24,10 +24,15 @@ const createStaff = async (newStaff: StaffData): Promise<void> => {
     });
   }
 
-  await fetch(`${API_URL}/api/staff`, {
+  const res = await fetch(`${API_URL}/api/staff`, {
     method: "POST",
     body: formData,
   });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to create staff");
+  }
 
   return;
 };

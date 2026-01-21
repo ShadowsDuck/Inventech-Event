@@ -1,19 +1,21 @@
 import { useMutation } from "@tanstack/react-query";
 
+import type { CompanyType } from "@/types/company";
+
 import type { CompanyData } from "../components/company-form";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 type UpdateCompanyData = CompanyData & {
-  id: string;
+  id: number;
   companyId: number;
 };
 
 const updateCompany = async ({
   id,
   ...company
-}: UpdateCompanyData): Promise<void> => {
-  await fetch(`${API_URL}/api/companies/${id}`, {
+}: UpdateCompanyData): Promise<CompanyType> => {
+  const res = await fetch(`${API_URL}/api/companies/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -21,7 +23,12 @@ const updateCompany = async ({
     body: JSON.stringify(company),
   });
 
-  return;
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to update company");
+  }
+
+  return res.json();
 };
 
 export const useUpdateCompany = () =>

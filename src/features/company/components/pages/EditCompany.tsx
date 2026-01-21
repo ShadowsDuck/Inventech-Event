@@ -45,8 +45,7 @@ export default function EditCompany() {
 
     const payload = {
       ...values,
-      id: companyId,
-      companyId: parseInt(companyId),
+      id: parseInt(companyId),
       latitude,
       longitude,
       location: undefined,
@@ -57,7 +56,7 @@ export default function EditCompany() {
         ),
       })),
     };
-    console.log(payload);
+
     mutate(payload, {
       onSuccess: () => {
         navigate({
