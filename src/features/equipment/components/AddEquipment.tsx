@@ -14,7 +14,7 @@ export default function AddEquipment() {
     const payload = {
       equipmentName: values.equipmentName,
       isDeleted: values.isDeleted,
-      category: values.category,
+      categoryId: values.categoryId,
     };
 
     console.log("Sending Payload:", payload);

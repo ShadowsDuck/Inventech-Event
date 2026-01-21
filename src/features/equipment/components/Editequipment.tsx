@@ -29,7 +29,7 @@ export default function EditEquipment() {
 
   const initialValues: EquipmentData = {
     equipmentName: equipmentData.equipmentName,
-    category: equipmentData.categoryId?.toString() ?? "",
+    categoryId: equipmentData.categoryId.categoryId,
     isDeleted: equipmentData.isDeleted ?? false,
   };
 
@@ -39,7 +39,7 @@ export default function EditEquipment() {
       id: equipmentId,
       equipmentName: values.equipmentName,
       isDeleted: values.isDeleted,
-      category: values.category,
+      categoryId: values.categoryId,
     };
 
     mutate(payload, {

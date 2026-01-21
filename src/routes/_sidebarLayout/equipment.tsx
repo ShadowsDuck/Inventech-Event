@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_sidebarLayout/equipment")({
   validateSearch: zodValidator(equipmentSearchParamsSchema),
   loaderDeps: ({ search }) => ({
     q: search.q,
-}),
+  }),
   loader: async ({ context: { queryClient }, deps }) => {
     return queryClient.ensureQueryData(equipmentQuery({ ...deps }));
   },

@@ -42,8 +42,9 @@ export const SelectField = ({
   placeholder = "Select option...",
   required,
   icon: Icon,
+  onChange, // 1. รับ onChange เข้ามา
 }: SelectFieldProps) => {
-  // 1. เปลี่ยน Context เป็น string ธรรมดา (ไม่ใช่ Array)
+  // ใช้ Context เป็น string เพราะ Select ทำงานกับ text เป็นหลัก
   const field = useFieldContext<string>();
   const [open, setOpen] = React.useState(false);
 
@@ -52,20 +53,31 @@ export const SelectField = ({
     (field.state.meta.isTouched || isSubmitted) &&
     field.state.meta.errors.length > 0;
 
-  // ดึงค่าปัจจุบัน (ถ้าเป็น null/undefined ให้เป็น string ว่าง)
-  const selectedValue = field.state.value || "";
+  // ดึงค่าปัจจุบัน (แปลงเป็น string เสมอเพื่อความปลอดภัยในการเทียบค่า)
+  const selectedValue = field.state.value?.toString() || "";
 
-  // Logic การเลือก (Single Select)
+  // --- Logic การเลือก (แก้ไขแล้ว) ---
   const handleSelect = (currentValue: string) => {
-    // ถ้าเลือกค่าเดิม ให้คงเดิม หรือจะ toggle ออกก็ได้ (ที่นี้เลือกให้ทับค่าเดิม)
-    field.handleChange(currentValue);
+    // 2. ถ้ามีการส่ง onChange มาจากข้างนอก ให้ใช้ตัวนั้น (สำคัญมาก!)
+    if (onChange) {
+      onChange(currentValue);
+    } else {
+      // ถ้าไม่มี ก็ใช้ค่า Default ของ Field ตามเดิม
+      field.handleChange(currentValue);
+    }
     setOpen(false); // ปิด Popover ทันทีเมื่อเลือกเสร็จ
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
-    field.handleChange(""); // เคลียร์ค่าเป็น string ว่าง
+    // 3. จัดการกรณี Clear ค่าด้วย
+    if (onChange) {
+      onChange("");
+    } else {
+      field.handleChange("");
+    }
   };
+  // -------------------------------
 
   // ตรวจสอบว่ามีค่าถูกเลือกอยู่หรือไม่
   const isActive = !!selectedValue;
@@ -83,7 +95,7 @@ export const SelectField = ({
       </Label>
 
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
+        <PopoverTrigger>
           <button
             type="button"
             className={cn(
@@ -159,7 +171,7 @@ export const SelectField = ({
                           "border-primary/50 mr-2 flex h-4 w-4 items-center justify-center rounded-sm border",
                           isSelected
                             ? "border-blue-700 bg-blue-700 text-white"
-                            : "border-transparent opacity-0", // ซ่อน Checkbox ถ้าไม่ได้เลือก (Single Select ปกติไม่เน้น Checkbox ว่างเปล่า)
+                            : "border-transparent opacity-0",
                         )}
                       >
                         <Check className={cn("h-3 w-3")} />

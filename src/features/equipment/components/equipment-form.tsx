@@ -19,7 +19,7 @@ export const EquipmentSchema = z.object({
     .min(2, "Full name should be at least 2 characters.")
     .max(255, "Full name should not exceed 255 characters."),
   isDeleted: z.boolean(),
-  category: z.string().max(1, "Category is required."),
+  categoryId: z.number().min(1, "Category is required."),
 });
 
 export type EquipmentData = z.infer<typeof EquipmentSchema>;
@@ -42,14 +42,14 @@ export function EquipmentForm({
 
   const categoryOptions = categoryData.map((category) => ({
     label: category.categoryName,
-    value: category.categoryId.toString(),
+    value: category.categoryId,
   }));
 
   // --- Form Setup ---
   const form = useAppForm({
     defaultValues: {
       equipmentName: initialValues?.equipmentName ?? "",
-      category: initialValues?.category ?? "",
+      categoryId: initialValues?.categoryId ?? 0,
       isDeleted: initialValues?.isDeleted ?? false,
     } as EquipmentData,
     validators: {
@@ -156,15 +156,18 @@ export function EquipmentForm({
 
               {/* Category Select */}
               <form.AppField
-                name="category"
+                name="categoryId"
                 children={(field) => (
                   <field.SelectField
                     label="Category"
-                    options={categoryOptions}
+                    options={categoryOptions.map((option) => ({
+                      label: option.label,
+                      value: option.value.toString(),
+                    }))}
                     placeholder="Select category"
                     required
-                    value={field.state.value}
-                    onChange={field.handleChange}
+                    value={field.state.value?.toString() ?? ""}
+                    onChange={(val) => field.handleChange(Number(val))}
                   />
                 )}
               />

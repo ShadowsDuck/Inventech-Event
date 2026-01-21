@@ -22,6 +22,6 @@ const getEquipment = async (params: {
 
 export const equipmentQuery = (filter: { q?: string }) =>
   queryOptions({
-    queryKey: ["equipment", "list", filter],
+    queryKey: ["equipments", "list", filter],
     queryFn: () => getEquipment(filter),
   });
