@@ -6,9 +6,9 @@ import { Mail, Phone, User } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
-import { CreateFormButton } from "@/components/form/create-form-button";
 import { MultiSelectField } from "@/components/form/multiselect-field";
-import { ResetFormButton } from "@/components/form/reset-form-button";
+import { CreateFormButton } from "@/components/form/ui/create-form-button";
+import { ResetFormButton } from "@/components/form/ui/reset-form-button";
 import PageHeader from "@/components/layout/PageHeader";
 import AvatarUpload from "@/components/ui/avatar-upload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -114,9 +114,6 @@ export function StaffForm({
               loadingLabel={loadingLabel}
               form="staff-form-id"
               isPending={isPending}
-              onClick={() => {
-                form.handleSubmit();
-              }}
             />
           </div>
         }

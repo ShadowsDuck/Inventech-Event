@@ -13,14 +13,14 @@ export default function EditPackage() {
 
   const { packageId } = Route.useParams();
   const { data: packageData } = useSuspenseQuery(packageByIdQuery(packageId));
+
   const { mutate, isPending: isSaving } = useEditPackage();
 
   const initialValues: PackageData = {
     packageName: packageData.packageName,
-    equipment: (packageData.equipment ?? []).map((item) => ({
+    equipmentSets: (packageData.equipmentSets ?? []).map((item) => ({
       equipmentId: String(item.equipmentId),
-      equipmentName: item.equipmentName,
-      category: item.category.categoryName,
+      equipmentName: item.equipment?.equipmentName || "",
       quantity: item.quantity,
     })),
   };
@@ -28,13 +28,14 @@ export default function EditPackage() {
   const handleEditSubmit = (values: PackageData) => {
     const payload = {
       id: packageId,
+      equipmentId: Number(packageId),
       packageName: values.packageName,
-      equipment: (values.equipment ?? []).map((item) => ({
-        equipmentId: Number(item.equipmentId),
+      equipmentSets: (values.equipmentSets ?? []).map((item) => ({
+        equipmentId: String(item.equipmentId),
+        equipmentName: item.equipmentName,
         quantity: Number(item.quantity),
       })),
     };
-    console.log(payload);
 
     mutate(payload, {
       onSuccess: () => {

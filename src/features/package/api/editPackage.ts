@@ -1,16 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
 
+import type { PackageData } from "../components/package-form";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
-type EditPackageData = {
-  id: string; // ID สำหรับ URL
-  packageName: string; // ชื่อแพ็กเกจ
-  equipment: {
-    equipmentId: number;
-    quantity: number;
-  }[];
+type UpdatePackageData = PackageData & {
+  id: string;
+  equipmentId: number;
 };
-const EditPackage = async ({ id, ...data }: EditPackageData): Promise<void> => {
+
+const EditPackage = async ({
+  id,
+  ...data
+}: UpdatePackageData): Promise<void> => {
   await fetch(`${API_URL}/api/packages/${id}`, {
     method: "PUT",
     headers: {
@@ -20,6 +22,7 @@ const EditPackage = async ({ id, ...data }: EditPackageData): Promise<void> => {
   });
   return;
 };
+
 export const useEditPackage = () =>
   useMutation({
     mutationFn: EditPackage,

@@ -122,7 +122,7 @@ export const EquipmentSelectField = ({
   // --- Render Row: รายการให้เลือก (Available) ---
   const renderAvailableItem = (item: EquipmentType) => {
     const addedItem = selectedItems.find(
-      (i) => i.id === String(item.equipmentId),
+      (i) => i.equipmentId === String(item.equipmentId),
     );
     const qty = addedItem ? addedItem.quantity : 0;
 

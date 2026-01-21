@@ -4,8 +4,8 @@ import z from "zod";
 import { useAppForm } from "@/components/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { CreateFormButton } from "../../../components/form/create-form-button";
-import { ResetFormButton } from "../../../components/form/reset-form-button";
+import { CreateFormButton } from "../../../components/form/ui/create-form-button";
+import { ResetFormButton } from "../../../components/form/ui/reset-form-button";
 import { PageHeader } from "../../../components/layout/PageHeader";
 
 const PersonSchema = z.object({

@@ -14,11 +14,12 @@ const createPackage = async (newPackage: PackageData): Promise<void> => {
   });
   return;
 };
+
 export const useCreatePackage = () =>
   useMutation({
     mutationFn: createPackage,
     meta: {
-      invalidatesQuery: ["package", "list"],
+      invalidatesQuery: ["packages", "list"],
       successMessage: "Created package successfully",
       errorMessage: "Failed to create package",
     },

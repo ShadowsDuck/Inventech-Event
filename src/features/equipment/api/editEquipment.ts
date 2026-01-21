@@ -8,6 +8,7 @@ type EditEquipmentData = EquipmentData & {
   id: string;
   equipmentId: number;
 };
+
 const EditEquipment = async ({
   id,
   ...data
@@ -19,8 +20,10 @@ const EditEquipment = async ({
     },
     body: JSON.stringify(data),
   });
+
   return;
 };
+
 export const useEditequipment = () =>
   useMutation({
     mutationFn: EditEquipment,

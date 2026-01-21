@@ -11,8 +11,10 @@ export interface EquipmentType {
   isDeleted?: boolean;
 }
 
-export interface PackageEquipmentType extends EquipmentType {
+export interface EquipmentSetType {
+  equipmentId: number;
   quantity: number;
+  equipment?: EquipmentType;
 }
 
 export interface PackageType {
@@ -20,12 +22,5 @@ export interface PackageType {
   packageName: string;
   createdAt: string;
   updatedAt: string;
-
-  equipment: PackageEquipmentType[];
-
-  equipmentSets?: {
-    equipmentId: number;
-    packageId: number;
-    quantity: number;
-  }[];
+  equipmentSets?: EquipmentSetType[];
 }

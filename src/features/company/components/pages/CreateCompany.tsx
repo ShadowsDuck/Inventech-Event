@@ -2,8 +2,8 @@ import { useNavigate } from "@tanstack/react-router";
 
 import { formatPhoneNumberInput } from "@/lib/format";
 
-import { useCreateCompany } from "../api/createCompany";
-import { type CompanyData, CompanyForm } from "./company-form";
+import { useCreateCompany } from "../../api/createCompany";
+import { type CompanyData, CompanyForm } from "./../company-form";
 
 export default function CreateCompany() {
   const navigate = useNavigate();

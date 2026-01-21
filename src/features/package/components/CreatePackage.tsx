@@ -15,12 +15,10 @@ export default function CreatePackage() {
 
   const handleCreateSubmit = (values: PackageData) => {
     const payload = {
-      packageName: values.packageName,
+      packageName: values.packageName, // string
       equipmentSets: values.equipmentSets.map((item) => ({
-        equipmentId: item.equipmentId,
+        equipmentId: String(item.equipmentId), // แปลงเป็น int ตาม API
         quantity: Number(item.quantity),
-        category: item.category,
-        equipmentName: item.equipmentName,
       })),
     };
 
@@ -31,7 +29,6 @@ export default function CreatePackage() {
           to: "/package",
           replace: true,
         });
-        console.log(payload);
       },
       onError: (error) => {
         toast.error(error.message || "Failed to create package");

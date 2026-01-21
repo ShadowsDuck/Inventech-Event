@@ -4,9 +4,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { formatPhoneNumberDisplay, formatPhoneNumberInput } from "@/lib/format";
 import { Route } from "@/routes/company/$companyId/edit";
 
-import { companyQuery } from "../api/getCompany";
-import { useUpdateCompany } from "../api/updateCompany";
-import { type CompanyData, CompanyForm } from "./company-form";
+import { companyQuery } from "../../api/getCompany";
+import { useUpdateCompany } from "../../api/updateCompany";
+import { type CompanyData, CompanyForm } from "../company-form";
 
 export default function EditCompany() {
   const navigate = useNavigate();
@@ -57,7 +57,7 @@ export default function EditCompany() {
         ),
       })),
     };
-console.log(payload)
+    console.log(payload);
     mutate(payload, {
       onSuccess: () => {
         navigate({

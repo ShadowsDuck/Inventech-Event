@@ -1,8 +1,5 @@
-import * as React from "react";
-
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Package, Save } from "lucide-react";
-// Import Icon เพิ่ม (Optional)
+import { Save } from "lucide-react";
 import { z } from "zod";
 
 import { useAppForm } from "@/components/form";
@@ -19,8 +16,7 @@ import { equipmentQuery } from "../api/getEquipment";
 const EquipmentItemSchema = z.object({
   equipmentId: z.string(),
   quantity: z.number().min(1),
-  category: z.string(),
-  equipmentName: z.string(),
+  equipmentName: z.string().optional(),
 });
 
 export const PackageSchema = z.object({

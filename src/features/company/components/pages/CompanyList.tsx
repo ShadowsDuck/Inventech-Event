@@ -10,9 +10,9 @@ import { SELECT_OPTIONS } from "@/data/constants";
 import { companyColumns } from "@/features/company/components/companies-column";
 import { Route } from "@/routes/_sidebarLayout/company";
 
-import SearchBar from "../../../components/SearchBar";
-import PageHeader from "../../../components/layout/PageHeader";
-import { companiesQuery } from "../api/getCompanies";
+import SearchBar from "../../../../components/SearchBar";
+import PageHeader from "../../../../components/layout/PageHeader";
+import { companiesQuery } from "../../api/getCompanies";
 
 export default function CompanyList() {
   const navigate = Route.useNavigate();
