@@ -14,8 +14,8 @@ const getEquipmentById = async (id: string): Promise<EquipmentType> => {
   return res.json();
 };
 
-export const equipmentByIdQuery = (id: string) =>
+export const equipmentByIdQuery = (equipmentId: string) =>
   queryOptions({
-    queryKey: ["equipment", "detail", id],
-    queryFn: () => getEquipmentById(id),
+    queryKey: ["equipments", "detail", equipmentId],
+    queryFn: () => getEquipmentById(equipmentId),
   });

@@ -20,7 +20,7 @@ export default function EditEquipment() {
   const { data: equipmentData } = useSuspenseQuery(
     equipmentByIdQuery(equipmentId),
   );
-
+  console.log("API Raw Data:", equipmentData);
   const { mutate, isPending: isSaving } = useEditequipment();
 
   if (!equipmentData) {
@@ -29,7 +29,7 @@ export default function EditEquipment() {
 
   const initialValues: EquipmentData = {
     equipmentName: equipmentData.equipmentName,
-    categoryId: equipmentData.categoryId.categoryId,
+    categoryId: equipmentData.category.categoryId,
     isDeleted: equipmentData.isDeleted ?? false,
   };
 

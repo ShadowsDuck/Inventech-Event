@@ -16,6 +16,6 @@ const getOutsourceById = async (id: string): Promise<OutsourceType> => {
 
 export const outsourceByIdQuery = (id: string) =>
   queryOptions({
-    queryKey: ["outsource", "detail", id],
+    queryKey: ["outsources", "detail", id],
     queryFn: () => getOutsourceById(id),
   });

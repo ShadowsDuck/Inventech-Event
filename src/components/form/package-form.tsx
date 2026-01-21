@@ -46,7 +46,7 @@ export const EquipmentSelectField = ({
   const categoriesTab = React.useMemo(() => {
     const uniqueCats = new Map<string, string>();
     equipmentList.forEach((item) => {
-      const id = String(item.categoryId);
+      const id = String(item.category);
       if (!uniqueCats.has(id)) {
         uniqueCats.set(id, item.category?.categoryName || "Uncategorized");
       }

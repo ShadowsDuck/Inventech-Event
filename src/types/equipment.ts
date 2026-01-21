@@ -8,8 +8,8 @@ export interface EquipmentType {
   equipmentName: string;
   createdAt: string;
   updatedAt: string;
-  categoryId: CategoryType;
   isDeleted: boolean;
+  category: CategoryType;
 }
 
 export interface EquipmentSetType {
