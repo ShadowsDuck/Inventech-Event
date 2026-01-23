@@ -10,12 +10,13 @@ import { packageQuerys } from "../api/getPackage";
 
 const PackageList = () => {
   const navigate = useNavigate();
-
+  //ดึงข้อมูลแพ็คเกจจาก API
   const { data: Package } = useSuspenseQuery(packageQuerys());
   console.log("PackageList - data from API:", Package);
 
   return (
     <>
+      {/* --- ส่วนหัว (Header) --- */}
       <PageHeader
         title="Package"
         count={Package.length}
@@ -30,7 +31,6 @@ const PackageList = () => {
           </Button>
         }
       />
-
       <div className="flex flex-1 flex-col overflow-y-hidden p-6 lg:p-10">
         <CarouselPackage
           readOnly={true}

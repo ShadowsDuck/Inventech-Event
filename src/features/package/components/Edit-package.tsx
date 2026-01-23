@@ -12,10 +12,12 @@ export default function EditPackage() {
   const navigate = useNavigate();
 
   const { packageId } = Route.useParams();
+
+  //ดึงข้อมูลแพ็คเกจจาก API
   const { data: packageData } = useSuspenseQuery(packageByIdQuery(packageId));
-
+  // เตรียมการบันทึกแก้ไขข้อมูลแพ็คเกจ
   const { mutate, isPending: isSaving } = useEditPackage();
-
+  // เเเปลงข้อมูลจาก Backend ให้เข้ากับฟอร์ม
   const initialValues: PackageData = {
     packageName: packageData.packageName,
     equipmentSets: (packageData.equipmentSets ?? []).map((item) => ({
@@ -24,6 +26,7 @@ export default function EditPackage() {
       quantity: item.quantity,
     })),
   };
+  // ฟังก์ชันบันทึกข้อมูล
 
   const handleEditSubmit = (values: PackageData) => {
     const payload = {
@@ -36,15 +39,17 @@ export default function EditPackage() {
         quantity: Number(item.quantity),
       })),
     };
-
+    // ยิง API เพื่ออัปเดตข้อมูล
     mutate(payload, {
       onSuccess: () => {
+        // สำเร็จแล้วกลับไปหน้ารายการ
         navigate({ to: "/package", replace: true });
       },
     });
   };
 
   return (
+    // เรียกใช้ Form โดยระบุ mode="edit"
     <PackageForm
       mode="edit"
       isPending={isSaving}

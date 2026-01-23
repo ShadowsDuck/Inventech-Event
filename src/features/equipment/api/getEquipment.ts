@@ -4,24 +4,17 @@ import type { EquipmentType } from "@/types/equipment";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const getEquipment = async (params: {
-  q?: string;
-}): Promise<EquipmentType[]> => {
-  const searchParams = new URLSearchParams();
-
-  if (params.q) {
-    searchParams.append("q", params.q);
-  }
-  const equipment = await fetch(`${API_URL}/api/equipments?${searchParams}`);
-  if (!equipment.ok) {
+const getEquipment = async (): Promise<EquipmentType[]> => {
+  const res = await fetch(`${API_URL}/api/equipments`);
+  if (!res.ok) {
     throw new Error("Failed to fetch equipment");
   }
 
-  return equipment.json();
+  return res.json();
 };
 
-export const equipmentQuery = (filter: { q?: string }) =>
+export const equipmentQuery = () =>
   queryOptions({
-    queryKey: ["equipments", "list", filter],
-    queryFn: () => getEquipment(filter),
+    queryKey: ["equipments", "list"],
+    queryFn: () => getEquipment(),
   });
