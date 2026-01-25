@@ -32,3 +32,7 @@ export const formatPhoneNumberInput = (value: string) => {
   // ถ้ายังพิมพ์ไม่ถึง 3 ตัว ก็ส่งเลขเพียวๆ กลับไป
   return limited;
 };
+
+export const cleanPhoneNumber = (value: string) => {
+  return value.replace(/\D/g, "");
+};

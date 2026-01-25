@@ -6,7 +6,6 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 type UpdateStaffData = StaffData & {
   id: string;
-  staffId: number;
   deleteAvatar?: boolean;
 };
 
@@ -18,8 +17,6 @@ const updateStaff = async ({ id, ...data }: UpdateStaffData): Promise<void> => {
   if (data.email) formData.append("Email", data.email);
 
   if (data.phoneNumber) formData.append("PhoneNumber", data.phoneNumber);
-
-  if (data.staffId) formData.append("StaffId", data.staffId.toString());
 
   if (data.avatar instanceof File) {
     // กรณีมีไฟล์ใหม่
@@ -44,7 +41,12 @@ const updateStaff = async ({ id, ...data }: UpdateStaffData): Promise<void> => {
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to update staff");
+
+    throw new Error(
+      (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
+        errorData.detail ||
+        "Failed to update staff",
+    );
   }
 
   return;

@@ -1,5 +1,6 @@
 import { Mail, Phone, User } from "lucide-react";
 
+import { formatPhoneNumberDisplay } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { ContactPersonType } from "@/types/company";
 
@@ -7,12 +8,14 @@ import type { ContactPersonType } from "@/types/company";
 interface ContactItemProps {
   icon: React.ElementType;
   text?: string;
+  type?: string;
   variant?: "primary" | "standard";
 }
 
 const ContactItem = ({
   icon: Icon,
   text,
+  type,
   variant = "standard",
 }: ContactItemProps) => {
   const isPrimary = variant === "primary";
@@ -36,7 +39,7 @@ const ContactItem = ({
           isPrimary ? "text-black/70" : "text-black/55",
         )}
       >
-        {text || "-"}
+        {type === "phone" ? formatPhoneNumberDisplay(text) : text || "-"}
       </span>
     </div>
   );
@@ -75,6 +78,7 @@ export function PrimaryContactCard({
             <ContactItem
               icon={Phone}
               text={contact.phoneNumber}
+              type="phone"
               variant="primary"
             />
             <ContactItem icon={Mail} text={contact.email} variant="primary" />
@@ -109,6 +113,7 @@ export function StandardContactCard({
             <ContactItem
               icon={Phone}
               text={contact.phoneNumber}
+              type="phone"
               variant="standard"
             />
             <ContactItem icon={Mail} text={contact.email} variant="standard" />

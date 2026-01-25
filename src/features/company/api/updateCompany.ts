@@ -8,7 +8,6 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 type UpdateCompanyData = CompanyData & {
   id: number;
-  companyId: number;
 };
 
 const updateCompany = async ({
@@ -25,7 +24,12 @@ const updateCompany = async ({
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to update company");
+
+    throw new Error(
+      (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
+        errorData.detail ||
+        "Failed to update company",
+    );
   }
 
   return res.json();

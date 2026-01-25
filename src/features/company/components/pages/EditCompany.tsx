@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 
-import { formatPhoneNumberDisplay, formatPhoneNumberInput } from "@/lib/format";
+import { cleanPhoneNumber, formatPhoneNumberDisplay } from "@/lib/format";
 import { Route } from "@/routes/company/$companyId/edit";
 
 import { companyQuery } from "../../api/getCompany";
@@ -51,9 +51,9 @@ export default function EditCompany() {
       location: undefined,
       companyContacts: values.companyContacts.map((contact) => ({
         ...contact,
-        phoneNumber: formatPhoneNumberInput(
-          contact.phoneNumber ? contact.phoneNumber : "",
-        ),
+        phoneNumber: contact.phoneNumber
+          ? cleanPhoneNumber(contact.phoneNumber)
+          : "",
       })),
     };
 

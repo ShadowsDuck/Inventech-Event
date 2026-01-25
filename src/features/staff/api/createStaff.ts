@@ -31,7 +31,12 @@ const createStaff = async (newStaff: StaffData): Promise<void> => {
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to create staff");
+
+    throw new Error(
+      (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
+        errorData.detail ||
+        "Failed to create staff",
+    );
   }
 
   return;
