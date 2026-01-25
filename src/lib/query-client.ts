@@ -33,9 +33,9 @@ export const queryClient = new QueryClient({
     },
     onError: (error, _variables, _context, mutation) => {
       const meta = mutation.meta;
-      if (meta?.errorMessage) {
-        toast.error(meta.errorMessage);
-      }
+      const message =
+        error.message || meta?.errorMessage || "An error occurred";
+      toast.error(message);
     },
     onSettled: async (_data, _error, _variables, _context, mutation) => {
       const meta = mutation.meta;

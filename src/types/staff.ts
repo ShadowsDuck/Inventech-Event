@@ -1,11 +1,5 @@
 import type { RoleType } from "./role";
 
-export interface StaffRoleType {
-  staffId: number;
-  roleId: number;
-  role: RoleType;
-}
-
 export interface StaffPermissionType {
   permissionId: number;
   staffId: number;
@@ -20,5 +14,5 @@ export interface StaffType {
   isDeleted: boolean;
   createdAt: string;
   updatedAt?: string;
-  staffRoles: StaffRoleType[];
+  roles: RoleType[];
 }

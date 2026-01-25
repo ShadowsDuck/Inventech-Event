@@ -80,18 +80,18 @@ export const staffColumns: ColumnDef<StaffType>[] = [
     },
   },
   {
-    accessorKey: "staffRoles",
+    accessorKey: "roles",
     header: "Roles",
     size: 230,
     filterFn: (row, filterValues) => {
-      const staffRoles = row.original.staffRoles || [];
+      const staffRoles = row.original.roles || [];
       // เช็คว่า Staff คนนี้มี Role ID ตรงกับใน list ที่ filter หรือไม่ (some)
       return staffRoles.some((sr) =>
         filterValues.includes(sr.roleId.toString()),
       );
     },
     cell: ({ row }) => {
-      const staffRoles = row.original.staffRoles || [];
+      const staffRoles = row.original.roles || [];
 
       if (staffRoles.length === 0) {
         return <span className="text-muted-foreground">-</span>;
@@ -101,7 +101,7 @@ export const staffColumns: ColumnDef<StaffType>[] = [
         <div className="flex flex-wrap gap-2">
           {staffRoles.map((sr) => {
             // ดึงค่า Role Name
-            const roleName = sr.role?.roleName || "Unknown";
+            const roleName = sr.roleName || "Unknown";
 
             // เรียกหา Style
             const style = getBadgeStyle("role", roleName);

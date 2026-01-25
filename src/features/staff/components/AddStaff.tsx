@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 
-import { formatPhoneNumberInput } from "@/lib/format";
+import { cleanPhoneNumber } from "@/lib/format";
 
 import { useCreateStaff } from "../api/createStaff";
 import { type StaffData, StaffForm } from "./staff-form";
@@ -13,7 +13,7 @@ export default function AddStaff() {
     // --- TRANSFORM DATA ---
     const payload = {
       ...values,
-      phoneNumber: formatPhoneNumberInput(
+      phoneNumber: cleanPhoneNumber(
         values.phoneNumber ? values.phoneNumber : "",
       ),
     };

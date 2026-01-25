@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 
-import { formatPhoneNumberInput } from "@/lib/format";
+import { cleanPhoneNumber } from "@/lib/format";
 
 import { useCreateCompany } from "../../api/createCompany";
 import { type CompanyData, CompanyForm } from "./../company-form";
@@ -20,10 +20,15 @@ export default function CreateCompany() {
       latitude,
       longitude,
       location: undefined,
-      phoneNumber: values.companyContacts.map((contact) =>
-        formatPhoneNumberInput(contact.phoneNumber || ""),
-      ),
+      companyContacts: values.companyContacts.map((contact) => ({
+        ...contact,
+        phoneNumber: contact.phoneNumber
+          ? cleanPhoneNumber(contact.phoneNumber)
+          : "",
+      })),
     };
+
+    console.log(payload);
 
     mutate(payload, {
       onSuccess: () => {

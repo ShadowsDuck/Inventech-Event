@@ -17,7 +17,12 @@ const createCompany = async (newCompany: CompanyData): Promise<CompanyType> => {
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to create company");
+
+    throw new Error(
+      (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
+        errorData.detail ||
+        "Failed to create company",
+    );
   }
 
   return res.json();

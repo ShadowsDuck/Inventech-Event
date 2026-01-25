@@ -1,9 +1,8 @@
-"use client";
-
 import { TriangleAlert, User, X } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { ACCEPT_IMAGE_FORMATS, MAX_SIZE_AVATAR_IMAGE } from "@/data/constants";
 import {
   type FileWithPreview,
   formatBytes,
@@ -19,7 +18,7 @@ interface AvatarUploadProps {
 }
 
 export default function AvatarUpload({
-  maxSize = 5 * 1024 * 1024, // 5MB
+  maxSize = MAX_SIZE_AVATAR_IMAGE, // 5MB
   className,
   onFileChange,
   defaultAvatar,
@@ -38,7 +37,7 @@ export default function AvatarUpload({
   ] = useFileUpload({
     maxFiles: 1,
     maxSize,
-    accept: "image/*",
+    accept: ACCEPT_IMAGE_FORMATS,
     multiple: false,
     onFilesChange: (files) => {
       onFileChange?.(files[0] || null);
