@@ -135,13 +135,19 @@ export default function CarouselPackage({
                       ) : (
                         <ul className="space-y-3">
                           {pkg.equipmentSets.map((es: any, i: number) => {
-                            const eq = es.equipment;
+                            // 1. ดึงชื่อจาก es.equipment.equipmentName
+                            // ใช้ Optional Chaining (?.) เผื่อ equipment เป็น null
                             const equipmentName =
-                              eq?.equipmentName ?? eq?.EquipmentName ?? "-";
+                              es.equipment?.equipmentName ||
+                              "Unknown Equipment";
+
+                            // 2. ดึง quantity จาก es.quantity โดยตรง ตาม JSON ที่ส่งมา
+                            const quantity = es.quantity || 1;
 
                             return (
                               <li
-                                key={`${es.packageId ?? pkg.packageId}-${es.equipmentId ?? i}`}
+                                // ใช้ ID ผสมกันเป็น Key เพื่อความ Unique
+                                key={`${pkg.packageId}-${es.equipmentId}-${i}`}
                                 className="flex items-start gap-3"
                               >
                                 <Check
@@ -153,6 +159,10 @@ export default function CarouselPackage({
                                   )}
                                 />
                                 <span className="text-sm leading-tight text-gray-600">
+                                  {/* แสดงจำนวนตัวหนาด้านหน้า */}
+                                  <span className="mr-1 font-bold text-gray-600">
+                                    {quantity}x
+                                  </span>
                                   {equipmentName}
                                 </span>
                               </li>

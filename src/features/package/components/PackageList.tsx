@@ -12,7 +12,7 @@ const PackageList = () => {
   const navigate = useNavigate();
   //ดึงข้อมูลแพ็คเกจจาก API
   const { data: Package } = useSuspenseQuery(packageQuerys());
-  console.log("PackageList - data from API:", Package);
+  console.log(Package);
 
   return (
     <>

@@ -1,16 +1,11 @@
 import * as React from "react";
+
 import { Check, ChevronsUpDown, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+
 import { useFieldContext } from ".";
-import { Label } from "../ui/label";
-import { FieldErrors } from "./field-error";
 import { Badge } from "../ui/badge";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -19,6 +14,10 @@ import {
   CommandItem,
   CommandList,
 } from "../ui/command";
+import { Label } from "../ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { FieldErrors } from "./field-error";
+
 // import { Button } from "../ui/button"; // ไม่ต้องใช้ Button แล้ว
 
 export type Option = {
@@ -31,8 +30,8 @@ type MultiSelectFieldProps = {
   options: Option[];
   placeholder?: string;
   required?: boolean;
-  value?: string[]; 
-  onChange?: (value: string[]) => void; 
+  value?: string[];
+  onChange?: (value: string[]) => void;
 };
 
 export const MultiSelectField = ({
@@ -84,10 +83,10 @@ export const MultiSelectField = ({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           className={cn(
-            "flex w-full items-center justify-between rounded-xl border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
-            "h-auto min-h-10 hover:bg-accent hover:text-accent-foreground", // เพิ่ม Hover effect
+            "border-input ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex w-full items-center justify-between rounded-xl border bg-transparent px-3 py-2 text-sm shadow-sm focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+            "hover:bg-accent hover:text-accent-foreground h-auto min-h-10", // เพิ่ม Hover effect
             !selectedValues.length && "text-muted-foreground",
-            hasError && "border-destructive text-destructive"
+            hasError && "border-destructive text-destructive",
           )}
         >
           <div className="flex flex-wrap gap-1 text-left">
@@ -102,10 +101,10 @@ export const MultiSelectField = ({
                   >
                     {option?.label || val}
                     <div
-                      className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
+                      className="ring-offset-background focus:ring-ring ml-1 cursor-pointer rounded-full outline-none focus:ring-2 focus:ring-offset-2"
                       onClick={(e) => handleRemove(e, val)}
                     >
-                      <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                      <X className="text-muted-foreground hover:text-foreground h-3 w-3" />
                     </div>
                   </Badge>
                 );
@@ -118,10 +117,7 @@ export const MultiSelectField = ({
         </PopoverTrigger>
         {/* ------------------ */}
 
-        <PopoverContent
-          className="w-[1020px] p-0"
-          align="start"
-        >
+        <PopoverContent className="w-255 p-0" align="start">
           <Command>
             <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
             <CommandList>
@@ -137,10 +133,10 @@ export const MultiSelectField = ({
                     >
                       <div
                         className={cn(
-                          "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                          "border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border",
                           isSelected
                             ? "bg-primary text-primary-foreground"
-                            : "opacity-50 [&_svg]:invisible"
+                            : "opacity-50 [&_svg]:invisible",
                         )}
                       >
                         <Check className={cn("h-4 w-4")} />

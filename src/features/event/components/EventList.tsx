@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -17,26 +17,15 @@ import {
   type FilterOption,
 } from "@/components/ui/filter-multi-select";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
-import {
-  COMPANY_DATA,
-  EVENT_DATA,
-  OUTSOURCE_DATA,
-  STAFF_DATA,
-} from "@/data/constants";
 
 import DailyView from "./daily-view";
 import MonthView from "./month-view";
 import YearView from "./year-view";
 
-// helpers
-const normalize = (v: unknown) =>
-  String(v ?? "")
-    .trim()
-    .toLowerCase();
-
 export default function EventList() {
   const navigate = useNavigate();
 
+  // --- UI State (สำหรับควบคุม Tab และ Input ต่างๆ) ---
   const [activeTab, setActiveTab] = useState<"daily" | "calendar" | "year">(
     "calendar",
   );
@@ -47,103 +36,26 @@ export default function EventList() {
   const [eventTypeFilter, setEventTypeFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
 
-  const allStaff = useMemo(() => [...STAFF_DATA, ...OUTSOURCE_DATA], []);
+  // --- Mock Options (ส่วน UI Config เปล่าๆ ไม่มี Data จริง) ---
+  const staffOptions: FilterOption[] = []; // รอรับข้อมูลจริง
+  const companyOptions: FilterOption[] = []; // รอรับข้อมูลจริง
 
-  const staffOptions: FilterOption[] = useMemo(
-    () =>
-      allStaff.map((s) => ({
-        value: s.id,
-        label: s.name,
-        description: s.roles?.[0] ?? undefined,
-      })),
-    [allStaff],
-  );
+  const eventTypeOptions: FilterOption[] = [
+    { value: "Online", label: "Online" },
+    { value: "Hybrid", label: "Hybrid" },
+    { value: "Offline", label: "Offline" },
+  ];
 
-  const companyOptions: FilterOption[] = useMemo(
-    () =>
-      COMPANY_DATA.map((c) => ({
-        value: c.id,
-        label: c.companyName,
-      })),
-    [],
-  );
-
-  const eventTypeOptions: FilterOption[] = useMemo(
-    () => [
-      { value: "Online", label: "Online" },
-      { value: "Hybrid", label: "Hybrid" },
-      { value: "Offline", label: "Offline" },
-    ],
-    [],
-  );
-
-  const statusOptions: FilterOption[] = useMemo(
-    () => [
-      { value: "Pending", label: "Pending" },
-      { value: "Complete", label: "Complete" },
-    ],
-    [],
-  );
-
-  const filteredEvents = useMemo(() => {
-    let result = EVENT_DATA;
-
-    const q = normalize(searchText);
-    if (q) {
-      result = result.filter((e) => {
-        const title = normalize(e.title);
-        const location = normalize(e.location);
-        const company = COMPANY_DATA.find((c) => c.id === e.companyId);
-        const companyName = normalize(company?.companyName);
-
-        return (
-          title.includes(q) || location.includes(q) || companyName.includes(q)
-        );
-      });
-    }
-
-    if (staffFilter.length > 0) {
-      const staffSet = new Set(staffFilter);
-      result = result.filter((e) => e.staffIds?.some((id) => staffSet.has(id)));
-    }
-
-    if (companyFilter.length > 0) {
-      const companySet = new Set(companyFilter);
-      result = result.filter((e) => companySet.has(e.companyId));
-    }
-
-    if (eventTypeFilter.length > 0) {
-      const typeSet = new Set(eventTypeFilter);
-      result = result.filter((e) => typeSet.has(e.type));
-    }
-
-    if (statusFilter.length > 0) {
-      const statusSet = new Set(statusFilter);
-      result = result.filter((e) => statusSet.has(e.status));
-    }
-
-    return result;
-  }, [searchText, staffFilter, companyFilter, eventTypeFilter, statusFilter]);
-
-  const toYMD = (d: Date) => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
-  };
-
-  const todayYMD = toYMD(new Date());
-
-  const todayEvents = useMemo(
-    () => filteredEvents.filter((e) => e.date === todayYMD),
-    [filteredEvents, todayYMD],
-  );
+  const statusOptions: FilterOption[] = [
+    { value: "Pending", label: "Pending" },
+    { value: "Complete", label: "Complete" },
+  ];
 
   return (
     <>
       <PageHeader
         title="Event"
-        count={filteredEvents.length}
+        count={0}
         countLabel="Event"
         actions={
           <Button size="add" onClick={() => navigate({ to: "/event/create" })}>
@@ -180,7 +92,7 @@ export default function EventList() {
           </div>
         </div>
 
-        {/* ✅ ซ่อน Search + Filters เฉพาะตอนอยู่ Daily */}
+        {/* Search + Filters UI */}
         {activeTab !== "daily" && (
           <div className="px-6 pt-3 pb-2">
             <div className="flex items-center">
@@ -235,7 +147,7 @@ export default function EventList() {
           </div>
         )}
 
-        {/* Content */}
+        {/* Content Views */}
         <TabsPanel value="year">
           <YearView />
         </TabsPanel>

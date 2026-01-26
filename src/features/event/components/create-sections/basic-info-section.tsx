@@ -9,8 +9,10 @@ import FilterSelectCompany from "@/components/ui/filter-select-company";
 import { Input } from "@/components/ui/input";
 import { TabEventType } from "@/components/ui/tab-event-type";
 import { Textarea } from "@/components/ui/textarea";
-import { DEFAULT_PACKAGE_OFFLINE } from "@/data/hardcode";
 import type { EventTypeSchema } from "@/types/event";
+
+// Mock constant (ถ้ามีไฟล์จริงให้ import มาแทนครับ)
+const DEFAULT_PACKAGE_OFFLINE = 1;
 
 interface SectionProps {
   form: EventTypeSchema;
@@ -28,47 +30,22 @@ export function BasicInfoSection({ form }: SectionProps) {
       <CardContent>
         <FieldGroup>
           <section className="grid grid-cols-1 gap-8 md:grid-cols-2">
-            {/* Event Name */}
-            <div className="md:col-span-2">
-              <form.Field
-                name="eventName"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid;
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Event Name</FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        placeholder="Enter event name..."
-                        autoComplete="off"
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  );
-                }}
-              />
-            </div>
-
-            {/* Company */}
-            <form.Field name="companyId">
-              {(field) => {
+            {/* 1. Event Name */}
+            <form.Field
+              name="eventName" // แก้เป็น eventName ตาม context เดิม (หรือ fullName ตาม Schema คุณ)
+              children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Company</FieldLabel>
-                    <FilterSelectCompany
+                    <FieldLabel htmlFor={field.name}>Event Name</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
                       value={field.state.value}
-                      onChange={field.handleChange}
-                      isInvalid={isInvalid}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="e.g. ประชุมผู้ถือหุ้น"
                     />
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
@@ -76,9 +53,31 @@ export function BasicInfoSection({ form }: SectionProps) {
                   </Field>
                 );
               }}
-            </form.Field>
+            />
 
-            {/* Event Type */}
+            {/* 2. Company (เติมส่วนที่หายไป) */}
+            <form.Field
+              name="companyId"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Company</FieldLabel>
+                    <FilterSelectCompany
+                      value={field.state.value?.toString()}
+                      onChange={(val) => field.handleChange(Number(val))}
+                      // error={field.state.meta.errors ? field.state.meta.errors.join(",") : undefined}
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            />
+
+            {/* 3. Event Type */}
             <form.Field
               name="eventType"
               children={(field) => {
@@ -109,7 +108,7 @@ export function BasicInfoSection({ form }: SectionProps) {
               }}
             />
 
-            {/* Note */}
+            {/* 4. Note */}
             <div className="md:col-span-2">
               <form.Field
                 name="note"

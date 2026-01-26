@@ -5,7 +5,6 @@ import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { useFieldContext } from ".";
-// ตรวจสอบ path import ให้ถูกต้อง
 import {
   Command,
   CommandEmpty,
@@ -13,7 +12,6 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from "../ui/command";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -32,7 +30,6 @@ type SelectFieldProps = {
   required?: boolean;
   value?: string;
   onChange?: (value: string) => void;
-
   icon?: React.ComponentType<{ className?: string }>;
 };
 
@@ -42,78 +39,95 @@ export const SelectField = ({
   placeholder = "Select option...",
   required,
   icon: Icon,
-  onChange, // 1. รับ onChange เข้ามา
+  onChange,
 }: SelectFieldProps) => {
-  // ใช้ Context เป็น string เพราะ Select ทำงานกับ text เป็นหลัก
   const field = useFieldContext<string>();
   const [open, setOpen] = React.useState(false);
+
+  // 1. State เก็บความกว้าง และ Ref อ้างอิงปุ่ม
+  const [width, setWidth] = React.useState(0);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
 
   const isSubmitted = field.form.state.isSubmitted;
   const hasError =
     (field.state.meta.isTouched || isSubmitted) &&
     field.state.meta.errors.length > 0;
 
-  // ดึงค่าปัจจุบัน (แปลงเป็น string เสมอเพื่อความปลอดภัยในการเทียบค่า)
   const selectedValue = field.state.value?.toString() || "";
 
-  // --- Logic การเลือก (แก้ไขแล้ว) ---
+  // 2. ใช้ ResizeObserver ใช้แทน asChild ที่ใช้ไม่ได้
+  React.useEffect(() => {
+    const triggerElement = triggerRef.current;
+    if (!triggerElement) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        // อัปเดตความกว้างตามขนาดปุ่มจริง ณ เวลานั้นๆ
+        // ใช้ borderBoxSize เพื่อรวม Border ด้วย
+        if (entry.borderBoxSize) {
+          // ในบาง Browser borderBoxSize เป็น array
+          const borderBoxSize = Array.isArray(entry.borderBoxSize)
+            ? entry.borderBoxSize[0]
+            : entry.borderBoxSize;
+          setWidth(borderBoxSize.inlineSize);
+        } else {
+          // Fallback สำหรับ Browser เก่า
+          setWidth(triggerElement.offsetWidth);
+        }
+      }
+    });
+
+    observer.observe(triggerElement);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []); // Run ครั้งเดียวตอน Mount เพื่อผูก Observer
+
   const handleSelect = (currentValue: string) => {
-    // 2. ถ้ามีการส่ง onChange มาจากข้างนอก ให้ใช้ตัวนั้น (สำคัญมาก!)
     if (onChange) {
       onChange(currentValue);
     } else {
-      // ถ้าไม่มี ก็ใช้ค่า Default ของ Field ตามเดิม
       field.handleChange(currentValue);
     }
-    setOpen(false); // ปิด Popover ทันทีเมื่อเลือกเสร็จ
+    setOpen(false);
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // 3. จัดการกรณี Clear ค่าด้วย
     if (onChange) {
       onChange("");
     } else {
       field.handleChange("");
     }
   };
-  // -------------------------------
 
-  // ตรวจสอบว่ามีค่าถูกเลือกอยู่หรือไม่
   const isActive = !!selectedValue;
-
-  // หา Option Object ของค่าที่ถูกเลือกเพื่อนำมาโชว์ Label
   const selectedOption = options.find((o) => o.value === selectedValue);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex w-full flex-col gap-1">
       <Label
         htmlFor={field.name}
         className={cn("mb-2", hasError ? "text-destructive" : "")}
       >
         {label} {required && <span className="text-destructive -ml-1">*</span>}
       </Label>
-
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger>
           <button
+            ref={triggerRef}
             type="button"
             className={cn(
+              // ปุ่มนี้จะยืดหดตาม Parent Container ของแต่ละหน้าที่นำไปวาง
               "focus:ring-ring flex h-10 w-full items-center justify-between rounded-xl border px-3 text-xs font-medium shadow-none transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-
-              // --- State: Inactive ---
               !isActive && "text-muted-foreground hover:bg-accent/50 bg-white",
-
-              // --- State: Active (Theme: Blue) ---
               isActive &&
                 "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100/50",
-
-              // Error State
               hasError && "border-destructive text-destructive",
             )}
           >
             <div className="flex items-center gap-2 truncate">
-              {/* Show Icon if provided (Priority: Option Icon > Prop Icon) */}
               {selectedOption?.icon ? (
                 <selectedOption.icon className="h-4 w-4 shrink-0" />
               ) : (
@@ -142,11 +156,16 @@ export const SelectField = ({
           </button>
         </PopoverTrigger>
 
+        {/* 4. กำหนดความกว้าง Popover ตามค่าที่วัดได้ */}
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] min-w-[200px] rounded-xl p-0"
+          className="rounded-xl p-0"
           align="start"
+          // ใช้ inline style เพื่อบังคับความกว้างเป็น pixel
+          style={{
+            width: width ? `${width}px` : "var(--radix-popover-trigger-width)",
+          }}
         >
-          <Command>
+          <Command className="w-full">
             <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
@@ -176,11 +195,9 @@ export const SelectField = ({
                       >
                         <Check className={cn("h-3 w-3")} />
                       </div>
-
                       {OptionIcon && (
                         <OptionIcon className="text-muted-foreground mr-2 h-4 w-4" />
                       )}
-
                       <span>{option.label}</span>
                     </CommandItem>
                   );
@@ -190,7 +207,6 @@ export const SelectField = ({
           </Command>
         </PopoverContent>
       </Popover>
-
       {hasError && <FieldErrors meta={field.state.meta} />}
     </div>
   );

@@ -9,7 +9,7 @@ import {
 export default function AddEquipment() {
   const navigate = useNavigate();
   // 1. เรียกใช้ Mutation Hook สำหรับสร้างข้อมูลใหม่
-  // isPending จะเป็น true ระหว่างที่กำลังยิง API (เอาไปหมุนติ้วๆ ที่ปุ่ม)
+  // isPending จะเป็น true ระหว่างที่กำลังยิง API
   const { mutate, isPending } = useAddEquipment();
 
   // 2. ฟังก์ชันที่จะทำงานเมื่อผู้ใช้กรอกฟอร์มเสร็จและกด Save

@@ -46,7 +46,7 @@ export const EquipmentSelectField = ({
   const categoriesTab = React.useMemo(() => {
     const uniqueCats = new Map<string, string>();
     equipmentList.forEach((item) => {
-      const id = String(item.category);
+      const id = String(item.category.categoryId);
       if (!uniqueCats.has(id)) {
         uniqueCats.set(id, item.category?.categoryName || "Uncategorized");
       }
@@ -69,7 +69,7 @@ export const EquipmentSelectField = ({
 
     if (activeCategoryId !== "All") {
       filtered = filtered.filter(
-        (item) => String(item.categoryId) === activeCategoryId,
+        (item) => String(item.category.categoryId) === activeCategoryId,
       );
     }
 
@@ -108,7 +108,7 @@ export const EquipmentSelectField = ({
       updated.push({
         equipmentId: eqId,
         equipmentName: eq.equipmentName,
-        category: String(eq.categoryId),
+        category: String(eq.category),
         quantity: delta,
       });
     }

@@ -29,7 +29,9 @@ export default function CreatePackage() {
           to: "/package",
           replace: true,
         });
+        console.log(payload);
       },
+
       onError: (error) => {
         toast.error(error.message || "Failed to create package");
       },
