@@ -33,10 +33,9 @@ export default function AddEquipment() {
   };
 
   // 4. แสดงผล Form โดยระบุ mode="create"
-  // ไม่ต้องส่ง initialValues เพราะต้องการให้ฟอร์มว่างเปล่า
   return (
     <EquipmentForm
-      mode="create" // บอกฟอร์มว่านี่คือการเพิ่มใหม่ (ปุ่มจะเป็นคำว่า "Add")
+      mode="create"
       isPending={isPending} // ส่งสถานะ Loading ไปล็อกปุ่ม
       onSubmit={handleCreateSubmit} // ส่งฟังก์ชันไปรอรับค่า
     />

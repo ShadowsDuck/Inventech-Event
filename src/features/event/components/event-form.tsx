@@ -2,15 +2,16 @@ import { useMemo, useState } from "react";
 
 import { revalidateLogic } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { extendTailwindMerge } from "tailwind-merge";
-import z from "zod";
-import { de } from "zod/v4/locales";
+import { UploadCloud } from "lucide-react";
+import z, { file } from "zod";
 
 import { useAppForm } from "@/components/form";
 import { CreateFormButton } from "@/components/form/ui/create-form-button";
 import { ResetFormButton } from "@/components/form/ui/reset-form-button";
 import PageHeader from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileUpload, FileUploadDropzone } from "@/components/ui/file-upload";
+import { Textarea } from "@/components/ui/textarea";
 
 import { companiesQueries } from "../api/getCompany";
 
@@ -25,6 +26,8 @@ const EventSchema = z.object({
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
   timePeriod: z.string(),
+
+  file: z.instanceof(File).optional(),
 });
 
 export type EventData = z.infer<typeof EventSchema>;
@@ -212,7 +215,6 @@ export default function EventForm({
             </CardHeader>
             <CardContent></CardContent>
           </Card>
-
           <Card className="mt-6">
             <CardHeader>
               <CardTitle className="flex items-center text-lg font-bold text-gray-600">
@@ -221,7 +223,6 @@ export default function EventForm({
             </CardHeader>
             <CardContent></CardContent>
           </Card>
-
           <Card className="mt-6">
             <CardHeader>
               <CardTitle className="flex items-center text-lg font-bold text-gray-600">
@@ -230,7 +231,6 @@ export default function EventForm({
             </CardHeader>
             <CardContent></CardContent>
           </Card>
-
           <Card className="mt-6">
             <CardHeader>
               <CardTitle className="flex items-center text-lg font-bold text-gray-600">
@@ -239,7 +239,6 @@ export default function EventForm({
             </CardHeader>
             <CardContent></CardContent>
           </Card>
-
           <Card className="mt-6">
             <CardHeader>
               <CardTitle className="flex items-center text-lg font-bold text-gray-600">
@@ -249,14 +248,47 @@ export default function EventForm({
             <CardContent></CardContent>
           </Card>
 
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="flex items-center text-lg font-bold text-gray-600">
-                Files & Documents
-              </CardTitle>
-            </CardHeader>
-            <CardContent></CardContent>
-          </Card>
+          {/*File upload & Note */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center text-lg font-bold text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <span className="h-6 w-1 rounded-full bg-blue-600" />
+                    File
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <section className="w-full space-y-6">
+                <CardContent>
+                  <FileUpload>
+                    <FileUploadDropzone className="text-black-500 mb-4 flex h-64 items-center justify-center rounded-2xl transition-colors group-hover:bg-blue-200 group-hover:text-blue-600">
+                      <div className="flex flex-col items-center justify-center">
+                        <UploadCloud size={32} color="gray" />
+                        <p className="text-gray-600">ลากไฟล์มาวางที่นี่</p>
+                      </div>
+                    </FileUploadDropzone>
+                  </FileUpload>
+                </CardContent>
+              </section>
+            </Card>
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center text-lg font-bold text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <span className="h-6 w-1 rounded-full bg-blue-600" />
+                    Note
+                  </div>
+                </CardTitle>
+                <CardContent>
+                  <Textarea
+                    className="mt-6 h-64 w-full rounded-2xl rounded-md border border-gray-300 bg-gray-50 p-2 text-gray-600"
+                    placeholder="Enter note..."
+                  />
+                </CardContent>
+              </CardHeader>
+            </Card>
+          </div>
         </form>
       </div>
     </div>

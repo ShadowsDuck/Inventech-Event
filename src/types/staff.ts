@@ -14,5 +14,5 @@ export interface StaffType {
   isDeleted: boolean;
   createdAt: string;
   updatedAt?: string;
-  roles: RoleType[];
+  staffRoles: RoleType[];
 }

@@ -125,7 +125,7 @@ export function OutsourceForm({
                   name="isDeleted"
                   children={(field) => (
                     <field.SwitchField
-                      invert={true} // invert logic: true=Active (!isDeleted)
+                      invert={true}
                       onLabel="Active"
                       offLabel="Inactive"
                     />

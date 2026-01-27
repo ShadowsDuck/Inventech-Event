@@ -84,14 +84,14 @@ export const staffColumns: ColumnDef<StaffType>[] = [
     header: "Roles",
     size: 230,
     filterFn: (row, filterValues) => {
-      const staffRoles = row.original.roles || [];
+      const staffRoles = row.original.staffRoles || [];
       // เช็คว่า Staff คนนี้มี Role ID ตรงกับใน list ที่ filter หรือไม่ (some)
       return staffRoles.some((sr) =>
         filterValues.includes(sr.roleId.toString()),
       );
     },
     cell: ({ row }) => {
-      const staffRoles = row.original.roles || [];
+      const staffRoles = row.original.staffRoles || [];
 
       if (staffRoles.length === 0) {
         return <span className="text-muted-foreground">-</span>;

@@ -23,4 +23,5 @@ export interface PackageType {
   createdAt: string;
   updatedAt: string;
   equipmentSets?: EquipmentSetType[];
+  equipment?: EquipmentType[];
 }

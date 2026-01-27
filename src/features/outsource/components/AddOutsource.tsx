@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 
-import { formatPhoneNumberInput } from "@/lib/format";
+import { cleanPhoneNumber } from "@/lib/format";
 
 import { useCreateOutsource } from "../api/createOutsource";
 import { type OutsourceData, OutsourceForm } from "./outsource-form";
@@ -12,9 +12,9 @@ export default function Addoutsource() {
 
   const handleCreateSubmit = (values: OutsourceData) => {
     const payload = {
-      ...values, // ก๊อปปี้ค่าอื่นๆ (ชื่อ, อีเมล, สถานะ) มาใส่ก่อน
+      ...values, // ก๊อปปี้ค่าอื่นๆมาใส่ก่อน
 
-      phoneNumber: formatPhoneNumberInput(
+      phoneNumber: cleanPhoneNumber(
         values.phoneNumber ? values.phoneNumber : "",
       ),
     };
@@ -25,6 +25,7 @@ export default function Addoutsource() {
         // เมื่อสร้างสำเร็จ ให้ถอยกลับไปหน้าก่อนหน้า (หน้ารายการ)
         // to: ".." หมายถึงย้อนกลับไป 1 level ใน URL path
         navigate({ to: "..", replace: true });
+        console.log(payload);
       },
     });
   };

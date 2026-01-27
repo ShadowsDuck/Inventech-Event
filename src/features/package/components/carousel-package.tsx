@@ -136,10 +136,8 @@ export default function CarouselPackage({
                         <ul className="space-y-3">
                           {pkg.equipmentSets.map((es: any, i: number) => {
                             // 1. ดึงชื่อจาก es.equipment.equipmentName
-                            // ใช้ Optional Chaining (?.) เผื่อ equipment เป็น null
                             const equipmentName =
-                              es.equipment?.equipmentName ||
-                              "Unknown Equipment";
+                              es.equipmentName || "Unknown Equipment";
 
                             // 2. ดึง quantity จาก es.quantity โดยตรง ตาม JSON ที่ส่งมา
                             const quantity = es.quantity || 1;
