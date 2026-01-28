@@ -10,8 +10,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
-
-import { equipmentQuery } from "../api/getEquipment";
+import { equipmentQuery } from "@/features/equipment/api/getEquipment";
 
 const EquipmentItemSchema = z.object({
   equipmentId: z.string(),

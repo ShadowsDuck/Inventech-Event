@@ -1,22 +1,35 @@
 import { useMemo, useState } from "react";
 
 import { revalidateLogic } from "@tanstack/react-form";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { UploadCloud } from "lucide-react";
 import z, { file } from "zod";
 
 import { useAppForm } from "@/components/form";
 import PackageEventField from "@/components/form/package-event-field";
+import { EquipmentSelectField } from "@/components/form/package-form";
+import StaffAssignmentBuilder from "@/components/form/staff-manage-form";
 import { CreateFormButton } from "@/components/form/ui/create-form-button";
 import { ResetFormButton } from "@/components/form/ui/reset-form-button";
 import PageHeader from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileUpload, FileUploadDropzone } from "@/components/ui/file-upload";
 import { Textarea } from "@/components/ui/textarea";
+import { equipmentQuery } from "@/features/equipment/api/getEquipment";
+import { EquipmentSchema } from "@/features/equipment/components/equipment-form";
 import { packageQuerys } from "@/features/package/api/getPackage";
+import { rolesQuery } from "@/features/staff/api/getRoles";
 
 import { companiesQueries } from "../api/getCompany";
 
+const EquipmentEventSchema = z.object({
+  equipmentId: z.string(),
+  quantity: z.number().min(1),
+});
+const StaffAssignmentItemSchema = z.object({
+  role: z.string(),
+  assignedStaffIds: z.array(z.string()),
+});
 const EventSchema = z.object({
   eventName: z
     .string()
@@ -29,8 +42,9 @@ const EventSchema = z.object({
   endTime: z.string().min(1, "End time is required"),
   timePeriod: z.string(),
   package: z.string(),
-
   file: z.instanceof(File).optional(),
+  equipment: z.array(EquipmentEventSchema),
+  staffAssignments: z.array(StaffAssignmentItemSchema).optional(),
 });
 
 export type EventData = z.infer<typeof EventSchema>;
@@ -49,8 +63,19 @@ export default function EventForm({
   mode,
 }: EventFormProps) {
   const [resetKey, setResetKey] = useState(0);
-  const { data: companiesData } = useSuspenseQuery(companiesQueries());
-  const { data: packagesData } = useSuspenseQuery(packageQuerys());
+  const [
+    { data: companiesData },
+    { data: packagesData },
+    { data: equipmentData },
+    { data: roleData },
+  ] = useSuspenseQueries({
+    queries: [
+      companiesQueries(),
+      packageQuerys(),
+      equipmentQuery(),
+      rolesQuery(),
+    ],
+  });
 
   const companiesOptions = useMemo(() => {
     return companiesData?.map((company) => ({
@@ -58,26 +83,27 @@ export default function EventForm({
       label: company.companyName,
     }));
   }, [companiesData]);
-  const packagesOptions = useMemo(() => {
-    return packagesData?.map((pks) => ({
-      value: pks.packageId.toString(),
-      label: pks.packageName,
-    }));
-  }, [packagesData]);
 
-  const defaultValues: EventData = {
-    eventName: initialValues?.eventName || "",
-    Company: initialValues?.Company || "",
-    eventType: initialValues?.eventType || "",
-    eventDate: initialValues?.eventDate || new Date(),
-    startTime: initialValues?.startTime || "",
-    endTime: initialValues?.endTime || "",
-    timePeriod: initialValues?.timePeriod || "",
-    package: initialValues?.package || "",
-  };
+  const roleOptions = useMemo(() => {
+    return roleData?.map((role) => ({
+      value: role.roleId.toString(),
+      label: role.roleName,
+    }));
+  }, [roleData]);
 
   const form = useAppForm({
-    defaultValues,
+    defaultValues: {
+      eventName: initialValues?.eventName || "",
+      Company: initialValues?.Company || "",
+      eventType: initialValues?.eventType || "",
+      eventDate: initialValues?.eventDate || new Date(),
+      startTime: initialValues?.startTime || "",
+      endTime: initialValues?.endTime || "",
+      timePeriod: initialValues?.timePeriod || "",
+      package: initialValues?.package || "",
+      equipment: initialValues?.equipment || [],
+      staffAssignments: initialValues?.staffAssignments || [],
+    } as EventData,
     validators: {
       onChange: EventSchema,
     },
@@ -217,11 +243,14 @@ export default function EventForm({
               </section>
             </CardContent>
           </Card>
-
+          {/*Package */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="flex items-center text-lg font-bold text-gray-600">
-                Package
+              <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
+                <div className="flex items-center gap-2">
+                  <span className="h-6 w-1 rounded-full bg-blue-600" />
+                  Package
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -236,21 +265,51 @@ export default function EventForm({
               />
             </CardContent>
           </Card>
+
+          {/*equipment */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="flex items-center text-lg font-bold text-gray-600">
-                Equipment
+              <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
+                <div className="flex items-center gap-2">
+                  <span className="h-6 w-1 rounded-full bg-blue-600" />
+                  Equipment
+                </div>
               </CardTitle>
             </CardHeader>
-            <CardContent></CardContent>
+            <CardContent>
+              <form.AppField
+                name="equipment"
+                children={() => (
+                  <EquipmentSelectField
+                    label="Select Equipment"
+                    equipmentList={equipmentData}
+                  />
+                )}
+              />
+            </CardContent>
           </Card>
+
+          {/*Staff Management */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="flex items-center text-lg font-bold text-gray-600">
-                Staff Management
+              <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
+                <div className="flex items-center gap-2">
+                  <span className="h-6 w-1 rounded-full bg-blue-600" />
+                  Staff Management
+                </div>
               </CardTitle>
             </CardHeader>
-            <CardContent></CardContent>
+            <CardContent>
+              <form.AppField
+                name="staffAssignments"
+                children={(field) => (
+                  <StaffAssignmentBuilder
+                    availableRoles={roleData?.map((r) => r.roleName) || []}
+                    onChange={(data) => field.handleChange(data)}
+                  />
+                )}
+              />
+            </CardContent>
           </Card>
           <Card className="mt-6">
             <CardHeader>

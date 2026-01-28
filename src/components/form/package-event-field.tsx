@@ -58,10 +58,13 @@ export default function PackageEventField({
   const handleSelect = (id: string) => {
     if (readOnly || disabled) return;
 
+    // เช็คว่ากดตัวเดิมหรือไม่? ถ้าใช่ให้เป็นค่าว่าง "" (Unselect) ถ้าไม่ใช่ให้เป็นค่า id (Select)
+    const newValue = selectedValue === id ? "" : id;
+
     if (onChange) {
-      onChange(id);
+      onChange(newValue);
     } else {
-      field.handleChange(id);
+      field.handleChange(newValue);
     }
     // Carousel ไม่จำเป็นต้อง setOpen(false) เหมือน Dropdown
   };
