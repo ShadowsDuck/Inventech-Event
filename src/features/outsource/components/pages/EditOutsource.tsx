@@ -34,7 +34,6 @@ export default function EditOutsource() {
   const handleEditSubmit = (values: OutsourceData) => {
     const payload = {
       id: outsourceId,
-      outsourceId: parseInt(outsourceId),
       fullName: values.fullName,
       email: values.email,
       phoneNumber: cleanPhoneNumber(values.phoneNumber ?? "") || undefined,

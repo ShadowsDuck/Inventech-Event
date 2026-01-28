@@ -39,39 +39,30 @@ const ROLE_STYLES: Record<string, BadgeStyle> = {
 
 // Config ของ CATEGORY
 const CATEGORY_STYLES: Record<string, BadgeStyle> = {
-  Video: {
-    bg: "bg-blue-100",
-    text: "text-blue-700",
+  Keyboard: {
+    bg: "bg-blue-50",
+    text: `text-blue-700 ${DEFAULT_TEXT}`,
     border: "border-blue-200",
-    dotColor: "bg-blue-600",
   },
-  Computer: {
-    bg: "bg-emerald-100",
-    text: "text-emerald-700",
+  Mouse: {
+    bg: "bg-emerald-50",
+    text: `text-emerald-700 ${DEFAULT_TEXT}`,
     border: "border-emerald-200",
-    dotColor: "bg-emerald-600",
   },
-  Audio: {
-    bg: "bg-purple-100",
-    text: "text-purple-700",
+  Sound: {
+    bg: "bg-purple-50",
+    text: `text-purple-700 ${DEFAULT_TEXT}`,
     border: "border-purple-200",
-    dotColor: "bg-purple-600",
   },
   Lighting: {
-    bg: "bg-yellow-100",
-    text: "text-yellow-700",
+    bg: "bg-yellow-50",
+    text: `text-yellow-700 ${DEFAULT_TEXT}`,
     border: "border-yellow-200",
-    dotColor: "bg-yellow-600",
   },
-  Cables: {
-    bg: "bg-gray-100",
-    text: "text-gray-700",
+  "": {
+    bg: "bg-gray-50",
+    text: `text-gray-700 ${DEFAULT_TEXT}`,
     border: "border-gray-200",
-  }, // ไม่มี dot
-  Furniture: {
-    bg: "bg-orange-100",
-    text: "text-orange-700",
-    border: "border-orange-200",
   },
 };
 
@@ -80,7 +71,6 @@ export const DEFAULT_STYLE: BadgeStyle = {
   bg: "bg-slate-50",
   text: `text-slate-600 ${DEFAULT_TEXT}`,
   border: "border-slate-200",
-  dotColor: "bg-slate-500",
 };
 
 // สร้าง Master Config รวมทุก Type ไว้

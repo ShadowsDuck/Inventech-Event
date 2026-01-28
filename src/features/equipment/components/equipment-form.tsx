@@ -1,8 +1,6 @@
-import { useState } from "react";
-
 import { revalidateLogic } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Tag } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
@@ -13,23 +11,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { categoryQuery } from "../api/getCategory";
 
 // 1. Schema และ Type
-// ใช้ Zod สร้าง Validation เพื่อตรวจสอบข้อมูลก่อนส่ง
 export const EquipmentSchema = z.object({
   equipmentName: z
     .string()
-    .min(2, "Full name should be at least 2 characters.") // ชื่อต้องยาวอย่างน้อย 2 ตัวอักษร
-    .max(255, "Full name should not exceed 255 characters."), // ห้ามเกิน 255
-  isDeleted: z.boolean(), // Active/Inactive
-  categoryId: z.number().min(1, "Category is required."), // ต้องเลือกหมวดหมู่
+    .min(2, "Full name should be at least 2 characters.")
+    .max(255, "Full name should not exceed 255 characters."),
+  isDeleted: z.boolean(),
+  categoryId: z.number().min(1, "Category is required."),
 });
 
 export type EquipmentData = z.infer<typeof EquipmentSchema>;
 
 interface EquipmentFormProps {
-  initialValues?: Partial<EquipmentData>; // ค่าเริ่มต้น (ใช้กรณี Edit)
-  onSubmit: (values: EquipmentData) => void; // ฟังก์ชันที่จะทำงานเมื่อกด Save
-  isPending: boolean; // สถานะ Loading ขณะบันทึก
-  mode: "create" | "edit"; // ตัวบอกสถานะว่ากำลัง "สร้างใหม่" หรือ "แก้ไข"
+  initialValues?: Partial<EquipmentData>;
+  onSubmit: (values: EquipmentData) => void;
+  isPending: boolean;
+  mode: "create" | "edit";
 }
 
 export function EquipmentForm({
@@ -38,14 +35,8 @@ export function EquipmentForm({
   isPending,
   mode,
 }: EquipmentFormProps) {
-  // resetKey ใช้สำหรับบังคับให้ Component render ใหม่เมื่อกดปุ่ม Reset
-  const [resetKey, setResetKey] = useState(0);
-
-  // 2. ดึงข้อมูล
-  // ดึงข้อมูล Category ทั้งหมดจาก Backend มารอไว้สำหรับแสดงใน Dropdown
   const { data: categoryData } = useSuspenseQuery(categoryQuery());
 
-  // แปลงข้อมูล Category ให้อยู่ในรูปแบบที่ Dropdown (SelectField) ต้องการ { label, value }
   const categoryOptions = categoryData.map((category) => ({
     label: category.categoryName,
     value: category.categoryId,
@@ -53,32 +44,24 @@ export function EquipmentForm({
 
   // 3. การจัดการ Form (Form Logic)
   const form = useAppForm({
-    // กำหนดค่าเริ่มต้นของฟอร์ม
     defaultValues: {
       equipmentName: initialValues?.equipmentName ?? "",
       categoryId: initialValues?.categoryId ?? 0,
       isDeleted: initialValues?.isDeleted ?? false,
     } as EquipmentData,
-
-    // ผูกกฎ Validation ที่สร้างไว้ข้างบน (Zod Schema)
     validators: {
       onChange: EquipmentSchema,
     },
-
-    // ตั้งค่าจังหวะการตรวจสอบ (ตรวจสอบตอน Submit และหลังจากนั้นตรวจสอบตอนพิมพ์/Blur)
     validationLogic: revalidateLogic({
       mode: "submit",
       modeAfterSubmission: "blur",
     }),
-
-    // เมื่อฟอร์มผ่านการตรวจสอบและกด Submit ให้เรียกฟังก์ชันนี้
     onSubmit: async ({ value }) => {
       onSubmit(value);
     },
   });
 
   // --- 4. เตรียมข้อความแสดงผล (UI Labels) ---
-  // เปลี่ยนข้อความหัวข้อและปุ่มตาม Mode (Create หรือ Edit)
   const title = mode === "create" ? "Add Equipment" : "Edit Equipment";
   const subtitle =
     mode === "create" ? "Create Equipment" : "Update Equipment information";
@@ -87,31 +70,26 @@ export function EquipmentForm({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      {/* --- ส่วนหัวของหน้า (Header) --- */}
       <PageHeader
         title={title}
         subtitle={subtitle}
         backButton={true}
         actions={
           <div className="flex items-center gap-2">
-            {/* ปุ่ม Reset: ล้างค่าฟอร์มกลับเป็นค่าเริ่มต้น */}
             <Button
               type="button"
               variant="outline"
               onClick={() => {
                 form.reset();
-                setResetKey((prev) => prev + 1);
               }}
               disabled={isPending}
             >
               Reset
             </Button>
-
-            {/* ปุ่ม Submit: สั่ง save ข้อมูล */}
             <Button
               size="add"
               type="submit"
-              form="equipment-form-id" // เชื่อมกับ id ของ tag <form>
+              form="equipment-form-id"
               disabled={isPending}
             >
               {isPending ? (
@@ -142,7 +120,7 @@ export function EquipmentForm({
                   name="isDeleted"
                   children={(field) => (
                     <field.SwitchField
-                      invert={true} // invert=true เพื่อให้ logic ตรงกันข้าม (Active = !isDeleted)
+                      invert={true}
                       onLabel="Active"
                       offLabel="Inactive"
                     />
@@ -158,7 +136,7 @@ export function EquipmentForm({
               onSubmit={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                form.handleSubmit(); // สั่ง TanStack Form ให้ทำงาน
+                form.handleSubmit();
               }}
               className="space-y-6"
               noValidate
@@ -180,18 +158,18 @@ export function EquipmentForm({
               <form.AppField
                 name="categoryId"
                 children={(field) => (
-                  <field.SelectField
+                  <field.SelectField2
                     label="Category"
-                    // แปลง options ให้เข้ากับ SelectField
                     options={categoryOptions.map((option) => ({
                       label: option.label,
-                      value: option.value.toString(), // Select รับค่าเป็น String
+                      value: option.value,
                     }))}
+                    icon={Tag}
                     placeholder="Select category"
+                    searchPlaceholder="Search categories..."
+                    value={field.state.value}
+                    onChange={(val) => field.handleChange(val)}
                     required
-                    // จัดการการแปลง Type ระหว่าง String (UI) <-> Number (Data)
-                    value={field.state.value?.toString() ?? ""}
-                    onChange={(val) => field.handleChange(Number(val))}
                   />
                 )}
               />

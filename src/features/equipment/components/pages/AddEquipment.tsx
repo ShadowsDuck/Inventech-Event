@@ -16,7 +16,7 @@ export default function AddEquipment() {
 
     mutate(payload, {
       onSuccess: () => {
-        navigate({ to: "..", replace: true });
+        navigate({ to: "/equipment", replace: true });
       },
     });
   };
