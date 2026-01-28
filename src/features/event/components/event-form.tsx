@@ -6,12 +6,14 @@ import { UploadCloud } from "lucide-react";
 import z, { file } from "zod";
 
 import { useAppForm } from "@/components/form";
+import PackageEventField from "@/components/form/package-event-field";
 import { CreateFormButton } from "@/components/form/ui/create-form-button";
 import { ResetFormButton } from "@/components/form/ui/reset-form-button";
 import PageHeader from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileUpload, FileUploadDropzone } from "@/components/ui/file-upload";
 import { Textarea } from "@/components/ui/textarea";
+import { packageQuerys } from "@/features/package/api/getPackage";
 
 import { companiesQueries } from "../api/getCompany";
 
@@ -26,6 +28,7 @@ const EventSchema = z.object({
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
   timePeriod: z.string(),
+  package: z.string(),
 
   file: z.instanceof(File).optional(),
 });
@@ -47,6 +50,7 @@ export default function EventForm({
 }: EventFormProps) {
   const [resetKey, setResetKey] = useState(0);
   const { data: companiesData } = useSuspenseQuery(companiesQueries());
+  const { data: packagesData } = useSuspenseQuery(packageQuerys());
 
   const companiesOptions = useMemo(() => {
     return companiesData?.map((company) => ({
@@ -54,6 +58,12 @@ export default function EventForm({
       label: company.companyName,
     }));
   }, [companiesData]);
+  const packagesOptions = useMemo(() => {
+    return packagesData?.map((pks) => ({
+      value: pks.packageId.toString(),
+      label: pks.packageName,
+    }));
+  }, [packagesData]);
 
   const defaultValues: EventData = {
     eventName: initialValues?.eventName || "",
@@ -63,6 +73,7 @@ export default function EventForm({
     startTime: initialValues?.startTime || "",
     endTime: initialValues?.endTime || "",
     timePeriod: initialValues?.timePeriod || "",
+    package: initialValues?.package || "",
   };
 
   const form = useAppForm({
@@ -213,7 +224,17 @@ export default function EventForm({
                 Package
               </CardTitle>
             </CardHeader>
-            <CardContent></CardContent>
+            <CardContent>
+              <form.AppField
+                name="package"
+                children={(field) => (
+                  <field.PackageEventField
+                    packages={packagesData}
+                    label="Package"
+                  />
+                )}
+              />
+            </CardContent>
           </Card>
           <Card className="mt-6">
             <CardHeader>
