@@ -10,11 +10,11 @@ import PageHeader from "@/components/layout/PageHeader";
 import PageSection from "@/components/layout/PageSection";
 import { DataTable } from "@/components/tables/data-table";
 import { Button } from "@/components/ui/button";
-import { equipmentColumns } from "@/features/equipment/components/Equipment-column";
 import { Route } from "@/routes/_sidebarLayout/equipment";
 import type { CategoryType, EquipmentType } from "@/types/equipment";
 
-import { equipmentQuery } from "../api/getEquipment";
+import { equipmentQuery } from "../../api/getEquipment";
+import { equipmentColumns } from "../equipment-column";
 
 export default function EquipmentList() {
   const navigate = Route.useNavigate();

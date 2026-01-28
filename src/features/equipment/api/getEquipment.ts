@@ -6,6 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const getEquipment = async (): Promise<EquipmentType[]> => {
   const res = await fetch(`${API_URL}/api/equipments`);
+
   if (!res.ok) {
     throw new Error("Failed to fetch equipment");
   }

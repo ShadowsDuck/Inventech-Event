@@ -18,9 +18,9 @@ const createStaff = async (newStaff: StaffData): Promise<void> => {
     formData.append("AvatarFile", newStaff.avatar);
   }
 
-  if (newStaff.roles && newStaff.roles.length > 0) {
-    newStaff.roles.forEach((id) => {
-      formData.append("RoleIds", id);
+  if (newStaff.staffRoles && newStaff.staffRoles.length > 0) {
+    newStaff.staffRoles.forEach((id) => {
+      formData.append("StaffRoles", id.toString());
     });
   }
 

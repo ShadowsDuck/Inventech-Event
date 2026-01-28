@@ -26,9 +26,9 @@ const updateStaff = async ({ id, ...data }: UpdateStaffData): Promise<void> => {
     formData.append("DeleteAvatar", "true");
   }
 
-  if (data.roles && data.roles.length > 0) {
-    data.roles.forEach((roleId) => {
-      formData.append("RoleIds", roleId);
+  if (data.staffRoles && data.staffRoles.length > 0) {
+    data.staffRoles.forEach((id) => {
+      formData.append("StaffRoles", id.toString());
     });
   }
 

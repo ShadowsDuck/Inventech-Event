@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 
 import { Check, ChevronsUpDown, X } from "lucide-react";
 
@@ -18,11 +18,9 @@ import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { FieldErrors } from "./field-error";
 
-// import { Button } from "../ui/button"; // ไม่ต้องใช้ Button แล้ว
-
 export type Option = {
   label: string;
-  value: string;
+  value: number;
 };
 
 type MultiSelectFieldProps = {
@@ -30,8 +28,8 @@ type MultiSelectFieldProps = {
   options: Option[];
   placeholder?: string;
   required?: boolean;
-  value?: string[];
-  onChange?: (value: string[]) => void;
+  value?: number[];
+  onChange?: (value: number[]) => void;
 };
 
 export const MultiSelectField = ({
@@ -40,8 +38,8 @@ export const MultiSelectField = ({
   placeholder = "Select options...",
   required,
 }: MultiSelectFieldProps) => {
-  const field = useFieldContext<string[]>();
-  const [open, setOpen] = React.useState(false);
+  const field = useFieldContext<number[]>();
+  const [open, setOpen] = useState(false);
 
   const isSubmitted = field.form.state.isSubmitted;
   const hasError =
@@ -52,7 +50,7 @@ export const MultiSelectField = ({
     ? field.state.value
     : [];
 
-  const handleSelect = (currentValue: string) => {
+  const handleSelect = (currentValue: number) => {
     const isSelected = selectedValues.includes(currentValue);
     let newValues;
 
@@ -65,7 +63,7 @@ export const MultiSelectField = ({
     field.handleChange(newValues);
   };
 
-  const handleRemove = (e: React.MouseEvent, valueToRemove: string) => {
+  const handleRemove = (e: React.MouseEvent, valueToRemove: number) => {
     e.stopPropagation();
     const newValues = selectedValues.filter((v) => v !== valueToRemove);
     field.handleChange(newValues);
@@ -115,7 +113,6 @@ export const MultiSelectField = ({
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </PopoverTrigger>
-        {/* ------------------ */}
 
         <PopoverContent className="w-255 p-0" align="start">
           <Command>
