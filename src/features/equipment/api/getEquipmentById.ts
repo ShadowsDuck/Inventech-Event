@@ -8,7 +8,7 @@ const getEquipmentById = async (id: string): Promise<EquipmentType> => {
   const res = await fetch(`${API_URL}/api/Equipments/${id}`);
 
   if (!res.ok) {
-    throw new Error("Failed to fetch staff by id");
+    throw new Error("Failed to fetch equipment by id");
   }
 
   return res.json();

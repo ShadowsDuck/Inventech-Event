@@ -22,7 +22,7 @@ export const StaffSchema = z.object({
     .string()
     .min(2, "Full name should be at least 2 characters.")
     .max(255, "Full name should not exceed 255 characters."),
-  email: z.email().optional().or(z.literal("")),
+  email: z.email().max(255, "Email should not exceed 255 characters."),
   phoneNumber: z
     .string()
     .regex(/^0/, "The phone number must start with 0")
@@ -31,7 +31,7 @@ export const StaffSchema = z.object({
     .optional()
     .or(z.literal("")),
   isDeleted: z.boolean(),
-  roles: z.array(z.string()).min(1, "Please select at least one role."),
+  staffRoles: z.array(z.number()).min(1, "Please select at least one role."),
   avatar: z
     .union([z.instanceof(File), z.string()])
     .optional()
@@ -59,7 +59,7 @@ export function StaffForm({
 
   const roleOptions = useMemo(() => {
     return roles?.map((role) => ({
-      value: role.roleId.toString(),
+      value: role.roleId,
       label: role.roleName,
     }));
   }, [roles]);
@@ -70,7 +70,7 @@ export function StaffForm({
       fullName: initialValues?.fullName ?? "",
       email: initialValues?.email ?? "",
       phoneNumber: initialValues?.phoneNumber ?? "",
-      roles: initialValues?.roles ?? [],
+      staffRoles: initialValues?.staffRoles ?? [],
       isDeleted: initialValues?.isDeleted ?? false,
       avatar: initialValues?.avatar ?? null,
     } as StaffData,
@@ -82,6 +82,7 @@ export function StaffForm({
       modeAfterSubmission: "blur",
     }),
     onSubmit: async ({ value }) => {
+      console.log(value);
       onSubmit(value);
     },
   });
@@ -232,7 +233,7 @@ export function StaffForm({
 
               {/* Roles MultiSelect */}
               <form.AppField
-                name="roles"
+                name="staffRoles"
                 children={(field) => (
                   <MultiSelectField
                     label="Roles"

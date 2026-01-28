@@ -4,15 +4,14 @@ import type { EquipmentData } from "../components/equipment-form";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-type EditEquipmentData = EquipmentData & {
+type UpdateEquipmentData = EquipmentData & {
   id: string;
-  equipmentId: number;
 };
 
-const EditEquipment = async ({
+const UpdateEquipment = async ({
   id,
   ...data
-}: EditEquipmentData): Promise<void> => {
+}: UpdateEquipmentData): Promise<void> => {
   await fetch(`${API_URL}/api/equipments/${id}`, {
     method: "PUT",
     headers: {
@@ -26,7 +25,7 @@ const EditEquipment = async ({
 
 export const useEditequipment = () =>
   useMutation({
-    mutationFn: EditEquipment,
+    mutationFn: UpdateEquipment,
     meta: {
       invalidatesQuery: ["equipments"],
       successMessage: "Equipment updated successfully",

@@ -3,7 +3,7 @@ import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 
 import { equipmentQuery } from "@/features/equipment/api/getEquipment";
-import EquipmentList from "@/features/equipment/components/EquipmentList";
+import EquipmentList from "@/features/equipment/components/pages/EquipmentList";
 
 const equipmentSearchParamsSchema = z.object({
   q: z.string().trim().optional().catch(undefined),

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { staffByIdQuery } from "@/features/staff/api/getStaffById";
-import EditStaff from "@/features/staff/components/EditStaff";
+import EditStaff from "@/features/staff/components/pages/EditStaff";
 
 export const Route = createFileRoute("/staff/$staffId/edit")({
   component: EditStaff,

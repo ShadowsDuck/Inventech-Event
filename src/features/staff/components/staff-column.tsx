@@ -80,18 +80,29 @@ export const staffColumns: ColumnDef<StaffType>[] = [
     },
   },
   {
-    accessorKey: "roles",
+    accessorKey: "staffRoles",
     header: "Roles",
     size: 230,
+    sortingFn: (rowA, rowB, columnId) => {
+      const rolesA = rowA.getValue<{ roleName: string }[]>(columnId) || [];
+      const rolesB = rowB.getValue<{ roleName: string }[]>(columnId) || [];
+
+      const firstRoleA = rolesA[0]?.roleName || "";
+      const firstRoleB = rolesB[0]?.roleName || "";
+
+      return firstRoleA.localeCompare(firstRoleB);
+    },
     filterFn: (row, filterValues) => {
       const staffRoles = row.original.staffRoles || [];
-      // เช็คว่า Staff คนนี้มี Role ID ตรงกับใน list ที่ filter หรือไม่ (some)
       return staffRoles.some((sr) =>
         filterValues.includes(sr.roleId.toString()),
       );
     },
     cell: ({ row }) => {
-      const staffRoles = row.original.staffRoles || [];
+      // แนะนำให้ sort ข้อมูลก่อน render เพื่อความสวยงาม
+      const staffRoles = [...(row.original.staffRoles || [])].sort((a, b) =>
+        a.roleName.localeCompare(b.roleName),
+      );
 
       if (staffRoles.length === 0) {
         return <span className="text-muted-foreground">-</span>;
@@ -100,10 +111,7 @@ export const staffColumns: ColumnDef<StaffType>[] = [
       return (
         <div className="flex flex-wrap gap-2">
           {staffRoles.map((sr) => {
-            // ดึงค่า Role Name
             const roleName = sr.roleName || "Unknown";
-
-            // เรียกหา Style
             const style = getBadgeStyle("role", roleName);
 
             return (
@@ -111,7 +119,7 @@ export const staffColumns: ColumnDef<StaffType>[] = [
                 key={sr.roleId}
                 variant="outline"
                 className={cn(
-                  "gap-2 rounded-xl border px-2.5 py-0.5 font-medium",
+                  "rounded-xl border px-2.5 py-0.5 font-medium",
                   style.bg,
                   style.text,
                   style.border,

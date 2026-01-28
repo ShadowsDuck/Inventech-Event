@@ -13,8 +13,8 @@ import { SELECT_OPTIONS } from "@/data/constants";
 import { staffColumns } from "@/features/staff/components/staff-column";
 import { Route } from "@/routes/_sidebarLayout/staff";
 
-import { rolesQuery } from "../api/getRoles";
-import { staffQuery } from "../api/getStaff";
+import { rolesQuery } from "../../api/getRoles";
+import { staffQuery } from "../../api/getStaff";
 
 export default function StaffList() {
   const navigate = Route.useNavigate();
@@ -65,7 +65,7 @@ export default function StaffList() {
       // - แต่ถ้าเลือก ให้เช็กว่า "มีอย่างน้อยหนึ่งบทบาท" ของพนักงานคนนั้น ตรงกับที่เราเลือกไว้หรือไม่
       const matchesRole =
         role.length === 0 ||
-        s.roles.some((sr) => role.includes(sr.roleId.toString()));
+        s.staffRoles.some((sr) => role.includes(sr.roleId.toString()));
       // .some() จะคืนค่าเป็น True ทันที ถ้าพบว่ามี "อย่างน้อย 1 ค่า" ที่ตรงกับเงื่อนไขที่เรากำลังจะเขียนข้างใน
 
       // .includes (มี... อยู่ในนั้นไหม?), "ก้อนใหญ่" ตั้ง แล้วใช้ .includes() ตามด้วย "ของชิ้นเล็ก"

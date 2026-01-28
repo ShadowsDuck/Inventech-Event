@@ -8,7 +8,7 @@ export const Route = createFileRoute("/outsource/$outsourceId/edit")({
   staticData: {
     title: "Edit Outsource",
   },
-  loader: async ({ context: { queryClient }, params: { outsourceId } }) => {
+  loader: ({ context: { queryClient }, params: { outsourceId } }) => {
     return queryClient.ensureQueryData(outsourceByIdQuery(outsourceId));
   },
 });

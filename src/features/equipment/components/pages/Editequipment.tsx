@@ -7,12 +7,9 @@ import { toast } from "sonner";
 // Import Route เพื่อดึง params (equipmentId) จาก URL
 import { Route } from "@/routes/equipment/$equipmentId/edit";
 
-import { useEditequipment } from "../api/editEquipment";
-import { equipmentByIdQuery } from "../api/getEquipmentById";
-import {
-  type EquipmentData,
-  EquipmentForm,
-} from "../components/equipment-form";
+import { equipmentByIdQuery } from "../../api/getEquipmentById";
+import { useEditequipment } from "../../api/updateEquipment";
+import { type EquipmentData, EquipmentForm } from "../equipment-form";
 
 export default function EditEquipment() {
   const navigate = useNavigate();

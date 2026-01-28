@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { rolesQuery } from "@/features/staff/api/getRoles";
 import { staffQuery } from "@/features/staff/api/getStaff";
-import StaffList from "@/features/staff/components/StaffList";
+import StaffList from "@/features/staff/components/pages/StaffList";
 
 export const Route = createFileRoute("/_sidebarLayout/staff/")({
   component: StaffList,
