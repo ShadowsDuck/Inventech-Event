@@ -1,6 +1,7 @@
 import { type ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
+import { formatPhoneNumberDisplay } from "@/lib/format";
 import type { OutsourceType } from "@/types/outsource";
 
 import { OutsourceActions } from "./outsource-action";
@@ -9,6 +10,7 @@ export const outsourceColumns: ColumnDef<OutsourceType>[] = [
   {
     accessorKey: "fullName",
     header: "Name",
+    size: 250,
     cell: ({ row }) => (
       <div className="font-medium">{row.original.fullName}</div>
     ),
@@ -16,16 +18,42 @@ export const outsourceColumns: ColumnDef<OutsourceType>[] = [
   {
     accessorKey: "email",
     header: "Email",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground">{row.original.email}</div>
-    ),
+    size: 220,
+    enableSorting: false,
+    cell: ({ row }) => {
+      const email = row.original.email;
+
+      return (
+        <div className="w-full">
+          <div
+            className="text-chart-4/90 border-primary/30 inline-block max-w-full truncate rounded-full border px-3 py-1 align-middle"
+            title={email}
+          >
+            {email ? email : "-"}
+          </div>
+        </div>
+      );
+    },
   },
   {
-    accessorKey: "phone",
-    header: "Phone",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground">{row.original.phoneNumber}</div>
-    ),
+    accessorKey: "phoneNumber",
+    header: "Phone Number",
+    size: 160,
+    enableSorting: false,
+    cell: ({ row }) => {
+      const phoneNumber = row.original.phoneNumber;
+
+      return (
+        <div className="w-full">
+          <div
+            className="text-chart-4/90 border-primary/30 inline-block max-w-full truncate rounded-full border px-3 py-1 align-middle"
+            title={phoneNumber}
+          >
+            {formatPhoneNumberDisplay(phoneNumber)}
+          </div>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "isDeleted",

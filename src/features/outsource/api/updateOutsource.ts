@@ -6,7 +6,6 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 type UpdateOutsourceData = OutsourceData & {
   id: string;
-  outsourceId: number;
 };
 
 const updateOutsource = async ({
