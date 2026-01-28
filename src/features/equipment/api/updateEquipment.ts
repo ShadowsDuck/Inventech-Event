@@ -12,13 +12,23 @@ const UpdateEquipment = async ({
   id,
   ...data
 }: UpdateEquipmentData): Promise<void> => {
-  await fetch(`${API_URL}/api/equipments/${id}`, {
+  const res = await fetch(`${API_URL}/api/equipments/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
   });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+
+    throw new Error(
+      (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
+        errorData.detail ||
+        "Failed to create staff",
+    );
+  }
 
   return;
 };

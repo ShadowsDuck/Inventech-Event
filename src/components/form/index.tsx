@@ -9,6 +9,7 @@ import PackageEventField from "./package-event-field";
 import { EquipmentSelectField } from "./package-form";
 import { PeriodSelectField } from "./period-field";
 import { SelectField } from "./select-field";
+import { SelectField2 } from "./select-field-2";
 import StaffAssignmentBuilder from "./staff-manage-form";
 import { SwitchField } from "./switch-field";
 import { TextField } from "./text-field";
@@ -25,6 +26,7 @@ export const { useAppForm } = createFormHook({
     MultiSelectField,
     SwitchField,
     SelectField,
+    SelectField2,
     EquipmentSelectField,
     EventFormatField,
     DateField,

@@ -99,7 +99,6 @@ export const staffColumns: ColumnDef<StaffType>[] = [
       );
     },
     cell: ({ row }) => {
-      // แนะนำให้ sort ข้อมูลก่อน render เพื่อความสวยงาม
       const staffRoles = [...(row.original.staffRoles || [])].sort((a, b) =>
         a.roleName.localeCompare(b.roleName),
       );
