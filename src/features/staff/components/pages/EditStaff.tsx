@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 
-import { cleanPhoneNumber } from "@/lib/format";
+import { cleanPhoneNumber, formatPhoneNumberInput } from "@/lib/format";
 import { Route } from "@/routes/staff/$staffId/edit";
 
 import { staffByIdQuery } from "../../api/getStaffById";
@@ -19,7 +19,7 @@ export default function EditStaff() {
   const initialValues: StaffData = {
     fullName: staffData.fullName,
     email: staffData.email ?? "",
-    phoneNumber: cleanPhoneNumber(staffData.phoneNumber ?? ""),
+    phoneNumber: formatPhoneNumberInput(staffData.phoneNumber ?? ""),
     isDeleted: staffData.isDeleted,
     staffRoles: staffData.staffRoles?.map((sr) => sr.roleId) ?? [],
     avatar: staffData.avatar,

@@ -1,3 +1,4 @@
+// ใช้ตอนแสดงเบอร์
 export const formatPhoneNumberDisplay = (
   phoneNumber: string | undefined | null,
 ) => {
@@ -16,6 +17,7 @@ export const formatPhoneNumberDisplay = (
   return cleaned; // ถ้าไม่เข้าเคสไหนเลย ก็โชว์เลขเดิม
 };
 
+// ใช้ตอนพิมพ์เบอร์ใน Form
 export const formatPhoneNumberInput = (value: string) => {
   // 1. ลบทุกอย่างที่ไม่ใช่ตัวเลข
 
@@ -40,6 +42,7 @@ export const formatPhoneNumberInput = (value: string) => {
   return limited;
 };
 
+// ใช้ตอนส่งข้อมูลกลับไปให้ DB
 export const cleanPhoneNumber = (value: string) => {
   return value.replace(/\D/g, "");
 };

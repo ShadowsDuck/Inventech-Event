@@ -2,14 +2,14 @@ import { useNavigate } from "@tanstack/react-router";
 
 import { cleanPhoneNumber } from "@/lib/format";
 
-import { useCreateStaff } from "../../api/createStaff";
-import { type StaffData, StaffForm } from "../staff-form";
+import { useCreateOutsource } from "../../api/createOutsource";
+import { type OutsourceData, OutsourceForm } from "../outsource-form";
 
-export default function AddStaff() {
+export default function Addoutsource() {
   const navigate = useNavigate();
-  const { mutate, isPending } = useCreateStaff();
+  const { mutate, isPending } = useCreateOutsource();
 
-  const handleCreateSubmit = (values: StaffData) => {
+  const handleCreateSubmit = (values: OutsourceData) => {
     const payload = {
       ...values,
       phoneNumber: cleanPhoneNumber(
@@ -19,13 +19,13 @@ export default function AddStaff() {
 
     mutate(payload, {
       onSuccess: () => {
-        navigate({ to: "/staff", replace: true });
+        navigate({ to: "/outsource", replace: true });
       },
     });
   };
 
   return (
-    <StaffForm
+    <OutsourceForm
       mode="create"
       isPending={isPending}
       onSubmit={handleCreateSubmit}

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { outsourcesQuery } from "@/features/outsource/api/getOutsource";
-import OutsourceList from "@/features/outsource/components/OutsourceList";
+import OutsourceList from "@/features/outsource/components/pages/OutsourceList";
 
 export const Route = createFileRoute("/_sidebarLayout/outsource/")({
   component: OutsourceList,
