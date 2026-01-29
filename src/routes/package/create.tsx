@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { equipmentQuery } from "@/features/equipment/api/getEquipment";
-import CreatePackage from "@/features/package/components/CreatePackage";
+import CreatePackage from "@/features/package/components/pages/CreatePackage";
 
 export const Route = createFileRoute("/package/create")({
   component: CreatePackage,

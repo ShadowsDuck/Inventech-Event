@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { packageQuerys } from "@/features/package/api/getPackage";
-import PackageList from "@/features/package/components/PackageList";
+import { packageQuery } from "@/features/package/api/getPackage";
+import PackageList from "@/features/package/components/pages/PackageList";
 
 export const Route = createFileRoute("/_sidebarLayout/package")({
   component: PackageList,
@@ -9,6 +9,6 @@ export const Route = createFileRoute("/_sidebarLayout/package")({
     title: "PackageList",
   },
   loader: async ({ context: { queryClient } }) => {
-    return queryClient.ensureQueryData(packageQuerys());
+    return queryClient.ensureQueryData(packageQuery());
   },
 });

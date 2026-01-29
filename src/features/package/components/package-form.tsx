@@ -3,9 +3,6 @@ import { Save } from "lucide-react";
 import { z } from "zod";
 
 import { useAppForm } from "@/components/form";
-import { EquipmentSelectField } from "@/components/form/package-form";
-// 1. Import TextField เข้ามา (ตรวจสอบ path ให้ถูกต้อง)
-import { TextField } from "@/components/form/text-field";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,9 +10,9 @@ import { FieldGroup } from "@/components/ui/field";
 import { equipmentQuery } from "@/features/equipment/api/getEquipment";
 
 const EquipmentItemSchema = z.object({
-  equipmentId: z.string(),
+  equipmentId: z.int().optional(),
+  equipmentName: z.string().min(1),
   quantity: z.number().min(1),
-  equipmentName: z.string().optional(),
 });
 
 export const PackageSchema = z.object({
@@ -43,6 +40,10 @@ export default function PackageForm({
   const { data: equipmentList } = useSuspenseQuery(equipmentQuery());
 
   const title = mode === "create" ? "Create Package" : "Edit Package";
+  const subtitle =
+    mode === "create"
+      ? "Design a new service package"
+      : "Update service package details";
   const saveLabel = mode === "create" ? "Create Package" : "Update Package";
   const loadingLabel = mode === "create" ? "Creating..." : "Updating...";
 
@@ -60,7 +61,8 @@ export default function PackageForm({
     <div className="flex min-h-0 flex-1 flex-col">
       <PageHeader
         title={title}
-        countLabel={title}
+        subtitle={subtitle}
+        backButton
         actions={
           <div className="flex items-center gap-2">
             <Button
@@ -71,7 +73,6 @@ export default function PackageForm({
             >
               Reset
             </Button>
-
             <Button
               size="add"
               type="button"
@@ -106,8 +107,8 @@ export default function PackageForm({
                 validators={{
                   onChange: PackageSchema.shape.packageName,
                 }}
-                children={() => (
-                  <TextField
+                children={(field) => (
+                  <field.TextField
                     label="Package Name"
                     type="text"
                     placeholder="e.g. Premium Event Package"
@@ -134,8 +135,8 @@ export default function PackageForm({
               validators={{
                 onChange: PackageSchema.shape.equipmentSets,
               }}
-              children={() => (
-                <EquipmentSelectField
+              children={(field) => (
+                <field.EquipmentSelectField
                   label="Select Equipment"
                   equipmentList={equipmentList}
                   required

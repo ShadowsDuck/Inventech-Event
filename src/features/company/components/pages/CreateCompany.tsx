@@ -28,8 +28,6 @@ export default function CreateCompany() {
       })),
     };
 
-    console.log(payload);
-
     mutate(payload, {
       onSuccess: () => {
         navigate({ to: "..", replace: true });

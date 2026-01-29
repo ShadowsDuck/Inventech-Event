@@ -1,5 +1,10 @@
 import type { RoleType } from "./role";
 
+export interface PermissionType {
+  permissionId: number;
+  permissionName: string;
+}
+
 export interface StaffPermissionType {
   permissionId: number;
   staffId: number;
