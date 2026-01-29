@@ -20,150 +20,133 @@ type SelectedItemState = {
 // ----------------------------------------------------------------------
 // Sub-Component 1: ส่วนค้นหาและ Tabs (Filter Header)
 // ----------------------------------------------------------------------
-type EquipmentFilterHeaderProps = {
-  equipSearch: string;
-  onSearchChange: (val: string) => void;
-  categoriesTab: { id: string; name: string }[];
-  activeCategoryId: string;
-  onCategoryChange: (id: string) => void;
-};
-
 const EquipmentFilterHeader = ({
   equipSearch,
   onSearchChange,
   categoriesTab,
   activeCategoryId,
   onCategoryChange,
-}: EquipmentFilterHeaderProps) => {
-  return (
-    <div className="sticky top-0 z-10 space-y-3 border-b border-gray-200 bg-white p-4">
-      {/* Search Input */}
-      <div className="relative">
-        <Search
-          className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400"
-          size={18}
-        />
-        <input
-          type="text"
-          placeholder="Search equipment..."
-          className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pr-4 pl-10 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          value={equipSearch}
-          onChange={(e) => onSearchChange(e.target.value)}
-        />
-      </div>
-
-      {/* Categories Tabs */}
-      <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-1">
-        {categoriesTab.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => onCategoryChange(tab.id)}
-            className={cn(
-              "rounded-full border px-4 py-1 text-xs font-medium whitespace-nowrap transition-colors",
-              activeCategoryId === tab.id
-                ? "border-blue-600 bg-blue-600 text-white"
-                : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50",
-            )}
-          >
-            {tab.name}
-          </button>
-        ))}
-      </div>
+}: {
+  equipSearch: string;
+  onSearchChange: (val: string) => void;
+  categoriesTab: { id: string; name: string }[];
+  activeCategoryId: string;
+  onCategoryChange: (id: string) => void;
+}) => (
+  <div className="sticky top-0 z-10 space-y-3 border-b border-gray-200 bg-white p-4">
+    <div className="relative">
+      <Search
+        className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400"
+        size={18}
+      />
+      <input
+        type="text"
+        placeholder="Search equipment..."
+        className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pr-4 pl-10 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        value={equipSearch}
+        onChange={(e) => onSearchChange(e.target.value)}
+      />
     </div>
-  );
-};
+    <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-1">
+      {categoriesTab.map((tab) => (
+        <button
+          key={tab.id}
+          type="button"
+          onClick={() => onCategoryChange(tab.id)}
+          className={cn(
+            "rounded-full border px-4 py-1 text-xs font-medium whitespace-nowrap transition-colors",
+            activeCategoryId === tab.id
+              ? "border-blue-600 bg-blue-600 text-white"
+              : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50",
+          )}
+        >
+          {tab.name}
+        </button>
+      ))}
+    </div>
+  </div>
+);
 
 // ----------------------------------------------------------------------
 // Sub-Component 2: แถวรายการอุปกรณ์แต่ละอัน (Item Row)
 // ----------------------------------------------------------------------
-type EquipmentSelectionItemProps = {
-  item: EquipmentType;
-  selectedQuantity: number;
-  onQuantityChange: (item: EquipmentType, delta: number) => void;
-};
-
 const EquipmentSelectionItem = ({
   item,
   selectedQuantity,
   onQuantityChange,
-}: EquipmentSelectionItemProps) => {
-  return (
-    <div className="flex items-center justify-between border-b border-gray-100 p-4 last:border-b-0 hover:bg-gray-50">
-      <div className="flex items-center gap-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
-          <Box size={20} />
-        </div>
-        <span className="text-sm font-semibold text-gray-700">
-          {item.equipmentName}
-        </span>
+}: {
+  item: EquipmentType;
+  selectedQuantity: number;
+  onQuantityChange: (item: EquipmentType, delta: number) => void;
+}) => (
+  <div className="flex items-center justify-between border-b border-gray-100 p-4 last:border-b-0 hover:bg-gray-50">
+    <div className="flex items-center gap-4">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
+        <Box size={20} />
       </div>
-
-      <div>
-        {selectedQuantity > 0 ? (
-          <div className="flex items-center rounded-md border border-gray-300 bg-white">
-            <button
-              type="button"
-              onClick={() => onQuantityChange(item, -1)}
-              className="px-2 py-1 text-gray-500 hover:text-blue-600"
-            >
-              <Minus size={14} />
-            </button>
-            <span className="min-w-6 text-center text-sm font-semibold text-blue-600">
-              {selectedQuantity}
-            </span>
-            <button
-              type="button"
-              onClick={() => onQuantityChange(item, 1)}
-              className="px-2 py-1 text-gray-500 hover:text-blue-600"
-            >
-              <Plus size={14} />
-            </button>
-          </div>
-        ) : (
+      <span className="text-sm font-semibold text-gray-700">
+        {item.equipmentName}
+      </span>
+    </div>
+    <div>
+      {selectedQuantity > 0 ? (
+        <div className="flex items-center rounded-md border border-gray-300 bg-white">
+          <button
+            type="button"
+            onClick={() => onQuantityChange(item, -1)}
+            className="px-2 py-1 text-gray-500 hover:text-blue-600"
+          >
+            <Minus size={14} />
+          </button>
+          <span className="min-w-6 text-center text-sm font-semibold text-blue-600">
+            {selectedQuantity}
+          </span>
           <button
             type="button"
             onClick={() => onQuantityChange(item, 1)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 transition-all hover:border-blue-600 hover:bg-blue-600 hover:text-white"
+            className="px-2 py-1 text-gray-500 hover:text-blue-600"
           >
-            <Plus size={18} />
+            <Plus size={14} />
           </button>
-        )}
-      </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => onQuantityChange(item, 1)}
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 transition-all hover:border-blue-600 hover:bg-blue-600 hover:text-white"
+        >
+          <Plus size={18} />
+        </button>
+      )}
     </div>
-  );
-};
+  </div>
+);
 
 // ----------------------------------------------------------------------
 // Sub-Component 3: ส่วนแสดงรายการ (List Container & Grouping Logic)
 // ----------------------------------------------------------------------
-type EquipmentSelectionListProps = {
-  availableEquipment: EquipmentType[];
-  groupedEquipment: Record<string, EquipmentType[]> | null;
-  activeCategoryId: string;
-  selectedItems: SelectedItemState[];
-  onQuantityChange: (item: EquipmentType, delta: number) => void;
-};
-
 const EquipmentSelectionList = ({
   availableEquipment,
   groupedEquipment,
   activeCategoryId,
   selectedItems,
   onQuantityChange,
-}: EquipmentSelectionListProps) => {
-  // Helper render function
+}: {
+  availableEquipment: EquipmentType[];
+  groupedEquipment: Record<string, EquipmentType[]> | null;
+  activeCategoryId: string;
+  selectedItems: SelectedItemState[];
+  onQuantityChange: (item: EquipmentType, delta: number) => void;
+}) => {
   const renderItem = (item: EquipmentType) => {
     const addedItem = selectedItems.find(
       (i) => i.equipmentId === item.equipmentId,
     );
-    const qty = addedItem ? addedItem.quantity : 0;
-
     return (
       <EquipmentSelectionItem
         key={item.equipmentId}
         item={item}
-        selectedQuantity={qty}
+        selectedQuantity={addedItem?.quantity || 0}
         onQuantityChange={onQuantityChange}
       />
     );
@@ -199,19 +182,17 @@ const EquipmentSelectionList = ({
 // ----------------------------------------------------------------------
 // Sub-Component 4: ส่วนสรุปรายการที่เลือก (Summary)
 // ----------------------------------------------------------------------
-type SelectedEquipmentSummaryProps = {
-  selectedItems: SelectedItemState[];
-  equipmentList: EquipmentType[];
-  onQuantityChange: (item: EquipmentType, delta: number) => void;
-  onRemove: (id: number) => void;
-};
-
 const SelectedEquipmentSummary = ({
   selectedItems,
   equipmentList,
   onQuantityChange,
   onRemove,
-}: SelectedEquipmentSummaryProps) => {
+}: {
+  selectedItems: SelectedItemState[];
+  equipmentList: EquipmentType[];
+  onQuantityChange: (item: EquipmentType, delta: number) => void;
+  onRemove: (id: number) => void;
+}) => {
   if (selectedItems.length === 0) return null;
 
   return (
@@ -224,21 +205,20 @@ const SelectedEquipmentSummary = ({
           Total: {selectedItems.reduce((acc, i) => acc + i.quantity, 0)} Items
         </span>
       </div>
-
       <div className="flex items-center justify-between border-b border-gray-100 px-5 py-2 text-[10px] font-bold tracking-wider text-gray-400 uppercase">
         <span>Item Name</span>
         <span className="pr-12">Quantity (Total)</span>
       </div>
-
       <div className="divide-y divide-gray-100">
-        {selectedItems.map((item, idx) => {
-          const originalItem =
-            equipmentList.find((e) => e.equipmentId === item.equipmentId) ||
-            ({} as EquipmentType);
+        {selectedItems.map((item) => {
+          const originalItem = equipmentList.find(
+            (e) => e.equipmentId === item.equipmentId,
+          );
+          if (!originalItem) return null;
 
           return (
             <div
-              key={idx}
+              key={item.equipmentId}
               className="flex items-center justify-between px-5 py-4 hover:bg-gray-50/50"
             >
               <div className="flex items-center gap-3">
@@ -249,7 +229,6 @@ const SelectedEquipmentSummary = ({
                   {item.equipmentName}
                 </span>
               </div>
-
               <div className="flex items-center gap-4">
                 <div className="flex items-center rounded-md border border-gray-200 bg-white shadow-sm">
                   <button
@@ -286,9 +265,9 @@ const SelectedEquipmentSummary = ({
   );
 };
 
-// ----------------------------------------------------------------------
-// Main Component
-// ----------------------------------------------------------------------
+// ==========================================
+//              Main Component
+// ==========================================
 export type EquipmentSelectFieldProps = {
   label: string;
   equipmentList: EquipmentType[];
@@ -310,84 +289,108 @@ export const EquipmentSelectField = ({
     (field.state.meta.isTouched || isSubmitted) &&
     field.state.meta.errors.length > 0;
 
-  // --- 1. Prepare Tabs ---
+  // --- 1. Prepare Tabs (แยก Tab ออกมา) ---
   const categoriesTab = useMemo(() => {
     const uniqueCats = new Map<string, string>();
     equipmentList.forEach((item) => {
-      const id = String(item.category.categoryId);
-      if (!uniqueCats.has(id)) {
-        uniqueCats.set(id, item.category?.categoryName || "Uncategorized");
-      }
+      uniqueCats.set(
+        String(item.category.categoryId),
+        item.category?.categoryName || "Uncategorized",
+      );
     });
-    const catArray = Array.from(uniqueCats.entries()).map(([id, name]) => ({
-      id,
-      name,
-    }));
-    return [
-      { id: "All", name: "All" },
-      ...catArray.sort((a, b) => a.name.localeCompare(b.name)),
-    ];
+
+    // แปลง Map เป็น Array แล้ว Sort ตามตัวอักษร
+    const sortedCats = Array.from(uniqueCats.entries())
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    return [{ id: "All", name: "All" }, ...sortedCats];
   }, [equipmentList]);
 
   // --- 2. Filter & Group Data ---
   const { availableEquipment, groupedEquipment } = useMemo(() => {
-    let filtered = equipmentList.filter((item) =>
-      item.equipmentName.toLowerCase().includes(equipSearch.toLowerCase()),
-    );
+    // 2.1 Filter: กรองตามคำค้นหา และ Category
+    const filtered = equipmentList.filter((item) => {
+      const matchSearch = item.equipmentName
+        .toLowerCase()
+        .includes(equipSearch.toLowerCase());
 
-    if (activeCategoryId !== "All") {
-      filtered = filtered.filter(
-        (item) => String(item.category.categoryId) === activeCategoryId,
-      );
-    }
+      const matchCategory =
+        activeCategoryId === "All" ||
+        String(item.category.categoryId) === activeCategoryId;
 
-    let grouped: Record<string, EquipmentType[]> | null = null;
-    if (activeCategoryId === "All") {
-      grouped = {};
-      filtered.forEach((item) => {
-        const catName = item.category?.categoryName || "Uncategorized";
-        if (!grouped![catName]) grouped![catName] = [];
-        grouped![catName].push(item);
-      });
-    }
+      return matchSearch && matchCategory;
+    });
+
+    // 2.2 Group: จัดกลุ่มเฉพาะตอนเลือก "All"
+    const grouped =
+      activeCategoryId === "All"
+        ? filtered.reduce(
+            (acc, item) => {
+              const catName = item.category?.categoryName || "Uncategorized";
+              if (!acc[catName]) acc[catName] = [];
+              acc[catName].push(item);
+              return acc;
+            },
+            {} as Record<string, EquipmentType[]>,
+          )
+        : null;
 
     return { availableEquipment: filtered, groupedEquipment: grouped };
   }, [equipmentList, equipSearch, activeCategoryId]);
 
-  // --- Handlers ---
-  const handleQuantityChange = (eq: EquipmentType, delta: number) => {
-    const eqId = eq.equipmentId;
-    const existingIndex = selectedItems.findIndex(
-      (i) => i.equipmentId === eqId,
-    );
-    let updated = [...selectedItems];
+  // --- 3. Handlers ---
+  // สร้าง function update ไว้ใช้ซ้ำ เพื่อลดการพิมพ์ field.handleChange บ่อยๆ
+  const updateItems = (newItems: SelectedItemState[]) => {
+    field.handleChange(newItems);
+  };
 
-    if (existingIndex >= 0) {
-      const newQuantity = updated[existingIndex].quantity + delta;
-      if (newQuantity <= 0) {
-        updated = updated.filter((_, i) => i !== existingIndex);
-      } else {
-        updated[existingIndex] = {
-          ...updated[existingIndex],
-          quantity: newQuantity,
-        };
+  const handleQuantityChange = (item: EquipmentType, delta: number) => {
+    // หาว่า item นี้มีอยู่ในตะกร้าแล้วหรือยัง?
+    const existingItem = selectedItems.find(
+      (i) => i.equipmentId === item.equipmentId,
+    );
+
+    // Case 1: ของใหม่ (ยังไม่มีในตะกร้า) -> เพิ่มเข้าไปเลย
+    if (!existingItem) {
+      if (delta > 0) {
+        updateItems([
+          ...selectedItems,
+          {
+            equipmentId: item.equipmentId,
+            equipmentName: item.equipmentName,
+            category: String(item.category),
+            quantity: delta,
+          },
+        ]);
       }
-    } else if (delta > 0) {
-      updated.push({
-        equipmentId: eqId,
-        equipmentName: eq.equipmentName,
-        category: String(eq.category),
-        quantity: delta,
-      });
+      return;
     }
-    field.handleChange(updated);
+
+    // Case 2: ของเดิม (มีอยู่แล้ว) -> คำนวณจำนวนใหม่
+    const newQuantity = existingItem.quantity + delta;
+
+    if (newQuantity <= 0) {
+      // ถ้าจำนวน <= 0 ให้ลบออก (Filter ออก)
+      updateItems(
+        selectedItems.filter((i) => i.equipmentId !== item.equipmentId),
+      );
+    } else {
+      // ถ้าจำนวนยังเหลือ ให้อัปเดตเฉพาะตัวนั้น (Map)
+      updateItems(
+        selectedItems.map((i) =>
+          i.equipmentId === item.equipmentId
+            ? { ...i, quantity: newQuantity }
+            : i,
+        ),
+      );
+    }
   };
 
   const removeItem = (id: number) => {
-    field.handleChange(selectedItems.filter((i) => i.equipmentId !== id));
+    updateItems(selectedItems.filter((i) => i.equipmentId !== id));
   };
 
-  // --- Render Main ---
   return (
     <div className="flex flex-col gap-6">
       <Label
