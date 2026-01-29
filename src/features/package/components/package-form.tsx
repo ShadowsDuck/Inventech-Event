@@ -37,7 +37,9 @@ export default function PackageForm({
   isPending = false,
   mode,
 }: PackageFormProps) {
-  const { data: equipmentList } = useSuspenseQuery(equipmentQuery());
+  const { data: equipmentList } = useSuspenseQuery(
+    equipmentQuery({ isDeleted: false }),
+  );
 
   const title = mode === "create" ? "Create Package" : "Edit Package";
   const subtitle =

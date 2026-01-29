@@ -72,7 +72,7 @@ export function PageHeader({
     >
       <div className="flex items-center gap-4">
         <div className="-ml-2 lg:hidden">
-          <Drawer open={isOpen} onOpenChange={setIsOpen}>
+          <Drawer open={isOpen} onOpenChange={setIsOpen} direction="left">
             <DrawerTrigger asChild>
               <button className="hover:bg-muted-foreground/10 rounded-full p-2 duration-150">
                 <Menu className="h-5 w-5 text-gray-600" />
@@ -82,7 +82,7 @@ export function PageHeader({
             <DrawerContent>
               <div className="mx-auto w-full max-w-sm">
                 <DrawerHeader>
-                  <DrawerTitle className="text-center">
+                  <DrawerTitle className="pt-3 text-center text-xl font-semibold">
                     Event Management
                   </DrawerTitle>
                   <DrawerDescription className="sr-only">

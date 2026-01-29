@@ -33,12 +33,13 @@ const UpdateEquipment = async ({
   return;
 };
 
-export const useEditequipment = () =>
-  useMutation({
+export const useEditEquipment = () => {
+  return useMutation({
     mutationFn: UpdateEquipment,
     meta: {
-      invalidatesQuery: ["equipments"],
+      invalidatesQuery: [["equipments"], ["packages"]],
       successMessage: "Equipment updated successfully",
       errorMessage: "Failed to update equipment",
     },
   });
+};

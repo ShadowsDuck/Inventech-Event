@@ -39,14 +39,22 @@ export const queryClient = new QueryClient({
     },
     onSettled: async (_data, _error, _variables, _context, mutation) => {
       const meta = mutation.meta;
-      if (meta?.invalidatesQuery) {
-        // เปลี่ยนจาก invalidateQueries เป็น refetchQueries
-        // invalidateQueries มันแค่ทำให้ query เป็น stale
-        // พอ component mount มันถึงค่อย refetch → เลยกระพริบ
-        // ต้องใช้ refetchQueries แล้วรอให้เสร็จก่อน navigate ถึงจะไม่กระพริบ
-        await queryClient.refetchQueries({
-          queryKey: meta.invalidatesQuery,
-        });
+      const queryKey = meta?.invalidatesQuery;
+
+      if (queryKey) {
+        // เช็คว่าส่งมาเป็น Array ของ Key (เช่น [["a"], ["b"]]) หรือแค่ Key เดียว (เช่น ["a"])
+        const isMultiKey = Array.isArray(queryKey[0]);
+        const keysToRefetch = isMultiKey
+          ? (queryKey as QueryKey[])
+          : [queryKey as QueryKey];
+
+        // ใช้ refetchQueries และ await เพื่อให้โหลด "ของใหม่" ให้เสร็จก่อน
+        // Promise.all จะช่วยให้โหลดทุก Key พร้อมกัน ไม่ต้องรอทีละตัว
+        await Promise.all(
+          keysToRefetch.map((key) =>
+            queryClient.refetchQueries({ queryKey: key }),
+          ),
+        );
       }
     },
   }),
