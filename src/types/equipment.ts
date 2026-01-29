@@ -14,5 +14,7 @@ export interface EquipmentType {
 
 export interface EquipmentSetType {
   equipmentId: number;
-  packageId: number;
+  equipmentName: string;
+  quantity: number;
+  equipment?: EquipmentType;
 }

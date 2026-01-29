@@ -2,11 +2,11 @@ import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 
 import { ContactPersonField } from "./contact-person-field";
 import { DateField } from "./date-field";
+import { EquipmentSelectField } from "./equipment-select-field";
 import { EventFormatField } from "./event-format-field";
 import { LocationField } from "./location-field";
 import { MultiSelectField } from "./multiselect-field";
 import PackageEventField from "./package-event-field";
-import { EquipmentSelectField } from "./package-form";
 import { PeriodSelectField } from "./period-field";
 import { SelectField } from "./select-field";
 import { SelectField2 } from "./select-field-2";

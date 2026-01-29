@@ -6,12 +6,12 @@ import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import CarouselPackage from "@/features/package/components/carousel-package";
 
-import { packageQuerys } from "../api/getPackage";
+import { packageQuery } from "../../api/getPackage";
 
 const PackageList = () => {
   const navigate = useNavigate();
   //ดึงข้อมูลแพ็คเกจจาก API
-  const { data: Package } = useSuspenseQuery(packageQuerys());
+  const { data: Package } = useSuspenseQuery(packageQuery());
   console.log(Package);
 
   return (

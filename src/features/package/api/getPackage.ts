@@ -13,7 +13,7 @@ const getPackage = async (): Promise<PackageType[]> => {
   return response.json();
 };
 
-export const packageQuerys = () =>
+export const packageQuery = () =>
   queryOptions({
     queryKey: ["packages", "list"],
     queryFn: getPackage,

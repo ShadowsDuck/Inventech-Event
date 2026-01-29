@@ -6,10 +6,9 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 type UpdatePackageData = PackageData & {
   id: string;
-  equipmentId: number;
 };
 
-const EditPackage = async ({
+const updatePackage = async ({
   id,
   ...data
 }: UpdatePackageData): Promise<void> => {
@@ -25,7 +24,7 @@ const EditPackage = async ({
 
 export const useEditPackage = () =>
   useMutation({
-    mutationFn: EditPackage,
+    mutationFn: updatePackage,
     meta: {
       invalidatesQuery: ["packages"],
       successMessage: "Package updated successfully",

@@ -5,12 +5,13 @@ import type { PackageType } from "@/types/package";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const getPackageById = async (id: string): Promise<PackageType> => {
-  const response = await fetch(`${API_URL}/api/packages/${id}`);
-  if (!response.ok) {
+  const res = await fetch(`${API_URL}/api/packages/${id}`);
+
+  if (!res.ok) {
     throw new Error(`Failed to fetch package by id`);
   }
 
-  return response.json();
+  return res.json();
 };
 export const packageByIdQuery = (id: string) =>
   queryOptions({
