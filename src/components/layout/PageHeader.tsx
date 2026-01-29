@@ -1,12 +1,24 @@
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
-import { useRouter } from "@tanstack/react-router";
-import { ChevronLeft } from "lucide-react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { ChevronLeft, Menu } from "lucide-react";
 
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { NAV_LINKS } from "@/data/constants";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 
 import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
 
 interface PageHeaderProps {
   title: string;
@@ -37,10 +49,21 @@ export function PageHeader({
 }: PageHeaderProps) {
   const navigate = useRouter();
 
+  const [isOpen, setIsOpen] = useState(false);
+
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+
+  useEffect(() => {
+    if (isDesktop && isOpen) {
+      // ใช้ setTimeout เพื่อหลบ synchronous update warning
+      const timer = setTimeout(() => setIsOpen(false), 0);
+      return () => clearTimeout(timer);
+    }
+  }, [isDesktop, isOpen]);
+
   const showCount = typeof count === "number" && countLabel;
 
   return (
-    // กรอบสี่เหลี่ยมเต็มความกว้าง แต่ไม่ขยับตำแหน่ง
     <div
       className={cn(
         "flex min-h-22 items-center justify-between border-b border-gray-200 bg-white px-6 py-4",
@@ -48,6 +71,57 @@ export function PageHeader({
       )}
     >
       <div className="flex items-center gap-4">
+        <div className="-ml-2 lg:hidden">
+          <Drawer open={isOpen} onOpenChange={setIsOpen}>
+            <DrawerTrigger asChild>
+              <button className="hover:bg-muted-foreground/10 rounded-full p-2 duration-150">
+                <Menu className="h-5 w-5 text-gray-600" />
+              </button>
+            </DrawerTrigger>
+
+            <DrawerContent>
+              <div className="mx-auto w-full max-w-sm">
+                <DrawerHeader>
+                  <DrawerTitle className="text-center">
+                    Event Management
+                  </DrawerTitle>
+                  <DrawerDescription className="sr-only">
+                    Navigation Menu
+                  </DrawerDescription>
+                </DrawerHeader>
+
+                <div className="px-4 py-1">
+                  <div className="flex flex-col gap-2">
+                    {NAV_LINKS.map((item) => (
+                      <DrawerClose asChild key={item.title}>
+                        <Link
+                          to={item.url}
+                          className="text-muted-foreground hover:bg-muted hover:text-foreground/90 active:bg-muted flex items-center gap-4 rounded-xl px-4 py-3"
+                          activeProps={{
+                            className:
+                              "bg-sidebar-primary/5 text-blue-600! font-medium",
+                          }}
+                        >
+                          <item.icon className="h-5 w-5" />
+                          <span className="text-base">{item.title}</span>
+                        </Link>
+                      </DrawerClose>
+                    ))}
+                  </div>
+                </div>
+
+                <DrawerFooter>
+                  <DrawerClose asChild>
+                    <button className="w-full rounded-lg border p-3 text-sm font-medium hover:bg-gray-50">
+                      Close
+                    </button>
+                  </DrawerClose>
+                </DrawerFooter>
+              </div>
+            </DrawerContent>
+          </Drawer>
+        </div>
+
         {backButton && (
           <button
             onClick={() => navigate.history.back()}
@@ -62,7 +136,6 @@ export function PageHeader({
             <h1 className="text-2xl font-bold tracking-tight text-gray-900">
               {title}
             </h1>
-
             {showStatusBadge &&
               (isDeleted ? (
                 <Badge variant="unsuccess">
@@ -102,7 +175,9 @@ export function PageHeader({
         </div>
       </div>
 
-      {actions && <div className="flex items-center gap-3">{actions}</div>}
+      <div className="flex items-center gap-3">
+        {actions && <div>{actions}</div>}
+      </div>
     </div>
   );
 }
