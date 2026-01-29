@@ -6,8 +6,8 @@ import { UploadCloud } from "lucide-react";
 import z, { file } from "zod";
 
 import { useAppForm } from "@/components/form";
+import { EquipmentSelectField } from "@/components/form/equipment-select-field";
 import PackageEventField from "@/components/form/package-event-field";
-import { EquipmentSelectField } from "@/components/form/package-form";
 import StaffAssignmentBuilder from "@/components/form/staff-manage-form";
 import { CreateFormButton } from "@/components/form/ui/create-form-button";
 import { ResetFormButton } from "@/components/form/ui/reset-form-button";
@@ -17,7 +17,7 @@ import { FileUpload, FileUploadDropzone } from "@/components/ui/file-upload";
 import { Textarea } from "@/components/ui/textarea";
 import { equipmentQuery } from "@/features/equipment/api/getEquipment";
 import { EquipmentSchema } from "@/features/equipment/components/equipment-form";
-import { packageQuerys } from "@/features/package/api/getPackage";
+import { packageQuery } from "@/features/package/api/getPackage";
 import { rolesQuery } from "@/features/staff/api/getRoles";
 
 import { companiesQueries } from "../api/getCompany";
@@ -26,9 +26,13 @@ const EquipmentEventSchema = z.object({
   equipmentId: z.string(),
   quantity: z.number().min(1),
 });
-const StaffAssignmentItemSchema = z.object({
+const StaffSchema = z.object({
   role: z.string(),
-  assignedStaffIds: z.array(z.string()),
+  staffIds: z.array(z.string()),
+});
+const LocationSchema = z.object({
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
 });
 const EventSchema = z.object({
   eventName: z
@@ -44,7 +48,9 @@ const EventSchema = z.object({
   package: z.string(),
   file: z.instanceof(File).optional(),
   equipment: z.array(EquipmentEventSchema),
-  staffAssignments: z.array(StaffAssignmentItemSchema).optional(),
+  staff: z.array(StaffSchema).optional(),
+  outsource: z.array(z.string()).optional(),
+  location: z.optional(LocationSchema),
 });
 
 export type EventData = z.infer<typeof EventSchema>;
@@ -71,7 +77,7 @@ export default function EventForm({
   ] = useSuspenseQueries({
     queries: [
       companiesQueries(),
-      packageQuerys(),
+      packageQuery(),
       equipmentQuery(),
       rolesQuery(),
     ],
@@ -84,13 +90,6 @@ export default function EventForm({
     }));
   }, [companiesData]);
 
-  const roleOptions = useMemo(() => {
-    return roleData?.map((role) => ({
-      value: role.roleId.toString(),
-      label: role.roleName,
-    }));
-  }, [roleData]);
-
   const form = useAppForm({
     defaultValues: {
       eventName: initialValues?.eventName || "",
@@ -102,7 +101,9 @@ export default function EventForm({
       timePeriod: initialValues?.timePeriod || "",
       package: initialValues?.package || "",
       equipment: initialValues?.equipment || [],
-      staffAssignments: initialValues?.staffAssignments || [],
+      staff: initialValues?.staff || [],
+      outsource: initialValues?.outsource || [],
+      location: initialValues?.location || {},
     } as EventData,
     validators: {
       onChange: EventSchema,
@@ -240,6 +241,13 @@ export default function EventForm({
                     <field.PeriodSelectField label="Period" />
                   )}
                 />
+                {/* Location*/}
+                <form.AppField
+                  name="location"
+                  children={(field) => (
+                    <field.LocationField label="Select Location " />
+                  )}
+                />
               </section>
             </CardContent>
           </Card>
@@ -301,7 +309,7 @@ export default function EventForm({
             </CardHeader>
             <CardContent>
               <form.AppField
-                name="staffAssignments"
+                name="staff"
                 children={(field) => (
                   <StaffAssignmentBuilder
                     availableRoles={roleData?.map((r) => r.roleName) || []}
@@ -311,21 +319,27 @@ export default function EventForm({
               />
             </CardContent>
           </Card>
+          {/*Outsource Management */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="flex items-center text-lg font-bold text-gray-600">
-                Outsource Management
+              <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
+                <div className="flex items-center gap-2">
+                  <span className="h-6 w-1 rounded-full bg-blue-600" />
+                  Outsource Management
+                </div>
               </CardTitle>
             </CardHeader>
-            <CardContent></CardContent>
-          </Card>
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="flex items-center text-lg font-bold text-gray-600">
-                Venue Management
-              </CardTitle>
-            </CardHeader>
-            <CardContent></CardContent>
+            <CardContent>
+              <form.AppField
+                name="outsource"
+                children={(field) => (
+                  <StaffAssignmentBuilder
+                    availableRoles={roleData?.map((r) => r.roleName) || []}
+                    onChange={(data) => field.handleChange(data)}
+                  />
+                )}
+              />
+            </CardContent>
           </Card>
 
           {/*File upload & Note */}
