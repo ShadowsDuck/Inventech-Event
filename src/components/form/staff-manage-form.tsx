@@ -1,9 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import { Briefcase, ChevronDown, Plus, Search, Trash2, X } from "lucide-react";
+import {
+  AlertCircle,
+  ChevronDown,
+  Minus,
+  Plus,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 
 // --- Type Definitions ---
-
 export interface Staff {
   id: string;
   name: string;
@@ -14,10 +21,9 @@ export interface Staff {
 export interface RoleAssignment {
   id: string;
   role: string;
-  slots: (string | null)[]; // เก็บ ID พนักงาน
+  slots: (string | null)[];
 }
 
-// Props: รับข้อมูลจากหน้าแม่
 interface StaffAssignmentBuilderProps {
   availableRoles: string[];
   staffList?: Staff[];
@@ -35,39 +41,25 @@ export default function StaffAssignmentBuilder({
   const [selectedRole, setSelectedRole] = useState("");
   const [slotAmount, setSlotAmount] = useState<number | "">(1);
   const [isRoleOpen, setIsRoleOpen] = useState(false);
-
-  // Data หลัก
   const [assignments, setAssignments] = useState<RoleAssignment[]>(initialData);
-
-  // Staff Picker State
   const [pickingFor, setPickingFor] = useState<{
     assignId: string;
     slotIndex: number;
   } | null>(null);
   const [staffSearch, setStaffSearch] = useState("");
 
-  // --- FIX: ใช้ useRef เพื่อป้องกัน Infinite Loop ---
-
-  // 1. สร้าง Ref เก็บฟังก์ชัน onChange
+  // --- FIX Infinite Loop ---
   const onChangeRef = useRef(onChange);
-
-  // 2. อัปเดต Ref เมื่อ onChange เปลี่ยน (แต่ไม่ไปกระตุ้น effect หลัก)
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
-
-  // 3. Effect หลัก: รันเฉพาะตอน assignments เปลี่ยนเท่านั้น
   useEffect(() => {
     const payload = assignments.map((a) => ({
       role: a.role,
       assignedStaffIds: a.slots.filter((s) => s !== null),
     }));
-
-    // เรียกผ่าน Ref
-    if (onChangeRef.current) {
-      onChangeRef.current(payload);
-    }
-  }, [assignments]); // ⚠️ เอา onChange ออกจาก dependency array
+    if (onChangeRef.current) onChangeRef.current(payload);
+  }, [assignments]);
 
   // --- Handlers ---
 
@@ -76,17 +68,57 @@ export default function StaffAssignmentBuilder({
     const count = Number(slotAmount);
     if (count <= 0) return;
 
-    const newSlots = Array(count).fill(null);
-    const newAssignment: RoleAssignment = {
-      id: Date.now().toString(),
-      role: selectedRole,
-      slots: newSlots,
-    };
+    // Check if role already exists
+    const existingIndex = assignments.findIndex((a) => a.role === selectedRole);
+    if (existingIndex >= 0) {
+      // If exists, just add more slots
+      const updated = [...assignments];
+      updated[existingIndex].slots = [
+        ...updated[existingIndex].slots,
+        ...Array(count).fill(null),
+      ];
+      setAssignments(updated);
+    } else {
+      // Create new
+      const newAssignment: RoleAssignment = {
+        id: Date.now().toString(),
+        role: selectedRole,
+        slots: Array(count).fill(null),
+      };
+      setAssignments([...assignments, newAssignment]);
+    }
 
-    setAssignments([...assignments, newAssignment]);
-    setSelectedRole("");
-    setSlotAmount(1);
+    // setSelectedRole("");
+    // setSlotAmount(1);
     setIsRoleOpen(false);
+  };
+
+  const handleUpdateSlotCount = (assignId: string, delta: number) => {
+    setAssignments((prev) =>
+      prev.map((a) => {
+        if (a.id === assignId) {
+          const currentSlots = [...a.slots];
+          if (delta > 0) {
+            // Add empty slot
+            return { ...a, slots: [...currentSlots, null] };
+          } else {
+            // Remove last slot (prioritize removing empty ones)
+            if (currentSlots.length <= 0) return a;
+
+            // Try to find last empty slot
+            const lastEmptyIndex = currentSlots.lastIndexOf(null);
+            if (lastEmptyIndex !== -1) {
+              currentSlots.splice(lastEmptyIndex, 1);
+            } else {
+              // If all filled, remove last one
+              currentSlots.pop();
+            }
+            return { ...a, slots: currentSlots };
+          }
+        }
+        return a;
+      }),
+    );
   };
 
   const handleRemoveAssignment = (id: string) => {
@@ -122,33 +154,35 @@ export default function StaffAssignmentBuilder({
     );
   };
 
-  // Filter Staff
   const filteredStaff = staffList.filter((s) =>
     s.name.toLowerCase().includes(staffSearch.toLowerCase()),
   );
 
   return (
-    <div className="w-full space-y-6">
-      {/* 1. Form สร้าง Slot (Role + Amount) */}
-      <div className="flex flex-col items-end gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm sm:flex-row">
-        {/* Role Dropdown */}
+    <div className="w-full space-y-8">
+      {/* 1. Control Bar (Top) */}
+      <div className="flex flex-col items-end gap-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:flex-row">
+        {/* Role Selector */}
         <div className="relative w-full flex-1">
-          <label className="mb-2 block text-xs font-bold text-gray-500 uppercase">
-            Role
+          <label className="mb-2 block text-xs font-bold tracking-wide text-gray-500 uppercase">
+            Select Role
           </label>
           <button
             type="button"
             onClick={() => setIsRoleOpen(!isRoleOpen)}
-            className="flex w-full items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium transition-all hover:border-blue-400"
+            className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm font-medium transition-all ${isRoleOpen ? "border-blue-500 ring-2 ring-blue-100" : "border-gray-200 hover:border-gray-300"}`}
           >
             <span className={selectedRole ? "text-gray-900" : "text-gray-400"}>
               {selectedRole || "Select Role..."}
             </span>
-            <ChevronDown size={16} className="text-gray-400" />
+            <ChevronDown
+              size={18}
+              className={`text-gray-400 transition-transform ${isRoleOpen ? "rotate-180" : ""}`}
+            />
           </button>
 
           {isRoleOpen && (
-            <div className="absolute top-full left-0 z-10 mt-2 max-h-60 w-full overflow-hidden overflow-y-auto rounded-xl border border-gray-100 bg-white shadow-xl">
+            <div className="animate-in fade-in zoom-in-95 absolute top-full left-0 z-20 mt-2 max-h-60 w-full overflow-hidden overflow-y-auto rounded-xl border border-gray-100 bg-white shadow-xl duration-100">
               {availableRoles.length > 0 ? (
                 availableRoles.map((role) => (
                   <button
@@ -158,7 +192,7 @@ export default function StaffAssignmentBuilder({
                       setSelectedRole(role);
                       setIsRoleOpen(false);
                     }}
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-blue-50"
+                    className="w-full px-4 py-2.5 text-left text-sm text-gray-700 transition-colors hover:bg-blue-50"
                   >
                     {role}
                   </button>
@@ -173,9 +207,9 @@ export default function StaffAssignmentBuilder({
         </div>
 
         {/* Amount Input */}
-        <div className="w-full sm:w-32">
-          <label className="mb-2 block text-center text-xs font-bold text-gray-500 uppercase">
-            Slots
+        <div className="w-full sm:w-28">
+          <label className="mb-2 block text-center text-xs font-bold tracking-wide text-gray-500 uppercase">
+            Amount
           </label>
           <input
             type="number"
@@ -185,7 +219,7 @@ export default function StaffAssignmentBuilder({
               const val = e.target.value;
               setSlotAmount(val === "" ? "" : parseInt(val));
             }}
-            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-center text-sm font-bold outline-none focus:border-blue-500"
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-center text-sm font-bold transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
         </div>
 
@@ -194,131 +228,182 @@ export default function StaffAssignmentBuilder({
           type="button"
           onClick={handleAddSlots}
           disabled={!selectedRole || !slotAmount}
-          className="w-full rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
+          className="w-full rounded-xl bg-blue-600 px-8 py-3 text-sm font-bold text-white shadow-md shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:shadow-none sm:w-auto"
         >
           Add
         </button>
       </div>
 
-      {/* 2. Grid แสดงผล */}
-      <div className="space-y-4">
-        {assignments.map((assign) => (
-          <div
-            key={assign.id}
-            className="group relative rounded-2xl border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md"
-          >
-            {/* Header */}
-            <div className="mb-6 flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-blue-600">
-                  <Briefcase size={20} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">
+      {/* 2. Assignments Cards */}
+      <div className="grid grid-cols-2 gap-4">
+        {" "}
+        {assignments.map((assign) => {
+          const filledCount = assign.slots.filter((s) => s !== null).length;
+          const isComplete =
+            filledCount === assign.slots.length && assign.slots.length > 0;
+
+          return (
+            <div
+              key={assign.id}
+              className={`group relative rounded-2xl border-2 bg-white p-6 transition-all ${isComplete ? "border-green-100" : "border-amber-100"}`}
+            >
+              {/* Header Row */}
+              <div className="mb-6 flex items-center justify-between border-b border-gray-50 pb-4">
+                <div className="flex items-center gap-4">
+                  <h3 className="text-xl font-bold text-gray-800">
                     {assign.role}
                   </h3>
-                  <p className="text-xs font-medium text-gray-400 uppercase">
-                    {assign.slots.filter((s) => s !== null).length} /{" "}
-                    {assign.slots.length} Filled
-                  </p>
+
+                  {/* Counter Controls */}
+                  <div className="flex h-8 items-center rounded-lg border border-gray-200 bg-gray-50">
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateSlotCount(assign.id, -1)}
+                      className="flex h-full w-8 items-center justify-center rounded-l-lg text-gray-500 transition-colors hover:bg-red-50 hover:text-red-500"
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <span
+                      className={`min-w-[3rem] px-2 text-center text-xs font-bold ${isComplete ? "text-green-600" : "text-amber-600"}`}
+                    >
+                      {filledCount} / {assign.slots.length}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateSlotCount(assign.id, 1)}
+                      className="flex h-full w-8 items-center justify-center rounded-r-lg text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-500"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAssignment(assign.id)}
+                    className="p-2 text-gray-300 transition-colors hover:text-red-500"
+                    title="Remove Role Group"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                  {isComplete ? (
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-600">
+                      <Plus className="rotate-45" size={20} />{" "}
+                      {/* Check Icon Mock */}
+                    </div>
+                  ) : (
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-500">
+                      <AlertCircle size={20} />
+                    </div>
+                  )}
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => handleRemoveAssignment(assign.id)}
-                className="p-2 text-gray-300 transition-colors hover:text-red-500"
-              >
-                <Trash2 size={18} />
-              </button>
-            </div>
 
-            {/* Slots */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {assign.slots.map((staffId, index) => {
-                const staff = staffList.find((s) => s.id === staffId);
+              {/* Slots List */}
+              <div className="space-y-3">
+                {assign.slots.map((staffId, index) => {
+                  const staff = staffList.find((s) => s.id === staffId);
 
-                return (
-                  <div key={index} className="relative">
-                    {staff ? (
-                      // มีคน
-                      <div className="flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50/50 p-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white bg-blue-100 text-xs font-bold text-blue-600 shadow-sm">
-                          {staff.name.charAt(0)}
+                  return (
+                    <div key={index} className="relative">
+                      {staff ? (
+                        // === Filled Slot ===
+                        <div className="flex items-center justify-between rounded-xl border border-green-200 bg-green-50/50 p-3 transition-all hover:shadow-sm">
+                          <div className="flex items-center gap-4">
+                            <span className="rounded bg-white/80 px-2 py-1 text-xs font-bold text-green-300">
+                              #{index + 1}
+                            </span>
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-green-200 text-xs font-bold text-green-700 shadow-sm">
+                              {staff.name.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-gray-800">
+                                {staff.name}
+                              </p>
+                              <p className="text-xs font-medium text-green-600">
+                                {staff.role}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleClearSlot(assign.id, index)}
+                            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                          >
+                            <X size={16} />
+                          </button>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-bold text-gray-900">
-                            {staff.name}
-                          </p>
-                          <p className="truncate text-[10px] text-gray-500">
-                            {staff.role}
-                          </p>
-                        </div>
+                      ) : (
+                        // === Empty Slot ===
                         <button
                           type="button"
-                          onClick={() => handleClearSlot(assign.id, index)}
-                          className="rounded p-1 text-gray-400 transition-all hover:bg-red-50 hover:text-red-500"
+                          onClick={() =>
+                            setPickingFor({
+                              assignId: assign.id,
+                              slotIndex: index,
+                            })
+                          }
+                          className="group flex w-4 w-full items-center gap-4 rounded-xl border border-dashed border-amber-300 bg-amber-50/50 p-3 text-left transition-all hover:border-amber-400 hover:bg-amber-50 hover:shadow-sm"
                         >
-                          <X size={14} />
+                          <span className="rounded bg-white/50 px-2 py-1 text-xs font-bold text-amber-300 transition-colors group-hover:text-amber-500">
+                            #{index + 1}
+                          </span>
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-500 transition-transform group-hover:scale-110">
+                            <Plus size={16} />
+                          </div>
+                          <span className="text-sm font-medium text-amber-700 italic group-hover:text-amber-800">
+                            Position Empty (Click to assign)
+                          </span>
                         </button>
-                      </div>
-                    ) : (
-                      // ว่าง
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setPickingFor({
-                            assignId: assign.id,
-                            slotIndex: index,
-                          })
-                        }
-                        className="group/slot flex h-[66px] w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 text-gray-400 transition-all hover:border-blue-400 hover:bg-blue-50 hover:text-blue-500"
-                      >
-                        <Plus
-                          size={18}
-                          className="transition-transform group-hover/slot:scale-110"
-                        />
-                        <span className="text-sm font-medium">Select</span>
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
-
+          );
+        })}
         {assignments.length === 0 && (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 py-12 text-center text-sm text-gray-400">
-            No slots created yet
+          <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 py-16 text-center">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+              <Search size={24} />
+            </div>
+            <p className="font-medium text-gray-500">No roles added yet.</p>
+            <p className="mt-1 text-xs text-gray-400">
+              Use the form above to start planning your team.
+            </p>
           </div>
         )}
       </div>
 
-      {/* 3. Modal เลือกพนักงาน */}
+      {/* Staff Picker Modal */}
       {pickingFor && (
-        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 duration-200">
-          <div className="flex max-h-[80vh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-gray-100 p-4">
-              <h3 className="font-bold text-gray-900">Select Staff</h3>
+        <div className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm duration-200">
+          <div className="animate-in zoom-in-95 flex max-h-[85vh] w-full max-w-md scale-100 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl duration-200">
+            <div className="flex items-center justify-between border-b border-gray-100 p-5">
+              <h3 className="text-lg font-bold text-gray-900">
+                Select Staff Member
+              </h3>
               <button
                 type="button"
                 onClick={() => setPickingFor(null)}
-                className="rounded-full p-1 hover:bg-gray-100"
+                className="rounded-full p-2 transition-colors hover:bg-gray-100"
               >
                 <X size={20} className="text-gray-500" />
               </button>
             </div>
 
-            <div className="bg-gray-50 p-4">
+            <div className="border-b border-gray-100 bg-gray-50 p-4">
               <div className="relative">
                 <Search
                   className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400"
-                  size={16}
+                  size={18}
                 />
                 <input
                   type="text"
-                  placeholder="Search staff..."
-                  className="w-full rounded-lg border border-gray-200 py-2 pr-4 pl-9 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  placeholder="Search by name or role..."
+                  className="w-full rounded-xl border border-gray-200 py-2.5 pr-4 pl-10 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
                   value={staffSearch}
                   onChange={(e) => setStaffSearch(e.target.value)}
                   autoFocus
@@ -326,30 +411,32 @@ export default function StaffAssignmentBuilder({
               </div>
             </div>
 
-            <div className="overflow-y-auto p-2">
+            <div className="custom-scrollbar overflow-y-auto p-2">
               {filteredStaff.map((staff) => (
                 <button
                   key={staff.id}
                   type="button"
                   onClick={() => handleAssignStaff(staff.id)}
-                  className="group flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-blue-50"
+                  className="group flex w-full items-center gap-4 rounded-xl p-3 text-left transition-all hover:bg-blue-50 hover:shadow-sm"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 font-bold text-gray-600 group-hover:bg-blue-200 group-hover:text-blue-700">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gray-100 font-bold text-gray-600 transition-colors group-hover:bg-blue-100 group-hover:text-blue-600">
                     {staff.name.charAt(0)}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-gray-900">
+                    <p className="text-sm font-bold text-gray-900 group-hover:text-blue-700">
                       {staff.name}
                     </p>
-                    <p className="text-xs text-gray-500">{staff.role}</p>
+                    <p className="text-xs text-gray-500 group-hover:text-blue-500">
+                      {staff.role}
+                    </p>
                   </div>
                 </button>
               ))}
               {filteredStaff.length === 0 && (
-                <div className="py-8 text-center text-sm text-gray-400">
-                  {staffList.length === 0
-                    ? "No staff data provided"
-                    : "No staff found"}
+                <div className="py-12 text-center">
+                  <p className="text-sm text-gray-400">
+                    No staff found matching "{staffSearch}"
+                  </p>
                 </div>
               )}
             </div>
