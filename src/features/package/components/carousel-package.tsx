@@ -1,6 +1,5 @@
 import { Check, CircleCheck, Package as PackageIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
@@ -12,7 +11,6 @@ import {
 import { cn } from "@/lib/utils";
 import type { PackageType } from "@/types/package";
 
-// Import Component ที่เตรียมไว้
 import { PackageAction } from "./package-action";
 
 interface CarouselPackageProps {
@@ -39,9 +37,7 @@ export default function CarouselPackage({
           align: "start",
           loop: false,
           slidesToScroll: 3,
-          containScroll: false,
           duration: 20,
-          watchDrag: false,
         }}
         className="w-full"
       >
@@ -49,23 +45,22 @@ export default function CarouselPackage({
           {packages.map((pkg) => {
             const id = String(pkg.packageId);
             const isSelected = value === id;
+            const isInteractive = !readOnly && !disabled;
 
             return (
               <CarouselItem key={id} className="basis-1/3 pl-4">
                 <div className="h-full p-1">
                   <Card
-                    onClick={() => !readOnly && !disabled && onChange?.(id)}
+                    onClick={() => isInteractive && onChange?.(id)}
                     className={cn(
                       "flex h-full flex-col transition-all duration-200",
                       isSelected
                         ? "z-10 border-blue-600 bg-blue-50/50 shadow-md ring-2 ring-blue-600"
                         : "border-gray-200",
-                      !readOnly && !disabled
+                      isInteractive
                         ? "cursor-pointer hover:border-blue-300 hover:shadow-md"
                         : "cursor-default",
-                      disabled && !isSelected && "opacity-50 grayscale",
-                      disabled && isSelected && "pointer-events-none",
-                      disabled && "pointer-events-none",
+                      disabled && "pointer-events-none opacity-50 grayscale",
                     )}
                   >
                     <div className="px-6 py-4">
@@ -81,18 +76,16 @@ export default function CarouselPackage({
                           <PackageIcon className="h-6 w-6" />
                         </div>
 
-                        {/* ส่วนขวาบน: Badge และ Action Menu */}
                         <div className="flex items-center gap-2">
                           {isSelected && !readOnly && (
-                            <span className="flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 transition-colors">
-                              {disabled ? "Auto-" : ""}Selected
-                              <CircleCheck size={14} />
+                            <span className="flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                              Selected <CircleCheck size={14} />
                             </span>
                           )}
 
                           <div
                             onClick={(e) => e.stopPropagation()}
-                            className="relative z-20" // เพิ่ม z-index และ stopPropagation เพื่อไม่ให้ trigger การเลือก Card
+                            className="relative z-20"
                           >
                             <PackageAction packages={pkg} />
                           </div>
@@ -119,6 +112,7 @@ export default function CarouselPackage({
                         {pkg.equipmentSets?.length ?? 0} items
                       </span>
                     </div>
+
                     <div className="px-6">
                       <div className="mb-4 flex items-center gap-4">
                         <p className="text-xs font-bold tracking-wider whitespace-nowrap text-gray-400 uppercase">
@@ -127,45 +121,35 @@ export default function CarouselPackage({
                         <div className="h-px flex-1 bg-gray-200" />
                       </div>
                     </div>
+
                     <CardContent className="flex-1 px-6 pt-0 pb-6">
-                      {!pkg.equipmentSets || pkg.equipmentSets.length === 0 ? (
+                      {!pkg.equipmentSets?.length ? (
                         <p className="text-sm text-gray-500">
-                          ยังไม่มีรายการอุปกรณ์
+                          No equipment found.
                         </p>
                       ) : (
                         <ul className="space-y-3">
-                          {pkg.equipmentSets.map((es: any, i: number) => {
-                            // 1. ดึงชื่อจาก es.equipment.equipmentName
-                            const equipmentName =
-                              es.equipmentName || "Unknown Equipment";
-
-                            // 2. ดึง quantity จาก es.quantity โดยตรง ตาม JSON ที่ส่งมา
-                            const quantity = es.quantity || 1;
-
-                            return (
-                              <li
-                                // ใช้ ID ผสมกันเป็น Key เพื่อความ Unique
-                                key={`${pkg.packageId}-${es.equipmentId}-${i}`}
-                                className="flex items-start gap-3"
-                              >
-                                <Check
-                                  className={cn(
-                                    "mt-0.5 h-4 w-4 shrink-0 transition-colors",
-                                    isSelected
-                                      ? "text-blue-600"
-                                      : "text-green-500",
-                                  )}
-                                />
-                                <span className="text-sm leading-tight text-gray-600">
-                                  {/* แสดงจำนวนตัวหนาด้านหน้า */}
-                                  <span className="mr-1 font-bold text-gray-600">
-                                    {quantity}x
-                                  </span>
-                                  {equipmentName}
+                          {pkg.equipmentSets.map((es) => (
+                            <li
+                              key={es.equipmentId}
+                              className="flex items-start gap-3"
+                            >
+                              <Check
+                                className={cn(
+                                  "mt-0.5 h-4 w-4 shrink-0 transition-colors",
+                                  isSelected
+                                    ? "text-blue-600"
+                                    : "text-green-500",
+                                )}
+                              />
+                              <span className="text-sm leading-tight text-gray-600">
+                                <span className="mr-1 font-bold text-gray-600">
+                                  {es.quantity || 1}x
                                 </span>
-                              </li>
-                            );
-                          })}
+                                {es.equipmentName || "Unknown Equipment"}
+                              </span>
+                            </li>
+                          ))}
                         </ul>
                       )}
                     </CardContent>

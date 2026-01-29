@@ -4,8 +4,20 @@ import type { EquipmentType } from "@/types/equipment";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const getEquipment = async (): Promise<EquipmentType[]> => {
-  const res = await fetch(`${API_URL}/api/equipments`);
+const getEquipment = async (params: {
+  isDeleted: boolean | null;
+}): Promise<EquipmentType[]> => {
+  const searchParams = new URLSearchParams();
+
+  if (params.isDeleted !== null) {
+    searchParams.set("isDeleted", params.isDeleted.toString());
+  }
+
+  const query = searchParams.toString();
+
+  const res = await fetch(
+    `${API_URL}/api/equipments${query ? `?${query}` : ""}`,
+  );
 
   if (!res.ok) {
     throw new Error("Failed to fetch equipment");
@@ -14,8 +26,11 @@ const getEquipment = async (): Promise<EquipmentType[]> => {
   return res.json();
 };
 
-export const equipmentQuery = () =>
-  queryOptions({
-    queryKey: ["equipments", "list"],
-    queryFn: () => getEquipment(),
+export const equipmentQuery = (filters?: { isDeleted?: boolean | null }) => {
+  const statusKey = filters?.isDeleted ?? null;
+
+  return queryOptions({
+    queryKey: ["equipments", "list", { isDeleted: statusKey }],
+    queryFn: () => getEquipment({ isDeleted: statusKey }),
   });
+};

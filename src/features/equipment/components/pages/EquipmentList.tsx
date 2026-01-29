@@ -14,13 +14,14 @@ import { Route } from "@/routes/_sidebarLayout/equipment";
 
 import { categoryQuery } from "../../api/getCategory";
 import { equipmentQuery } from "../../api/getEquipment";
-import { equipmentColumns } from "../equipment-column";
+import { equipmentColumns } from "../Equipment-column";
 
 export default function EquipmentList() {
   const navigate = Route.useNavigate();
+  const { isDeleted = null } = Route.useSearch();
 
   const [{ data: equipment }, { data: categories }] = useSuspenseQueries({
-    queries: [equipmentQuery(), categoryQuery()],
+    queries: [equipmentQuery({ isDeleted }), categoryQuery()],
   });
 
   const categoryOptions = useMemo(() => {

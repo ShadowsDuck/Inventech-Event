@@ -39,8 +39,8 @@ function RootLayout() {
         </AppShell>
       </ProgressProvider>
 
-      {/*<TanStackRouterDevtools />*/}
-      {/*<ReactQueryDevtools />*/}
+      <TanStackRouterDevtools />
+      <ReactQueryDevtools />
     </main>
   );
 }

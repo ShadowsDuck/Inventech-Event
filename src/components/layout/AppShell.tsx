@@ -1,4 +1,3 @@
-// src/components/layout/AppShell.tsx
 import type { ReactNode } from "react";
 
 interface AppShellProps {
@@ -19,7 +18,7 @@ export function AppShell({ sidebar, header, children }: AppShellProps) {
           </header>
         )}
 
-        <div className="flex-1 min-h-0">{children}</div>
+        <div className="min-h-0 flex-1">{children}</div>
       </main>
     </div>
   );

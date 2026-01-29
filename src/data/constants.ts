@@ -30,3 +30,7 @@ export const NAV_LINKS = [
   { title: "Equipment", url: "/equipment", icon: Wrench },
   { title: "Package", url: "/package", icon: Package },
 ];
+
+export const EQUIPMENT_STATUS_OPTIONS = ["active", "deleted", "all"] as const;
+
+export type EquipmentStatusType = (typeof EQUIPMENT_STATUS_OPTIONS)[number];
