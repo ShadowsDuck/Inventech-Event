@@ -22,11 +22,11 @@ const getPackage = async (params: {
   return res.json();
 };
 
-export const packageQuery = (filters: {
+export const packageQuery = (filters?: {
   equipmentStatus: EquipmentStatusType;
 }) => {
   return queryOptions({
     queryKey: ["packages", "list", filters],
-    queryFn: () => getPackage(filters),
+    queryFn: () => getPackage(filters || { equipmentStatus: "all" }),
   });
 };

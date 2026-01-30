@@ -12,6 +12,7 @@ import { SelectField } from "./select-field";
 import { SelectField2 } from "./select-field-2";
 import StaffAssignmentBuilder from "./staff-manage-form";
 import { SwitchField } from "./switch-field";
+import { TextAreaField } from "./text-area";
 import { TextField } from "./text-field";
 import { TimeField } from "./time-filed";
 
@@ -34,6 +35,7 @@ export const { useAppForm } = createFormHook({
     PeriodSelectField,
     PackageEventField,
     StaffAssignmentBuilder,
+    TextAreaField,
   },
   formComponents: {},
   fieldContext,

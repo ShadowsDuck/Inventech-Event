@@ -1,56 +1,75 @@
 import { useMemo, useState } from "react";
 
-import { revalidateLogic } from "@tanstack/react-form";
-import { useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
-import { UploadCloud } from "lucide-react";
-import z, { file } from "zod";
+import { revalidateLogic, useStore } from "@tanstack/react-form";
+// 1. ยังคงใช้ useQuery สำหรับ Dynamic Data
+import { useQuery, useSuspenseQueries } from "@tanstack/react-query";
+import { Loader2, UploadCloud } from "lucide-react";
+import z from "zod";
 
 import { useAppForm } from "@/components/form";
 import { EquipmentSelectField } from "@/components/form/equipment-select-field";
-import PackageEventField from "@/components/form/package-event-field";
 import StaffAssignmentBuilder from "@/components/form/staff-manage-form";
 import { CreateFormButton } from "@/components/form/ui/create-form-button";
 import { ResetFormButton } from "@/components/form/ui/reset-form-button";
 import PageHeader from "@/components/layout/PageHeader";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileUpload, FileUploadDropzone } from "@/components/ui/file-upload";
-import { Textarea } from "@/components/ui/textarea";
 import { equipmentQuery } from "@/features/equipment/api/getEquipment";
-import { EquipmentSchema } from "@/features/equipment/components/equipment-form";
 import { packageQuery } from "@/features/package/api/getPackage";
 import { rolesQuery } from "@/features/staff/api/getRoles";
 
 import { companiesQueries } from "../api/getCompany";
+import { equipmentBypackageIdQuery } from "../api/getEquipmentByPackageId";
 
+// --- Schema Definitions ---
 const EquipmentEventSchema = z.object({
-  equipmentId: z.string(),
+  equipmentId: z.number(),
   quantity: z.number().min(1),
 });
 const StaffSchema = z.object({
   role: z.string(),
-  staffIds: z.array(z.string()),
+  staffIds: z.array(z.number()),
 });
 const LocationSchema = z.object({
   latitude: z.number().optional(),
   longitude: z.number().optional(),
 });
+
 const EventSchema = z.object({
   eventName: z
     .string()
     .min(1, "Event name is required")
     .max(255, "Event name must be between 1 and 255 characters"),
-  eventDate: z.date().min(new Date(), "Event date must be in the future"),
+  eventDate: z.iso.date({ error: "Date is required" }),
+
   Company: z.string().min(1, "Please select at least one company"),
-  eventType: z.string(),
+  eventType: z.enum(
+    ["offline", "online", "hybrid"],
+    "Please select an event type",
+  ),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
-  timePeriod: z.string(),
+  timePeriod: z.enum(
+    ["morning", "afternoon"],
+    "Please select an event session.",
+  ),
   package: z.string(),
   file: z.instanceof(File).optional(),
-  equipment: z.array(EquipmentEventSchema),
+  eventExtraEquipment: z.array(EquipmentEventSchema),
   staff: z.array(StaffSchema).optional(),
   outsource: z.array(z.string()).optional(),
   location: z.optional(LocationSchema),
+  note: z.string().optional(),
 });
 
 export type EventData = z.infer<typeof EventSchema>;
@@ -68,7 +87,10 @@ export default function EventForm({
   isPending,
   mode,
 }: EventFormProps) {
-  const [resetKey, setResetKey] = useState(0);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [pendingPackage, setPendingPackage] = useState<string | null>(null);
+  console.log(alertOpen);
+  // 1. Static Data (Load Once)
   const [
     { data: companiesData },
     { data: packagesData },
@@ -95,15 +117,16 @@ export default function EventForm({
       eventName: initialValues?.eventName || "",
       Company: initialValues?.Company || "",
       eventType: initialValues?.eventType || "",
-      eventDate: initialValues?.eventDate || new Date(),
+      eventDate: initialValues?.eventDate || null,
       startTime: initialValues?.startTime || "",
       endTime: initialValues?.endTime || "",
       timePeriod: initialValues?.timePeriod || "",
       package: initialValues?.package || "",
-      equipment: initialValues?.equipment || [],
+      eventExtraEquipment: initialValues?.eventExtraEquipment || [],
       staff: initialValues?.staff || [],
       outsource: initialValues?.outsource || [],
       location: initialValues?.location || {},
+      note: initialValues?.note || "",
     } as EventData,
     validators: {
       onChange: EventSchema,
@@ -117,7 +140,29 @@ export default function EventForm({
     },
   });
 
-  // --- UI Labels ---
+  // A. ใช้ form.useStore ดึงค่า package ปัจจุบันแบบ Real-time
+  const selectedPackageId = useStore(
+    form.store,
+    (state) => state.values.package,
+  );
+
+  // B. ยิง Query เมื่อมี packageId
+  const { data: packageDetail, isLoading: isLoadingPkg } = useQuery({
+    ...equipmentBypackageIdQuery(selectedPackageId),
+    enabled: !!selectedPackageId, // ทำงานเมื่อมี ID เท่านั้น
+  });
+
+  // C. เตรียมข้อมูลสำหรับส่งให้ EquipmentSelectField
+  const packageItems = useMemo(() => {
+    if (!packageDetail?.equipmentSets) return [];
+    return packageDetail.equipmentSets.map((item) => ({
+      equipmentId: item.equipmentId,
+      quantity: item.quantity,
+    }));
+  }, [packageDetail]);
+
+  // -----------------------------------------------------------
+
   const title = mode === "create" ? "Create Event" : "Edit Event";
   const subtitle =
     mode === "create"
@@ -159,6 +204,7 @@ export default function EventForm({
             form.handleSubmit();
           }}
         >
+          {/* ... Basic Info & Schedule Cards (เหมือนเดิม) ... */}
           <Card className="mt-6">
             <CardHeader className="pb-1">
               <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
@@ -170,7 +216,6 @@ export default function EventForm({
             </CardHeader>
             <CardContent>
               <section className="space-y-6">
-                {/*Event Name */}
                 <form.AppField
                   name="eventName"
                   children={(field) => (
@@ -181,7 +226,6 @@ export default function EventForm({
                     />
                   )}
                 />
-                {/*Company */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <form.AppField
                     name="Company"
@@ -197,7 +241,6 @@ export default function EventForm({
                       />
                     )}
                   />
-                  {/*Event type */}
                   <form.AppField
                     name="eventType"
                     children={(field) => (
@@ -208,7 +251,7 @@ export default function EventForm({
               </section>
             </CardContent>
           </Card>
-          {/*Schedule */}
+
           <Card className="mt-6">
             <CardHeader>
               <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
@@ -219,7 +262,6 @@ export default function EventForm({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {/*Start Time & End Time */}
               <section className="w-full space-y-6">
                 <form.AppField
                   name="eventDate"
@@ -241,7 +283,6 @@ export default function EventForm({
                     <field.PeriodSelectField label="Period" />
                   )}
                 />
-                {/* Location*/}
                 <form.AppField
                   name="location"
                   children={(field) => (
@@ -251,7 +292,8 @@ export default function EventForm({
               </section>
             </CardContent>
           </Card>
-          {/*Package */}
+
+          {/* Package Selection */}
           <Card className="mt-6">
             <CardHeader>
               <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
@@ -262,42 +304,107 @@ export default function EventForm({
               </CardTitle>
             </CardHeader>
             <CardContent>
+              {/* ส่วน Form Field */}
               <form.AppField
                 name="package"
                 children={(field) => (
                   <field.PackageEventField
                     packages={packagesData}
                     label="Package"
+                    canEdit={false} // อย่าลืมเปลี่ยนเป็น true ถ้าต้องการให้กดเลือกได้
+                    // --- Logic การทำงานเมื่อมีการคลิกเลือก ---
+                    onChange={(newValue) => {
+                      // ดึงค่า equipment ปัจจุบันมาเช็ค
+                      const currentEquipment = field.form.getFieldValue(
+                        "eventExtraEquipment",
+                      );
+                      const hasEquipment =
+                        currentEquipment && currentEquipment.length > 0;
+
+                      // เงื่อนไข: ถ้าเปลี่ยนค่าเดิม AND มี equipment ค้างอยู่
+                      if (newValue !== field.state.value && hasEquipment) {
+                        setPendingPackage(newValue); // 1. จำค่าใหม่ไว้ก่อน
+                        setAlertOpen(true); // 2. สั่งเปิด popup
+                      } else {
+                        // ถ้าไม่มี equipment หรือกดตัวเดิม -> เปลี่ยนค่าได้เลย
+                        field.handleChange(newValue);
+                      }
+                    }}
                   />
                 )}
               />
+
+              {/* --- ส่วน AlertDialog (ย้ายออกมาอยู่นอก onChange) --- */}
+              <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Change Package?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      If you change the package, the selected equipment will be
+                      cleared. Do you want to proceed?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    {/* ปุ่มยกเลิก: ปิด Dialog และล้างค่าที่จำไว้ */}
+                    <AlertDialogCancel onClick={() => setPendingPackage(null)}>
+                      Cancel
+                    </AlertDialogCancel>
+
+                    {/* ปุ่มยืนยัน: ทำการเปลี่ยนค่าจริง */}
+                    <AlertDialogAction
+                      className="bg-red-600 hover:bg-red-700"
+                      onClick={() => {
+                        if (pendingPackage) {
+                          // 1. เปลี่ยน Package เป็นค่าใหม่ที่จำไว้
+                          form.setFieldValue("package", pendingPackage);
+                          // 2. ล้างค่า Equipment
+                          form.setFieldValue("eventExtraEquipment", []);
+
+                          // 3. Reset State ชั่วคราว
+                          setPendingPackage(null);
+                          setAlertOpen(false);
+                        }
+                      }}
+                    >
+                      Confirm
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </CardContent>
           </Card>
 
-          {/*equipment */}
+          {/* Equipment Selection */}
           <Card className="mt-6">
             <CardHeader>
               <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
                 <div className="flex items-center gap-2">
                   <span className="h-6 w-1 rounded-full bg-blue-600" />
                   Equipment
+                  {isLoadingPkg && (
+                    <span className="ml-2 flex items-center text-xs font-normal text-gray-400">
+                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />{" "}
+                      Updating...
+                    </span>
+                  )}
                 </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <form.AppField
-                name="equipment"
+                name="eventExtraEquipment"
                 children={() => (
                   <EquipmentSelectField
                     label="Select Equipment"
                     equipmentList={equipmentData}
+                    packageItems={packageItems}
                   />
                 )}
               />
             </CardContent>
           </Card>
 
-          {/*Staff Management */}
+          {/* ... Staff, Outsource, Files, Notes (เหมือนเดิม) ... */}
           <Card className="mt-6">
             <CardHeader>
               <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
@@ -319,12 +426,12 @@ export default function EventForm({
               />
             </CardContent>
           </Card>
-          {/*Outsource Management */}
+
           <Card className="mt-6">
             <CardHeader>
               <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
                 <div className="flex items-center gap-2">
-                  <span className="h-6 w-1 rounded-full bg-blue-600" />
+                  <span className="h-6 w-1 rounded-full bg-violet-600" />
                   Outsource Management
                 </div>
               </CardTitle>
@@ -342,7 +449,6 @@ export default function EventForm({
             </CardContent>
           </Card>
 
-          {/*File upload & Note */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <Card className="mt-6">
               <CardHeader>
@@ -375,9 +481,14 @@ export default function EventForm({
                   </div>
                 </CardTitle>
                 <CardContent>
-                  <Textarea
-                    className="mt-6 h-64 w-full rounded-2xl rounded-md border border-gray-300 bg-gray-50 p-2 text-gray-600"
-                    placeholder="Enter note..."
+                  <form.AppField
+                    name="note"
+                    children={(field) => (
+                      <field.TextAreaField
+                        placeholder="Enter your note here"
+                        className="min-h-64 pt-2"
+                      />
+                    )}
                   />
                 </CardContent>
               </CardHeader>

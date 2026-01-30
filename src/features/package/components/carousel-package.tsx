@@ -20,6 +20,7 @@ interface CarouselPackageProps {
   readOnly?: boolean;
   disabled?: boolean;
   className?: string;
+  canEdit?: boolean;
 }
 
 export default function CarouselPackage({
@@ -28,6 +29,7 @@ export default function CarouselPackage({
   onChange,
   readOnly = false,
   disabled = false,
+  canEdit = true,
   className,
 }: CarouselPackageProps) {
   return (
@@ -82,13 +84,14 @@ export default function CarouselPackage({
                               Selected <CircleCheck size={14} />
                             </span>
                           )}
-
-                          <div
-                            onClick={(e) => e.stopPropagation()}
-                            className="relative z-20"
-                          >
-                            <PackageAction packages={pkg} />
-                          </div>
+                          {canEdit && (
+                            <div
+                              onClick={(e) => e.stopPropagation()}
+                              className="relative z-20"
+                            >
+                              <PackageAction packages={pkg} />
+                            </div>
+                          )}
                         </div>
                       </div>
 
