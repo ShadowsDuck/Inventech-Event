@@ -9,21 +9,24 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { unknown } from "zod";
 
+import SearchBar from "../SearchBar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+// เพิ่ม TabsContent เข้ามา
+import { Tabs, TabsContent, TabsList, TabsTab } from "../ui/tabs";
 
 // --- 1. Type Definitions ---
 export interface Staff {
-  id: string;
-  name: string;
-  role: string;
+  staffId: string;
+  fullName: string;
+  role: string[];
   avatar?: string;
+  // status?: 'available' | 'working' | 'unavailable'; // (Optional) สำหรับใช้กรองในอนาคต
 }
 
 export interface RoleAssignment {
-  id: string;
-  role: string;
+  roleId: string;
+  roleName: string;
   slots: (string | null)[];
 }
 
@@ -32,6 +35,7 @@ interface StaffAssignmentBuilderProps {
   staffList?: Staff[];
   initialData?: RoleAssignment[];
   onChange?: (data: any[]) => void;
+  ignoreRoleValidation?: boolean; //ใช้ตรวจ role ว่ามีหรือไม่มี
 }
 
 // --- 2. Sub-Component: Control Bar (ส่วนเลือก Role ด้านบน) ---
@@ -53,7 +57,6 @@ const ControlBar = ({
 
     onAdd(selectedRole, count);
     setIsRoleOpen(false);
-    // ไม่ Reset ค่าตามที่ขอ
   };
 
   return (
@@ -145,16 +148,43 @@ const AssignmentCard = ({
   onUpdateCount,
   onRemove,
   onClearSlot,
+  onAssign, // รับ prop ฟังก์ชันสำหรับเลือกคน
+  ignoreRoleValidation, // <--- รับมาตรงนี้
 }: {
   assignment: RoleAssignment;
   staffList: Staff[];
   onUpdateCount: (delta: number) => void;
   onRemove: () => void;
   onClearSlot: (index: number) => void;
+  onAssign: (index: number, staffId: string) => void;
+  ignoreRoleValidation: boolean; // <--- เพิ่ม Type
 }) => {
   const filledCount = assignment.slots.filter((s) => s !== null).length;
   const isComplete =
     filledCount === assignment.slots.length && assignment.slots.length > 0;
+
+  const [search, setSearch] = useState("");
+
+  // Helper function สำหรับกรอง Staff ตาม Tab และ Search
+  const getFilteredStaff = (
+    status: "available" | "working" | "unavailable",
+  ) => {
+    return staffList.filter((staff) => {
+      const matchesSearch = staff.fullName
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      if (!matchesSearch) return false;
+      if (!staff.roles.includes(assignment.roleName)) {
+        return false;
+      }
+      // 2. Filter by Status (Mock Logic)
+      if (status === "available") return true; // ตอนนี้ให้ทุกคนอยู่ Available หมด
+      if (status === "working") return false;
+      if (status === "unavailable") return false;
+
+      return false;
+    });
+  };
 
   return (
     <div
@@ -165,7 +195,9 @@ const AssignmentCard = ({
       {/* Header Row */}
       <div className="mb-6 flex items-center justify-between border-b border-gray-50 pb-4">
         <div className="flex items-center gap-4">
-          <h3 className="text-xl font-bold text-gray-800">{assignment.role}</h3>
+          <h3 className="text-xl font-bold text-gray-800">
+            {assignment.roleName}
+          </h3>
 
           {/* Counter Controls */}
           <div className="flex h-8 items-center rounded-lg border border-gray-200 bg-gray-50">
@@ -217,23 +249,23 @@ const AssignmentCard = ({
       {/* Slots List  */}
       <div className="space-y-2">
         {assignment.slots.map((staffId, index) => {
-          const staff = staffList.find((s) => s.id === staffId);
+          const staff = staffList.find((s) => s.staffId === staffId);
 
           return (
             <div key={index} className="relative">
               {staff ? (
-                // === Filled Slot (คงเดิม) ===
+                // === Filled Slot ===
                 <div className="flex items-center justify-between rounded-xl border border-green-200 bg-green-50/50 p-3 transition-all hover:shadow-sm">
                   <div className="flex items-center gap-4">
                     <span className="rounded bg-white/80 px-2 py-1 text-xs font-bold text-green-300">
                       #{index + 1}
                     </span>
                     <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-green-200 text-xs font-bold text-green-700 shadow-sm">
-                      {staff.name.charAt(0)}
+                      {staff.fullName.charAt(0)}
                     </div>
                     <div>
                       <p className="text-sm font-bold text-gray-800">
-                        {staff.name}
+                        {staff.fullName}
                       </p>
                       <p className="text-xs font-medium text-green-600">
                         {staff.role}
@@ -249,23 +281,21 @@ const AssignmentCard = ({
                   </button>
                 </div>
               ) : (
-                // === Empty Slot เปลี่ยนเป็น Popover ===
+                // === Empty Slot และ Popover ===
                 <Popover>
-                  <PopoverTrigger>
-                    <button
-                      type="button"
-                      className="group flex w-md max-w-md cursor-pointer items-center gap-4 overflow-hidden rounded-xl border border-dashed border-blue-300 bg-blue-50/30 p-3 text-left transition-all hover:border-blue-400 hover:bg-blue-50 hover:shadow-sm"
-                    >
-                      <span className="rounded bg-white/50 px-2 py-1 text-xs font-bold text-blue-300 transition-colors group-hover:text-blue-500">
-                        #{index + 1}
-                      </span>
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-500 transition-transform group-hover:scale-110">
-                        <Plus size={16} />
-                      </div>
-                      <span className="text-sm font-medium text-blue-700 italic">
-                        Select from panel...
-                      </span>
-                    </button>
+                  <PopoverTrigger
+                    type="button"
+                    className="group flex w-full cursor-pointer items-center gap-4 overflow-hidden rounded-xl border border-dashed border-amber-300 bg-amber-50/30 p-2 text-left transition-all hover:border-amber-400 hover:bg-amber-50 hover:shadow-sm sm:p-3"
+                  >
+                    <span className="rounded bg-white/50 px-2 py-1 text-xs font-bold text-amber-300 transition-colors group-hover:text-amber-500">
+                      #{index + 1}
+                    </span>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-500 transition-transform group-hover:scale-110">
+                      <Plus size={16} />
+                    </div>
+                    <span className="text-sm font-medium text-amber-700 italic">
+                      Select from panel...
+                    </span>
                   </PopoverTrigger>
 
                   <PopoverContent
@@ -274,29 +304,121 @@ const AssignmentCard = ({
                     sideOffset={12}
                     className="animate-in fade-in zoom-in-95 z-50 w-md overflow-hidden rounded-2xl border border-gray-100 bg-white p-0 shadow-2xl duration-200"
                   >
-                    {/* --- พื้นที่สำหรับคุณ Custom UI ภายในกล่อง --- */}
-                    <div className="flex flex-col">
-                      <div className="border-b border-gray-50 p-4">
-                        <h4 className="font-bold text-gray-900">
-                          Available Team
-                        </h4>
-                        <p className="text-[10px] font-medium text-blue-500">
-                          Filtering: {assignment.role}
-                        </p>
+                    <Tabs
+                      defaultValue="available"
+                      className="flex h-full w-full flex-col bg-white"
+                    >
+                      {/* Header Section */}
+                      <div className="flex flex-col border-b border-gray-50 bg-white">
+                        <div className="p-4 pb-2">
+                          <h4 className="font-bold text-gray-900">
+                            Available Team
+                          </h4>
+                          <p className="text-[10px] font-medium text-blue-500">
+                            Filtering: {assignment.roleName}
+                          </p>
+                        </div>
+
+                        <div className="px-2">
+                          <TabsList className="mb-2 w-full justify-start bg-transparent p-0">
+                            <TabsTab
+                              value="available"
+                              className="rounded-none bg-transparent px-4 pb-2 text-sm text-gray-500 shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:text-blue-600"
+                            >
+                              Available
+                            </TabsTab>
+                            <TabsTab
+                              value="working"
+                              className="rounded-none bg-transparent px-4 pb-2 text-sm text-gray-500 shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:text-blue-600"
+                            >
+                              Working Today
+                            </TabsTab>
+                            <TabsTab
+                              value="unavailable"
+                              className="rounded-none bg-transparent px-4 pb-2 text-sm text-gray-500 shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:text-blue-600"
+                            >
+                              Unavailable
+                            </TabsTab>
+                          </TabsList>
+                          <div className="px-2 pb-2">
+                            <SearchBar
+                              value={search}
+                              onChange={(value) => setSearch(value)}
+                              placeholder="Search staff..."
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="flex items-center justify-center bg-gray-50/50 py-12">
-                        <p className="text-xs text-gray-400">
-                          Custom selection UI goes here
-                        </p>
+                      {/* Content Section (List) */}
+                      <div className="max-h-[300px] min-h-[300px] flex-1 overflow-y-auto bg-gray-50/50 p-2">
+                        {/* Tab 1: Available */}
+                        <TabsContent
+                          value="available"
+                          className="mt-0 space-y-2 outline-none"
+                        >
+                          {getFilteredStaff("available").length > 0 ? (
+                            getFilteredStaff("available").map((s) => (
+                              <div
+                                key={s.staffId}
+                                onClick={() => onAssign(index, s.staffId)}
+                                className="group/item flex cursor-pointer items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-sm transition-all hover:border-blue-400"
+                              >
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 transition-colors group-hover/item:bg-blue-600 group-hover/item:text-white">
+                                  {s.fullName.charAt(0)}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold text-gray-800">
+                                    {s.fullName}
+                                  </p>
+                                  <p className="text-[10px] text-gray-500">
+                                    {s.role}
+                                  </p>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="py-12 text-center text-xs text-gray-400">
+                              No staff found
+                            </div>
+                          )}
+                        </TabsContent>
+
+                        {/* Tab 2: Working */}
+                        <TabsContent
+                          value="working"
+                          className="mt-0 space-y-2 outline-none"
+                        >
+                          {getFilteredStaff("working").length > 0 ? (
+                            getFilteredStaff("working").map((s) => (
+                              <div key={s.staffId}>{s.fullName}</div>
+                            ))
+                          ) : (
+                            <div className="py-12 text-center text-xs text-gray-400">
+                              No one is working elsewhere
+                            </div>
+                          )}
+                        </TabsContent>
+
+                        {/* Tab 3: Unavailable */}
+                        <TabsContent
+                          value="unavailable"
+                          className="mt-0 space-y-2 outline-none"
+                        >
+                          <div className="py-12 text-center text-xs text-gray-400">
+                            Everyone is available
+                          </div>
+                        </TabsContent>
                       </div>
 
-                      <div className="bg-blue-50/50 p-2 text-center">
+                      {/* Footer */}
+                      <div className="border-t border-blue-100 bg-blue-50/50 p-2 text-center">
                         <span className="text-[10px] font-medium text-blue-400">
-                          Drag and drop to any empty slot
+                          Click to assign to Slot #{index + 1}
                         </span>
                       </div>
-                    </div>
+                    </Tabs>
                   </PopoverContent>
                 </Popover>
               )}
@@ -314,11 +436,11 @@ export default function StaffAssignmentBuilder({
   staffList = [],
   initialData = [],
   onChange,
+  ignoreRoleValidation = false, // <--- รับค่ามา Default เป็น false คือเช็ค Role ตามปกติ
 }: StaffAssignmentBuilderProps) {
   // --- State ---
   const [assignments, setAssignments] = useState<RoleAssignment[]>(initialData);
 
-  // --- FIX Infinite Loop ---
   const onChangeRef = useRef(onChange);
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -326,7 +448,7 @@ export default function StaffAssignmentBuilder({
 
   useEffect(() => {
     const payload = assignments.map((a) => ({
-      role: a.role,
+      role: a.roleName,
       assignedStaffIds: a.slots.filter((s) => s !== null),
     }));
     if (onChangeRef.current) onChangeRef.current(payload);
@@ -335,7 +457,7 @@ export default function StaffAssignmentBuilder({
   // --- Handlers ---
 
   const handleAddAssignment = (role: string, count: number) => {
-    const existingIndex = assignments.findIndex((a) => a.role === role);
+    const existingIndex = assignments.findIndex((a) => a.roleName === role);
     if (existingIndex >= 0) {
       const updated = [...assignments];
       updated[existingIndex].slots = [
@@ -345,20 +467,20 @@ export default function StaffAssignmentBuilder({
       setAssignments(updated);
     } else {
       const newAssignment: RoleAssignment = {
-        id: Date.now().toString(),
-        role: role,
+        roleId: Date.now().toString(),
+        roleName: role,
         slots: Array(count).fill(null),
       };
       setAssignments([...assignments, newAssignment]);
     }
   };
 
-  const handleUpdateSlotCount = (assignId: string, delta: number) => {
+  const handleUpdateSlotCount = (assignId: string, slotnum: number) => {
     setAssignments((prev) =>
       prev.map((a) => {
-        if (a.id === assignId) {
+        if (a.roleId === assignId) {
           const currentSlots = [...a.slots];
-          if (delta > 0) {
+          if (slotnum > 0) {
             return { ...a, slots: [...currentSlots, null] };
           } else {
             if (currentSlots.length <= 0) return a;
@@ -377,15 +499,33 @@ export default function StaffAssignmentBuilder({
   };
 
   const handleRemoveAssignment = (id: string) => {
-    setAssignments((prev) => prev.filter((a) => a.id !== id));
+    setAssignments((prev) => prev.filter((a) => a.roleId !== id));
   };
 
   const handleClearSlot = (assignId: string, slotIndex: number) => {
     setAssignments((prev) =>
       prev.map((assign) => {
-        if (assign.id === assignId) {
+        if (assign.roleId === assignId) {
           const newSlots = [...assign.slots];
           newSlots[slotIndex] = null;
+          return { ...assign, slots: newSlots };
+        }
+        return assign;
+      }),
+    );
+  };
+
+  // สำหรับจัดการเมื่อเลือกคนจาก Popover
+  const handleAssignSlot = (
+    assignId: string,
+    slotIndex: number,
+    staffId: string,
+  ) => {
+    setAssignments((prev) =>
+      prev.map((assign) => {
+        if (assign.roleId === assignId) {
+          const newSlots = [...assign.slots];
+          newSlots[slotIndex] = staffId; // แทนที่ null ด้วย id ของพนักงาน
           return { ...assign, slots: newSlots };
         }
         return assign;
@@ -402,12 +542,21 @@ export default function StaffAssignmentBuilder({
       <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2">
         {assignments.map((assign) => (
           <AssignmentCard
-            key={assign.id}
+            key={assign.roleId}
             assignment={assign}
             staffList={staffList}
-            onUpdateCount={(delta) => handleUpdateSlotCount(assign.id, delta)}
-            onRemove={() => handleRemoveAssignment(assign.id)}
-            onClearSlot={(slotIndex) => handleClearSlot(assign.id, slotIndex)}
+            onUpdateCount={(delta) =>
+              handleUpdateSlotCount(assign.roleId, delta)
+            }
+            onRemove={() => handleRemoveAssignment(assign.roleId)}
+            onClearSlot={(slotIndex) =>
+              handleClearSlot(assign.roleId, slotIndex)
+            }
+            // ส่ง Function ลงไป
+            onAssign={(slotIndex, staffId) =>
+              handleAssignSlot(assign.roleId, slotIndex, staffId)
+            }
+            ignoreRoleValidation={ignoreRoleValidation}
           />
         ))}
 

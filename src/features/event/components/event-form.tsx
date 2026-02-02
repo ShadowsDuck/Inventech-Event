@@ -55,7 +55,7 @@ const EventSchema = z.object({
     .string()
     .min(1, "Event name is required")
     .max(255, "Event name must be between 1 and 255 characters"),
-  eventDate: z.iso.date({ error: "Date is required" }),
+  eventDate: z.date({ error: "Date is required" }),
 
   Company: z.string().min(1, "Please select at least one company"),
   eventType: z.enum(
@@ -120,20 +120,6 @@ export default function EventForm({
       label: company.companyName,
     }));
   }, [companiesData]);
-
-  const staffOptions = useMemo(() => {
-    return staffData?.map((staff) => ({
-      value: staff.staffId.toString(),
-      label: staff.fullName,
-    }));
-  }, [staffData]);
-
-  const outsourcesOptions = useMemo(() => {
-    return outsourceData?.map((outsource) => ({
-      value: outsource.outsourceId.toString(),
-      label: outsource.fullName,
-    }));
-  }, [outsourceData]);
 
   const form = useAppForm({
     defaultValues: {
@@ -442,6 +428,17 @@ export default function EventForm({
                 name="staff"
                 children={(field) => (
                   <StaffAssignmentBuilder
+                    // Map ข้อมูลให้ตรงกับ Interface ของ StaffAssignmentBuilder
+                    staffList={
+                      staffData?.map((s) => ({
+                        staffId: String(s.staffId),
+                        fullName: s.fullName,
+                        roles: s.staffRoles
+                          ? s.staffRoles.map((r) => r.roleName)
+                          : [],
+                        avatar: s.avatar || "",
+                      })) || []
+                    }
                     availableRoles={roleData?.map((r) => r.roleName) || []}
                     onChange={(data) => field.handleChange(data)}
                   />
@@ -464,8 +461,10 @@ export default function EventForm({
                 name="outsource"
                 children={(field) => (
                   <StaffAssignmentBuilder
+                    staffList={outsourceData || []}
                     availableRoles={roleData?.map((r) => r.roleName) || []}
                     onChange={(data) => field.handleChange(data)}
+                    ignoreRoleValidation={true} // <--- ใส่ตรงนี้ เพื่อบอกว่า "แสดงรายชื่อ Outsource ทุกคนมาเลย"
                   />
                 )}
               />
