@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { unknown } from "zod";
 
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+
 // --- 1. Type Definitions ---
 export interface Staff {
   id: string;
@@ -220,7 +222,7 @@ const AssignmentCard = ({
           return (
             <div key={index} className="relative">
               {staff ? (
-                // === Filled Slot ===
+                // === Filled Slot (คงเดิม) ===
                 <div className="flex items-center justify-between rounded-xl border border-green-200 bg-green-50/50 p-3 transition-all hover:shadow-sm">
                   <div className="flex items-center gap-4">
                     <span className="rounded bg-white/80 px-2 py-1 text-xs font-bold text-green-300">
@@ -247,18 +249,56 @@ const AssignmentCard = ({
                   </button>
                 </div>
               ) : (
-                // === Empty Slot ===
-                <div className="group flex w-full cursor-default items-center gap-4 rounded-xl border border-dashed border-amber-300 bg-amber-50/50 p-3 text-left transition-all hover:border-amber-400 hover:bg-amber-50 hover:shadow-sm">
-                  <span className="rounded bg-white/50 px-2 py-1 text-xs font-bold text-amber-300 transition-colors group-hover:text-amber-500">
-                    #{index + 1}
-                  </span>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-500 transition-transform group-hover:scale-110">
-                    <Plus size={16} />
-                  </div>
-                  <span className="text-sm font-medium text-amber-700 italic group-hover:text-amber-800">
-                    Position Empty
-                  </span>
-                </div>
+                // === Empty Slot เปลี่ยนเป็น Popover ===
+                <Popover>
+                  <PopoverTrigger>
+                    <button
+                      type="button"
+                      className="group flex w-md max-w-md cursor-pointer items-center gap-4 overflow-hidden rounded-xl border border-dashed border-blue-300 bg-blue-50/30 p-3 text-left transition-all hover:border-blue-400 hover:bg-blue-50 hover:shadow-sm"
+                    >
+                      <span className="rounded bg-white/50 px-2 py-1 text-xs font-bold text-blue-300 transition-colors group-hover:text-blue-500">
+                        #{index + 1}
+                      </span>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-500 transition-transform group-hover:scale-110">
+                        <Plus size={16} />
+                      </div>
+                      <span className="text-sm font-medium text-blue-700 italic">
+                        Select from panel...
+                      </span>
+                    </button>
+                  </PopoverTrigger>
+
+                  <PopoverContent
+                    side="right"
+                    align="start"
+                    sideOffset={12}
+                    className="animate-in fade-in zoom-in-95 z-50 w-md overflow-hidden rounded-2xl border border-gray-100 bg-white p-0 shadow-2xl duration-200"
+                  >
+                    {/* --- พื้นที่สำหรับคุณ Custom UI ภายในกล่อง --- */}
+                    <div className="flex flex-col">
+                      <div className="border-b border-gray-50 p-4">
+                        <h4 className="font-bold text-gray-900">
+                          Available Team
+                        </h4>
+                        <p className="text-[10px] font-medium text-blue-500">
+                          Filtering: {assignment.role}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-center bg-gray-50/50 py-12">
+                        <p className="text-xs text-gray-400">
+                          Custom selection UI goes here
+                        </p>
+                      </div>
+
+                      <div className="bg-blue-50/50 p-2 text-center">
+                        <span className="text-[10px] font-medium text-blue-400">
+                          Drag and drop to any empty slot
+                        </span>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               )}
             </div>
           );

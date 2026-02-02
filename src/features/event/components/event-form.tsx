@@ -25,8 +25,10 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileUpload, FileUploadDropzone } from "@/components/ui/file-upload";
 import { equipmentQuery } from "@/features/equipment/api/getEquipment";
+import { outsourcesQuery } from "@/features/outsource/api/getOutsource";
 import { packageQuery } from "@/features/package/api/getPackage";
 import { rolesQuery } from "@/features/staff/api/getRoles";
+import { staffQuery } from "@/features/staff/api/getStaff";
 
 import { companiesQueries } from "../api/getCompany";
 import { equipmentBypackageIdQuery } from "../api/getEquipmentByPackageId";
@@ -38,7 +40,10 @@ const EquipmentEventSchema = z.object({
 });
 const StaffSchema = z.object({
   role: z.string(),
-  staffIds: z.array(z.number()),
+  staffId: z.array(z.number()),
+});
+const OutsourcedSchema = z.object({
+  outsourcedId: z.array(z.number()),
 });
 const LocationSchema = z.object({
   latitude: z.number().optional(),
@@ -67,7 +72,7 @@ const EventSchema = z.object({
   file: z.instanceof(File).optional(),
   eventExtraEquipment: z.array(EquipmentEventSchema),
   staff: z.array(StaffSchema).optional(),
-  outsource: z.array(z.string()).optional(),
+  outsource: z.array(OutsourcedSchema).optional(),
   location: z.optional(LocationSchema),
   note: z.string().optional(),
 });
@@ -96,12 +101,16 @@ export default function EventForm({
     { data: packagesData },
     { data: equipmentData },
     { data: roleData },
+    { data: staffData },
+    { data: outsourceData },
   ] = useSuspenseQueries({
     queries: [
       companiesQueries(),
       packageQuery(),
       equipmentQuery(),
       rolesQuery(),
+      staffQuery(),
+      outsourcesQuery(),
     ],
   });
 
@@ -111,6 +120,20 @@ export default function EventForm({
       label: company.companyName,
     }));
   }, [companiesData]);
+
+  const staffOptions = useMemo(() => {
+    return staffData?.map((staff) => ({
+      value: staff.staffId.toString(),
+      label: staff.fullName,
+    }));
+  }, [staffData]);
+
+  const outsourcesOptions = useMemo(() => {
+    return outsourceData?.map((outsource) => ({
+      value: outsource.outsourceId.toString(),
+      label: outsource.fullName,
+    }));
+  }, [outsourceData]);
 
   const form = useAppForm({
     defaultValues: {
