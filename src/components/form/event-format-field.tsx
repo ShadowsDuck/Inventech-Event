@@ -6,18 +6,26 @@ import { useFieldContext } from ".";
 import { Label } from "../ui/label";
 import { FieldErrors } from "./field-error";
 
+// 1. เพิ่ม onChange เข้าไปใน Props
 type EventFormatFieldProps = {
   label?: string;
+  onChange?: (value: number) => void;
 };
 
+// 2. เปลี่ยน Value ให้เป็น Number ตามที่ Backend/Schema ต้องการ
+// ** เช็ค ID กับ Backend ดีๆ **
 const FORMAT_OPTIONS = [
-  { value: "offline", label: "Offline", icon: Building2 },
-  { value: "hybrid", label: "Hybrid", icon: Monitor },
-  { value: "online", label: "Online", icon: Wifi },
+  { value: 1, label: "Offline", icon: Building2 },
+  { value: 3, label: "Hybrid", icon: Monitor },
+  { value: 2, label: "Online", icon: Wifi },
 ] as const;
 
-export const EventFormatField = ({ label }: EventFormatFieldProps) => {
-  const field = useFieldContext<string>();
+export const EventFormatField = ({
+  label,
+  onChange,
+}: EventFormatFieldProps) => {
+  // 3. เปลี่ยน Context ให้รับเป็น number
+  const field = useFieldContext<number>();
 
   const isSubmitted = field.form.state.isSubmitted;
   const hasError =
@@ -41,6 +49,7 @@ export const EventFormatField = ({ label }: EventFormatFieldProps) => {
         )}
       >
         {FORMAT_OPTIONS.map((option) => {
+          // เช็คว่า selected หรือไม่ (เทียบ number กับ number)
           const isSelected = field.state.value === option.value;
           const Icon = option.icon;
 
@@ -48,7 +57,14 @@ export const EventFormatField = ({ label }: EventFormatFieldProps) => {
             <button
               key={option.value}
               type="button"
-              onClick={() => field.handleChange(option.value)}
+              // 4. Logic คลิก: ถ้ามี onChange จาก Parent ให้ใช้ อันนั้นก่อน
+              onClick={() => {
+                if (onChange) {
+                  onChange(option.value);
+                } else {
+                  field.handleChange(option.value);
+                }
+              }}
               className={cn(
                 "flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ease-in-out",
                 isSelected

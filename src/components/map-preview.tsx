@@ -9,6 +9,7 @@ import markerIconPng from "../assets/marker-icon.png";
 interface MapPreviewProps {
   position?: LatLngTuple | null;
   popUp?: string;
+  className?: string;
 }
 
 const customIcon = new Icon({

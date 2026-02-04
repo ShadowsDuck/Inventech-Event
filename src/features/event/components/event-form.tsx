@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
 
-import { revalidateLogic, useStore } from "@tanstack/react-form";
-// 1. ยังคงใช้ useQuery สำหรับ Dynamic Data
+import { useStore } from "@tanstack/react-form";
 import { useQuery, useSuspenseQueries } from "@tanstack/react-query";
-import { Loader2, UploadCloud } from "lucide-react";
-import z from "zod";
+import { Loader2, Trash2, UploadCloud } from "lucide-react";
+import { z } from "zod";
 
 import { useAppForm } from "@/components/form";
 import { EquipmentSelectField } from "@/components/form/equipment-select-field";
@@ -23,7 +22,15 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileUpload, FileUploadDropzone } from "@/components/ui/file-upload";
+import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+} from "@/components/ui/file-upload";
 import { equipmentQuery } from "@/features/equipment/api/getEquipment";
 import { outsourcesQuery } from "@/features/outsource/api/getOutsource";
 import { packageQuery } from "@/features/package/api/getPackage";
@@ -33,48 +40,54 @@ import { staffQuery } from "@/features/staff/api/getStaff";
 import { companiesQueries } from "../api/getCompany";
 import { equipmentBypackageIdQuery } from "../api/getEquipmentByPackageId";
 
-// --- Schema Definitions ---
+// --- Sub-Schemas ---
+
 const EquipmentEventSchema = z.object({
   equipmentId: z.number(),
   quantity: z.number().min(1),
 });
-const StaffSchema = z.object({
-  role: z.string(),
-  staffId: z.array(z.number()),
-});
+
 const OutsourcedSchema = z.object({
-  outsourcedId: z.array(z.number()),
+  outsourceId: z.number(),
+  roleId: z.number().min(1, "Role is required"),
 });
+
 const LocationSchema = z.object({
   latitude: z.number().optional(),
   longitude: z.number().optional(),
 });
 
-const EventSchema = z.object({
-  eventName: z
-    .string()
-    .min(1, "Event name is required")
-    .max(255, "Event name must be between 1 and 255 characters"),
-  eventDate: z.date({ error: "Date is required" }),
+// --- Main Event Schema ---
 
-  Company: z.string().min(1, "Please select at least one company"),
-  eventType: z.enum(
-    ["offline", "online", "hybrid"],
-    "Please select an event type",
-  ),
+export const EventSchema = z.object({
+  eventName: z.string().min(1, "Event name is required").max(255),
+  note: z.string().optional(),
+
+  // 1. แก้ไข: ใช้ z.number() แทน coerce เพื่อ Type Safety กับ Form State
+  companyId: z.number().min(1, "Please select a company"),
+  packageId: z.number().optional().nullable(),
+  eventType: z.number().min(1, "Please select an event type"),
+
+  eventDate: z
+    .union([z.date(), z.string()])
+    // ใช้ refine เพื่อเช็คว่าต้อง "มีค่า" (ไม่เป็น null, undefined, หรือ string ว่าง)
+    .optional()
+    .refine((val) => !!val, { message: "Event date is required" }),
+  registrationTime: z.string().optional(),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
-  timePeriod: z.enum(
-    ["morning", "afternoon"],
-    "Please select an event session.",
-  ),
-  package: z.string(),
-  file: z.instanceof(File).optional(),
-  eventExtraEquipment: z.array(EquipmentEventSchema),
-  staff: z.array(StaffSchema).optional(),
-  outsource: z.array(OutsourcedSchema).optional(),
-  location: z.optional(LocationSchema),
-  note: z.string().optional(),
+  timePeriod: z.union([z.string(), z.number()]),
+  location: LocationSchema.optional(),
+
+  // --- API Fields (ส่งไป Backend) ---
+  staffIds: z.array(z.number()),
+  eventExtraEquipments: z.array(EquipmentEventSchema),
+  eventOutsources: z.array(OutsourcedSchema),
+
+  file: z.array(z.instanceof(File)),
+  // --- UI Fields ---
+  staff: z.array(z.any()),
+  outsource: z.array(z.any()),
 });
 
 export type EventData = z.infer<typeof EventSchema>;
@@ -94,8 +107,8 @@ export default function EventForm({
 }: EventFormProps) {
   const [alertOpen, setAlertOpen] = useState(false);
   const [pendingPackage, setPendingPackage] = useState<string | null>(null);
-  console.log(alertOpen);
-  // 1. Static Data (Load Once)
+
+  // 1. Load Data
   const [
     { data: companiesData },
     { data: packagesData },
@@ -113,6 +126,7 @@ export default function EventForm({
       outsourcesQuery(),
     ],
   });
+  console.log(staffData);
 
   const companiesOptions = useMemo(() => {
     return companiesData?.map((company) => ({
@@ -124,44 +138,119 @@ export default function EventForm({
   const form = useAppForm({
     defaultValues: {
       eventName: initialValues?.eventName || "",
-      Company: initialValues?.Company || "",
-      eventType: initialValues?.eventType || "",
-      eventDate: initialValues?.eventDate || null,
+
+      // Default Values ต้องเป็น Number
+      companyId: initialValues?.companyId || 0,
+      eventType: initialValues?.eventType || 0,
+      packageId: initialValues?.packageId || 0,
+
+      eventDate: initialValues?.eventDate || undefined,
+      registrationTime: initialValues?.registrationTime || "",
       startTime: initialValues?.startTime || "",
       endTime: initialValues?.endTime || "",
       timePeriod: initialValues?.timePeriod || "",
-      package: initialValues?.package || "",
-      eventExtraEquipment: initialValues?.eventExtraEquipment || [],
-      staff: initialValues?.staff || [],
-      outsource: initialValues?.outsource || [],
+
       location: initialValues?.location || {},
       note: initialValues?.note || "",
+      file: initialValues?.file || [],
+      // UI Fields
+      staff: initialValues?.staff || [],
+      outsource: initialValues?.outsource || [],
+
+      // API Fields (ต้องมีให้ครบตาม Schema)
+      staffIds: initialValues?.staffIds || [],
+      eventOutsources: initialValues?.eventOutsources || [],
+      eventExtraEquipments: initialValues?.eventExtraEquipments || [],
     } as EventData,
+
     validators: {
       onChange: EventSchema,
     },
-    validationLogic: revalidateLogic({
-      mode: "submit",
-      modeAfterSubmission: "blur",
-    }),
+
     onSubmit: async ({ value }) => {
-      onSubmit(value);
+      const formData = new FormData();
+
+      const dateMapping = new Date(value.eventDate || new Date());
+      const formattedDate = dateMapping.toISOString().split("T")[0];
+
+      const periodMapping: Record<string, string> = {
+        morning: "0",
+        afternoon: "1",
+      };
+      const periodValue =
+        periodMapping[value.timePeriod.toString()] ||
+        value.timePeriod.toString();
+      // --- 1. Basic Fields ---
+      formData.append("EventName", value.eventName);
+      formData.append("EventType", value.eventType.toString());
+      formData.append("CompanyId", value.companyId.toString());
+      formData.append("PackageId", (value.packageId || 0).toString());
+      formData.append("MeetingDate", formattedDate);
+      formData.append("RegistrationTime", value.registrationTime || "");
+      formData.append("StartTime", value.startTime);
+      formData.append("EndTime", value.endTime);
+
+      formData.append("Period", periodValue);
+      formData.append("Note", value.note || "");
+
+      // --- 2. Location ---
+      if (value.location) {
+        formData.append("Latitude", value.location.latitude?.toString() || "0");
+        formData.append(
+          "Longitude",
+          value.location.longitude?.toString() || "0",
+        );
+      }
+
+      // --- 3. Arrays & Transformations ---
+
+      //  Equipment
+      formData.append(
+        "EventExtraEquipments",
+        JSON.stringify(value.eventExtraEquipments),
+      );
+
+      //Outsource (Dynamic Role Mapping)
+      const formattedOutsource = value.outsource.map((item) => {
+        const matchedRole = roleData?.find((r) => r.roleName === item.roleName);
+        const realRoleId = matchedRole ? matchedRole.roleId : 0;
+        return {
+          outsourceId: Number(item.staffId),
+          roleId: realRoleId,
+        };
+      });
+      formData.append("EventOutsources", JSON.stringify(formattedOutsource));
+
+      //Staff (UI Object[] -> API StaffIds)
+      if (value.staff && value.staff.length > 0) {
+        value.staff.forEach((s) => {
+          formData.append("StaffIds", s.staffId.toString());
+        });
+      }
+
+      // --- 4. File ---
+      if (value.file && value.file.length > 0) {
+        value.file.forEach((f) => {
+          // ใช้ชื่อ key เดียวกัน (Backend จะรับเป็น List)
+          formData.append("AttachmentFiles", f);
+        });
+      }
+
+      onSubmit(formData as any);
     },
   });
 
-  // A. ใช้ form.useStore ดึงค่า package ปัจจุบันแบบ Real-time
+  // --- Real-time Package Logic ---
   const selectedPackageId = useStore(
     form.store,
-    (state) => state.values.package,
+    (state) => state.values.packageId,
   );
 
-  // B. ยิง Query เมื่อมี packageId
   const { data: packageDetail, isLoading: isLoadingPkg } = useQuery({
-    ...equipmentBypackageIdQuery(selectedPackageId),
-    enabled: !!selectedPackageId, // ทำงานเมื่อมี ID เท่านั้น
+    ...equipmentBypackageIdQuery(selectedPackageId?.toString() || "0"),
+    enabled: !!selectedPackageId,
   });
 
-  // C. เตรียมข้อมูลสำหรับส่งให้ EquipmentSelectField
   const packageItems = useMemo(() => {
     if (!packageDetail?.equipmentSets) return [];
     return packageDetail.equipmentSets.map((item) => ({
@@ -170,13 +259,9 @@ export default function EventForm({
     }));
   }, [packageDetail]);
 
-  // -----------------------------------------------------------
-
   const title = mode === "create" ? "Create Event" : "Edit Event";
   const subtitle =
-    mode === "create"
-      ? "Create a new Event"
-      : "Update Event details and contacts";
+    mode === "create" ? "Create a new Event" : "Update Event details";
   const saveLabel = mode === "create" ? "Create Event" : "Save Changes";
   const loadingLabel = mode === "create" ? "Creating..." : "Saving...";
 
@@ -188,12 +273,7 @@ export default function EventForm({
         subtitle={subtitle}
         actions={
           <div className="flex items-center gap-2">
-            <ResetFormButton
-              onClick={() => {
-                form.reset();
-              }}
-            />
-
+            <ResetFormButton onClick={() => form.reset()} />
             <CreateFormButton
               saveLabel={saveLabel}
               loadingLabel={loadingLabel}
@@ -213,14 +293,12 @@ export default function EventForm({
             form.handleSubmit();
           }}
         >
-          {/* ... Basic Info & Schedule Cards (เหมือนเดิม) ... */}
+          {/* Basic Info */}
           <Card className="mt-6">
             <CardHeader className="pb-1">
-              <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
-                <div className="flex items-center gap-2">
-                  <span className="h-6 w-1.5 rounded-full bg-blue-600" />
-                  Basic Information
-                </div>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                <span className="h-6 w-1.5 rounded-full bg-blue-600" />
+                Basic Information
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -237,7 +315,7 @@ export default function EventForm({
                 />
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <form.AppField
-                    name="Company"
+                    name="companyId"
                     children={(field) => (
                       <field.SelectField
                         label="Company"
@@ -247,6 +325,9 @@ export default function EventForm({
                         }))}
                         placeholder="Select Company"
                         required
+                        // 2. แก้ไข: แปลง String -> Number
+                        onChange={(val) => field.handleChange(Number(val))}
+                        value={field.state.value?.toString()} // แปลงกลับเป็น String เพื่อแสดงผล
                       />
                     )}
                   />
@@ -261,21 +342,28 @@ export default function EventForm({
             </CardContent>
           </Card>
 
+          {/* Schedule */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
-                <div className="flex items-center gap-2">
-                  <span className="h-6 w-1 rounded-full bg-blue-600" />
-                  Schedule
-                </div>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                <span className="h-6 w-1 rounded-full bg-blue-600" />
+                Schedule
               </CardTitle>
             </CardHeader>
             <CardContent>
               <section className="w-full space-y-6">
-                <form.AppField
-                  name="eventDate"
-                  children={(field) => <field.DateField label="Event Date" />}
-                />
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <form.AppField
+                    name="eventDate"
+                    children={(field) => <field.DateField label="Event Date" />}
+                  />
+                  <form.AppField
+                    name="registrationTime"
+                    children={(field) => (
+                      <field.TimeField label="Registration Time" />
+                    )}
+                  />
+                </div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <form.AppField
                     name="startTime"
@@ -305,71 +393,63 @@ export default function EventForm({
           {/* Package Selection */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
-                <div className="flex items-center gap-2">
-                  <span className="h-6 w-1 rounded-full bg-blue-600" />
-                  Package
-                </div>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                <span className="h-6 w-1 rounded-full bg-blue-600" />
+                Package
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {/* ส่วน Form Field */}
               <form.AppField
-                name="package"
+                name="packageId"
                 children={(field) => (
                   <field.PackageEventField
                     packages={packagesData}
                     label="Package"
-                    canEdit={false} // อย่าลืมเปลี่ยนเป็น true ถ้าต้องการให้กดเลือกได้
-                    // --- Logic การทำงานเมื่อมีการคลิกเลือก ---
+                    canEdit={true}
                     onChange={(newValue) => {
-                      // ดึงค่า equipment ปัจจุบันมาเช็ค
+                      // 4. แก้ไข: แปลงเป็น Number ก่อน Logic เทียบค่า
+                      const numValue = Number(newValue);
+
                       const currentEquipment = field.form.getFieldValue(
-                        "eventExtraEquipment",
+                        "eventExtraEquipments",
                       );
                       const hasEquipment =
                         currentEquipment && currentEquipment.length > 0;
 
-                      // เงื่อนไข: ถ้าเปลี่ยนค่าเดิม AND มี equipment ค้างอยู่
-                      if (newValue !== field.state.value && hasEquipment) {
-                        setPendingPackage(newValue); // 1. จำค่าใหม่ไว้ก่อน
-                        setAlertOpen(true); // 2. สั่งเปิด popup
+                      // เทียบค่าด้วย Number
+                      if (numValue !== field.state.value && hasEquipment) {
+                        setPendingPackage(newValue); // เก็บค่าใหม่ (string หรือ number ก็ได้สำหรับ state ชั่วคราว)
+                        setAlertOpen(true);
                       } else {
-                        // ถ้าไม่มี equipment หรือกดตัวเดิม -> เปลี่ยนค่าได้เลย
-                        field.handleChange(newValue);
+                        field.handleChange(numValue); // Save เป็น Number
                       }
                     }}
                   />
                 )}
               />
 
-              {/* --- ส่วน AlertDialog (ย้ายออกมาอยู่นอก onChange) --- */}
               <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Change Package?</AlertDialogTitle>
                     <AlertDialogDescription>
                       If you change the package, the selected equipment will be
-                      cleared. Do you want to proceed?
+                      cleared.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    {/* ปุ่มยกเลิก: ปิด Dialog และล้างค่าที่จำไว้ */}
                     <AlertDialogCancel onClick={() => setPendingPackage(null)}>
                       Cancel
                     </AlertDialogCancel>
-
-                    {/* ปุ่มยืนยัน: ทำการเปลี่ยนค่าจริง */}
                     <AlertDialogAction
                       className="bg-red-600 hover:bg-red-700"
                       onClick={() => {
                         if (pendingPackage) {
-                          // 1. เปลี่ยน Package เป็นค่าใหม่ที่จำไว้
-                          form.setFieldValue("package", pendingPackage);
-                          // 2. ล้างค่า Equipment
-                          form.setFieldValue("eventExtraEquipment", []);
-
-                          // 3. Reset State ชั่วคราว
+                          form.setFieldValue(
+                            "packageId",
+                            Number(pendingPackage),
+                          ); // Save เป็น Number
+                          form.setFieldValue("eventExtraEquipments", []);
                           setPendingPackage(null);
                           setAlertOpen(false);
                         }
@@ -386,22 +466,20 @@ export default function EventForm({
           {/* Equipment Selection */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
-                <div className="flex items-center gap-2">
-                  <span className="h-6 w-1 rounded-full bg-blue-600" />
-                  Equipment
-                  {isLoadingPkg && (
-                    <span className="ml-2 flex items-center text-xs font-normal text-gray-400">
-                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />{" "}
-                      Updating...
-                    </span>
-                  )}
-                </div>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                <span className="h-6 w-1 rounded-full bg-blue-600" />
+                Equipment
+                {isLoadingPkg && (
+                  <span className="ml-2 flex items-center text-xs text-gray-400">
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />{" "}
+                    Updating...
+                  </span>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <form.AppField
-                name="eventExtraEquipment"
+                name="eventExtraEquipments"
                 children={() => (
                   <EquipmentSelectField
                     label="Select Equipment"
@@ -413,14 +491,12 @@ export default function EventForm({
             </CardContent>
           </Card>
 
-          {/* ... Staff, Outsource, Files, Notes (เหมือนเดิม) ... */}
+          {/* Staff */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
-                <div className="flex items-center gap-2">
-                  <span className="h-6 w-1 rounded-full bg-blue-600" />
-                  Staff Management
-                </div>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                <span className="h-6 w-1 rounded-full bg-blue-600" />
+                Staff Management
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -428,7 +504,6 @@ export default function EventForm({
                 name="staff"
                 children={(field) => (
                   <StaffAssignmentBuilder
-                    // Map ข้อมูลให้ตรงกับ Interface ของ StaffAssignmentBuilder
                     staffList={
                       staffData?.map((s) => ({
                         staffId: String(s.staffId),
@@ -447,13 +522,12 @@ export default function EventForm({
             </CardContent>
           </Card>
 
+          {/* Outsource */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between gap-2 text-lg font-bold text-gray-900">
-                <div className="flex items-center gap-2">
-                  <span className="h-6 w-1 rounded-full bg-violet-600" />
-                  Outsource Management
-                </div>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                <span className="h-6 w-1 rounded-full bg-violet-600" />
+                Outsource Management
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -461,46 +535,84 @@ export default function EventForm({
                 name="outsource"
                 children={(field) => (
                   <StaffAssignmentBuilder
-                    staffList={outsourceData || []}
+                    staffList={
+                      outsourceData?.map((o) => ({
+                        staffId: String(o.outsourceId),
+                        fullName: o.fullName,
+                        roles: [],
+                      })) || []
+                    }
                     availableRoles={roleData?.map((r) => r.roleName) || []}
                     onChange={(data) => field.handleChange(data)}
-                    ignoreRoleValidation={true} // <--- ใส่ตรงนี้ เพื่อบอกว่า "แสดงรายชื่อ Outsource ทุกคนมาเลย"
+                    ignoreRoleValidation={true}
                   />
                 )}
               />
             </CardContent>
           </Card>
 
+          {/* File & Note */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <Card className="mt-6">
               <CardHeader>
-                <CardTitle className="flex items-center text-lg font-bold text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <span className="h-6 w-1 rounded-full bg-blue-600" />
-                    File
-                  </div>
+                <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-600">
+                  <span className="h-6 w-1 rounded-full bg-blue-600" />
+                  File
                 </CardTitle>
               </CardHeader>
-              <section className="w-full space-y-6">
-                <CardContent>
-                  <FileUpload>
-                    <FileUploadDropzone className="text-black-500 mb-4 flex h-64 items-center justify-center rounded-2xl transition-colors group-hover:bg-blue-200 group-hover:text-blue-600">
-                      <div className="flex flex-col items-center justify-center">
-                        <UploadCloud size={32} color="gray" />
-                        <p className="text-gray-600">ลากไฟล์มาวางที่นี่</p>
-                      </div>
-                    </FileUploadDropzone>
-                  </FileUpload>
-                </CardContent>
-              </section>
+              <CardContent>
+                <form.AppField
+                  name="file"
+                  children={(field) => (
+                    <FileUpload
+                      value={field.state.value}
+                      onValueChange={(files) => {
+                        if (Array.isArray(files)) {
+                          // ส่ง Array เข้าไปเก็บใน State ตรงๆ เลย
+                          field.handleChange(files);
+                        } else {
+                          // กันเหนียว กรณี component ส่งมาผิด หรือ user ลบไฟล์จนหมด
+                          field.handleChange([]);
+                        }
+                      }}
+                    >
+                      <FileUploadDropzone className="text-black-500 mb-4 flex h-64 items-center justify-center rounded-2xl transition-colors group-hover:bg-blue-200 group-hover:text-blue-600">
+                        <div className="flex flex-col items-center justify-center">
+                          <UploadCloud size={32} color="gray" />
+                          <p className="text-gray-600">ลากไฟล์มาวางที่นี่</p>
+                        </div>
+                      </FileUploadDropzone>
+                      <FileUploadList>
+                        {field.state.value?.map((file, index) => (
+                          <FileUploadItem key={index} value={file}>
+                            <div className="flex w-full items-center gap-2">
+                              <FileUploadItemPreview />
+                              <FileUploadItemMetadata />
+                              <FileUploadItemDelete
+                                className="text-red-500 hover:text-red-700"
+                                onClick={() => {
+                                  const newFiles = [...field.state.value];
+                                  newFiles.splice(index, 1);
+                                  field.handleChange(newFiles);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </FileUploadItemDelete>
+                            </div>
+                          </FileUploadItem>
+                        ))}
+                      </FileUploadList>
+                    </FileUpload>
+                  )}
+                />
+              </CardContent>
             </Card>
+
             <Card className="mt-6">
               <CardHeader>
-                <CardTitle className="flex items-center text-lg font-bold text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <span className="h-6 w-1 rounded-full bg-blue-600" />
-                    Note
-                  </div>
+                <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-600">
+                  <span className="h-6 w-1 rounded-full bg-blue-600" />
+                  Note
                 </CardTitle>
                 <CardContent>
                   <form.AppField

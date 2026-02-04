@@ -19,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTab } from "../ui/tabs";
 export interface Staff {
   staffId: string;
   fullName: string;
-  role: string[];
+  roles: string[];
   avatar?: string;
   // status?: 'available' | 'working' | 'unavailable'; // (Optional) สำหรับใช้กรองในอนาคต
 }
@@ -174,8 +174,13 @@ const AssignmentCard = ({
         .toLowerCase()
         .includes(search.toLowerCase());
       if (!matchesSearch) return false;
-      if (!staff.roles.includes(assignment.roleName)) {
-        return false;
+
+      // --- แก้ไขตรงนี้ ---
+      // ถ้า ignoreRoleValidation เป็น true ให้ข้ามการเช็ค includes ไปเลย
+      if (!ignoreRoleValidation) {
+        if (!staff.roles?.includes(assignment.roleName)) {
+          return false;
+        }
       }
       // 2. Filter by Status (Mock Logic)
       if (status === "available") return true; // ตอนนี้ให้ทุกคนอยู่ Available หมด
@@ -268,7 +273,7 @@ const AssignmentCard = ({
                         {staff.fullName}
                       </p>
                       <p className="text-xs font-medium text-green-600">
-                        {staff.role}
+                        {staff.roles.join(", ")}
                       </p>
                     </div>
                   </div>
@@ -373,7 +378,7 @@ const AssignmentCard = ({
                                     {s.fullName}
                                   </p>
                                   <p className="text-[10px] text-gray-500">
-                                    {s.role}
+                                    {s.roles.join(", ")}
                                   </p>
                                 </div>
                               </div>
