@@ -1,5 +1,3 @@
-import * as React from "react";
-
 import { Clock } from "lucide-react";
 
 import { Label } from "@/components/ui/label";
@@ -96,8 +94,8 @@ export const TimeField = ({
         </PopoverTrigger>
 
         {/* 4. ปรับขนาดความกว้าง Popover และตัด Column ที่ 3 ออก */}
-        <PopoverContent className="w-[200px] overflow-hidden border-blue-600 bg-white p-0">
-          <div className="scrollbar-hide flex h-[300px] divide-x divide-gray-50">
+        <PopoverContent className="w-50 overflow-hidden border-blue-600 bg-white p-0">
+          <div className="scrollbar-hide flex h-75 divide-x divide-gray-50">
             {/* Column 1: Hour (00-23) */}
             <div className="scrollbar-hide flex-1 overflow-y-auto">
               <div className="flex flex-col gap-1 p-2">

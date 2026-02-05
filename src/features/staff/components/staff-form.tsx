@@ -82,7 +82,6 @@ export function StaffForm({
       modeAfterSubmission: "blur",
     }),
     onSubmit: async ({ value }) => {
-      console.log(value);
       onSubmit(value);
     },
   });

@@ -1,24 +1,14 @@
-import { Building2, Monitor, Wifi } from "lucide-react";
-
+import { FORMAT_EVENT_OPTIONS } from "@/data/constants";
 import { cn } from "@/lib/utils";
 
 import { useFieldContext } from ".";
 import { Label } from "../ui/label";
 import { FieldErrors } from "./field-error";
 
-// 1. เพิ่ม onChange เข้าไปใน Props
 type EventFormatFieldProps = {
   label?: string;
   onChange?: (value: number) => void;
 };
-
-// 2. เปลี่ยน Value ให้เป็น Number ตามที่ Backend/Schema ต้องการ
-// ** เช็ค ID กับ Backend ดีๆ **
-const FORMAT_OPTIONS = [
-  { value: 1, label: "Offline", icon: Building2 },
-  { value: 2, label: "Hybrid", icon: Monitor },
-  { value: 3, label: "Online", icon: Wifi },
-] as const;
 
 export const EventFormatField = ({
   label,
@@ -48,7 +38,7 @@ export const EventFormatField = ({
           hasError ? "border-destructive" : "border-transparent",
         )}
       >
-        {FORMAT_OPTIONS.map((option) => {
+        {FORMAT_EVENT_OPTIONS.map((option) => {
           // เช็คว่า selected หรือไม่ (เทียบ number กับ number)
           const isSelected = field.state.value === option.value;
           const Icon = option.icon;
