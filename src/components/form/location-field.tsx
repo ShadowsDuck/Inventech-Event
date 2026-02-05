@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useFieldContext } from "@/components/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn, parseCoordinates } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 import MapPreview from "../map-preview";
 import { Label } from "../ui/label";
@@ -16,41 +16,69 @@ interface LocationFieldProps {
   label?: string;
 }
 
+// สร้าง Interface ให้ชัดเจนว่า Form เก็บค่าอะไร
+interface LocationValue {
+  latitude: number;
+  longitude: number;
+}
+
 export function LocationField({ label }: LocationFieldProps) {
   const field = useFieldContext();
 
-  // ค่าจริงในฟอร์ม (จะเปลี่ยนก็ต่อเมื่อกด Pin)
-  const formValue = field.state.value as string;
+  // 1. ดึงค่าจาก Form (ตอนนี้มันควรจะเป็น Object แล้ว ไม่ใช่ String)
+  const formValue = field.state.value as LocationValue | undefined;
 
-  // 1. สร้าง State ตัวพัก (Buffer) ไว้รับค่าจากการพิมพ์
-  const [inputValue, setInputValue] = useState(formValue);
+  // 2. State ตัวพัก (Buffer) สำหรับรับค่าจากการพิมพ์ (เป็น String เหมือนเดิม)
+  const [inputValue, setInputValue] = useState("");
 
-  // 2. ถ้าค่าจริงในฟอร์มเปลี่ยน (เช่น โหลดข้อมูลเก่ามา) ให้อัปเดตตัวพักตามด้วย
+  // 3. Sync: ถ้าค่าใน Form เปลี่ยน (เช่น โหลดข้อมูลเดิมมา) ให้แปลงเป็น String โชว์ในกล่อง
   useEffect(() => {
-    setInputValue(formValue);
-  }, [formValue]);
-
-  // คำนวณ Map จาก "ค่าจริงในฟอร์ม" เท่านั้น (ไม่ใช่ค่าที่กำลังพิมพ์)
-  const mapPosition = useMemo(() => {
-    return parseCoordinates(formValue);
-  }, [formValue]);
-
-  const handlePinLocation = () => {
-    // ตรวจสอบค่าจากที่พิมพ์ (inputValue)
-    const newPos = parseCoordinates(inputValue);
-
-    if (newPos) {
-      // 3. เมื่อกด Pin และค่าถูกต้อง -> ค่อยสั่งอัปเดตเข้า Form
-      field.handleChange(inputValue);
-      toast.success("Pinned location on map");
+    if (formValue && typeof formValue === "object" && "latitude" in formValue) {
+      setInputValue(`${formValue.latitude}, ${formValue.longitude}`);
     } else {
-      toast.error("Invalid format. Please use 'lat, lng'");
+      setInputValue("");
+    }
+  }, [formValue]);
+
+  // 4. คำนวณตำแหน่ง Map จาก Object ใน Form
+  const mapPosition = useMemo(() => {
+    if (formValue && typeof formValue === "object" && "latitude" in formValue) {
+      // MapPreview มักจะรับเป็น [lat, lng]
+      return [formValue.latitude, formValue.longitude] as [number, number];
+    }
+    return null;
+  }, [formValue]);
+
+  // 5. ฟังก์ชันกด Pin: แปลง String -> Decimal Object
+  const handlePinLocation = () => {
+    if (!inputValue.trim()) return;
+
+    // แยกด้วย comma
+    const parts = inputValue.split(",");
+
+    if (parts.length === 2) {
+      const lat = parseFloat(parts[0].trim());
+      const lng = parseFloat(parts[1].trim());
+
+      // เช็คว่าเป็นตัวเลขที่ถูกต้องไหม (Decimal)
+      if (!isNaN(lat) && !isNaN(lng)) {
+        // ✅ ถูกต้อง: ส่งเป็น Object ตัวเลขไปให้ Zod/Backend
+        field.handleChange({
+          latitude: lat,
+          longitude: lng,
+        });
+        toast.success("Pinned location on map");
+      } else {
+        toast.error("Invalid numbers. Please check your coordinates.");
+      }
+    } else {
+      toast.error("Invalid format. Please use 'latitude, longitude'");
     }
   };
 
   const handleClearLocation = () => {
-    setInputValue(""); // ล้างช่องพิมพ์
-    field.handleChange(""); // ล้างค่าในฟอร์ม
+    setInputValue("");
+    field.handleChange(undefined); // หรือ null ตามที่ Schema กำหนด
   };
 
   const hasError =
@@ -69,6 +97,7 @@ export function LocationField({ label }: LocationFieldProps) {
         <Input
           id={field.name}
           value={inputValue}
+          // 🔥 พิมพ์แล้วเก็บแค่ใน Input State ก่อน (อย่าเพิ่งยัดเข้า Form)
           onChange={(e) => setInputValue(e.target.value)}
           onBlur={field.handleBlur}
           placeholder="e.g. 13.7563, 100.5018"
@@ -76,7 +105,7 @@ export function LocationField({ label }: LocationFieldProps) {
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              handlePinLocation(); // กด Enter ก็ให้ทำงานเหมือนกดปุ่ม Pin
+              handlePinLocation(); // กด Enter ให้ทำงานเหมือนกดปุ่ม Pin
             }
           }}
         />
@@ -106,10 +135,16 @@ export function LocationField({ label }: LocationFieldProps) {
 
       {/* Map Preview */}
       <div className="mt-4">
-        <MapPreview
-          position={mapPosition}
-          popUp={formValue || "No location selected"}
-        />
+        {mapPosition ? (
+          <MapPreview
+            position={mapPosition}
+            popUp={inputValue || "Selected Location"}
+          />
+        ) : (
+          <div className="flex h-40 w-full items-center justify-center rounded-md border bg-gray-50 text-sm text-gray-400">
+            No location selected
+          </div>
+        )}
       </div>
     </div>
   );

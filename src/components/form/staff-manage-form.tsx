@@ -150,6 +150,7 @@ const AssignmentCard = ({
   onClearSlot,
   onAssign, // รับ prop ฟังก์ชันสำหรับเลือกคน
   ignoreRoleValidation, // <--- รับมาตรงนี้
+  assignedStaffIds,
 }: {
   assignment: RoleAssignment;
   staffList: Staff[];
@@ -157,19 +158,24 @@ const AssignmentCard = ({
   onRemove: () => void;
   onClearSlot: (index: number) => void;
   onAssign: (index: number, staffId: string) => void;
-  ignoreRoleValidation: boolean; // <--- เพิ่ม Type
+  ignoreRoleValidation: boolean;
+  assignedStaffIds: Set<string | null>;
 }) => {
   const filledCount = assignment.slots.filter((s) => s !== null).length;
   const isComplete =
     filledCount === assignment.slots.length && assignment.slots.length > 0;
 
   const [search, setSearch] = useState("");
-
+  const [activeStartIndex, setActiveStartIndex] = useState<number | null>(null);
   // Helper function สำหรับกรอง Staff ตาม Tab และ Search
   const getFilteredStaff = (
     status: "available" | "working" | "unavailable",
   ) => {
     return staffList.filter((staff) => {
+      // ถ้ามีอยู่ใน Set ของ assignedStaffIds ให้ return false (ไม่แสดง)
+      if (assignedStaffIds.has(staff.staffId)) {
+        return false;
+      }
       const matchesSearch = staff.fullName
         .toLowerCase()
         .includes(search.toLowerCase());
@@ -445,6 +451,9 @@ export default function StaffAssignmentBuilder({
 }: StaffAssignmentBuilderProps) {
   // --- State ---
   const [assignments, setAssignments] = useState<RoleAssignment[]>(initialData);
+  const assignedStaffIds = new Set(
+    assignments.flatMap((a) => a.slots).filter((id) => id !== null),
+  );
 
   const onChangeRef = useRef(onChange);
   useEffect(() => {
@@ -452,12 +461,24 @@ export default function StaffAssignmentBuilder({
   }, [onChange]);
 
   useEffect(() => {
-    const payload = assignments.map((a) => ({
-      role: a.roleName,
-      assignedStaffIds: a.slots.filter((s) => s !== null),
-    }));
+    // ใช้ flatMap เพื่อ "เท" ข้อมูลออกจากทุก Role มารวมเป็น list เดียว (Flat List)
+    const payload = assignments.flatMap((assign) => {
+      return assign.slots
+        .filter((staffId) => staffId !== null) // 1. กรองช่องว่างทิ้ง
+        .map((staffId) => {
+          // 2. ดึงข้อมูล Staff มาใส่ (เพื่อให้ EventForm เอาไปใช้ได้)
+          const staffInfo = staffList.find((s) => s.staffId === staffId);
+
+          return {
+            staffId: staffId, //ต้องมี key นี้ Parent ถึงจะอ่านออก
+            roleName: assign.roleName, // ส่ง Role ไปด้วย เพื่อให้รู้ว่าคนนี้ทำหน้าที่อะไร
+            fullName: staffInfo?.fullName || "",
+          };
+        });
+    });
+
     if (onChangeRef.current) onChangeRef.current(payload);
-  }, [assignments]);
+  }, [assignments, staffList]); //
 
   // --- Handlers ---
 
@@ -550,6 +571,7 @@ export default function StaffAssignmentBuilder({
             key={assign.roleId}
             assignment={assign}
             staffList={staffList}
+            assignedStaffIds={assignedStaffIds} //ทำให้ 1 คนใส่ได้แค่ช่องเดียว
             onUpdateCount={(delta) =>
               handleUpdateSlotCount(assign.roleId, delta)
             }

@@ -1,10 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 
 import { useCreateEvent } from "../api/createEvent";
-// ปรับ path ตามที่คุณเก็บไฟล์ useCreateEvent
 import EventForm from "./event-form";
-
-// ปรับ path ตามที่คุณเก็บไฟล์ EventForm
 
 export default function CreateEvent() {
   const navigate = useNavigate();

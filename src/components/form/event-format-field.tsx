@@ -16,8 +16,8 @@ type EventFormatFieldProps = {
 // ** เช็ค ID กับ Backend ดีๆ **
 const FORMAT_OPTIONS = [
   { value: 1, label: "Offline", icon: Building2 },
-  { value: 3, label: "Hybrid", icon: Monitor },
-  { value: 2, label: "Online", icon: Wifi },
+  { value: 2, label: "Hybrid", icon: Monitor },
+  { value: 3, label: "Online", icon: Wifi },
 ] as const;
 
 export const EventFormatField = ({

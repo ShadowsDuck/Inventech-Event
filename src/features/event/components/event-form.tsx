@@ -41,6 +41,7 @@ import { companiesQueries } from "../api/getCompany";
 import { equipmentBypackageIdQuery } from "../api/getEquipmentByPackageId";
 
 // --- Sub-Schemas ---
+// --- Sub-Schemas ---
 
 const EquipmentEventSchema = z.object({
   equipmentId: z.number(),
@@ -126,7 +127,9 @@ export default function EventForm({
       outsourcesQuery(),
     ],
   });
-  console.log(staffData);
+
+  // Log เพื่อเช็คว่าข้อมูล Master Data เข้ามาครบไหม
+  // console.log("Loaded Master Data:", { staffData, outsourceData, roleData });
 
   const companiesOptions = useMemo(() => {
     return companiesData?.map((company) => ({
@@ -168,10 +171,17 @@ export default function EventForm({
     },
 
     onSubmit: async ({ value }) => {
+      // ---------------------------------------------------------
+      // 🕵️‍♂️ LOG 1: ดูข้อมูลดิบจาก Form ก่อนแปลง
+      // ---------------------------------------------------------
+      console.group("🚀 START: Debug Event Submission");
+      console.log("1️⃣ Raw Values from Form:", value);
+
       const formData = new FormData();
 
-      const dateMapping = new Date(value.eventDate || new Date());
-      const formattedDate = dateMapping.toISOString().split("T")[0];
+      // --- 1. Prepare Data ---
+      const dateObj = new Date(value.eventDate || new Date());
+      const formattedDate = dateObj.toISOString().split("T")[0];
 
       const periodMapping: Record<string, string> = {
         morning: "0",
@@ -180,61 +190,144 @@ export default function EventForm({
       const periodValue =
         periodMapping[value.timePeriod.toString()] ||
         value.timePeriod.toString();
-      // --- 1. Basic Fields ---
+
+      console.log("📅 Formatted Date:", formattedDate);
+      console.log("⏰ Mapped Period Value:", periodValue);
+
+      // --- 2. Basic Fields ---
       formData.append("EventName", value.eventName);
       formData.append("EventType", value.eventType.toString());
       formData.append("CompanyId", value.companyId.toString());
-      formData.append("PackageId", (value.packageId || 0).toString());
+
+      // --- Handle Package ID ---
+      if (value.packageId && value.packageId > 0) {
+        console.log("📦 Sending PackageId:", value.packageId);
+        formData.append("PackageId", value.packageId.toString());
+      } else {
+        console.log("📦 PackageId is empty -> Sending empty string");
+        formData.append("PackageId", ""); // ส่งค่าว่างเพื่อให้ Backend แปลงเป็น null
+      }
+
       formData.append("MeetingDate", formattedDate);
       formData.append("RegistrationTime", value.registrationTime || "");
       formData.append("StartTime", value.startTime);
       formData.append("EndTime", value.endTime);
-
       formData.append("Period", periodValue);
       formData.append("Note", value.note || "");
 
-      // --- 2. Location ---
+      // --- 3. Location ---
       if (value.location) {
-        formData.append("Latitude", value.location.latitude?.toString() || "0");
+        formData.append("Latitude", value.location.latitude?.toString() || "");
         formData.append(
           "Longitude",
-          value.location.longitude?.toString() || "0",
+          value.location.longitude?.toString() || "",
         );
       }
 
-      // --- 3. Arrays & Transformations ---
+      // --- 4. Arrays & Transformations ---
 
-      //  Equipment
-      formData.append(
-        "EventExtraEquipments",
-        JSON.stringify(value.eventExtraEquipments),
-      );
-
-      //Outsource (Dynamic Role Mapping)
-      const formattedOutsource = value.outsource.map((item) => {
-        const matchedRole = roleData?.find((r) => r.roleName === item.roleName);
-        const realRoleId = matchedRole ? matchedRole.roleId : 0;
-        return {
-          outsourceId: Number(item.staffId),
-          roleId: realRoleId,
-        };
-      });
-      formData.append("EventOutsources", JSON.stringify(formattedOutsource));
-
-      //Staff (UI Object[] -> API StaffIds)
-      if (value.staff && value.staff.length > 0) {
-        value.staff.forEach((s) => {
-          formData.append("StaffIds", s.staffId.toString());
+      // A. Equipment
+      if (value.eventExtraEquipments && value.eventExtraEquipments.length > 0) {
+        console.log("🔧 Adding Equipment:", value.eventExtraEquipments);
+        value.eventExtraEquipments.forEach((item, index) => {
+          formData.append(
+            `EventExtraEquipments[${index}].EquipmentId`,
+            item.equipmentId.toString(),
+          );
+          formData.append(
+            `EventExtraEquipments[${index}].Quantity`,
+            item.quantity.toString(),
+          );
         });
       }
 
-      // --- 4. File ---
+      // B. Outsource
+      const formattedOutsource = value.outsource.map((item) => {
+        const matchedRole = roleData?.find((r) => r.roleName === item.roleName);
+        if (!matchedRole)
+          console.warn(
+            `⚠️ Warning: Role not found for outsource: ${item.roleName}`,
+          );
+
+        return {
+          outsourceId: Number(item.staffId),
+          roleId: matchedRole ? matchedRole.roleId : 0,
+        };
+      });
+
+      console.log("👷 Mapped Outsource Data:", formattedOutsource);
+
+      if (formattedOutsource.length > 0) {
+        formattedOutsource.forEach((item, index) => {
+          // 🛡️ Safety Check: ถ้า RoleId เป็น 0 (หาไม่เจอ) ไม่ควรส่งไปเพราะจะทำ 500 Error
+          if (item.roleId !== 0) {
+            formData.append(
+              `EventOutsources[${index}].OutsourceId`,
+              item.outsourceId.toString(),
+            );
+            formData.append(
+              `EventOutsources[${index}].RoleId`,
+              item.roleId.toString(),
+            );
+          } else {
+            console.error("❌ SKIPPING OUTSOURCE due to missing role:", item);
+          }
+        });
+      }
+
+      // C. Staff
+      if (value.staff && value.staff.length > 0) {
+        // 1. กรองและหา ID ให้เรียบร้อยก่อน
+        const finalStaffList = value.staff
+          .map((item) => {
+            //แก้การเทียบชื่อให้ยืดหยุ่น (ตัดช่องว่าง + ไม่สนตัวพิมพ์ใหญ่เล็ก)
+            const matchedRole = roleData?.find(
+              (r) =>
+                r.roleName.trim().toLowerCase() ===
+                item.roleName?.trim().toLowerCase(),
+            );
+
+            return {
+              staffId: Number(item.staffId),
+              roleId: matchedRole ? matchedRole.roleId : 0,
+            };
+          })
+          //  กรองเอาเฉพาะคนที่มีทั้ง StaffId และ RoleId
+          .filter((s) => s.staffId > 0 && s.roleId > 0);
+
+        console.log("👥 ข้อมูล Staff ที่จะส่งจริง:", finalStaffList);
+
+        // 2. วนลูปส่งด้วย Index ที่เรียงต่อเนื่อง (0, 1, 2...)
+        finalStaffList.forEach((item, index) => {
+          formData.append(
+            `EventStaffs[${index}].StaffId`,
+            item.staffId.toString(),
+          );
+          formData.append(
+            `EventStaffs[${index}].RoleId`,
+            item.roleId.toString(),
+          );
+        });
+      }
+
+      // --- 5. File ---
       if (value.file && value.file.length > 0) {
+        console.log("📎 Attaching Files:", value.file.length);
         value.file.forEach((f) => {
-          // ใช้ชื่อ key เดียวกัน (Backend จะรับเป็น List)
           formData.append("AttachmentFiles", f);
         });
       }
+
+      // ---------------------------------------------------------
+      // LOG 2: แอบดูไส้ใน FormData
+      // ---------------------------------------------------------
+      console.group("📦 FINAL FORM DATA CONTENT");
+
+      for (const pair of formData.entries()) {
+        console.log(`${pair[0]}: ${pair[1]}`);
+      }
+      console.groupEnd();
+      console.groupEnd(); // End Main Debug Group
 
       onSubmit(formData as any);
     },
@@ -259,12 +352,35 @@ export default function EventForm({
     }));
   }, [packageDetail]);
 
+  //  ใช้ useMemo เพื่อป้องกัน Infinite Loop
+  const formattedStaffList = useMemo(() => {
+    return (
+      staffData?.map((s) => ({
+        staffId: String(s.staffId),
+        fullName: s.fullName,
+        roles: s.staffRoles ? s.staffRoles.map((r) => r.roleName) : [],
+        avatar: s.avatar || "",
+      })) || []
+    );
+  }, [staffData]);
+
+  //  ใช้ useMemo เพื่อป้องกัน Infinite Loop
+  const formattedOutsourceList = useMemo(() => {
+    return (
+      outsourceData?.map((o) => ({
+        staffId: String(o.outsourceId),
+        fullName: o.fullName,
+        roles: [],
+        avatar: "",
+      })) || []
+    );
+  }, [outsourceData]);
+
   const title = mode === "create" ? "Create Event" : "Edit Event";
   const subtitle =
     mode === "create" ? "Create a new Event" : "Update Event details";
   const saveLabel = mode === "create" ? "Create Event" : "Save Changes";
   const loadingLabel = mode === "create" ? "Creating..." : "Saving...";
-
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <PageHeader
@@ -504,16 +620,7 @@ export default function EventForm({
                 name="staff"
                 children={(field) => (
                   <StaffAssignmentBuilder
-                    staffList={
-                      staffData?.map((s) => ({
-                        staffId: String(s.staffId),
-                        fullName: s.fullName,
-                        roles: s.staffRoles
-                          ? s.staffRoles.map((r) => r.roleName)
-                          : [],
-                        avatar: s.avatar || "",
-                      })) || []
-                    }
+                    staffList={formattedStaffList}
                     availableRoles={roleData?.map((r) => r.roleName) || []}
                     onChange={(data) => field.handleChange(data)}
                   />
@@ -535,13 +642,7 @@ export default function EventForm({
                 name="outsource"
                 children={(field) => (
                   <StaffAssignmentBuilder
-                    staffList={
-                      outsourceData?.map((o) => ({
-                        staffId: String(o.outsourceId),
-                        fullName: o.fullName,
-                        roles: [],
-                      })) || []
-                    }
+                    staffList={formattedOutsourceList}
                     availableRoles={roleData?.map((r) => r.roleName) || []}
                     onChange={(data) => field.handleChange(data)}
                     ignoreRoleValidation={true}
