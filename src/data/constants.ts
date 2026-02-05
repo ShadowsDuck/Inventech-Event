@@ -6,8 +6,10 @@ import {
   CircleX,
   LayoutDashboard,
   ListFilter,
+  Monitor,
   Package,
   Users,
+  Wifi,
   Wrench,
 } from "lucide-react";
 
@@ -34,3 +36,14 @@ export const NAV_LINKS = [
 export const EQUIPMENT_STATUS_OPTIONS = ["active", "deleted", "all"] as const;
 
 export type EquipmentStatusType = (typeof EQUIPMENT_STATUS_OPTIONS)[number];
+
+export const FORMAT_EVENT_OPTIONS = [
+  { value: 1, label: "Offline", icon: Building2 },
+  { value: 2, label: "Hybrid", icon: Monitor },
+  { value: 3, label: "Online", icon: Wifi },
+] as const;
+
+export const TIME_PERIOD = [
+  { id: 1, label: "Morning" },
+  { id: 2, label: "Afternoon" },
+];

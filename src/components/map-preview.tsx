@@ -61,38 +61,40 @@ function MapPreview({ position, popUp }: MapPreviewProps) {
     position && position[0] !== 0 ? position : defaultCenter;
 
   return (
-    <MapContainer center={startPosition} zoom={12}>
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+    <div className="relative z-0">
+      <MapContainer center={startPosition} zoom={12}>
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
 
-      <MapController position={position} />
+        <MapController position={position} />
 
-      {position && (
-        <Marker position={position} icon={customIcon}>
-          <Popup>
-            <div className="flex min-w-37.5 flex-col items-center gap-1">
-              <span className="text-sm font-bold text-gray-800">
-                {popUp || "ตำแหน่งที่ตั้ง"}
-              </span>
+        {position && (
+          <Marker position={position} icon={customIcon}>
+            <Popup>
+              <div className="flex min-w-37.5 flex-col items-center gap-1">
+                <span className="text-sm font-bold text-gray-800">
+                  {popUp || "ตำแหน่งที่ตั้ง"}
+                </span>
 
-              <hr className="my-1 w-full border-gray-200" />
+                <hr className="my-1 w-full border-gray-200" />
 
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${position[0]},${position[1]}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline"
-              >
-                <span>เปิดใน Google Maps</span>
-                <ExternalLink size={14} />
-              </a>
-            </div>
-          </Popup>
-        </Marker>
-      )}
-    </MapContainer>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${position[0]},${position[1]}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline"
+                >
+                  <span>เปิดใน Google Maps</span>
+                  <ExternalLink size={14} />
+                </a>
+              </div>
+            </Popup>
+          </Marker>
+        )}
+      </MapContainer>
+    </div>
   );
 }
 

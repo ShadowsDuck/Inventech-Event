@@ -1,16 +1,26 @@
 import { useNavigate } from "@tanstack/react-router";
 
 import { useCreateEvent } from "../api/createEvent";
-import EventForm from "./event-form";
+import EventForm, { type EventData } from "./event-form";
 
 export default function CreateEvent() {
   const navigate = useNavigate();
 
   const { mutate, isPending } = useCreateEvent();
 
-  // รับค่า FormData ที่ถูกปั้นมาจาก EventForm เรียบร้อยแล้ว
-  const handleCreateSubmit = (formData: any) => {
-    mutate(formData, {
+  const handleCreateSubmit = (values: EventData) => {
+    const [latStr, lngStr] = values.location?.split(",") || [];
+    const latitude = latStr ? parseFloat(latStr.trim()) : null;
+    const longitude = lngStr ? parseFloat(lngStr.trim()) : null;
+
+    const payload = {
+      ...values,
+      latitude,
+      longitude,
+      location: undefined,
+    };
+
+    mutate(payload, {
       onSuccess: () => {
         navigate({ to: "..", replace: true });
       },

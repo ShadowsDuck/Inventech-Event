@@ -41,54 +41,52 @@ import { companiesQueries } from "../api/getCompany";
 import { equipmentBypackageIdQuery } from "../api/getEquipmentByPackageId";
 
 // --- Sub-Schemas ---
-// --- Sub-Schemas ---
-
 const EquipmentEventSchema = z.object({
   equipmentId: z.number(),
   quantity: z.number().min(1),
 });
 
-const OutsourcedSchema = z.object({
-  outsourceId: z.number(),
+const StaffSchema = z.object({
+  staffId: z.number().or(z.string()), // รองรับทั้ง 2 แบบเผื่อ select ส่ง string มา
   roleId: z.number().min(1, "Role is required"),
 });
 
-const LocationSchema = z.object({
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
+const OutsourceSchema = z.object({
+  outsourceId: z.number().or(z.string()), // รองรับทั้ง 2 แบบ
+  roleId: z.number().min(1, "Role is required"),
 });
 
 // --- Main Event Schema ---
-
 export const EventSchema = z.object({
   eventName: z.string().min(1, "Event name is required").max(255),
   note: z.string().optional(),
 
-  // 1. แก้ไข: ใช้ z.number() แทน coerce เพื่อ Type Safety กับ Form State
   companyId: z.number().min(1, "Please select a company"),
   packageId: z.number().optional().nullable(),
   eventType: z.number().min(1, "Please select an event type"),
-
-  eventDate: z
-    .union([z.date(), z.string()])
-    // ใช้ refine เพื่อเช็คว่าต้อง "มีค่า" (ไม่เป็น null, undefined, หรือ string ว่าง)
-    .optional()
-    .refine((val) => !!val, { message: "Event date is required" }),
+  // eventDate: z
+  //   .union([z.date(), z.string()])
+  //   // ใช้ refine เพื่อเช็คว่าต้อง "มีค่า" (ไม่เป็น null, undefined, หรือ string ว่าง)
+  //   .optional()
+  //   .refine((val) => !!val, { message: "Event date is required" }),
+  eventDate: z.date({
+    error: (issue) => {
+      if (issue.code === "invalid_type" && issue.input === undefined) {
+        return "Event date is required";
+      }
+      return "Invalid date format";
+    },
+  }),
   registrationTime: z.string().optional(),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
-  timePeriod: z.union([z.string(), z.number()]),
-  location: LocationSchema.optional(),
+  timePeriod: z.number().min(1, "Please select a time period"),
+  location: z.string().optional(),
 
-  // --- API Fields (ส่งไป Backend) ---
-  staffIds: z.array(z.number()),
+  eventStaff: z.array(StaffSchema),
+  eventOutsources: z.array(OutsourceSchema),
   eventExtraEquipments: z.array(EquipmentEventSchema),
-  eventOutsources: z.array(OutsourcedSchema),
-
-  file: z.array(z.instanceof(File)),
-  // --- UI Fields ---
-  staff: z.array(z.any()),
-  outsource: z.array(z.any()),
+  attachmentFiles: z.array(z.instanceof(File)),
 });
 
 export type EventData = z.infer<typeof EventSchema>;
@@ -128,9 +126,6 @@ export default function EventForm({
     ],
   });
 
-  // Log เพื่อเช็คว่าข้อมูล Master Data เข้ามาครบไหม
-  // console.log("Loaded Master Data:", { staffData, outsourceData, roleData });
-
   const companiesOptions = useMemo(() => {
     return companiesData?.map((company) => ({
       value: company.companyId.toString(),
@@ -140,196 +135,32 @@ export default function EventForm({
 
   const form = useAppForm({
     defaultValues: {
-      eventName: initialValues?.eventName || "",
+      eventName: initialValues?.eventName ?? "",
 
       // Default Values ต้องเป็น Number
-      companyId: initialValues?.companyId || 0,
-      eventType: initialValues?.eventType || 0,
-      packageId: initialValues?.packageId || 0,
+      companyId: initialValues?.companyId ?? 0,
+      eventType: initialValues?.eventType ?? 0,
+      packageId: initialValues?.packageId ?? 0,
 
-      eventDate: initialValues?.eventDate || undefined,
-      registrationTime: initialValues?.registrationTime || "",
-      startTime: initialValues?.startTime || "",
-      endTime: initialValues?.endTime || "",
-      timePeriod: initialValues?.timePeriod || "",
+      eventDate: initialValues?.eventDate,
+      registrationTime: initialValues?.registrationTime ?? "",
+      startTime: initialValues?.startTime ?? "",
+      endTime: initialValues?.endTime ?? "",
+      timePeriod: initialValues?.timePeriod ?? "",
 
-      location: initialValues?.location || {},
-      note: initialValues?.note || "",
-      file: initialValues?.file || [],
-      // UI Fields
-      staff: initialValues?.staff || [],
-      outsource: initialValues?.outsource || [],
+      location: initialValues?.location ?? "",
+      note: initialValues?.note ?? "",
 
-      // API Fields (ต้องมีให้ครบตาม Schema)
-      staffIds: initialValues?.staffIds || [],
-      eventOutsources: initialValues?.eventOutsources || [],
-      eventExtraEquipments: initialValues?.eventExtraEquipments || [],
+      eventStaff: initialValues?.eventStaff ?? [],
+      eventOutsources: initialValues?.eventOutsources ?? [],
+      eventExtraEquipments: initialValues?.eventExtraEquipments ?? [],
+      attachmentFiles: initialValues?.attachmentFiles ?? [],
     } as EventData,
-
     validators: {
       onChange: EventSchema,
     },
-
     onSubmit: async ({ value }) => {
-      // ---------------------------------------------------------
-      // 🕵️‍♂️ LOG 1: ดูข้อมูลดิบจาก Form ก่อนแปลง
-      // ---------------------------------------------------------
-      console.group("🚀 START: Debug Event Submission");
-      console.log("1️⃣ Raw Values from Form:", value);
-
-      const formData = new FormData();
-
-      // --- 1. Prepare Data ---
-      const dateObj = new Date(value.eventDate || new Date());
-      const formattedDate = dateObj.toISOString().split("T")[0];
-
-      const periodMapping: Record<string, string> = {
-        morning: "0",
-        afternoon: "1",
-      };
-      const periodValue =
-        periodMapping[value.timePeriod.toString()] ||
-        value.timePeriod.toString();
-
-      console.log("📅 Formatted Date:", formattedDate);
-      console.log("⏰ Mapped Period Value:", periodValue);
-
-      // --- 2. Basic Fields ---
-      formData.append("EventName", value.eventName);
-      formData.append("EventType", value.eventType.toString());
-      formData.append("CompanyId", value.companyId.toString());
-
-      // --- Handle Package ID ---
-      if (value.packageId && value.packageId > 0) {
-        console.log("📦 Sending PackageId:", value.packageId);
-        formData.append("PackageId", value.packageId.toString());
-      } else {
-        console.log("📦 PackageId is empty -> Sending empty string");
-        formData.append("PackageId", ""); // ส่งค่าว่างเพื่อให้ Backend แปลงเป็น null
-      }
-
-      formData.append("MeetingDate", formattedDate);
-      formData.append("RegistrationTime", value.registrationTime || "");
-      formData.append("StartTime", value.startTime);
-      formData.append("EndTime", value.endTime);
-      formData.append("Period", periodValue);
-      formData.append("Note", value.note || "");
-
-      // --- 3. Location ---
-      if (value.location) {
-        formData.append("Latitude", value.location.latitude?.toString() || "");
-        formData.append(
-          "Longitude",
-          value.location.longitude?.toString() || "",
-        );
-      }
-
-      // --- 4. Arrays & Transformations ---
-
-      // A. Equipment
-      if (value.eventExtraEquipments && value.eventExtraEquipments.length > 0) {
-        console.log("🔧 Adding Equipment:", value.eventExtraEquipments);
-        value.eventExtraEquipments.forEach((item, index) => {
-          formData.append(
-            `EventExtraEquipments[${index}].EquipmentId`,
-            item.equipmentId.toString(),
-          );
-          formData.append(
-            `EventExtraEquipments[${index}].Quantity`,
-            item.quantity.toString(),
-          );
-        });
-      }
-
-      // B. Outsource
-      const formattedOutsource = value.outsource.map((item) => {
-        const matchedRole = roleData?.find((r) => r.roleName === item.roleName);
-        if (!matchedRole)
-          console.warn(
-            `⚠️ Warning: Role not found for outsource: ${item.roleName}`,
-          );
-
-        return {
-          outsourceId: Number(item.staffId),
-          roleId: matchedRole ? matchedRole.roleId : 0,
-        };
-      });
-
-      console.log("👷 Mapped Outsource Data:", formattedOutsource);
-
-      if (formattedOutsource.length > 0) {
-        formattedOutsource.forEach((item, index) => {
-          // 🛡️ Safety Check: ถ้า RoleId เป็น 0 (หาไม่เจอ) ไม่ควรส่งไปเพราะจะทำ 500 Error
-          if (item.roleId !== 0) {
-            formData.append(
-              `EventOutsources[${index}].OutsourceId`,
-              item.outsourceId.toString(),
-            );
-            formData.append(
-              `EventOutsources[${index}].RoleId`,
-              item.roleId.toString(),
-            );
-          } else {
-            console.error("❌ SKIPPING OUTSOURCE due to missing role:", item);
-          }
-        });
-      }
-
-      // C. Staff
-      if (value.staff && value.staff.length > 0) {
-        // 1. กรองและหา ID ให้เรียบร้อยก่อน
-        const finalStaffList = value.staff
-          .map((item) => {
-            //แก้การเทียบชื่อให้ยืดหยุ่น (ตัดช่องว่าง + ไม่สนตัวพิมพ์ใหญ่เล็ก)
-            const matchedRole = roleData?.find(
-              (r) =>
-                r.roleName.trim().toLowerCase() ===
-                item.roleName?.trim().toLowerCase(),
-            );
-
-            return {
-              staffId: Number(item.staffId),
-              roleId: matchedRole ? matchedRole.roleId : 0,
-            };
-          })
-          //  กรองเอาเฉพาะคนที่มีทั้ง StaffId และ RoleId
-          .filter((s) => s.staffId > 0 && s.roleId > 0);
-
-        console.log("👥 ข้อมูล Staff ที่จะส่งจริง:", finalStaffList);
-
-        // 2. วนลูปส่งด้วย Index ที่เรียงต่อเนื่อง (0, 1, 2...)
-        finalStaffList.forEach((item, index) => {
-          formData.append(
-            `EventStaffs[${index}].StaffId`,
-            item.staffId.toString(),
-          );
-          formData.append(
-            `EventStaffs[${index}].RoleId`,
-            item.roleId.toString(),
-          );
-        });
-      }
-
-      // --- 5. File ---
-      if (value.file && value.file.length > 0) {
-        console.log("📎 Attaching Files:", value.file.length);
-        value.file.forEach((f) => {
-          formData.append("AttachmentFiles", f);
-        });
-      }
-
-      // ---------------------------------------------------------
-      // LOG 2: แอบดูไส้ใน FormData
-      // ---------------------------------------------------------
-      console.group("📦 FINAL FORM DATA CONTENT");
-
-      for (const pair of formData.entries()) {
-        console.log(`${pair[0]}: ${pair[1]}`);
-      }
-      console.groupEnd();
-      console.groupEnd(); // End Main Debug Group
-
-      onSubmit(formData as any);
+      onSubmit(value);
     },
   });
 
@@ -352,7 +183,6 @@ export default function EventForm({
     }));
   }, [packageDetail]);
 
-  //  ใช้ useMemo เพื่อป้องกัน Infinite Loop
   const formattedStaffList = useMemo(() => {
     return (
       staffData?.map((s) => ({
@@ -364,7 +194,6 @@ export default function EventForm({
     );
   }, [staffData]);
 
-  //  ใช้ useMemo เพื่อป้องกัน Infinite Loop
   const formattedOutsourceList = useMemo(() => {
     return (
       outsourceData?.map((o) => ({
@@ -617,11 +446,11 @@ export default function EventForm({
             </CardHeader>
             <CardContent>
               <form.AppField
-                name="staff"
+                name="eventStaff"
                 children={(field) => (
                   <StaffAssignmentBuilder
                     staffList={formattedStaffList}
-                    availableRoles={roleData?.map((r) => r.roleName) || []}
+                    availableRoles={roleData || []}
                     onChange={(data) => field.handleChange(data)}
                   />
                 )}
@@ -639,11 +468,11 @@ export default function EventForm({
             </CardHeader>
             <CardContent>
               <form.AppField
-                name="outsource"
+                name="eventOutsources"
                 children={(field) => (
                   <StaffAssignmentBuilder
                     staffList={formattedOutsourceList}
-                    availableRoles={roleData?.map((r) => r.roleName) || []}
+                    availableRoles={roleData || []}
                     onChange={(data) => field.handleChange(data)}
                     ignoreRoleValidation={true}
                   />
@@ -663,7 +492,7 @@ export default function EventForm({
               </CardHeader>
               <CardContent>
                 <form.AppField
-                  name="file"
+                  name="attachmentFiles"
                   children={(field) => (
                     <FileUpload
                       value={field.state.value}
