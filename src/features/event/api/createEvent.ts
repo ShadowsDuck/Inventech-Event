@@ -85,8 +85,8 @@ const createEvent = async (
       .filter((s) => s.staffId > 0 && s.roleId > 0);
 
     validStaffs.forEach((item, index) => {
-      formData.append(`EventStaffs[${index}].StaffId`, item.staffId.toString());
-      formData.append(`EventStaffs[${index}].RoleId`, item.roleId.toString());
+      formData.append(`EventStaff[${index}].StaffId`, item.staffId.toString());
+      formData.append(`EventStaff[${index}].RoleId`, item.roleId.toString());
     });
   }
 

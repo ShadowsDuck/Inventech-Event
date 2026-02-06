@@ -7,7 +7,8 @@ import { z } from "zod";
 
 import { useAppForm } from "@/components/form";
 import { EquipmentSelectField } from "@/components/form/equipment-select-field";
-import StaffAssignmentBuilder from "@/components/form/staff-manage-form";
+import StaffAssignmentBuilder from "@/components/form/resource-manage-form";
+import ResourceAssignmentBuilder from "@/components/form/resource-manage-form";
 import { CreateFormButton } from "@/components/form/ui/create-form-button";
 import { ResetFormButton } from "@/components/form/ui/reset-form-button";
 import PageHeader from "@/components/layout/PageHeader";
@@ -31,6 +32,7 @@ import {
   FileUploadItemPreview,
   FileUploadList,
 } from "@/components/ui/file-upload";
+import { companiesQuery } from "@/features/company/api/getCompanies";
 import { equipmentQuery } from "@/features/equipment/api/getEquipment";
 import { outsourcesQuery } from "@/features/outsource/api/getOutsource";
 import { packageQuery } from "@/features/package/api/getPackage";
@@ -53,41 +55,66 @@ const StaffSchema = z.object({
 
 const OutsourceSchema = z.object({
   outsourceId: z.number().or(z.string()), // รองรับทั้ง 2 แบบ
-  roleId: z.number().min(1, "Role is required"),
+  roleId: z.number(),
 });
 
 // --- Main Event Schema ---
-export const EventSchema = z.object({
-  eventName: z.string().min(1, "Event name is required").max(255),
-  note: z.string().optional(),
+export const EventSchema = z
+  .object({
+    eventName: z.string().min(1, "Event name is required").max(255),
+    note: z.string().optional(),
 
-  companyId: z.number().min(1, "Please select a company"),
-  packageId: z.number().optional().nullable(),
-  eventType: z.number().min(1, "Please select an event type"),
-  // eventDate: z
-  //   .union([z.date(), z.string()])
-  //   // ใช้ refine เพื่อเช็คว่าต้อง "มีค่า" (ไม่เป็น null, undefined, หรือ string ว่าง)
-  //   .optional()
-  //   .refine((val) => !!val, { message: "Event date is required" }),
-  eventDate: z.date({
-    error: (issue) => {
-      if (issue.code === "invalid_type" && issue.input === undefined) {
-        return "Event date is required";
+    companyId: z.number().min(1, "Please select a company"),
+    packageId: z.number().optional().nullable(),
+    eventType: z.number().min(1, "Please select an event type"),
+    // eventDate: z
+    //   .union([z.date(), z.string()])
+    //   // ใช้ refine เพื่อเช็คว่าต้อง "มีค่า" (ไม่เป็น null, undefined, หรือ string ว่าง)
+    //   .optional()
+    //   .refine((val) => !!val, { message: "Event date is required" }),
+    eventDate: z.date({
+      error: (issue) => {
+        if (issue.code === "invalid_type" && issue.input === undefined) {
+          return "Event date is required";
+        }
+        return "Invalid date format";
+      },
+    }),
+    registrationTime: z.string().optional(),
+    startTime: z.string().min(1, "Start time is required"),
+    endTime: z.string().min(1, "End time is required"),
+    timePeriod: z.number().min(1, "Please select a time period"),
+    location: z.string().optional(),
+
+    eventStaff: z.array(StaffSchema),
+    eventOutsources: z.array(OutsourceSchema),
+    eventExtraEquipments: z.array(EquipmentEventSchema),
+    attachmentFiles: z.array(z.instanceof(File)),
+  })
+  .superRefine((data, ctx) => {
+    //  Registration Time ต้องอยู่ก่อน Start Time
+    if (data.registrationTime && data.startTime) {
+      // เปรียบเทียบ String เวลา (เช่น "09:00" > "08:00")
+      if (data.registrationTime > data.startTime) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom, // บอกว่านี่คือ Logic พิเศษ
+          message: "Registration time must be before start time", // ข้อความด่า user (หยอกๆ)
+          path: ["registrationTime"], // ให้ Error ไปโผล่ที่ช่อง Registration Time
+        });
       }
-      return "Invalid date format";
-    },
-  }),
-  registrationTime: z.string().optional(),
-  startTime: z.string().min(1, "Start time is required"),
-  endTime: z.string().min(1, "End time is required"),
-  timePeriod: z.number().min(1, "Please select a time period"),
-  location: z.string().optional(),
+    }
 
-  eventStaff: z.array(StaffSchema),
-  eventOutsources: z.array(OutsourceSchema),
-  eventExtraEquipments: z.array(EquipmentEventSchema),
-  attachmentFiles: z.array(z.instanceof(File)),
-});
+    //  ตรวจสอบ Start Time ต้องอยู่ก่อน End Time ด้วย
+    if (data.startTime && data.endTime) {
+      if (data.startTime >= data.endTime) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Start time must be before end time",
+          path: ["startTime"], // ให้ Error ไปโผล่ที่ช่อง Start Time
+        });
+      }
+    }
+  });
 
 export type EventData = z.infer<typeof EventSchema>;
 
@@ -117,7 +144,7 @@ export default function EventForm({
     { data: outsourceData },
   ] = useSuspenseQueries({
     queries: [
-      companiesQueries(),
+      companiesQuery(),
       packageQuery(),
       equipmentQuery(),
       rolesQuery(),
@@ -186,8 +213,8 @@ export default function EventForm({
   const formattedStaffList = useMemo(() => {
     return (
       staffData?.map((s) => ({
-        staffId: String(s.staffId),
-        fullName: s.fullName,
+        id: String(s.staffId),
+        name: s.fullName,
         roles: s.staffRoles ? s.staffRoles.map((r) => r.roleName) : [],
         avatar: s.avatar || "",
       })) || []
@@ -197,10 +224,9 @@ export default function EventForm({
   const formattedOutsourceList = useMemo(() => {
     return (
       outsourceData?.map((o) => ({
-        staffId: String(o.outsourceId),
-        fullName: o.fullName,
+        id: String(o.outsourceId),
+        name: o.fullName,
         roles: [],
-        avatar: "",
       })) || []
     );
   }, [outsourceData]);
@@ -389,11 +415,14 @@ export default function EventForm({
                     <AlertDialogAction
                       className="bg-red-600 hover:bg-red-700"
                       onClick={() => {
-                        if (pendingPackage) {
+                        if (
+                          pendingPackage !== null &&
+                          pendingPackage !== undefined
+                        ) {
                           form.setFieldValue(
                             "packageId",
                             Number(pendingPackage),
-                          ); // Save เป็น Number
+                          );
                           form.setFieldValue("eventExtraEquipments", []);
                           setPendingPackage(null);
                           setAlertOpen(false);
@@ -448,9 +477,11 @@ export default function EventForm({
               <form.AppField
                 name="eventStaff"
                 children={(field) => (
-                  <StaffAssignmentBuilder
-                    staffList={formattedStaffList}
+                  <ResourceAssignmentBuilder
+                    candidates={formattedStaffList} // ส่ง Staff
                     availableRoles={roleData || []}
+                    idKey="staffId"
+                    entityLabel="Staff" // <--- บอกว่าเป็น Staff
                     onChange={(data) => field.handleChange(data)}
                   />
                 )}
@@ -470,11 +501,13 @@ export default function EventForm({
               <form.AppField
                 name="eventOutsources"
                 children={(field) => (
-                  <StaffAssignmentBuilder
-                    staffList={formattedOutsourceList}
+                  <ResourceAssignmentBuilder
+                    candidates={formattedOutsourceList} // ส่ง Outsource
                     availableRoles={roleData || []}
-                    onChange={(data) => field.handleChange(data)}
                     ignoreRoleValidation={true}
+                    idKey="outsourceId"
+                    entityLabel="Outsource" // <--- บอกว่าเป็น Outsource (Text จะเปลี่ยนตาม)
+                    onChange={(data) => field.handleChange(data)}
                   />
                 )}
               />
