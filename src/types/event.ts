@@ -82,21 +82,18 @@ export interface EventType {
 interface EventStaffForm {
   eventId: number;
   staffId: number;
-  // ❌ ตัด staff?: StaffType ออก เพื่อหยุด Recursion
 }
 
 interface EventOutsourceForm {
   eventId: number;
   outsourceId: number;
   roleId: number;
-  // ❌ ตัด outsource?, role? ออก
 }
 
 interface EventEquipmentForm {
   eventId: number;
   equipmentId: number;
   quantity: number;
-  // ❌ ตัด equipment? ออก
 }
 
 export interface EventFormType extends Omit<

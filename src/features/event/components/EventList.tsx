@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
+import { useSuspenseQueries } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import {
   Building2,
@@ -17,7 +18,11 @@ import {
   type FilterOption,
 } from "@/components/ui/filter-multi-select";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
+import { companiesQuery } from "@/features/company/api/getCompanies";
+import { companyQuery } from "@/features/company/api/getCompany";
+import { staffQuery } from "@/features/staff/api/getStaff";
 
+import { eventsQuery } from "../api/getEvent";
 import DailyView from "./daily-view";
 import MonthView from "./month-view";
 import YearView from "./year-view";
@@ -25,6 +30,29 @@ import YearView from "./year-view";
 export default function EventList() {
   const navigate = useNavigate();
 
+  const [{ data: staffData }, { data: companyData }, { data: EventData }] =
+    useSuspenseQueries({
+      queries: [staffQuery(), companiesQuery(), eventsQuery()],
+    });
+  //  แปลง Staff Data
+  const staffOptions = useMemo(() => {
+    return (
+      staffData?.map((staff) => ({
+        value: String(staff.staffId), // แปลงเป็น String
+        label: staff.fullName,
+      })) || []
+    );
+  }, [staffData]); // dependency: ทำงานใหม่เมื่อ staffData เปลี่ยน
+
+  // แปลง Company Data
+  const companyOptions = useMemo(() => {
+    return (
+      companyData?.map((comp) => ({
+        value: String(comp.companyId), // แปลงเป็น String
+        label: comp.companyName,
+      })) || []
+    );
+  }, [companyData]); // dependency: ทำงานใหม่เมื่อ companyData เปลี่ยน
   // --- UI State (สำหรับควบคุม Tab และ Input ต่างๆ) ---
   const [activeTab, setActiveTab] = useState<"daily" | "calendar" | "year">(
     "calendar",
@@ -35,10 +63,6 @@ export default function EventList() {
   const [companyFilter, setCompanyFilter] = useState<string[]>([]);
   const [eventTypeFilter, setEventTypeFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
-
-  // --- Mock Options (ส่วน UI Config เปล่าๆ ไม่มี Data จริง) ---
-  const staffOptions: FilterOption[] = []; // รอรับข้อมูลจริง
-  const companyOptions: FilterOption[] = []; // รอรับข้อมูลจริง
 
   const eventTypeOptions: FilterOption[] = [
     { value: "Online", label: "Online" },
@@ -149,13 +173,13 @@ export default function EventList() {
 
         {/* Content Views */}
         <TabsPanel value="year">
-          <YearView />
+          <YearView events={EventData} />
         </TabsPanel>
         <TabsPanel value="calendar">
-          <MonthView />
+          <MonthView events={EventData} />
         </TabsPanel>
         <TabsPanel value="daily">
-          <DailyView />
+          <DailyView events={EventData} />
         </TabsPanel>
       </Tabs>
     </>
