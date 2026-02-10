@@ -18,6 +18,7 @@ export interface EventStaff {
   staff?: StaffType;
   assignedAt: string;
   updatedAt: string;
+  eventRole: RoleType;
 }
 
 // 2. Outsource

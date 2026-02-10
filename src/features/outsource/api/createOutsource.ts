@@ -1,19 +1,34 @@
 import { useMutation } from "@tanstack/react-query";
+import axios, { isAxiosError } from "axios";
+
+// 1. import axios
 
 import type { OutsourceData } from "../components/outsource-form";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const createOutsource = async (newOutsource: OutsourceData): Promise<void> => {
-  await fetch(`${API_URL}/api/outsources`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(newOutsource),
-  });
+  try {
+    // 2. ใช้ axios.post ส่ง object ไปได้เลย
+    // ไม่ต้องมี headers หรือ JSON.stringify แล้ว
+    await axios.post(`${API_URL}/api/outsources`, newOutsource);
 
-  return;
+    return;
+  } catch (error) {
+    // 3. จัดการ Error ขาเข้าจาก Axios เพื่อดึง Message จาก Backend
+    if (isAxiosError(error) && error.response) {
+      const errorData = error.response.data;
+
+      const errorMessage =
+        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
+        errorData.detail ||
+        "Failed to create outsource";
+
+      throw new Error(errorMessage);
+    }
+
+    throw new Error("Failed to create outsource (Network error)");
+  }
 };
 
 export const useCreateOutsource = () =>

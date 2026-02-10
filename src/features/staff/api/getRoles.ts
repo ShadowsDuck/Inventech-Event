@@ -1,17 +1,17 @@
 import { queryOptions } from "@tanstack/react-query";
+import axios from "axios";
+
+// 1. import axios
 
 import type { RoleType } from "@/types/role";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const getRoles = async (): Promise<RoleType[]> => {
-  const res = await fetch(`${API_URL}/api/roles`);
+  // 2. ใช้ axios.get และระบุ Type <RoleType[]>
+  const { data } = await axios.get<RoleType[]>(`${API_URL}/api/roles`);
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch roles");
-  }
-
-  return res.json();
+  return data; // 3. return data ได้เลย
 };
 
 export const rolesQuery = () =>

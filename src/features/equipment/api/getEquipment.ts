@@ -1,4 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
+import axios from "axios";
+
+// 1. import axios
 
 import type { EquipmentType } from "@/types/equipment";
 
@@ -7,23 +10,24 @@ const API_URL = import.meta.env.VITE_API_URL;
 const getEquipment = async (params: {
   isDeleted: boolean | null;
 }): Promise<EquipmentType[]> => {
-  const searchParams = new URLSearchParams();
+  // 2. เตรียม Object สำหรับ Query Params
+  const requestParams: Record<string, string | boolean | null> = {};
 
+  // เช็คเงื่อนไขเหมือนเดิม
   if (params.isDeleted !== null) {
-    searchParams.set("isDeleted", params.isDeleted.toString());
+    requestParams.isDeleted = params.isDeleted;
   }
 
-  const query = searchParams.toString();
-
-  const res = await fetch(
-    `${API_URL}/api/equipments${query ? `?${query}` : ""}`,
+  // 3. ใช้ axios.get พร้อมใส่ option 'params'
+  // Axios จะแปลง object นี้เป็น ?isDeleted=true ให้อัตโนมัติ
+  const { data } = await axios.get<EquipmentType[]>(
+    `${API_URL}/api/equipments`,
+    {
+      params: requestParams,
+    },
   );
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch equipment");
-  }
-
-  return res.json();
+  return data;
 };
 
 export const equipmentQuery = (filters?: { isDeleted?: boolean | null }) => {

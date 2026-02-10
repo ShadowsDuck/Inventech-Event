@@ -1,4 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
+import axios, { isAxiosError } from "axios";
+
+// 1. import axios
 
 import type { StaffData } from "../components/staff-form";
 
@@ -12,44 +15,48 @@ type UpdateStaffData = StaffData & {
 const updateStaff = async ({ id, ...data }: UpdateStaffData): Promise<void> => {
   const formData = new FormData();
 
+  // --- เตรียม FormData  ---
   formData.append("FullName", data.fullName);
 
   if (data.email) formData.append("Email", data.email);
-
   if (data.phoneNumber) formData.append("PhoneNumber", data.phoneNumber);
 
   if (data.avatar instanceof File) {
-    // กรณีมีไฟล์ใหม่
+    // กรณีอัปโหลดไฟล์ใหม่
     formData.append("AvatarFile", data.avatar);
   } else if (data.deleteAvatar) {
-    // กรณีสั่งลบ
+    // กรณีสั่งลบรูปเดิม
     formData.append("DeleteAvatar", "true");
   }
 
   if (data.staffRoles && data.staffRoles.length > 0) {
-    data.staffRoles.forEach((id) => {
-      formData.append("StaffRoles", id.toString());
+    data.staffRoles.forEach((roleId) => {
+      formData.append("StaffRoles", roleId.toString());
     });
   }
 
   formData.append("IsDeleted", data.isDeleted.toString());
+  // ---------------------------------------
 
-  const res = await fetch(`${API_URL}/api/staff/${id}`, {
-    method: "PUT",
-    body: formData,
-  });
+  try {
+    // 2. ใช้ axios.put
+    await axios.put(`${API_URL}/api/staff/${id}`, formData);
 
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
+    return;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      const errorData = error.response.data;
 
-    throw new Error(
-      (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
+      const errorMessage =
+        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
         errorData.detail ||
-        "Failed to update staff",
-    );
-  }
+        "Failed to update staff";
 
-  return;
+      throw new Error(errorMessage);
+    }
+
+    throw new Error("Failed to update staff (Network error)");
+  }
 };
 
 export const useUpdateStaff = () =>

@@ -27,6 +27,7 @@ import { Route as SidebarLayoutCompanyIndexRouteImport } from './routes/_sidebar
 import { Route as StaffStaffIdEditRouteImport } from './routes/staff/$staffId/edit'
 import { Route as PackagePackageIdEditRouteImport } from './routes/package/$packageId/edit'
 import { Route as OutsourceOutsourceIdEditRouteImport } from './routes/outsource/$outsourceId/edit'
+import { Route as EventEventIdEditRouteImport } from './routes/event/$eventId/edit'
 import { Route as EquipmentEquipmentIdEditRouteImport } from './routes/equipment/$equipmentId/edit'
 import { Route as CompanyCompanyIdEditRouteImport } from './routes/company/$companyId/edit'
 import { Route as SidebarLayoutStaffStaffIdRouteImport } from './routes/_sidebarLayout/staff/$staffId'
@@ -124,6 +125,11 @@ const OutsourceOutsourceIdEditRoute =
     path: '/outsource/$outsourceId/edit',
     getParentRoute: () => rootRouteImport,
   } as any)
+const EventEventIdEditRoute = EventEventIdEditRouteImport.update({
+  id: '/event/$eventId/edit',
+  path: '/event/$eventId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EquipmentEquipmentIdEditRoute =
   EquipmentEquipmentIdEditRouteImport.update({
     id: '/equipment/$equipmentId/edit',
@@ -164,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/staff/$staffId': typeof SidebarLayoutStaffStaffIdRoute
   '/company/$companyId/edit': typeof CompanyCompanyIdEditRoute
   '/equipment/$equipmentId/edit': typeof EquipmentEquipmentIdEditRoute
+  '/event/$eventId/edit': typeof EventEventIdEditRoute
   '/outsource/$outsourceId/edit': typeof OutsourceOutsourceIdEditRoute
   '/package/$packageId/edit': typeof PackagePackageIdEditRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
@@ -187,6 +194,7 @@ export interface FileRoutesByTo {
   '/staff/$staffId': typeof SidebarLayoutStaffStaffIdRoute
   '/company/$companyId/edit': typeof CompanyCompanyIdEditRoute
   '/equipment/$equipmentId/edit': typeof EquipmentEquipmentIdEditRoute
+  '/event/$eventId/edit': typeof EventEventIdEditRoute
   '/outsource/$outsourceId/edit': typeof OutsourceOutsourceIdEditRoute
   '/package/$packageId/edit': typeof PackagePackageIdEditRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/_sidebarLayout/staff/$staffId': typeof SidebarLayoutStaffStaffIdRoute
   '/company/$companyId/edit': typeof CompanyCompanyIdEditRoute
   '/equipment/$equipmentId/edit': typeof EquipmentEquipmentIdEditRoute
+  '/event/$eventId/edit': typeof EventEventIdEditRoute
   '/outsource/$outsourceId/edit': typeof OutsourceOutsourceIdEditRoute
   '/package/$packageId/edit': typeof PackagePackageIdEditRoute
   '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
@@ -237,6 +246,7 @@ export interface FileRouteTypes {
     | '/staff/$staffId'
     | '/company/$companyId/edit'
     | '/equipment/$equipmentId/edit'
+    | '/event/$eventId/edit'
     | '/outsource/$outsourceId/edit'
     | '/package/$packageId/edit'
     | '/staff/$staffId/edit'
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/staff/$staffId'
     | '/company/$companyId/edit'
     | '/equipment/$equipmentId/edit'
+    | '/event/$eventId/edit'
     | '/outsource/$outsourceId/edit'
     | '/package/$packageId/edit'
     | '/staff/$staffId/edit'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/_sidebarLayout/staff/$staffId'
     | '/company/$companyId/edit'
     | '/equipment/$equipmentId/edit'
+    | '/event/$eventId/edit'
     | '/outsource/$outsourceId/edit'
     | '/package/$packageId/edit'
     | '/staff/$staffId/edit'
@@ -303,6 +315,7 @@ export interface RootRouteChildren {
   LoginIndexRoute: typeof LoginIndexRoute
   CompanyCompanyIdEditRoute: typeof CompanyCompanyIdEditRoute
   EquipmentEquipmentIdEditRoute: typeof EquipmentEquipmentIdEditRoute
+  EventEventIdEditRoute: typeof EventEventIdEditRoute
   OutsourceOutsourceIdEditRoute: typeof OutsourceOutsourceIdEditRoute
   PackagePackageIdEditRoute: typeof PackagePackageIdEditRoute
   StaffStaffIdEditRoute: typeof StaffStaffIdEditRoute
@@ -436,6 +449,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OutsourceOutsourceIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/event/$eventId/edit': {
+      id: '/event/$eventId/edit'
+      path: '/event/$eventId/edit'
+      fullPath: '/event/$eventId/edit'
+      preLoaderRoute: typeof EventEventIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/equipment/$equipmentId/edit': {
       id: '/equipment/$equipmentId/edit'
       path: '/equipment/$equipmentId/edit'
@@ -505,6 +525,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginIndexRoute: LoginIndexRoute,
   CompanyCompanyIdEditRoute: CompanyCompanyIdEditRoute,
   EquipmentEquipmentIdEditRoute: EquipmentEquipmentIdEditRoute,
+  EventEventIdEditRoute: EventEventIdEditRoute,
   OutsourceOutsourceIdEditRoute: OutsourceOutsourceIdEditRoute,
   PackagePackageIdEditRoute: PackagePackageIdEditRoute,
   StaffStaffIdEditRoute: StaffStaffIdEditRoute,

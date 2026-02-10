@@ -29,6 +29,7 @@ interface ResourceAssignmentBuilderProps {
   initialData?: RoleAssignment[];
   onChange?: (data: any[]) => void;
   ignoreRoleValidation?: boolean;
+  value?: any[];
 
   // Props ใหม่สำหรับแยกประเภท
   idKey?: string; // ชื่อ key ขาออก (เช่น "staffId" หรือ "outsourceId")
@@ -384,45 +385,105 @@ const AssignmentCard = ({
 };
 
 // --- 4. Main Component: ResourceAssignmentBuilder ---
+
 export default function ResourceAssignmentBuilder({
   availableRoles,
   candidates = [],
-  initialData = [],
+  value = [], // รับค่าจาก Form (Flat Array)
   onChange,
   ignoreRoleValidation = false,
   idKey = "staffId", // Default key
   entityLabel = "Staff", // Default Label
 }: ResourceAssignmentBuilderProps) {
-  const [assignments, setAssignments] = useState<RoleAssignment[]>(initialData);
+  // 1. State สำหรับจัดการ UI ภายใน (Group ตาม Role)
+  const [assignments, setAssignments] = useState<RoleAssignment[]>([]);
 
-  const assignedIds = new Set(
-    assignments.flatMap((a) => a.slots).filter((id) => id !== null),
-  );
+  // 2. ตัวกัน Loop และกันข้อมูลทับซ้อน
+  const isInitialized = useRef(false);
 
+  // --------------------------------------------------------
+  // ✅ ส่วนที่เพิ่ม: Logic แปลงค่าจาก Form (Flat) -> State (Grouped)
+  // --------------------------------------------------------
+  useEffect(() => {
+    // ทำงานเมื่อมี value เข้ามา และยังไม่เคย Init ข้อมูล
+    if (value && value.length > 0 && !isInitialized.current) {
+      const groupedMap = new Map<number, RoleAssignment>();
+
+      // วนลูปข้อมูล Flat Array ที่ส่งมาจาก Form
+      value.forEach((item) => {
+        const rId = Number(item.roleId);
+        const pId = item[idKey]?.toString() || null; // ดึง id ตาม key ที่ส่งมา (staffId/outsourceId)
+
+        // หาชื่อ Role (ถ้าใน item ไม่มี ให้ไปหาจาก availableRoles)
+        const roleName =
+          item.roleName ||
+          availableRoles.find((r) => r.roleId === rId)?.roleName ||
+          "Unknown Role";
+
+        // ถ้ายังไม่มี Role นี้ใน Map ให้สร้างใหม่
+        if (!groupedMap.has(rId)) {
+          groupedMap.set(rId, {
+            roleId: rId,
+            roleName: roleName,
+            slots: [],
+          });
+        }
+
+        // ยัด ID คนลงใน Slots (เฉพาะที่ไม่เป็น null)
+        if (pId) {
+          groupedMap.get(rId)!.slots.push(pId);
+        }
+      });
+
+      // แปลง Map กลับเป็น Array เพื่อใส่ State
+      const initialAssignments = Array.from(groupedMap.values());
+
+      setAssignments(initialAssignments);
+      isInitialized.current = true; // Mark ว่าโหลดข้อมูลเสร็จแล้ว
+    }
+  }, [value, availableRoles, idKey]);
+
+  // --------------------------------------------------------
+  // ✅ ส่วนส่งค่าออก: Logic แปลง State (Grouped) -> Form (Flat)
+  // --------------------------------------------------------
   const onChangeRef = useRef(onChange);
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
 
   useEffect(() => {
+    // ถ้ายัง Init ไม่เสร็จ หรือ assignments ว่างเปล่า (และ value มีค่า) อย่าเพิ่งส่งค่ากลับ
+    // เพื่อป้องกันการล้างข้อมูลตอนโหลดครั้งแรก
+    if (!isInitialized.current && value.length > 0 && assignments.length === 0)
+      return;
+
+    // แปลงจาก Grouped Structure กลับเป็น Flat Array
     const payload = assignments.flatMap((assign) => {
       return assign.slots
         .filter((slotId) => slotId !== null)
         .map((slotId) => {
           const person = candidates.find((s) => s.id === slotId);
           return {
-            [idKey]: slotId, // Dynamic Key (staffId หรือ outsourceId)
+            [idKey]: slotId, // Dynamic Key: staffId หรือ outsourceId
             roleId: assign.roleId,
-            roleName: assign.roleName,
-            fullName: person?.name || "",
+            roleName: assign.roleName, // ส่งชื่อไปด้วย
+            fullName: person?.name || "", // ส่งชื่อคนไปด้วย
           };
         });
     });
 
-    if (onChangeRef.current) onChangeRef.current(payload);
-  }, [assignments, candidates, idKey]);
+    // ส่งค่ากลับเมื่อมีการเปลี่ยนแปลงจริง ๆ
+    if (onChangeRef.current) {
+      // เช็คคร่าวๆ ว่าข้อมูลเปลี่ยนไหม เพื่อลดการ render ซ้ำ
+      if (JSON.stringify(payload) !== JSON.stringify(value)) {
+        onChangeRef.current(payload);
+      }
+    }
+  }, [assignments, candidates, idKey]); // เอา value ออกจาก dependency เพื่อกัน Loop นรก
 
-  // (ฟังก์ชัน handleAddAssignment, handleUpdateSlotCount, etc. เหมือนเดิมเป๊ะ แต่เปลี่ยน setAssignments)
+  // --------------------------------------------------------
+  // Handlers (เหมือนเดิมเป๊ะ)
+  // --------------------------------------------------------
   const handleAddAssignment = (
     roleId: number,
     roleName: string,
@@ -450,7 +511,8 @@ export default function ResourceAssignmentBuilder({
         if (a.roleId !== roleId) return a;
         const slots = [...a.slots];
         if (delta > 0) return { ...a, slots: [...slots, null] };
-        // Logic ลด slot
+
+        // Logic ลด slot: เอาช่องว่างออกก่อน ถ้าไม่มีช่องว่างให้เอาตัวสุดท้ายออก
         const lastEmpty = slots.lastIndexOf(null);
         if (lastEmpty !== -1) slots.splice(lastEmpty, 1);
         else slots.pop();
@@ -482,6 +544,11 @@ export default function ResourceAssignmentBuilder({
     );
   };
 
+  // คำนวณ ID ที่ถูกเลือกไปแล้ว เพื่อเอาไป disable ใน Dropdown
+  const assignedIds = new Set(
+    assignments.flatMap((a) => a.slots).filter((id) => id !== null),
+  );
+
   return (
     <div className="w-full space-y-8">
       <ControlBar
@@ -495,13 +562,13 @@ export default function ResourceAssignmentBuilder({
             key={assign.roleId}
             assignment={assign}
             candidates={candidates}
-            assignedIds={assignedIds} // ส่ง Set ของ ID ที่ถูกเลือกไปแล้ว
+            assignedIds={assignedIds as Set<string | null>}
             onUpdateCount={(d) => handleUpdateSlotCount(assign.roleId, d)}
             onRemove={() => handleRemoveAssignment(assign.roleId)}
             onClearSlot={(i) => handleClearSlot(assign.roleId, i)}
             onAssign={(i, id) => handleAssignSlot(assign.roleId, i, id)}
             ignoreRoleValidation={ignoreRoleValidation}
-            entityLabel={entityLabel} // ส่ง Label ไปแสดงผล
+            entityLabel={entityLabel}
           />
         ))}
         {assignments.length === 0 && (

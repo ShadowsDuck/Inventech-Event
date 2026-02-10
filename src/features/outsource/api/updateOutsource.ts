@@ -1,4 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
+import axios, { isAxiosError } from "axios";
+
+// 1. import axios
 
 import type { OutsourceData } from "../components/outsource-form";
 
@@ -12,15 +15,26 @@ const updateOutsource = async ({
   id,
   ...data
 }: UpdateOutsourceData): Promise<void> => {
-  await fetch(`${API_URL}/api/outsources/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  try {
+    // 2. ใช้ axios.put
+    await axios.put(`${API_URL}/api/outsources/${id}`, data);
 
-  return;
+    return;
+  } catch (error) {
+    // 3. จัดการ Error ให้ละเอียดขึ้น (เดิม fetch ตัวนี้ไม่ได้เช็ค !res.ok ไว้)
+    if (isAxiosError(error) && error.response) {
+      const errorData = error.response.data;
+
+      const errorMessage =
+        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
+        errorData.detail ||
+        "Failed to update outsource";
+
+      throw new Error(errorMessage);
+    }
+
+    throw new Error("Failed to update outsource (Network error)");
+  }
 };
 
 export const useUpdateOutsource = () =>

@@ -1,4 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
+import axios, { isAxiosError } from "axios";
+// 1. import axios
 import { format } from "date-fns";
 
 import type { EventType } from "@/types/event";
@@ -15,6 +17,7 @@ type CreateEventPayload = EventData & {
 const createEvent = async (
   newEvent: CreateEventPayload,
 ): Promise<EventType> => {
+  // --- ส่วนเตรียม FormData (Logic เดิมเป๊ะๆ) ---
   const formData = new FormData();
 
   formData.append("EventName", newEvent.eventName);
@@ -43,20 +46,15 @@ const createEvent = async (
   formData.append("Period", periodValue);
 
   formData.append("Note", newEvent.note || "");
-
-  // Hardcode Staff ID ไว้ก่อน
   formData.append("CreatedByStaffId", "1");
 
-  // --- 3. Location ---
+  // Location
   if (newEvent.latitude !== null && newEvent.latitude !== undefined) {
     formData.append("Latitude", newEvent.latitude.toString());
   }
-
   if (newEvent.longitude !== null && newEvent.longitude !== undefined) {
     formData.append("Longitude", newEvent.longitude.toString());
   }
-
-  // --- 4. Arrays (Logic แปลงข้อมูลอยู่ตรงนี้ทั้งหมด) ---
 
   // A. Equipment
   if (
@@ -111,29 +109,37 @@ const createEvent = async (
     });
   }
 
-  // --- 5. Files ---
+  // Files
   if (newEvent.attachmentFiles?.length > 0) {
     newEvent.attachmentFiles.forEach((f) => {
       formData.append("AttachmentFiles", f);
     });
   }
+  // ---------------------------------------------
 
-  // --- API Call ---
-  const res = await fetch(`${API_URL}/api/events`, {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(
-      (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
-        errorData.detail ||
-        "Failed to create event",
+  try {
+    // 2. ใช้ axios.post
+    // ส่ง formData เข้าไปตรงๆ ได้เลย Axios จัดการ Header ให้เอง
+    const { data } = await axios.post<EventType>(
+      `${API_URL}/api/events`,
+      formData,
     );
-  }
 
-  return res.json();
+    return data;
+  } catch (error) {
+    // 3. จัดการ Error แบบ Axios
+    if (isAxiosError(error) && error.response) {
+      const errorData = error.response.data;
+
+      const errorMessage =
+        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
+        errorData.detail ||
+        "Failed to create event";
+
+      throw new Error(errorMessage);
+    }
+    throw new Error("Failed to create event (Network error)");
+  }
 };
 
 export const useCreateEvent = () =>

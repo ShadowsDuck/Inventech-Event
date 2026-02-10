@@ -1,4 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
+import axios, { isAxiosError } from "axios";
+
+// 1. import axios
 
 import type { CompanyType } from "@/types/company";
 
@@ -14,25 +17,28 @@ const updateCompany = async ({
   id,
   ...company
 }: UpdateCompanyData): Promise<CompanyType> => {
-  const res = await fetch(`${API_URL}/api/companies/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(company),
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-
-    throw new Error(
-      (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
-        errorData.detail ||
-        "Failed to update company",
+  try {
+    // 2. ใช้ axios.put
+    const { data } = await axios.put<CompanyType>(
+      `${API_URL}/api/companies/${id}`,
+      company,
     );
-  }
 
-  return res.json();
+    return data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      const errorData = error.response.data;
+
+      const errorMessage =
+        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
+        errorData.detail ||
+        "Failed to update company";
+
+      throw new Error(errorMessage);
+    }
+
+    throw new Error("Failed to update company (Network error)");
+  }
 };
 
 export const useUpdateCompany = () =>

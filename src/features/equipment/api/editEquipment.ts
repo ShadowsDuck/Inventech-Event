@@ -1,4 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
+import axios, { isAxiosError } from "axios";
+
+// 1. import axios และ helper สำหรับจัดการ error
 
 import type { EquipmentData } from "../components/equipment-form";
 
@@ -12,25 +15,25 @@ const UpdateEquipment = async ({
   id,
   ...data
 }: UpdateEquipmentData): Promise<void> => {
-  const res = await fetch(`${API_URL}/api/equipments/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  try {
+    await axios.put(`${API_URL}/api/equipments/${id}`, data);
 
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
+    return; // ส่งค่ากลับเป็น void ตามเดิม
+  } catch (error) {
+    // 3. จัดการ Error ขาเข้าจาก Axios
+    if (isAxiosError(error) && error.response) {
+      const errorData = error.response.data;
 
-    throw new Error(
-      (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
+      const errorMessage =
+        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
         errorData.detail ||
-        "Failed to create staff",
-    );
-  }
+        "Failed to update equipment";
 
-  return;
+      throw new Error(errorMessage);
+    }
+
+    throw new Error("Failed to update equipment (Network error)");
+  }
 };
 
 export const useEditEquipment = () => {

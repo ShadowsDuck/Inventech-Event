@@ -39,7 +39,6 @@ import { packageQuery } from "@/features/package/api/getPackage";
 import { rolesQuery } from "@/features/staff/api/getRoles";
 import { staffQuery } from "@/features/staff/api/getStaff";
 
-import { companiesQueries } from "../api/getCompany";
 import { equipmentBypackageIdQuery } from "../api/getEquipmentByPackageId";
 
 // --- Sub-Schemas ---
@@ -67,11 +66,7 @@ export const EventSchema = z
     companyId: z.number().min(1, "Please select a company"),
     packageId: z.number().optional().nullable(),
     eventType: z.number().min(1, "Please select an event type"),
-    // eventDate: z
-    //   .union([z.date(), z.string()])
-    //   // ใช้ refine เพื่อเช็คว่าต้อง "มีค่า" (ไม่เป็น null, undefined, หรือ string ว่าง)
-    //   .optional()
-    //   .refine((val) => !!val, { message: "Event date is required" }),
+
     eventDate: z.date({
       error: (issue) => {
         if (issue.code === "invalid_type" && issue.input === undefined) {
@@ -97,7 +92,7 @@ export const EventSchema = z
       // เปรียบเทียบ String เวลา (เช่น "09:00" > "08:00")
       if (data.registrationTime > data.startTime) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom, // บอกว่านี่คือ Logic พิเศษ
+          code: z.ZodIssueCode.custom,
           message: "Registration time must be before start time", // ข้อความด่า user (หยอกๆ)
           path: ["registrationTime"], // ให้ Error ไปโผล่ที่ช่อง Registration Time
         });
@@ -354,7 +349,11 @@ export default function EventForm({
                 <form.AppField
                   name="location"
                   children={(field) => (
-                    <field.LocationField label="Select Location " />
+                    <field.LocationField
+                      label="Select Location "
+                      value={field.state.value}
+                      onChange={(val) => field.handleChange(val)}
+                    />
                   )}
                 />
               </section>
@@ -483,6 +482,7 @@ export default function EventForm({
                     idKey="staffId"
                     entityLabel="Staff" // <--- บอกว่าเป็น Staff
                     onChange={(data) => field.handleChange(data)}
+                    value={field.state.value}
                   />
                 )}
               />
@@ -508,6 +508,7 @@ export default function EventForm({
                     idKey="outsourceId"
                     entityLabel="Outsource" // <--- บอกว่าเป็น Outsource (Text จะเปลี่ยนตาม)
                     onChange={(data) => field.handleChange(data)}
+                    value={field.state.value}
                   />
                 )}
               />
