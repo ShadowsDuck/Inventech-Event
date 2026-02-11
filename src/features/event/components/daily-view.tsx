@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   Building2,
@@ -10,7 +10,6 @@ import {
   Clock,
   Compass,
   Download,
-  // เพิ่ม import สำหรับ Attachments
   FileImage,
   FileText,
   Notebook,
@@ -30,7 +29,7 @@ interface DailyViewProps {
   onDateChange?: (date: Date) => void;
 }
 
-const DailyView: React.FC<DailyViewProps> = ({ events = [], initialDate }) => {
+const DailyView = ({ events, initialDate }: DailyViewProps) => {
   const [currentDate, setCurrentDate] = useState(initialDate || new Date());
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
