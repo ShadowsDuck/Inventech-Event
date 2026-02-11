@@ -1,7 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 
 import { useCreateEvent } from "../api/createEvent";
-import EventForm, { type EventData } from "./event-form";
+import EventForm from "./event-form";
+import { type EventData } from "./event-schema";
 
 export default function CreateEvent() {
   const navigate = useNavigate();

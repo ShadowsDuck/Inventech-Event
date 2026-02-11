@@ -11,8 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTab } from "../ui/tabs";
 // --- 1. Type Definitions (เปลี่ยนชื่อให้เป็นกลาง) ---
 
 export interface AssignmentCandidate {
-  id: string; // เปลี่ยนจาก staffId
-  name: string; // เปลี่ยนจาก fullName
+  id: string;
+  name: string;
   roles: string[];
   avatar?: string;
 }
@@ -395,91 +395,91 @@ export default function ResourceAssignmentBuilder({
   idKey = "staffId", // Default key
   entityLabel = "Staff", // Default Label
 }: ResourceAssignmentBuilderProps) {
-  // 1. State สำหรับจัดการ UI ภายใน (Group ตาม Role)
-  const [assignments, setAssignments] = useState<RoleAssignment[]>([]);
+  // 1. สร้าง Initial State ทันทีโดยไม่ต้องใช้ useEffect เพื่อดักจับตอนโหลดครั้งแรก
+  const [assignments, setAssignments] = useState<RoleAssignment[]>(() => {
+    if (!value || value.length === 0) return [];
 
-  // 2. ตัวกัน Loop และกันข้อมูลทับซ้อน
-  const isInitialized = useRef(false);
+    const groupedMap = new Map<number, RoleAssignment>();
 
-  // --------------------------------------------------------
-  // ✅ ส่วนที่เพิ่ม: Logic แปลงค่าจาก Form (Flat) -> State (Grouped)
-  // --------------------------------------------------------
-  useEffect(() => {
-    // ทำงานเมื่อมี value เข้ามา และยังไม่เคย Init ข้อมูล
-    if (value && value.length > 0 && !isInitialized.current) {
-      const groupedMap = new Map<number, RoleAssignment>();
+    value.forEach((item) => {
+      const rId = Number(item.roleId);
+      const pId = item[idKey]?.toString() || null;
 
-      // วนลูปข้อมูล Flat Array ที่ส่งมาจาก Form
-      value.forEach((item) => {
-        const rId = Number(item.roleId);
-        const pId = item[idKey]?.toString() || null; // ดึง id ตาม key ที่ส่งมา (staffId/outsourceId)
+      const roleName =
+        item.roleName ||
+        availableRoles.find((r) => r.roleId === rId)?.roleName ||
+        "Unknown Role";
 
-        // หาชื่อ Role (ถ้าใน item ไม่มี ให้ไปหาจาก availableRoles)
-        const roleName =
-          item.roleName ||
-          availableRoles.find((r) => r.roleId === rId)?.roleName ||
-          "Unknown Role";
+      if (!groupedMap.has(rId)) {
+        groupedMap.set(rId, {
+          roleId: rId,
+          roleName: roleName,
+          slots: [],
+        });
+      }
 
-        // ถ้ายังไม่มี Role นี้ใน Map ให้สร้างใหม่
-        if (!groupedMap.has(rId)) {
-          groupedMap.set(rId, {
-            roleId: rId,
-            roleName: roleName,
-            slots: [],
-          });
-        }
+      if (pId) {
+        groupedMap.get(rId)!.slots.push(pId);
+      }
+    });
 
-        // ยัด ID คนลงใน Slots (เฉพาะที่ไม่เป็น null)
-        if (pId) {
-          groupedMap.get(rId)!.slots.push(pId);
-        }
-      });
+    return Array.from(groupedMap.values());
+  });
 
-      // แปลง Map กลับเป็น Array เพื่อใส่ State
-      const initialAssignments = Array.from(groupedMap.values());
+  // ใช้ useRef เพื่อเก็บค่า value ล่าสุด จะได้รู้ว่า props.value เปลี่ยนมาจากข้างนอกจริงๆ หรือเปล่า
+  const prevValueRef = useRef(value);
 
-      setAssignments(initialAssignments);
-      isInitialized.current = true; // Mark ว่าโหลดข้อมูลเสร็จแล้ว
-    }
-  }, [value, availableRoles, idKey]);
+  if (value !== prevValueRef.current) {
+    prevValueRef.current = value;
 
-  // --------------------------------------------------------
-  // ✅ ส่วนส่งค่าออก: Logic แปลง State (Grouped) -> Form (Flat)
-  // --------------------------------------------------------
+    // Logic การแปลงเหมือนด้านบน
+    const groupedMap = new Map<number, RoleAssignment>();
+    value.forEach((item) => {
+      const rId = Number(item.roleId);
+      const pId = item[idKey]?.toString() || null;
+      const roleName =
+        item.roleName ||
+        availableRoles.find((r) => r.roleId === rId)?.roleName ||
+        "Unknown Role";
+
+      if (!groupedMap.has(rId)) {
+        groupedMap.set(rId, { roleId: rId, roleName: roleName, slots: [] });
+      }
+      if (pId) {
+        groupedMap.get(rId)!.slots.push(pId);
+      }
+    });
+    setAssignments(Array.from(groupedMap.values()));
+  }
+
   const onChangeRef = useRef(onChange);
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
 
   useEffect(() => {
-    // ถ้ายัง Init ไม่เสร็จ หรือ assignments ว่างเปล่า (และ value มีค่า) อย่าเพิ่งส่งค่ากลับ
-    // เพื่อป้องกันการล้างข้อมูลตอนโหลดครั้งแรก
-    if (!isInitialized.current && value.length > 0 && assignments.length === 0)
-      return;
-
-    // แปลงจาก Grouped Structure กลับเป็น Flat Array
+    // โค้ดเดิมที่ใช้สำหรับแพ็คข้อมูลส่งกลับ
     const payload = assignments.flatMap((assign) => {
       return assign.slots
         .filter((slotId) => slotId !== null)
         .map((slotId) => {
           const person = candidates.find((s) => s.id === slotId);
           return {
-            [idKey]: slotId, // Dynamic Key: staffId หรือ outsourceId
+            [idKey]: slotId,
             roleId: assign.roleId,
-            roleName: assign.roleName, // ส่งชื่อไปด้วย
-            fullName: person?.name || "", // ส่งชื่อคนไปด้วย
+            roleName: assign.roleName,
+            fullName: person?.name || "",
           };
         });
     });
 
-    // ส่งค่ากลับเมื่อมีการเปลี่ยนแปลงจริง ๆ
     if (onChangeRef.current) {
-      // เช็คคร่าวๆ ว่าข้อมูลเปลี่ยนไหม เพื่อลดการ render ซ้ำ
       if (JSON.stringify(payload) !== JSON.stringify(value)) {
         onChangeRef.current(payload);
       }
     }
-  }, [assignments, candidates, idKey]); // เอา value ออกจาก dependency เพื่อกัน Loop นรก
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assignments, candidates, idKey]); // ไม่เอา value มาใส่ ป้องกัน loop นรก
 
   // --------------------------------------------------------
   // Handlers (เหมือนเดิมเป๊ะ)

@@ -346,7 +346,7 @@ const DailyView: React.FC<DailyViewProps> = ({ events = [], initialDate }) => {
                           <div className="flex items-center gap-2 border-b pb-4">
                             <Notebook className="size-5 text-gray-600" />
                             <span className="text-lg font-bold text-gray-800">
-                              Attachments
+                              Note
                             </span>
                           </div>
                           <p className="pt-4 pl-6 text-base font-medium text-gray-900">

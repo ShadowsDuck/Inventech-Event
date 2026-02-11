@@ -3,11 +3,9 @@ import { useMemo, useState } from "react";
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useSuspenseQueries } from "@tanstack/react-query";
 import { Loader2, Trash2, UploadCloud } from "lucide-react";
-import { z } from "zod";
 
 import { useAppForm } from "@/components/form";
 import { EquipmentSelectField } from "@/components/form/equipment-select-field";
-import StaffAssignmentBuilder from "@/components/form/resource-manage-form";
 import ResourceAssignmentBuilder from "@/components/form/resource-manage-form";
 import { CreateFormButton } from "@/components/form/ui/create-form-button";
 import { ResetFormButton } from "@/components/form/ui/reset-form-button";
@@ -40,78 +38,9 @@ import { rolesQuery } from "@/features/staff/api/getRoles";
 import { staffQuery } from "@/features/staff/api/getStaff";
 
 import { equipmentBypackageIdQuery } from "../api/getEquipmentByPackageId";
+import { type EventData, getEventSchema } from "./event-schema";
 
 // --- Sub-Schemas ---
-const EquipmentEventSchema = z.object({
-  equipmentId: z.number(),
-  quantity: z.number().min(1),
-});
-
-const StaffSchema = z.object({
-  staffId: z.number().or(z.string()), // รองรับทั้ง 2 แบบเผื่อ select ส่ง string มา
-  roleId: z.number().min(1, "Role is required"),
-});
-
-const OutsourceSchema = z.object({
-  outsourceId: z.number().or(z.string()), // รองรับทั้ง 2 แบบ
-  roleId: z.number(),
-});
-
-// --- Main Event Schema ---
-export const EventSchema = z
-  .object({
-    eventName: z.string().min(1, "Event name is required").max(255),
-    note: z.string().optional(),
-
-    companyId: z.number().min(1, "Please select a company"),
-    packageId: z.number().optional().nullable(),
-    eventType: z.number().min(1, "Please select an event type"),
-
-    eventDate: z.date({
-      error: (issue) => {
-        if (issue.code === "invalid_type" && issue.input === undefined) {
-          return "Event date is required";
-        }
-        return "Invalid date format";
-      },
-    }),
-    registrationTime: z.string().optional(),
-    startTime: z.string().min(1, "Start time is required"),
-    endTime: z.string().min(1, "End time is required"),
-    timePeriod: z.number().min(1, "Please select a time period"),
-    location: z.string().optional(),
-
-    eventStaff: z.array(StaffSchema),
-    eventOutsources: z.array(OutsourceSchema),
-    eventExtraEquipments: z.array(EquipmentEventSchema),
-    attachmentFiles: z.array(z.instanceof(File)),
-  })
-  .superRefine((data, ctx) => {
-    //  Registration Time ต้องอยู่ก่อน Start Time
-    if (data.registrationTime && data.startTime) {
-      // เปรียบเทียบ String เวลา (เช่น "09:00" > "08:00")
-      if (data.registrationTime > data.startTime) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Registration time must be before start time", // ข้อความด่า user (หยอกๆ)
-          path: ["registrationTime"], // ให้ Error ไปโผล่ที่ช่อง Registration Time
-        });
-      }
-    }
-
-    //  ตรวจสอบ Start Time ต้องอยู่ก่อน End Time ด้วย
-    if (data.startTime && data.endTime) {
-      if (data.startTime >= data.endTime) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Start time must be before end time",
-          path: ["startTime"], // ให้ Error ไปโผล่ที่ช่อง Start Time
-        });
-      }
-    }
-  });
-
-export type EventData = z.infer<typeof EventSchema>;
 
 interface EventFormProps {
   initialValues?: Partial<EventData>;
@@ -162,13 +91,14 @@ export default function EventForm({
       // Default Values ต้องเป็น Number
       companyId: initialValues?.companyId ?? 0,
       eventType: initialValues?.eventType ?? 0,
+      address: initialValues?.address ?? "",
       packageId: initialValues?.packageId ?? 0,
 
       eventDate: initialValues?.eventDate,
       registrationTime: initialValues?.registrationTime ?? "",
       startTime: initialValues?.startTime ?? "",
       endTime: initialValues?.endTime ?? "",
-      timePeriod: initialValues?.timePeriod ?? "",
+      timePeriod: initialValues?.timePeriod ?? 0,
 
       location: initialValues?.location ?? "",
       note: initialValues?.note ?? "",
@@ -179,7 +109,7 @@ export default function EventForm({
       attachmentFiles: initialValues?.attachmentFiles ?? [],
     } as EventData,
     validators: {
-      onChange: EventSchema,
+      onChange: getEventSchema(mode),
     },
     onSubmit: async ({ value }) => {
       onSubmit(value);
@@ -204,6 +134,18 @@ export default function EventForm({
       quantity: item.quantity,
     }));
   }, [packageDetail]);
+
+  //LockStaff And Outsource
+  const currentEventDate = useStore(
+    form.store,
+    (state) => state.values.eventDate,
+  );
+  const currentTimePeriod = useStore(
+    form.store,
+    (state) => state.values.timePeriod,
+  );
+  const isResourceLocked =
+    !currentEventDate || !currentTimePeriod || currentTimePeriod === 0;
 
   const formattedStaffList = useMemo(() => {
     return (
@@ -347,13 +289,19 @@ export default function EventForm({
                   )}
                 />
                 <form.AppField
+                  name="address"
+                  children={(field) => (
+                    <field.TextField
+                      label="Address"
+                      type="text"
+                      placeholder="Ex. 123 Main St"
+                    />
+                  )}
+                />
+                <form.AppField
                   name="location"
                   children={(field) => (
-                    <field.LocationField
-                      label="Select Location "
-                      value={field.state.value}
-                      onChange={(val) => field.handleChange(val)}
-                    />
+                    <field.LocationField label="Select Location " />
                   )}
                 />
               </section>
@@ -473,19 +421,30 @@ export default function EventForm({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form.AppField
-                name="eventStaff"
-                children={(field) => (
-                  <ResourceAssignmentBuilder
-                    candidates={formattedStaffList} // ส่ง Staff
-                    availableRoles={roleData || []}
-                    idKey="staffId"
-                    entityLabel="Staff" // <--- บอกว่าเป็น Staff
-                    onChange={(data) => field.handleChange(data)}
-                    value={field.state.value}
-                  />
-                )}
-              />
+              {isResourceLocked ? (
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 py-10">
+                  <span className="font-medium text-gray-500">
+                    Please select an Event Date and Period first.
+                  </span>
+                  <span className="mt-1 text-sm text-gray-400">
+                    You must set the schedule before assigning staff.
+                  </span>
+                </div>
+              ) : (
+                <form.AppField
+                  name="eventStaff"
+                  children={(field) => (
+                    <ResourceAssignmentBuilder
+                      candidates={formattedStaffList}
+                      availableRoles={roleData || []}
+                      idKey="staffId"
+                      entityLabel="Staff"
+                      onChange={(data) => field.handleChange(data)}
+                      value={field.state.value}
+                    />
+                  )}
+                />
+              )}
             </CardContent>
           </Card>
 
@@ -498,20 +457,31 @@ export default function EventForm({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form.AppField
-                name="eventOutsources"
-                children={(field) => (
-                  <ResourceAssignmentBuilder
-                    candidates={formattedOutsourceList} // ส่ง Outsource
-                    availableRoles={roleData || []}
-                    ignoreRoleValidation={true}
-                    idKey="outsourceId"
-                    entityLabel="Outsource" // <--- บอกว่าเป็น Outsource (Text จะเปลี่ยนตาม)
-                    onChange={(data) => field.handleChange(data)}
-                    value={field.state.value}
-                  />
-                )}
-              />
+              {isResourceLocked ? (
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 py-10">
+                  <span className="font-medium text-gray-500">
+                    Please select an Event Date and Period first.
+                  </span>
+                  <span className="mt-1 text-sm text-gray-400">
+                    You must set the schedule before assigning outsource.
+                  </span>
+                </div>
+              ) : (
+                <form.AppField
+                  name="eventOutsources"
+                  children={(field) => (
+                    <ResourceAssignmentBuilder
+                      candidates={formattedOutsourceList}
+                      availableRoles={roleData || []}
+                      ignoreRoleValidation={true}
+                      idKey="outsourceId"
+                      entityLabel="Outsource"
+                      onChange={(data) => field.handleChange(data)}
+                      value={field.state.value}
+                    />
+                  )}
+                />
+              )}
             </CardContent>
           </Card>
 

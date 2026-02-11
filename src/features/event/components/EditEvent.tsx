@@ -7,7 +7,8 @@ import { Route } from "@/routes/event/$eventId/edit";
 
 import { useEditEvent } from "../api/editEvent";
 import { eventQuery } from "../api/getEventById";
-import EventForm, { type EventData } from "./event-form";
+import EventForm from "./event-form";
+import { type EventData } from "./event-schema";
 
 // 1. สร้าง Map สำหรับแปลง String จาก DB เป็น Number สำหรับ Form
 // ปรับตัวเลข 1, 2, 3 ให้ตรงกับ Value ใน <select> หรือ <Radio> ของคุณ
@@ -32,12 +33,13 @@ export default function EditEvent() {
 
   // 3. Prepare Initial Values
   const initialValues: EventData = useMemo(() => {
-    console.log("🔥 [API Raw Data]:", eventData);
+    console.log(" API Data:", eventData);
     return {
       // --- Basic Info ---
       eventName: eventData.eventName,
 
-      eventType: (EVENT_TYPE_MAP[eventData.eventType] ?? 1) as any,
+      eventType: (EVENT_TYPE_MAP[eventData.eventType] ??
+        1) as EventData["eventType"],
 
       companyId: eventData.company?.companyId ?? eventData.companyId,
       packageId: eventData.package?.packageId ?? undefined,
@@ -45,8 +47,8 @@ export default function EditEvent() {
       // --- Date & Time ---
       eventDate: new Date(eventData.meetingDate),
 
-      // แปลง String "Morning" -> Number 1
-      timePeriod: (PERIOD_MAP[eventData.period] ?? 1) as any,
+      timePeriod: (PERIOD_MAP[eventData.period] ??
+        1) as EventData["timePeriod"],
 
       registrationTime: eventData.registrationTime,
       startTime: eventData.startTime,
@@ -59,6 +61,7 @@ export default function EditEvent() {
           : "",
       latitude: eventData.latitude,
       longitude: eventData.longitude,
+      address: eventData.address || "",
       note: eventData.note ?? "",
 
       // --- Arrays Mapping (Flatten Data) ---

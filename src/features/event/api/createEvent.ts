@@ -5,7 +5,7 @@ import { format } from "date-fns";
 
 import type { EventType } from "@/types/event";
 
-import type { EventData } from "../components/event-form";
+import type { EventData } from "../components/event-schema";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -22,6 +22,7 @@ const createEvent = async (
 
   formData.append("EventName", newEvent.eventName);
   formData.append("EventType", newEvent.eventType.toString());
+  formData.append("Address", newEvent.address || "");
   formData.append("CompanyId", newEvent.companyId.toString());
 
   if (newEvent.packageId && newEvent.packageId > 0) {
@@ -124,7 +125,7 @@ const createEvent = async (
       `${API_URL}/api/events`,
       formData,
     );
-
+    console.log("🚀 [API] FormData Entries:", Array.from(formData.entries()));
     return data;
   } catch (error) {
     // 3. จัดการ Error แบบ Axios

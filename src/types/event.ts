@@ -57,6 +57,7 @@ export interface EventType {
   startTime: string;
   endTime: string;
   period: TimePeriodEnum;
+  address: string;
   latitude: number;
   longitude: number;
   note: string;

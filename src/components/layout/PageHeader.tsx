@@ -21,8 +21,8 @@ import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 
 interface PageHeaderProps {
-  title: string;
-  subtitle?: string;
+  title: ReactNode;
+  subtitle?: ReactNode;
   count?: number;
   countLabel?: string;
   showStatusDot?: boolean;
@@ -32,6 +32,7 @@ interface PageHeaderProps {
   backButton?: boolean;
   showStatusBadge?: boolean;
   isDeleted?: boolean;
+  tabs?: ReactNode; // เพิ่ม Property นี้
 }
 
 export function PageHeader({
@@ -46,16 +47,14 @@ export function PageHeader({
   backButton = false,
   showStatusBadge = false,
   isDeleted = false,
+  tabs,
 }: PageHeaderProps) {
   const navigate = useRouter();
-
   const [isOpen, setIsOpen] = useState(false);
-
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   useEffect(() => {
     if (isDesktop && isOpen) {
-      // ใช้ setTimeout เพื่อหลบ synchronous update warning
       const timer = setTimeout(() => setIsOpen(false), 0);
       return () => clearTimeout(timer);
     }
@@ -66,118 +65,109 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        "flex min-h-22 items-center justify-between border-b border-gray-200 bg-white px-6 py-4",
+        "flex flex-col border-b border-gray-200 bg-white",
         className,
       )}
     >
-      <div className="flex items-center gap-4">
-        <div className="-ml-2 lg:hidden">
-          <Drawer open={isOpen} onOpenChange={setIsOpen} direction="left">
-            <DrawerTrigger asChild>
-              <button className="hover:bg-muted-foreground/10 rounded-full p-2 duration-150">
-                <Menu className="h-5 w-5 text-gray-600" />
-              </button>
-            </DrawerTrigger>
-
-            <DrawerContent>
-              <div className="mx-auto w-full max-w-sm">
-                <DrawerHeader>
-                  <DrawerTitle className="pt-3 text-center text-xl font-semibold">
-                    Event Management
-                  </DrawerTitle>
-                  <DrawerDescription className="sr-only">
-                    Navigation Menu
-                  </DrawerDescription>
-                </DrawerHeader>
-
-                <div className="px-4 py-1">
-                  <div className="flex flex-col gap-2">
-                    {NAV_LINKS.map((item) => (
-                      <DrawerClose asChild key={item.title}>
-                        <Link
-                          to={item.url}
-                          className="text-muted-foreground hover:bg-muted hover:text-foreground/90 active:bg-muted flex items-center gap-4 rounded-xl px-4 py-3"
-                          activeProps={{
-                            className:
-                              "bg-sidebar-primary/5 text-blue-600! font-medium",
-                          }}
-                        >
-                          <item.icon className="h-5 w-5" />
-                          <span className="text-base">{item.title}</span>
-                        </Link>
-                      </DrawerClose>
-                    ))}
+      {/* ส่วนบน: Title และ Actions */}
+      <div className="flex min-h-20 items-center justify-between px-6 py-4">
+        <div className="flex items-center gap-4">
+          <div className="-ml-2 lg:hidden">
+            <Drawer open={isOpen} onOpenChange={setIsOpen} direction="left">
+              <DrawerTrigger asChild>
+                <button className="hover:bg-muted-foreground/10 rounded-full p-2 duration-150">
+                  <Menu className="h-5 w-5 text-gray-600" />
+                </button>
+              </DrawerTrigger>
+              <DrawerContent>
+                <div className="mx-auto w-full max-w-sm">
+                  <DrawerHeader>
+                    <DrawerTitle className="pt-3 text-center text-xl font-semibold">
+                      Event Management
+                    </DrawerTitle>
+                    <DrawerDescription className="sr-only">
+                      Navigation Menu
+                    </DrawerDescription>
+                  </DrawerHeader>
+                  <div className="px-4 py-1">
+                    <div className="flex flex-col gap-2">
+                      {NAV_LINKS.map((item) => (
+                        <DrawerClose asChild key={item.title}>
+                          <Link
+                            to={item.url}
+                            className="text-muted-foreground hover:bg-muted hover:text-foreground/90 active:bg-muted flex items-center gap-4 rounded-xl px-4 py-3"
+                            activeProps={{
+                              className:
+                                "bg-sidebar-primary/5 text-blue-600! font-medium",
+                            }}
+                          >
+                            <item.icon className="h-5 w-5" />
+                            <span className="text-base">{item.title}</span>
+                          </Link>
+                        </DrawerClose>
+                      ))}
+                    </div>
                   </div>
+                  <DrawerFooter>
+                    <DrawerClose asChild>
+                      <button className="w-full rounded-lg border p-3 text-sm font-medium hover:bg-gray-50">
+                        Close
+                      </button>
+                    </DrawerClose>
+                  </DrawerFooter>
                 </div>
-
-                <DrawerFooter>
-                  <DrawerClose asChild>
-                    <button className="w-full rounded-lg border p-3 text-sm font-medium hover:bg-gray-50">
-                      Close
-                    </button>
-                  </DrawerClose>
-                </DrawerFooter>
-              </div>
-            </DrawerContent>
-          </Drawer>
-        </div>
-
-        {backButton && (
-          <button
-            onClick={() => navigate.history.back()}
-            className="hover:bg-muted-foreground/7 rounded-full bg-white p-2 duration-150"
-          >
-            <ChevronLeft color="gray" />
-          </button>
-        )}
-
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-              {title}
-            </h1>
-            {showStatusBadge &&
-              (isDeleted ? (
-                <Badge variant="unsuccess">
-                  <span
-                    className="bg-secondary-foreground/30 mr-0.5 size-1.25 rounded-full"
-                    aria-hidden="true"
-                  />
-                  Inactive
-                </Badge>
-              ) : (
-                <Badge variant="success">
-                  <span
-                    className="mr-0.5 size-1.25 rounded-full bg-green-600/60"
-                    aria-hidden="true"
-                  />
-                  Active
-                </Badge>
-              ))}
+              </DrawerContent>
+            </Drawer>
           </div>
 
-          {subtitle && (
-            <p className="mt-0.5 text-sm text-gray-500">{subtitle}</p>
+          {backButton && (
+            <button
+              onClick={() => navigate.history.back()}
+              className="hover:bg-muted-foreground/7 rounded-full bg-white p-2 duration-150"
+            >
+              <ChevronLeft color="gray" />
+            </button>
           )}
 
-          {showCount && (
-            <p className="mt-0.5 flex items-center gap-2 text-sm text-gray-500">
-              {showStatusDot && (
-                <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+                {title}
+              </h1>
+              {showStatusBadge && (
+                <Badge variant={isDeleted ? "unsuccess" : "success"}>
+                  <span
+                    className={cn(
+                      "mr-0.5 size-1.25 rounded-full",
+                      isDeleted
+                        ? "bg-secondary-foreground/30"
+                        : "bg-green-600/60",
+                    )}
+                  />
+                  {isDeleted ? "Inactive" : "Active"}
+                </Badge>
               )}
-              {count} {countLabel}
-            </p>
-          )}
-
-          {description && (
-            <p className="mt-1 text-sm text-gray-500">{description}</p>
-          )}
+            </div>
+            {subtitle && <div className="mt-0.5">{subtitle}</div>}
+            {showCount && (
+              <p className="mt-0.5 flex items-center gap-2 text-sm text-gray-500">
+                {showStatusDot && (
+                  <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
+                )}
+                {count} {countLabel}
+              </p>
+            )}
+            {description && (
+              <p className="mt-1 text-sm text-gray-500">{description}</p>
+            )}
+          </div>
         </div>
+
+        {actions && <div className="flex items-center gap-3">{actions}</div>}
       </div>
 
-      <div className="flex items-center gap-3">
-        {actions && <div>{actions}</div>}
-      </div>
+      {/* ส่วนล่าง: Tabs (ถ้ามี) */}
+      {tabs && <div className="px-6">{tabs}</div>}
     </div>
   );
 }

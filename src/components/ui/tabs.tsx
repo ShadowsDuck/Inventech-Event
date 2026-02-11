@@ -32,8 +32,7 @@ function TabsList({
         "data-[orientation=vertical]:flex-col",
         variant === "default" &&
           "text-muted-foreground/72 rounded-xl border border-gray-200 bg-white p-1",
-        variant === "underline" &&
-          "*:data-[slot=tabs-trigger]:hover:bg-accent data-[orientation=horizontal]:py-1 data-[orientation=vertical]:px-1",
+
         variant === "select" &&
           "text-muted-foreground/72 rounded-xl border border-gray-200 bg-white p-1",
         className,
@@ -58,12 +57,25 @@ function TabsList({
   );
 }
 
-function TabsTab({ className, ...props }: TabsPrimitive.Tab.Props) {
+interface TabsTabProps extends TabsPrimitive.Tab.Props {
+  activeColor?: string;
+  inactiveColor?: string;
+}
+
+function TabsTab({
+  className,
+  activeColor = "data-active:text-white",
+  inactiveColor = "text-gray-500",
+  ...props
+}: TabsTabProps) {
   return (
     <TabsPrimitive.Tab
       className={cn(
         "focus-visible:ring-ring flex flex-1 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-transparent text-sm font-medium whitespace-nowrap transition-[color,background-color,box-shadow] outline-none focus-visible:ring-2 data-disabled:pointer-events-none data-disabled:opacity-64 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        "text-black data-active:text-white",
+
+        inactiveColor,
+        activeColor,
+
         "gap-1.5 px-[calc(--spacing(2.5)-1px)] py-[calc(--spacing(1.5)-1px)]",
         "data-[orientation=vertical]:w-full data-[orientation=vertical]:justify-start",
         className,

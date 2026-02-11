@@ -4,7 +4,7 @@ import { format } from "date-fns";
 
 import type { EventType } from "@/types/event";
 
-import type { EventData } from "../components/event-form";
+import type { EventData } from "../components/event-schema";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -23,6 +23,8 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
   formData.append("EventId", id.toString());
   formData.append("EventName", eventData.eventName);
   formData.append("EventType", eventData.eventType.toString());
+  formData.append("Address", eventData.address || "");
+
   formData.append("CompanyId", eventData.companyId.toString());
 
   if (eventData.packageId && eventData.packageId > 0) {

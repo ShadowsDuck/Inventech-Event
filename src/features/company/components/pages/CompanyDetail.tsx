@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
 import { format } from "date-fns";
 import {
   Building2,
@@ -13,8 +12,6 @@ import {
 
 import PageHeader from "@/components/layout/PageHeader";
 import MapPreview from "@/components/map-preview";
-import { DataTable } from "@/components/tables/data-table";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import { Route } from "@/routes/_sidebarLayout/company/$companyId";
@@ -24,14 +21,12 @@ import {
   PrimaryContactCard,
   StandardContactCard,
 } from "./../company-contact-card";
-import { companyProjectsColumns } from "./../company-projects-column";
 
 export default function CompanyDetail() {
   const [activeTab, setActiveTab] = useState<"overview" | "history">(
     "overview",
   );
 
-  const navigate = useRouter();
   const { companyId } = Route.useParams();
   const { data: company } = useSuspenseQuery(companyQuery(companyId));
 
