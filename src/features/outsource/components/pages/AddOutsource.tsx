@@ -12,9 +12,8 @@ export default function Addoutsource() {
   const handleCreateSubmit = (values: OutsourceData) => {
     const payload = {
       ...values,
-      phoneNumber: cleanPhoneNumber(
-        values.phoneNumber ? values.phoneNumber : "",
-      ),
+      email: values.email || undefined,
+      phoneNumber: cleanPhoneNumber(values.phoneNumber ?? "") || undefined,
     };
 
     mutate(payload, {

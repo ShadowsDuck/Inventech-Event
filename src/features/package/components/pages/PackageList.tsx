@@ -12,11 +12,10 @@ import { packageQuery } from "../../api/getPackage";
 const PackageList = () => {
   const navigate = useNavigate();
   const { equipmentStatus = "active" } = Route.useSearch();
-
   const { data: Package } = useSuspenseQuery(packageQuery({ equipmentStatus }));
 
   return (
-    <>
+    <div className="flex h-full flex-col">
       <PageHeader
         title="Package"
         count={Package.length}
@@ -31,7 +30,7 @@ const PackageList = () => {
           </Button>
         }
       />
-      <div className="flex flex-1 flex-col overflow-y-hidden p-6 lg:p-10">
+      <div className="flex min-h-0 flex-1 flex-col p-6 lg:p-10">
         {Package.length === 0 ? (
           <div className="bg-muted/40 text-muted-foreground flex h-full flex-col items-center justify-center space-y-3 rounded-xl border border-dashed">
             <div className="bg-muted flex size-20 items-center justify-center rounded-full">
@@ -54,7 +53,7 @@ const PackageList = () => {
           />
         )}
       </div>
-    </>
+    </div>
   );
 };
 

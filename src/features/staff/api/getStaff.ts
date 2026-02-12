@@ -1,21 +1,21 @@
 import { queryOptions } from "@tanstack/react-query";
 import axios from "axios";
 
-// 1. import axios
-
+import type { staffParams } from "@/routes/_sidebarLayout/staff";
 import type { StaffType } from "@/types/staff";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const getStaff = async (): Promise<StaffType[]> => {
-  // 2. ใช้ axios.get และระบุ Generic Type เป็น <StaffType[]>
-  const { data } = await axios.get<StaffType[]>(`${API_URL}/api/staff`);
+const getStaff = async (params?: staffParams): Promise<StaffType[]> => {
+  const { data } = await axios.get<StaffType[]>(`${API_URL}/api/staff`, {
+    params: params,
+  });
 
-  return data; // 3. ข้อมูลพร้อมใช้ใน property .data
+  return data;
 };
 
-export const staffQuery = () =>
+export const staffQuery = (params?: staffParams) =>
   queryOptions({
-    queryKey: ["staff", "list"],
-    queryFn: () => getStaff(),
+    queryKey: ["staff", "list", params],
+    queryFn: () => getStaff(params),
   });

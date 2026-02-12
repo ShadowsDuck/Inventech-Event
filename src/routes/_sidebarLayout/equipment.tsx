@@ -10,22 +10,18 @@ const equipmentParamsSchema = z.object({
   isDeleted: z.boolean().optional(),
 });
 
+export type equipmentParams = z.infer<typeof equipmentParamsSchema>;
+
 export const Route = createFileRoute("/_sidebarLayout/equipment")({
   component: EquipmentList,
   staticData: {
     title: "EquipmentList",
   },
   validateSearch: zodValidator(equipmentParamsSchema),
-  loaderDeps: ({ search }) => ({
-    isDeleted: search.isDeleted,
-  }),
+  loaderDeps: ({ search }) => search,
   loader: ({ context: { queryClient }, deps }) => {
-    const status = deps.isDeleted ?? null;
-
     return Promise.all([
-      queryClient.ensureQueryData(
-        equipmentQuery({ ...deps, isDeleted: status }),
-      ),
+      queryClient.ensureQueryData(equipmentQuery()),
       queryClient.ensureQueryData(categoryQuery()),
     ]);
   },
