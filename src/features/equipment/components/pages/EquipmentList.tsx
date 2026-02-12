@@ -18,10 +18,9 @@ import { equipmentColumns } from "../Equipment-column";
 
 export default function EquipmentList() {
   const navigate = Route.useNavigate();
-  const { isDeleted = null } = Route.useSearch();
 
   const [{ data: equipment }, { data: categories }] = useSuspenseQueries({
-    queries: [equipmentQuery({ isDeleted }), categoryQuery()],
+    queries: [equipmentQuery(), categoryQuery()],
   });
 
   const categoryOptions = useMemo(() => {

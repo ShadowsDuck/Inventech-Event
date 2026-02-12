@@ -5,20 +5,18 @@ import { PackageOpen, Plus } from "lucide-react";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import CarouselPackage from "@/features/package/components/carousel-package";
-import { Route } from "@/routes/_sidebarLayout/package";
 
 import { packageQuery } from "../../api/getPackage";
 
 const PackageList = () => {
   const navigate = useNavigate();
-  const { equipmentStatus = "active" } = Route.useSearch();
-  const { data: Package } = useSuspenseQuery(packageQuery({ equipmentStatus }));
+  const { data: PackageData } = useSuspenseQuery(packageQuery());
 
   return (
     <div className="flex h-full flex-col">
       <PageHeader
         title="Package"
-        count={Package.length}
+        count={PackageData.length}
         countLabel="Package"
         actions={
           <Button
@@ -31,7 +29,7 @@ const PackageList = () => {
         }
       />
       <div className="flex min-h-0 flex-1 flex-col p-6 lg:p-10">
-        {Package.length === 0 ? (
+        {PackageData.length === 0 ? (
           <div className="bg-muted/40 text-muted-foreground flex h-full flex-col items-center justify-center space-y-3 rounded-xl border border-dashed">
             <div className="bg-muted flex size-20 items-center justify-center rounded-full">
               <PackageOpen className="size-10 opacity-50" />
@@ -49,7 +47,7 @@ const PackageList = () => {
           <CarouselPackage
             readOnly={true}
             className="h-[calc(100vh-170px)]"
-            packages={Package}
+            packages={PackageData}
           />
         )}
       </div>

@@ -50,6 +50,13 @@ export default function CarouselPackage({
             const isSelected = value === id;
             const isInteractive = !readOnly && !disabled;
 
+            const activeEquipmentSets =
+              pkg.equipmentSets?.filter((es) => {
+                // ถ้า isDeleted เป็น true = ถูกลบ -> เราต้องการ !true (false) เพื่อคัดออก
+                // ถ้า isDeleted เป็น false = ยังอยู่ -> เราต้องการ !false (true) เพื่อเก็บไว้
+                return !es.isDeleted;
+              }) ?? [];
+
             return (
               <CarouselItem key={id} className={cn("pl-4", itemBasis)}>
                 <div className="h-full p-1">
@@ -113,7 +120,7 @@ export default function CarouselPackage({
                             : "bg-gray-100 text-gray-600",
                         )}
                       >
-                        {pkg.equipmentSets?.length ?? 0} items
+                        {activeEquipmentSets.length} items
                       </span>
                     </div>
 
@@ -127,13 +134,13 @@ export default function CarouselPackage({
                     </div>
 
                     <CardContent className="flex-1 px-6 pt-0 pb-6">
-                      {!pkg.equipmentSets?.length ? (
+                      {activeEquipmentSets.length === 0 ? (
                         <p className="text-sm text-gray-500">
                           No equipment found.
                         </p>
                       ) : (
                         <ul className="space-y-3">
-                          {pkg.equipmentSets.map((es) => (
+                          {activeEquipmentSets.map((es) => (
                             <li
                               key={es.equipmentId}
                               className="flex items-start gap-3"
