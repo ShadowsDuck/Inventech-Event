@@ -51,11 +51,7 @@ export default function CarouselPackage({
             const isInteractive = !readOnly && !disabled;
 
             const activeEquipmentSets =
-              pkg.equipmentSets?.filter((es) => {
-                // ถ้า isDeleted เป็น true = ถูกลบ -> เราต้องการ !true (false) เพื่อคัดออก
-                // ถ้า isDeleted เป็น false = ยังอยู่ -> เราต้องการ !false (true) เพื่อเก็บไว้
-                return !es.isDeleted;
-              }) ?? [];
+              pkg.equipmentSets?.filter((es) => !es.isDeleted) ?? [];
 
             return (
               <CarouselItem key={id} className={cn("pl-4", itemBasis)}>
