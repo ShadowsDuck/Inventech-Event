@@ -12,7 +12,11 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        "ring-foreground/10 bg-card text-card-foreground group/card flex flex-col gap-6 overflow-hidden rounded-xl py-6 text-sm shadow-xs ring-1 has-[>img:first-child]:pt-0 data-[size=sm]:gap-4 data-[size=sm]:py-4 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        // ค่าพื้นฐาน (Defaults)
+        "ring-foreground/10 bg-card text-card-foreground group/card flex flex-col overflow-hidden rounded-xl shadow-xs ring-1",
+        "gap-6 py-6 text-sm",
+        "data-[size=sm]:gap-4 data-[size=sm]:py-4", // Small spacing
+
         className,
       )}
       {...props}
@@ -25,8 +29,11 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-header"
       className={cn(
-        "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl px-6 group-data-[size=sm]/card:px-4 has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-6 group-data-[size=sm]/card:[.border-b]:pb-4",
-        className,
+        "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl px-6",
+        "group-data-[size=sm]/card:px-4",
+        // ย้ายการจัดการ border-b มาไว้ที่นี่เพื่อให้ Override pb ได้ง่ายขึ้น
+        "[.border-b]:pb-6 group-data-[size=sm]/card:[.border-b]:pb-4",
+        className, // ส่ง className มาทับความกว้างหรือ padding ได้ที่นี่
       )}
       {...props}
     />
@@ -38,14 +45,14 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-title"
       className={cn(
-        "text-base leading-normal font-medium group-data-[size=sm]/card:text-sm",
-        className,
+        "text-base leading-normal font-medium",
+        "group-data-[size=sm]/card:text-sm",
+        className, // ปรับขนาด Font หรือ Width ของ Title ได้จากตรงนี้
       )}
       {...props}
     />
   );
 }
-
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div

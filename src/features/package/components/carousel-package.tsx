@@ -21,8 +21,8 @@ interface CarouselPackageProps {
   disabled?: boolean;
   className?: string;
   canEdit?: boolean;
+  itemBasis?: string;
 }
-
 export default function CarouselPackage({
   packages,
   value,
@@ -30,6 +30,7 @@ export default function CarouselPackage({
   readOnly = false,
   disabled = false,
   canEdit = true,
+  itemBasis = "basis-1/3",
   className,
 }: CarouselPackageProps) {
   return (
@@ -50,7 +51,7 @@ export default function CarouselPackage({
             const isInteractive = !readOnly && !disabled;
 
             return (
-              <CarouselItem key={id} className="basis-1/3 pl-4">
+              <CarouselItem key={id} className={cn("pl-4", itemBasis)}>
                 <div className="h-full p-1">
                   <Card
                     onClick={() => isInteractive && onChange?.(id)}

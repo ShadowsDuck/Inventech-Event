@@ -22,6 +22,7 @@ interface EquipmentSummaryTableProps {
   packageItems: PackageItem[]; // ของที่มีใน Package (In PKG)
   extraItems: SelectedItemState[]; // ของที่เลือกเพิ่ม (Extra)
   onUpdateExtra: (item: EquipmentType, delta: number) => void;
+  readOnly: boolean;
 }
 
 export const EquipmentSummaryTable = ({
@@ -29,6 +30,7 @@ export const EquipmentSummaryTable = ({
   packageItems = [],
   extraItems = [],
   onUpdateExtra,
+  readOnly = false,
 }: EquipmentSummaryTableProps) => {
   const mergedItems = useMemo(() => {
     const allIds = new Set([
@@ -114,37 +116,51 @@ export const EquipmentSummaryTable = ({
 
             {/* 3. Extra (Editable Controls) */}
             <div className="col-span-2 flex justify-center">
-              <div className="flex h-8 items-center rounded-lg border border-gray-200 bg-white shadow-sm">
-                <button
-                  type="button"
-                  onClick={() =>
-                    item.originalItem && onUpdateExtra(item.originalItem, -1)
-                  }
-                  disabled={item.extra <= 0} // ลดได้ต่ำสุดแค่ 0 (ห้ามติดลบ)
-                  className="flex h-full w-8 items-center justify-center rounded-l-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-30 disabled:hover:bg-transparent"
-                >
-                  <Minus size={12} />
-                </button>
-
+              {readOnly ? (
                 <span
                   className={cn(
-                    "w-8 text-center text-sm font-bold select-none",
-                    item.extra > 0 ? "text-blue-600" : "text-gray-400",
+                    "text-sm font-bold",
+                    item.extra > 0 ? "text-blue-600" : "text-gray-300",
                   )}
                 >
-                  {item.extra > 0 ? `+${item.extra}` : "0"}
+                  {item.extra > 0 ? `+${item.extra}` : "-"}
                 </span>
+              ) : (
+                // ---------------------------------------------------
+                // กรณีปกติ: แสดงปุ่มบวกลบ (Code เดิมของคุณ)
+                // ---------------------------------------------------
+                <div className="flex h-8 items-center rounded-lg border border-gray-200 bg-white shadow-sm">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      item.originalItem && onUpdateExtra(item.originalItem, -1)
+                    }
+                    disabled={item.extra <= 0}
+                    className="flex h-full w-8 items-center justify-center rounded-l-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30"
+                  >
+                    <Minus size={12} />
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    item.originalItem && onUpdateExtra(item.originalItem, 1)
-                  }
-                  className="flex h-full w-8 items-center justify-center rounded-r-lg text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
-                >
-                  <Plus size={12} />
-                </button>
-              </div>
+                  <span
+                    className={cn(
+                      "w-8 text-center text-sm font-bold select-none",
+                      item.extra > 0 ? "text-blue-600" : "text-gray-400",
+                    )}
+                  >
+                    {item.extra > 0 ? `+${item.extra}` : "0"}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      item.originalItem && onUpdateExtra(item.originalItem, 1)
+                    }
+                    className="flex h-full w-8 items-center justify-center rounded-r-lg text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
+                  >
+                    <Plus size={12} />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* 4. Total */}

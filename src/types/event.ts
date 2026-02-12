@@ -46,6 +46,7 @@ export interface EventAttachment {
   originalFileName: string;
   filePath: string; // หรือ fullUrl ถ้า Backend แปลงมาให้
   contentType?: string;
+  fileSize: number;
 }
 
 export interface EventType {
