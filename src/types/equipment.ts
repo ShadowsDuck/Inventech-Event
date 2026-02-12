@@ -16,5 +16,6 @@ export interface EquipmentSetType {
   equipmentId: number;
   equipmentName: string;
   quantity: number;
+  isDeleted?: boolean;
   equipment?: EquipmentType;
 }

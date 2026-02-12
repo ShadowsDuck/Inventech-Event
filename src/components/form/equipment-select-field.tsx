@@ -32,6 +32,8 @@ interface EquipmentSummaryTableProps {
   onUpdateExtra: (item: EquipmentType, delta: number) => void;
 }
 
+// ... (Imports และ Interface เดิม)
+
 const EquipmentSummaryTable = ({
   equipmentList,
   packageItems = [],
@@ -44,27 +46,41 @@ const EquipmentSummaryTable = ({
       ...extraItems.map((i) => i.equipmentId),
     ]);
 
-    return Array.from(allIds)
-      .map((id) => {
-        const originalItem = equipmentList.find((e) => e.equipmentId === id);
-        const pkgItem = packageItems.find((p) => p.equipmentId === id);
-        const extraItem = extraItems.find((e) => e.equipmentId === id);
+    return (
+      Array.from(allIds)
+        .map((id) => {
+          // 1. หาข้อมูลจาก Master Data
+          const originalItem = equipmentList.find((e) => e.equipmentId === id);
 
-        const inPkgQty = pkgItem?.quantity || 0;
-        const extraQty = extraItem?.quantity || 0;
+          // กรองของที่ถูกลบ (isDeleted) หรือหาไม่เจอใน List
+          // ถ้าเป็นของที่ถูกลบ เราจะ return null เพื่อให้ filter ข้างล่างดีดออก
+          if (!originalItem || originalItem.isDeleted) {
+            return null;
+          }
 
-        return {
-          originalItem, // เก็บ Object เต็มไว้ใช้ตอนส่ง event
-          id,
-          name: originalItem?.equipmentName || `Equipment ${id}`,
-          inPkg: inPkgQty,
-          extra: extraQty,
-          total: inPkgQty + extraQty,
-        };
-      })
-      .sort((a, b) => a.name.localeCompare(b.name)); // เรียงตามชื่อ
+          const pkgItem = packageItems.find((p) => p.equipmentId === id);
+          const extraItem = extraItems.find((e) => e.equipmentId === id);
+
+          const inPkgQty = pkgItem?.quantity || 0;
+          const extraQty = extraItem?.quantity || 0;
+
+          return {
+            originalItem,
+            id,
+            name: originalItem.equipmentName,
+            inPkg: inPkgQty,
+            extra: extraQty,
+            total: inPkgQty + extraQty,
+          };
+        })
+        // Filter เอาตัว null ออก (Type Guard)
+        .filter((item): item is NonNullable<typeof item> => item !== null)
+        // เรียงตามชื่อ
+        .sort((a, b) => a.name.localeCompare(b.name))
+    );
   }, [equipmentList, packageItems, extraItems]);
 
+  // คำนวณยอดรวมเฉพาะของที่ Active (เพราะตัว null ถูกกรองออกไปแล้ว)
   const totalCount = mergedItems.reduce((acc, item) => acc + item.total, 0);
 
   if (mergedItems.length === 0) return null;
@@ -128,7 +144,9 @@ const EquipmentSummaryTable = ({
                   onClick={() =>
                     item.originalItem && onUpdateExtra(item.originalItem, -1)
                   }
-                  disabled={item.extra <= 0} // ลดได้ต่ำสุดแค่ 0 (ห้ามติดลบ)
+                  // ถ้า InPkg มีอยู่แล้ว แต่เราไปลบ Extra จนติดลบ (เช่น มีใน pkg 5 แต่เราใส่ extra -5)
+                  // logic นี้จะยอมให้ลดจนเหลือ Total 0 ได้ แต่ห้ามต่ำกว่านั้น
+                  disabled={item.extra <= -item.inPkg}
                   className="flex h-full w-8 items-center justify-center rounded-l-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30"
                 >
                   <Minus size={12} />
@@ -137,10 +155,15 @@ const EquipmentSummaryTable = ({
                 <span
                   className={cn(
                     "w-8 text-center text-sm font-bold select-none",
-                    item.extra > 0 ? "text-blue-600" : "text-gray-400",
+                    item.extra > 0
+                      ? "text-blue-600"
+                      : item.extra < 0
+                        ? "text-red-500"
+                        : "text-gray-400",
                   )}
                 >
-                  {item.extra > 0 ? `+${item.extra}` : "0"}
+                  {/* แสดงเครื่องหมาย + หรือ - ให้ชัดเจน */}
+                  {item.extra > 0 ? `+${item.extra}` : item.extra}
                 </span>
 
                 <button
@@ -338,7 +361,6 @@ export type EquipmentSelectFieldProps = {
 export const EquipmentSelectField = ({
   equipmentList,
   packageItems = [],
-  required,
 }: EquipmentSelectFieldProps) => {
   const field = useFieldContext<SelectedItemState[]>();
   const [equipSearch, setEquipSearch] = useState("");

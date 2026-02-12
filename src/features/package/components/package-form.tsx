@@ -37,9 +37,10 @@ export default function PackageForm({
   isPending = false,
   mode,
 }: PackageFormProps) {
-  const { data: equipmentList } = useSuspenseQuery(
-    equipmentQuery({ isDeleted: false }),
-  );
+  const { data: equipmentData } = useSuspenseQuery({
+    ...equipmentQuery(),
+    select: (data) => data.filter((item) => !item.isDeleted),
+  });
 
   const title = mode === "create" ? "Create Package" : "Edit Package";
   const subtitle =
@@ -139,7 +140,7 @@ export default function PackageForm({
               }}
               children={(field) => (
                 <field.EquipmentSelectField
-                  equipmentList={equipmentList}
+                  equipmentList={equipmentData}
                   required
                 />
               )}
