@@ -3,15 +3,10 @@ import { useMemo, useState } from "react";
 import { Box, Minus, Plus, Search } from "lucide-react";
 
 import { useFieldContext } from "@/components/form";
-// สมมติว่า path นี้ถูกต้องตามโปรเจคคุณ
 import { cn } from "@/lib/utils";
 import { type EquipmentType } from "@/types/equipment";
 
-import { Label } from "../ui/label";
-// ปรับ path ตามจริง
 import { FieldErrors } from "./field-error";
-
-// ปรับ path ตามจริง
 
 // --- Types ---
 export type PackageItem = {
@@ -335,14 +330,12 @@ const EquipmentSelectionList = ({
 // ==========================================
 
 export type EquipmentSelectFieldProps = {
-  label: string;
   equipmentList: EquipmentType[];
   packageItems?: PackageItem[]; // รับค่า Package items เข้ามา
   required?: boolean;
 };
 
 export const EquipmentSelectField = ({
-  label,
   equipmentList,
   packageItems = [],
   required,
@@ -459,19 +452,10 @@ export const EquipmentSelectField = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <Label
-        className={cn(
-          "mb-1 block font-semibold",
-          hasError ? "text-destructive" : "",
-        )}
-      >
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
-
       {/* Selection Area (List & Search) */}
       <div
         className={cn(
-          "flex h-[450px] flex-col overflow-hidden rounded-xl border bg-white shadow-sm",
+          "flex h-112.5 flex-col overflow-hidden rounded-xl border bg-white shadow-sm",
           hasError ? "border-destructive" : "border-gray-200",
         )}
       >

@@ -1,6 +1,5 @@
-import * as React from "react";
+import { PackageOpen } from "lucide-react";
 
-import { Label } from "@/components/ui/label";
 import CarouselPackage from "@/features/package/components/carousel-package";
 import { cn } from "@/lib/utils";
 import type { PackageType } from "@/types/package";
@@ -9,9 +8,7 @@ import { useFieldContext } from ".";
 import { FieldErrors } from "./field-error";
 
 interface PackageEventFieldProps {
-  label: string;
   packages: PackageType[];
-  required?: boolean;
   value?: string;
   onChange?: (value: string) => void;
   readOnly?: boolean;
@@ -21,9 +18,7 @@ interface PackageEventFieldProps {
 }
 
 export default function PackageEventField({
-  label,
   packages,
-  required,
   value,
   onChange,
   readOnly = false,
@@ -58,22 +53,30 @@ export default function PackageEventField({
 
   return (
     <div className={cn("flex w-full flex-col gap-2", className)}>
-      {/* ส่วน Label */}
-      <Label
-        htmlFor={field.name}
-        className={cn("mb-0", hasError ? "text-destructive" : "")}
-      >
-        {label} {required && <span className="text-destructive -ml-1">*</span>}
-      </Label>
-
-      <CarouselPackage
-        packages={packages}
-        value={selectedValue}
-        onChange={handleSelect}
-        readOnly={readOnly}
-        disabled={disabled}
-        canEdit={canEdit}
-      />
+      {packages.length === 0 ? (
+        <div className="bg-muted/40 text-muted-foreground flex h-50 flex-col items-center justify-center space-y-3 rounded-xl border border-dashed">
+          <div className="bg-muted flex size-20 items-center justify-center rounded-full">
+            <PackageOpen className="size-10 opacity-50" />
+          </div>
+          <div className="text-center">
+            <h3 className="text-foreground text-lg font-semibold">
+              No Packages Found
+            </h3>
+            <p className="text-muted-foreground text-sm">
+              You haven't created any packages yet.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <CarouselPackage
+          packages={packages}
+          value={selectedValue}
+          onChange={handleSelect}
+          readOnly={readOnly}
+          disabled={disabled}
+          canEdit={canEdit}
+        />
+      )}
 
       {hasError && <FieldErrors meta={field.state.meta} />}
     </div>

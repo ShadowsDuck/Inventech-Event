@@ -131,7 +131,7 @@ export default function PackageForm({
             </CardTitle>
           </CardHeader>
 
-          <CardContent className="p-5">
+          <CardContent>
             <form.AppField
               name="equipmentSets"
               validators={{
@@ -139,7 +139,6 @@ export default function PackageForm({
               }}
               children={(field) => (
                 <field.EquipmentSelectField
-                  label="Select Equipment"
                   equipmentList={equipmentList}
                   required
                 />

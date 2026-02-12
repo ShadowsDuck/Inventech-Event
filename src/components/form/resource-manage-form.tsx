@@ -8,8 +8,7 @@ import SearchBar from "../SearchBar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTab } from "../ui/tabs";
 
-// --- 1. Type Definitions (เปลี่ยนชื่อให้เป็นกลาง) ---
-
+// --- 1. Type Definitions ---
 export interface AssignmentCandidate {
   id: string;
   name: string;
@@ -339,6 +338,7 @@ const AssignmentCard = ({
                       </div>
 
                       <div className="h-80 flex-1 overflow-y-auto bg-gray-50/50 px-4 pt-0.5 pb-2">
+                        {/* Tab Available */}
                         <TabsContent
                           value="available"
                           className="mt-0 space-y-2 outline-none"
@@ -370,7 +370,71 @@ const AssignmentCard = ({
                             </div>
                           )}
                         </TabsContent>
-                        {/* (Tab Working/Unavailable ปล่อยไว้เหมือนเดิมได้ หรือปรับ text ตามต้องการ) */}
+
+                        {/* Tab Working */}
+                        <TabsContent
+                          value="working"
+                          className="mt-0 space-y-2 outline-none"
+                        >
+                          {getFilteredCandidates("working").length > 0 ? (
+                            getFilteredCandidates("working").map((s) => (
+                              <div
+                                key={s.id}
+                                onClick={() => onAssign(index, s.id)}
+                                className="group/item flex cursor-pointer items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-sm transition-all hover:border-blue-400 hover:shadow-md"
+                              >
+                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 transition-colors group-hover/item:bg-blue-600 group-hover/item:text-white">
+                                  {s.name.charAt(0)}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold text-gray-800">
+                                    {s.name}
+                                  </p>
+                                  <p className="text-[10px] text-gray-500">
+                                    {s.roles.join(", ")}
+                                  </p>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="flex h-full flex-col items-center justify-center py-12 text-center text-xs text-gray-400">
+                              <Search className="mb-2 h-8 w-8 opacity-20" />
+                              <p>No {entityLabel.toLowerCase()} found</p>
+                            </div>
+                          )}
+                        </TabsContent>
+
+                        {/* Tab Unavailable */}
+                        <TabsContent
+                          value="unavailable"
+                          className="mt-0 space-y-2 outline-none"
+                        >
+                          {getFilteredCandidates("unavailable").length > 0 ? (
+                            getFilteredCandidates("unavailable").map((s) => (
+                              <div
+                                key={s.id}
+                                className="group/item flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 opacity-50"
+                              >
+                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600">
+                                  {s.name.charAt(0)}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold text-gray-800">
+                                    {s.name}
+                                  </p>
+                                  <p className="text-[10px] text-gray-500">
+                                    {s.roles.join(", ")}
+                                  </p>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="flex h-full flex-col items-center justify-center py-12 text-center text-xs text-gray-400">
+                              <Search className="mb-2 h-8 w-8 opacity-20" />
+                              <p>No {entityLabel.toLowerCase()} found</p>
+                            </div>
+                          )}
+                        </TabsContent>
                       </div>
                     </Tabs>
                   </PopoverContent>
@@ -385,7 +449,6 @@ const AssignmentCard = ({
 };
 
 // --- 4. Main Component: ResourceAssignmentBuilder ---
-
 export default function ResourceAssignmentBuilder({
   availableRoles,
   candidates = [],
@@ -426,30 +489,90 @@ export default function ResourceAssignmentBuilder({
     return Array.from(groupedMap.values());
   });
 
-  // ใช้ useRef เพื่อเก็บค่า value ล่าสุด จะได้รู้ว่า props.value เปลี่ยนมาจากข้างนอกจริงๆ หรือเปล่า
+  // ใช้ useRef เพื่อเก็บค่า value ล่าสุด
   const prevValueRef = useRef(value);
 
+  // Sync props.value -> Internal State (Assignments)
   if (value !== prevValueRef.current) {
     prevValueRef.current = value;
 
-    // Logic การแปลงเหมือนด้านบน
-    const groupedMap = new Map<number, RoleAssignment>();
-    value.forEach((item) => {
-      const rId = Number(item.roleId);
-      const pId = item[idKey]?.toString() || null;
-      const roleName =
-        item.roleName ||
-        availableRoles.find((r) => r.roleId === rId)?.roleName ||
-        "Unknown Role";
+    setAssignments((prev) => {
+      // 1. แปลง value ใหม่ให้เป็น Map เพื่อง่ายต่อการค้นหา
+      const valueMap = new Map<number, string[]>();
+      const roleNameMap = new Map<number, string>();
 
-      if (!groupedMap.has(rId)) {
-        groupedMap.set(rId, { roleId: rId, roleName: roleName, slots: [] });
-      }
-      if (pId) {
-        groupedMap.get(rId)!.slots.push(pId);
-      }
+      value.forEach((item) => {
+        const rId = Number(item.roleId);
+        // ใช้ Key ที่ส่งมา (staffId หรือ outsourceId)
+        const pId = item[idKey]?.toString() || null;
+
+        if (!roleNameMap.has(rId)) {
+          const name =
+            item.roleName ||
+            availableRoles.find((r) => r.roleId === rId)?.roleName ||
+            "Unknown Role";
+          roleNameMap.set(rId, name);
+        }
+
+        if (!valueMap.has(rId)) {
+          valueMap.set(rId, []);
+        }
+        if (pId) {
+          valueMap.get(rId)!.push(pId);
+        }
+      });
+
+      // 2. Merge ข้อมูลใหม่เข้ากับ State เดิม (เพื่อรักษา Slot ว่างไว้)
+      const mergedAssignments = prev.map((assignment) => {
+        const incomingSlots = valueMap.get(assignment.roleId);
+
+        // กรณี A: Role นี้ไม่มีข้อมูลส่งกลับมา (อาจจะถูกลบคนออกหมด)
+        // ให้รักษาจำนวน Slot เท่าเดิม แต่เคลียร์คนออกเป็น null
+        if (!incomingSlots) {
+          return {
+            ...assignment,
+            slots: Array(assignment.slots.length).fill(null),
+          };
+        }
+
+        // กรณี B: มีข้อมูลส่งมา
+        // ให้ใช้ความยาวที่ "มากที่สุด" ระหว่าง (ของเดิม vs ของใหม่) เพื่อไม่ให้ Slot หด
+        const targetLength = Math.max(
+          assignment.slots.length,
+          incomingSlots.length,
+        );
+
+        // --- บอก Type ชัดเจนว่ารับ null ได้ ---
+        const newSlots: (string | null)[] = [...incomingSlots];
+
+        // เติม null ใส่ต่อท้ายจนครบจำนวนเดิม
+        while (newSlots.length < targetLength) {
+          newSlots.push(null);
+        }
+
+        // ลบออกจาก Map เพื่อบอกว่า Role นี้จัดการแล้ว
+        valueMap.delete(assignment.roleId);
+
+        return {
+          ...assignment,
+          slots: newSlots,
+        };
+      });
+
+      // 3. จัดการ Role ใหม่ที่อาจจะเพิ่มเข้ามา (ที่ไม่อยู่ใน State เดิม)
+      valueMap.forEach((slots, rId) => {
+        // แปลง string[] เป็น (string | null)[] เพื่อความชัวร์ของ Type
+        const initialSlots: (string | null)[] = [...slots];
+
+        mergedAssignments.push({
+          roleId: rId,
+          roleName: roleNameMap.get(rId) || "Unknown Role",
+          slots: initialSlots,
+        });
+      });
+
+      return mergedAssignments;
     });
-    setAssignments(Array.from(groupedMap.values()));
   }
 
   const onChangeRef = useRef(onChange);
@@ -481,9 +604,6 @@ export default function ResourceAssignmentBuilder({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assignments, candidates, idKey]); // ไม่เอา value มาใส่ ป้องกัน loop นรก
 
-  // --------------------------------------------------------
-  // Handlers (เหมือนเดิมเป๊ะ)
-  // --------------------------------------------------------
   const handleAddAssignment = (
     roleId: number,
     roleName: string,

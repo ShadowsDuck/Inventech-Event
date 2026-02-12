@@ -33,9 +33,9 @@ export const NAV_LINKS = [
   { title: "Package", url: "/package", icon: Package },
 ];
 
-export const EQUIPMENT_STATUS_OPTIONS = ["active", "deleted", "all"] as const;
+export const STATUS_OPTIONS = ["active", "deleted", "all"] as const;
 
-export type EquipmentStatusType = (typeof EQUIPMENT_STATUS_OPTIONS)[number];
+export type StatusOptions = (typeof STATUS_OPTIONS)[number];
 
 export const FORMAT_EVENT_OPTIONS = [
   { value: 1, label: "Offline", icon: Building2 },

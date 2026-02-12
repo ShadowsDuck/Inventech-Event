@@ -36,6 +36,11 @@ import { outsourcesQuery } from "@/features/outsource/api/getOutsource";
 import { packageQuery } from "@/features/package/api/getPackage";
 import { rolesQuery } from "@/features/staff/api/getRoles";
 import { staffQuery } from "@/features/staff/api/getStaff";
+import type { CompanyType } from "@/types/company";
+import type { EquipmentType } from "@/types/equipment";
+import type { OutsourceType } from "@/types/outsource";
+import type { PackageType } from "@/types/package";
+import type { StaffType } from "@/types/staff";
 
 import { equipmentBypackageIdQuery } from "../api/getEquipmentByPackageId";
 import { type EventData, getEventSchema } from "./event-schema";
@@ -60,20 +65,42 @@ export default function EventForm({
 
   // 1. Load Data
   const [
-    { data: companiesData },
-    { data: packagesData },
-    { data: equipmentData },
     { data: roleData },
+    { data: companiesData },
     { data: staffData },
     { data: outsourceData },
+    { data: packagesData },
+    { data: equipmentData },
   ] = useSuspenseQueries({
     queries: [
-      companiesQuery(),
-      packageQuery(),
-      equipmentQuery(),
       rolesQuery(),
-      staffQuery(),
-      outsourcesQuery(),
+      {
+        ...companiesQuery(),
+        select: (data: CompanyType[]) => data.filter((s) => !s.isDeleted),
+      },
+      {
+        // 1. ตรง ...staffQuery() คือ
+        // มันจะ "ระเบิด" property ข้างในออกมาใส่ตรงนี้
+        // queryKey: ["staff", "list", undefined],
+        // queryFn: () => getStaff(params),
+        //
+        // 2. แล้วเราก็เติม property ใหม่เข้าไป
+        // select: (data) => data.filter((s) => !s.isDeleted),
+        ...staffQuery(),
+        select: (data: StaffType[]) => data.filter((s) => !s.isDeleted),
+      },
+      {
+        ...outsourcesQuery(),
+        select: (data: OutsourceType[]) => data.filter((s) => !s.isDeleted),
+      },
+      {
+        ...packageQuery(),
+        select: (data: PackageType[]) => data.filter((s) => !s.isDeleted),
+      },
+      {
+        ...equipmentQuery(),
+        select: (data: EquipmentType[]) => data.filter((s) => !s.isDeleted),
+      },
     ],
   });
 
@@ -322,8 +349,7 @@ export default function EventForm({
                 children={(field) => (
                   <field.PackageEventField
                     packages={packagesData}
-                    label="Package"
-                    canEdit={true}
+                    canEdit={false}
                     onChange={(newValue) => {
                       // 4. แก้ไข: แปลงเป็น Number ก่อน Logic เทียบค่า
                       const numValue = Number(newValue);
@@ -403,7 +429,6 @@ export default function EventForm({
                 name="eventExtraEquipments"
                 children={() => (
                   <EquipmentSelectField
-                    label="Select Equipment"
                     equipmentList={equipmentData}
                     packageItems={packageItems}
                   />
