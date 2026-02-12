@@ -40,6 +40,7 @@ import { rolesQuery } from "@/features/staff/api/getRoles";
 import { staffQuery } from "@/features/staff/api/getStaff";
 import type { CompanyType } from "@/types/company";
 import type { EquipmentType } from "@/types/equipment";
+import type { ExistingFileType } from "@/types/event";
 import type { OutsourceType } from "@/types/outsource";
 import type { PackageType } from "@/types/package";
 import type { StaffType } from "@/types/staff";
@@ -51,7 +52,12 @@ import { type EventData, getEventSchema } from "./event-schema";
 
 interface EventFormProps {
   initialValues?: Partial<EventData>;
-  onSubmit: (values: EventData) => void;
+  // Update onSubmit Type เพื่อรองรับ deletedFileIds (Optional)
+  onSubmit: (
+    values: EventData,
+    deletedFileIds?: number[],
+    currentExistingFiles?: ExistingFileType[],
+  ) => void;
   isPending: boolean;
   mode: "create" | "edit";
   existingFiles?: Array<{ id: number; fileName: string; url: string }>;
@@ -142,6 +148,10 @@ export default function EventForm({
     } as EventData,
     validators: {
       onChange: getEventSchema(mode),
+    },
+    onSubmit: async ({ value }) => {
+      // ส่งค่า deletedFileIds ออกไปด้วย
+      onSubmit(value, deletedFileIds, currentExistingFiles);
     },
   });
 

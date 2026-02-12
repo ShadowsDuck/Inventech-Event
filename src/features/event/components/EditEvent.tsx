@@ -4,13 +4,13 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 
 import { Route } from "@/routes/event/$eventId/edit";
+import type { ExistingFileType } from "@/types/event";
 
 import { useEditEvent } from "../api/editEvent";
 import { eventQuery } from "../api/getEventById";
 import EventForm from "./event-form";
 import { type EventData } from "./event-schema";
 
-// Config URL รูปภาพ (ควรย้ายไปไว้ใน Environment variable ของโปรเจกต์)
 const API_BASE_URL = "https://localhost:7268";
 
 // Map ค่า Enum (เหมือนเดิม)
@@ -89,7 +89,12 @@ export default function EditEvent() {
   }, [eventData]);
 
   // 3. Handle Submit
-  const handleEditSubmit = (values: EventData, deletedFileIds?: number[]) => {
+  const handleEditSubmit = (
+    values: EventData,
+    deletedFileIds?: number[],
+    currentExistingFiles?: ExistingFileType[],
+  ) => {
+    const existingFileIds = currentExistingFiles?.map((f) => f.id) ?? [];
     const [latStr, lngStr] = values.location?.split(",") || [];
     const latitude = latStr ? parseFloat(latStr.trim()) : null;
     const longitude = lngStr ? parseFloat(lngStr.trim()) : null;
@@ -102,6 +107,7 @@ export default function EditEvent() {
       location: undefined,
       attachmentFiles: values.attachmentFiles,
       deletedAttachmentIds: deletedFileIds,
+      existingAttachmentIds: existingFileIds,
     };
 
     mutate(payload, {

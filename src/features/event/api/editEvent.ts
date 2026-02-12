@@ -12,6 +12,7 @@ type UpdateEventPayload = EventData & {
   id: number;
   latitude?: number | null;
   longitude?: number | null;
+  existingAttachmentIds?: number[];
 };
 
 const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
@@ -73,7 +74,16 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
       );
     });
   }
-
+  if (
+    payload.existingAttachmentIds &&
+    payload.existingAttachmentIds.length > 0
+  ) {
+    payload.existingAttachmentIds.forEach((fileId) => {
+      // ชื่อ Key "ExistingAttachmentIds" ต้องตรงกับที่ Backend (C# DTO) รอรับ
+      // ปกติจะเป็น List<int> ExistingAttachmentIds { get; set; }
+      formData.append("ExistingAttachmentIds", fileId.toString());
+    });
+  }
   if (eventData.eventStaff && eventData.eventStaff.length > 0) {
     const validStaffs = eventData.eventStaff
       .map((item) => ({

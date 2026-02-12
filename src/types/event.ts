@@ -11,6 +11,12 @@ export type TimePeriodEnum = "Morning" | "Afternoon";
 
 export type EventTypeEnum = "Online" | "Hybrid" | "Offline";
 
+export interface ExistingFileType {
+  id: number;
+  fileName: string;
+  url: string;
+  fileSize?: number;
+}
 // 1. Staff
 export interface EventStaff {
   eventId: number;

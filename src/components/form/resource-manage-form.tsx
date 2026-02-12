@@ -31,8 +31,8 @@ interface ResourceAssignmentBuilderProps {
   value?: any[];
 
   // Props ใหม่สำหรับแยกประเภท
-  idKey?: string; // ชื่อ key ขาออก (เช่น "staffId" หรือ "outsourceId")
-  entityLabel?: string; // คำเรียกที่จะแสดง (เช่น "Staff", "Outsource")
+  idKey?: string; // ชื่อ key ขาออก
+  entityLabel?: string; // คำเรียกที่จะแสดง
 }
 
 // --- 2. Sub-Component: Control Bar ---
