@@ -110,7 +110,7 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
 
   if (eventData.attachmentFiles && eventData.attachmentFiles.length > 0) {
     eventData.attachmentFiles.forEach((f) => {
-      formData.append("AttachmentFiles", f);
+      formData.append("NewAttachmentFiles", f);
     });
   }
 

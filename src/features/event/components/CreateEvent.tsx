@@ -26,6 +26,7 @@ export default function CreateEvent() {
         navigate({ to: "..", replace: true });
       },
     });
+    console.log(payload);
   };
 
   return (

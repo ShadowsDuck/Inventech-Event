@@ -125,7 +125,7 @@ const createEvent = async (
       `${API_URL}/api/events`,
       formData,
     );
-    console.log("🚀 [API] FormData Entries:", Array.from(formData.entries()));
+
     return data;
   } catch (error) {
     // 3. จัดการ Error แบบ Axios

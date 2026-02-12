@@ -2,7 +2,9 @@ import { useMemo, useState } from "react";
 
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useSuspenseQueries } from "@tanstack/react-query";
-import { Loader2, Trash2, UploadCloud } from "lucide-react";
+import { FileText, Loader2, Trash2, UploadCloud } from "lucide-react";
+
+// Import FileText เพิ่ม
 
 import { useAppForm } from "@/components/form";
 import { EquipmentSelectField } from "@/components/form/equipment-select-field";
@@ -52,6 +54,7 @@ interface EventFormProps {
   onSubmit: (values: EventData) => void;
   isPending: boolean;
   mode: "create" | "edit";
+  existingFiles?: Array<{ id: number; fileName: string; url: string }>;
 }
 
 export default function EventForm({
@@ -59,9 +62,22 @@ export default function EventForm({
   onSubmit,
   isPending,
   mode,
+  existingFiles = [], // Default เป็น empty array
 }: EventFormProps) {
   const [alertOpen, setAlertOpen] = useState(false);
   const [pendingPackage, setPendingPackage] = useState<string | null>(null);
+
+  // --- [NEW] State สำหรับจัดการไฟล์เดิม ---
+  const [currentExistingFiles, setCurrentExistingFiles] =
+    useState(existingFiles);
+  const [deletedFileIds, setDeletedFileIds] = useState<number[]>([]);
+
+  // Function ลบไฟล์เดิม
+  const handleRemoveExisting = (fileId: number) => {
+    setCurrentExistingFiles((prev) => prev.filter((f) => f.id !== fileId));
+    setDeletedFileIds((prev) => [...prev, fileId]);
+  };
+  // -------------------------------------
 
   // 1. Load Data
   const [
@@ -79,13 +95,6 @@ export default function EventForm({
         select: (data: CompanyType[]) => data.filter((s) => !s.isDeleted),
       },
       {
-        // 1. ตรง ...staffQuery() คือ
-        // มันจะ "ระเบิด" property ข้างในออกมาใส่ตรงนี้
-        // queryKey: ["staff", "list", undefined],
-        // queryFn: () => getStaff(params),
-        //
-        // 2. แล้วเราก็เติม property ใหม่เข้าไป
-        // select: (data) => data.filter((s) => !s.isDeleted),
         ...staffQuery(),
         select: (data: StaffType[]) => data.filter((s) => !s.isDeleted),
       },
@@ -114,32 +123,25 @@ export default function EventForm({
   const form = useAppForm({
     defaultValues: {
       eventName: initialValues?.eventName ?? "",
-
-      // Default Values ต้องเป็น Number
       companyId: initialValues?.companyId ?? 0,
       eventType: initialValues?.eventType ?? 0,
       address: initialValues?.address ?? "",
       packageId: initialValues?.packageId ?? 0,
-
       eventDate: initialValues?.eventDate,
       registrationTime: initialValues?.registrationTime ?? "",
       startTime: initialValues?.startTime ?? "",
       endTime: initialValues?.endTime ?? "",
       timePeriod: initialValues?.timePeriod ?? 0,
-
       location: initialValues?.location ?? "",
       note: initialValues?.note ?? "",
-
       eventStaff: initialValues?.eventStaff ?? [],
       eventOutsources: initialValues?.eventOutsources ?? [],
       eventExtraEquipments: initialValues?.eventExtraEquipments ?? [],
-      attachmentFiles: initialValues?.attachmentFiles ?? [],
+      // attachmentFiles คือไฟล์ใหม่เท่านั้น ให้เริ่มเป็น [] เสมอใน Form State
+      attachmentFiles: [],
     } as EventData,
     validators: {
       onChange: getEventSchema(mode),
-    },
-    onSubmit: async ({ value }) => {
-      onSubmit(value);
     },
   });
 
@@ -200,6 +202,7 @@ export default function EventForm({
     mode === "create" ? "Create a new Event" : "Update Event details";
   const saveLabel = mode === "create" ? "Create Event" : "Save Changes";
   const loadingLabel = mode === "create" ? "Creating..." : "Saving...";
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <PageHeader
@@ -260,9 +263,8 @@ export default function EventForm({
                         }))}
                         placeholder="Select Company"
                         required
-                        // 2. แก้ไข: แปลง String -> Number
                         onChange={(val) => field.handleChange(Number(val))}
-                        value={field.state.value?.toString()} // แปลงกลับเป็น String เพื่อแสดงผล
+                        value={field.state.value?.toString()}
                       />
                     )}
                   />
@@ -351,21 +353,18 @@ export default function EventForm({
                     packages={packagesData}
                     canEdit={false}
                     onChange={(newValue) => {
-                      // 4. แก้ไข: แปลงเป็น Number ก่อน Logic เทียบค่า
                       const numValue = Number(newValue);
-
                       const currentEquipment = field.form.getFieldValue(
                         "eventExtraEquipments",
                       );
                       const hasEquipment =
                         currentEquipment && currentEquipment.length > 0;
 
-                      // เทียบค่าด้วย Number
                       if (numValue !== field.state.value && hasEquipment) {
-                        setPendingPackage(newValue); // เก็บค่าใหม่ (string หรือ number ก็ได้สำหรับ state ชั่วคราว)
+                        setPendingPackage(newValue);
                         setAlertOpen(true);
                       } else {
-                        field.handleChange(numValue); // Save เป็น Number
+                        field.handleChange(numValue);
                       }
                     }}
                   />
@@ -520,50 +519,97 @@ export default function EventForm({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form.AppField
-                  name="attachmentFiles"
-                  children={(field) => (
-                    <FileUpload
-                      value={field.state.value}
-                      onValueChange={(files) => {
-                        if (Array.isArray(files)) {
-                          // ส่ง Array เข้าไปเก็บใน State ตรงๆ เลย
-                          field.handleChange(files);
-                        } else {
-                          // กันเหนียว กรณี component ส่งมาผิด หรือ user ลบไฟล์จนหมด
-                          field.handleChange([]);
-                        }
-                      }}
-                    >
-                      <FileUploadDropzone className="text-black-500 mb-4 flex h-64 items-center justify-center rounded-2xl transition-colors group-hover:bg-blue-200 group-hover:text-blue-600">
-                        <div className="flex flex-col items-center justify-center">
-                          <UploadCloud size={32} color="gray" />
-                          <p className="text-gray-600">ลากไฟล์มาวางที่นี่</p>
+                <div className="flex flex-col gap-4">
+                  {/* --- [NEW] Section แสดงไฟล์เดิม --- */}
+                  {currentExistingFiles.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-gray-700">
+                        Existing Files
+                      </label>
+                      {currentExistingFiles.map((file) => (
+                        <div
+                          key={file.id}
+                          className="bg-accent/30 relative flex items-center gap-2.5 rounded-md border p-3"
+                        >
+                          <div className="bg-accent/50 flex size-10 shrink-0 items-center justify-center overflow-hidden rounded border text-gray-500">
+                            <FileText className="size-5" />
+                          </div>
+                          <div className="flex min-w-0 flex-1 flex-col">
+                            <a
+                              href={file.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="truncate text-sm font-medium text-blue-600 hover:underline"
+                            >
+                              {file.fileName}
+                            </a>
+                            <span className="text-muted-foreground text-xs">
+                              Stored in Server
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveExisting(file.id)}
+                            className="p-1 text-red-500 transition-colors hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
-                      </FileUploadDropzone>
-                      <FileUploadList>
-                        {field.state.value?.map((file, index) => (
-                          <FileUploadItem key={index} value={file}>
-                            <div className="flex w-full items-center gap-2">
-                              <FileUploadItemPreview />
-                              <FileUploadItemMetadata />
-                              <FileUploadItemDelete
-                                className="text-red-500 hover:text-red-700"
-                                onClick={() => {
-                                  const newFiles = [...field.state.value];
-                                  newFiles.splice(index, 1);
-                                  field.handleChange(newFiles);
-                                }}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </FileUploadItemDelete>
-                            </div>
-                          </FileUploadItem>
-                        ))}
-                      </FileUploadList>
-                    </FileUpload>
+                      ))}
+                    </div>
                   )}
-                />
+
+                  {/* --- Section Upload ไฟล์ใหม่ (Logic เดิม) --- */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                      Upload New Files
+                    </label>
+                    <form.AppField
+                      name="attachmentFiles"
+                      children={(field) => (
+                        <FileUpload
+                          value={field.state.value}
+                          onValueChange={(files) => {
+                            if (Array.isArray(files)) {
+                              field.handleChange(files);
+                            } else {
+                              field.handleChange([]);
+                            }
+                          }}
+                        >
+                          <FileUploadDropzone className="text-black-500 mb-4 flex h-32 items-center justify-center rounded-2xl transition-colors group-hover:bg-blue-200 group-hover:text-blue-600">
+                            <div className="flex flex-col items-center justify-center">
+                              <UploadCloud size={32} color="gray" />
+                              <p className="mt-2 text-sm text-gray-600">
+                                Drag & Drop new files here
+                              </p>
+                            </div>
+                          </FileUploadDropzone>
+                          <FileUploadList>
+                            {field.state.value?.map((file, index) => (
+                              <FileUploadItem key={index} value={file}>
+                                <div className="flex w-full items-center gap-2">
+                                  <FileUploadItemPreview />
+                                  <FileUploadItemMetadata />
+                                  <FileUploadItemDelete
+                                    className="text-red-500 hover:text-red-700"
+                                    onClick={() => {
+                                      const newFiles = [...field.state.value];
+                                      newFiles.splice(index, 1);
+                                      field.handleChange(newFiles);
+                                    }}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </FileUploadItemDelete>
+                                </div>
+                              </FileUploadItem>
+                            ))}
+                          </FileUploadList>
+                        </FileUpload>
+                      )}
+                    />
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
