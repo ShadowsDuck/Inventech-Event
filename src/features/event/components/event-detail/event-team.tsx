@@ -35,11 +35,10 @@ export interface EventOutsource {
   roleId: number;
 }
 
-// ✅ ปรับ Type ให้ตรงกับ JSON ที่ส่งมา
 export interface EventRoleRequirement {
   roleId: number;
-  roleName: string; // เพิ่มตรงนี้
-  role?: RoleType; // เผื่อไว้ถ้ามี nested
+  roleName: string;
+  role?: RoleType;
   quantity: number;
   sourceType: number;
 }
@@ -149,7 +148,7 @@ const TeamGroupCard = ({ assignment }: { assignment: RoleAssignmentView }) => {
             <User size={16} />
           </div>
           <span className="text-sm font-medium text-gray-400 italic">
-            Unassigned {type === "staff" ? "Staff" : "Outsource"}
+            Unassigned
           </span>
         </div>
       );
@@ -224,7 +223,6 @@ export default function EventTeam({ events }: EventTeamProps) {
 
     // 1. กาง "โครงการ์ด" ตาม Requirements
     events.requirements?.forEach((req) => {
-      // ✅ ใช้ roleName จาก JSON ได้เลย ไม่ต้อง Scavenge แล้ว
       const name = req.roleName || req.role?.roleName || "Unknown Role";
 
       if (!roleMap.has(req.roleId)) {

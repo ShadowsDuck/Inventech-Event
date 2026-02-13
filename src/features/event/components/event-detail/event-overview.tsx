@@ -1,7 +1,6 @@
 import {
   Building2,
   Calendar,
-  CircleAlert,
   Clock,
   Mail,
   MapPinCheckInside,
@@ -46,6 +45,7 @@ export default function EventOverview({ events }: EventOverviewProps) {
             <div className="col-span-1 flex items-center gap-2">
               <Calendar className="size-4 text-gray-400" />
               <span className="font-medium">{events.meetingDate}</span>
+              <p className="font-medium">{events.period}</p>
             </div>
 
             {/* 2. เวลา */}

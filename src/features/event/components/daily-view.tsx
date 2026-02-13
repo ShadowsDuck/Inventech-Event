@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 
+// 1. Import useNavigate (ปรับ import ให้ตรงกับ Library ที่ใช้ เช่น @tanstack/react-router)
+import { useNavigate } from "@tanstack/react-router";
 import {
   Building2,
   Calendar,
@@ -10,6 +12,7 @@ import {
   Clock,
   Compass,
   Download,
+  // 2. เพิ่มไอคอน
   FileImage,
   FileText,
   Notebook,
@@ -32,6 +35,9 @@ interface DailyViewProps {
 const DailyView = ({ events, initialDate }: DailyViewProps) => {
   const [currentDate, setCurrentDate] = useState(initialDate || new Date());
   const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  // 3. เรียกใช้ Hook
+  const navigate = useNavigate();
 
   const changeDate = (offset: number) => {
     const newDate = new Date(currentDate);
@@ -57,6 +63,16 @@ const DailyView = ({ events, initialDate }: DailyViewProps) => {
 
   const toggleExpand = (id: number) => {
     setExpandedId(expandedId === id ? null : id);
+  };
+
+  // 4. ฟังก์ชัน Navigate แบบ Object Syntax
+  const handleNavigateToDetail = (e: React.MouseEvent, eventId: number) => {
+    e.stopPropagation();
+
+    navigate({
+      to: "/event/$eventId", // **ตรวจสอบ Path นี้ให้ตรงกับ Router config ของคุณ**
+      params: { eventId: eventId.toString() },
+    });
   };
 
   return (
@@ -168,7 +184,7 @@ const DailyView = ({ events, initialDate }: DailyViewProps) => {
 
                     {/* Event Details */}
                     <div className="min-w-0 flex-1">
-                      <h2 className="mb-2 text-2xl font-bold text-gray-900">
+                      <h2 className="mb-2 text-2xl font-bold text-gray-900 transition-colors hover:text-blue-600">
                         {event.eventName}
                       </h2>
 
@@ -186,10 +202,22 @@ const DailyView = ({ events, initialDate }: DailyViewProps) => {
                       </div>
                     </div>
 
-                    {/* Expand Button */}
-                    <div className="shrink-0">
+                    {/* Action Buttons: Navigate & Expand */}
+                    <div className="flex shrink-0 items-center gap-2">
+                      {/* 5. ปุ่ม Navigate */}
+                      <button
+                        onClick={(e) =>
+                          handleNavigateToDetail(e, event.eventId)
+                        }
+                        className="group flex h-10 items-center gap-2 rounded-xl border border-gray-200 bg-blue-600 px-4 text-sm font-medium text-white transition-all hover:bg-blue-500 hover:shadow-md active:scale-95"
+                        title="View Event Details"
+                      >
+                        <span>Event Detail</span>
+                      </button>
+
+                      {/* Expand Button */}
                       <div
-                        className={`rounded-lg border p-2 transition-all ${
+                        className={`flex h-10 w-10 items-center justify-center rounded-lg border transition-all ${
                           isExpanded
                             ? "border-blue-300 bg-blue-50"
                             : "border-gray-200 bg-white hover:bg-gray-50"

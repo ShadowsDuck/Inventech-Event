@@ -59,6 +59,7 @@ export interface EventAttachment {
 export interface EventRoleRequirement {
   eventId: number;
   roleId: number;
+  roleName: string;
   role?: RoleType; // Optional: เผื่อ Backend Include Role มาให้แสดงชื่อ
   quantity: number; // Target amount (e.g. 4)
   sourceType: number; // 1 = Staff, 2 = Outsource
