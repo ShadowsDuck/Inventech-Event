@@ -14,7 +14,6 @@ export interface AssignmentCandidate {
   name: string;
   roles: string[];
   avatar?: string;
-  status?: string;
 }
 
 export interface RoleAssignment {
@@ -197,15 +196,8 @@ const AssignmentCard = ({
         if (!hasRole) return false;
       }
 
-      // 4. Status Filter
-      if (status === "available") {
-        return item.status === "Available";
-      } else if (status === "working") {
-        return item.status === "Working";
-      } else if (status === "unavailable") {
-        return item.status === "Unavailable";
-      }
-
+      // 4. Status Filter (Mock Logic)
+      if (status === "available") return true;
       return false;
     });
   };

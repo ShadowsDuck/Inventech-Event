@@ -1,16 +1,20 @@
 import { useState } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Building2, Calendar, Clock, MapPinCheckInside } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Building2, Pencil } from "lucide-react";
 
 import PageHeader from "@/components/layout/PageHeader";
+import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { Route } from "@/routes/_sidebarLayout/event/$eventId";
 
 import { eventQuery } from "../api/getEventById";
 import EventDocuments from "./event-detail/event-document";
 import EventEquipment from "./event-detail/event-equipmet";
 import EventOverview from "./event-detail/event-overview";
+import EventTeam from "./event-detail/event-team";
 
 export function EventDetail() {
   const { eventId } = Route.useParams();
@@ -50,6 +54,24 @@ export function EventDetail() {
             </div>*/}
           </div>
         }
+        actions={
+          <Link
+            to="/event/$eventId/edit"
+            params={{ eventId }}
+            // ใช้ buttonVariants เพื่อดึง Style ของปุ่มมาใช้กับ Link โดยตรง
+            className={cn(
+              buttonVariants({ variant: "default", size: "sm" }),
+              "bg-blue-600 text-white hover:bg-blue-700",
+              "active:bg-blue-800",
+              "shadow-sm hover:shadow-md",
+              "transition-all duration-200 ease-in-out",
+              "rounded-xl border-0 px-5 font-semibold",
+            )}
+          >
+            <Pencil className="mr-2 size-4" />
+            Edit Event
+          </Link>
+        }
         tabs={
           // 2. ส่งเฉพาะ TabsList เข้าไปใน PageHeader
           <TabsList
@@ -78,7 +100,7 @@ export function EventDetail() {
         </TabsPanel>
 
         <TabsPanel value="Team">
-          {/*<EventTeam events={eventData} />*/}
+          <EventTeam events={eventData} />
         </TabsPanel>
 
         <TabsPanel value="Equipment">
