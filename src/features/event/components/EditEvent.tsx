@@ -82,11 +82,14 @@ export default function EditEvent() {
           roleId: item.eventRole?.roleId ?? 0,
           fullName: item.staff?.fullName || "",
           roleName: item.eventRole?.roleName || "",
+          isDeleted: item.staff?.isDeleted ?? false,
         })) ?? [],
       eventOutsources:
         eventData.eventOutsources?.map((item) => ({
           outsourceId: item.outsource?.outsourceId ?? 0,
           roleId: item.role?.roleId ?? 0,
+          fullName: item.outsource?.fullName || "Unknown Outsource Name",
+          isDeleted: item.outsource?.isDeleted ?? false,
         })) ?? [],
       eventExtraEquipments:
         eventData.eventExtraEquipments?.map((item) => ({
@@ -98,7 +101,7 @@ export default function EditEvent() {
 
       // Map Staff Requirements (SourceType = 1)
       staffRequirements:
-        eventData.requirements // <--- ใช้ชื่อ requirements ตาม JSON
+        eventData.requirements
           ?.filter((r) => r.sourceType === 1)
           .map((r) => ({
             roleId: r.roleId,

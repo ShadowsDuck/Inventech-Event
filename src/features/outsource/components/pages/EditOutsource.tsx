@@ -35,7 +35,7 @@ export default function EditOutsource() {
     const payload = {
       id: outsourceId,
       fullName: values.fullName,
-      email: values.email,
+      email: values.email || undefined,
       phoneNumber: cleanPhoneNumber(values.phoneNumber ?? "") || undefined,
       isDeleted: values.isDeleted,
     };

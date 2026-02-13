@@ -172,7 +172,7 @@ export const useCreateEvent = () =>
   useMutation({
     mutationFn: createEvent,
     meta: {
-      invalidatesQuery: ["events", "list"],
+      invalidatesQuery: [["events"], ["staff"], ["outsources"]],
       successMessage: "Created event successfully",
       errorMessage: "Failed to create event",
     },

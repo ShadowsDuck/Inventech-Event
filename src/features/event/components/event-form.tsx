@@ -201,25 +201,72 @@ export default function EventForm({
     !currentEventDate || !currentTimePeriod || currentTimePeriod === 0;
 
   const formattedStaffList = useMemo(() => {
-    if (!staffData) return [];
-    return staffData.map((s) => ({
-      id: String(s.staffId),
-      name: s.fullName,
-      roles: s.staffRoles ? s.staffRoles.map((r) => r.roleName) : [],
-      avatar: s.avatar || "",
-      status: s.status,
-    }));
-  }, [staffData]);
+    // 1. เริ่มจากข้อมูลที่ได้จาก API
+    const baseList =
+      staffData?.map((s) => ({
+        id: String(s.staffId),
+        name: s.fullName,
+        roles: s.staffRoles ? s.staffRoles.map((r) => r.roleName) : [],
+        avatar: s.avatar || "",
+        status: s.status,
+      })) || [];
+
+    // 2. ถ้าเป็นโหมด Edit ให้เช็คคนที่มีอยู่แล้วใน initialValues
+    if (mode === "edit" && initialValues?.eventStaff) {
+      const existingIds = new Set(baseList.map((s) => s.id));
+
+      initialValues.eventStaff.forEach((assigned) => {
+        // ถ้าคนนี้ถูกลบไปแล้ว ไม่ต้องดึงกลับมา (ปล่อยให้ Slot ว่าง)
+        if (assigned.isDeleted) return;
+
+        const sId = String(assigned.staffId);
+        if (!existingIds.has(sId)) {
+          baseList.push({
+            id: sId,
+            name: assigned.fullName || `Staff #${sId}`,
+            roles: [assigned.roleName || "Unknown Role"],
+            avatar: "",
+            status: "Working",
+          });
+        }
+      });
+    }
+
+    return baseList;
+  }, [staffData, mode, initialValues]);
 
   const formattedOutsourceList = useMemo(() => {
-    if (!outsourceData) return [];
-    return outsourceData.map((o) => ({
-      id: String(o.outsourceId),
-      name: o.fullName,
-      roles: [],
-      status: o.status,
-    }));
-  }, [outsourceData]);
+    // 1. เริ่มจากข้อมูลที่ได้จาก API
+    const baseList =
+      outsourceData?.map((o) => ({
+        id: String(o.outsourceId),
+        name: o.fullName,
+        roles: [],
+        status: o.status,
+      })) || [];
+
+    // 2. ถ้าเป็นโหมด Edit ให้เช็คคนที่มีอยู่แล้วใน initialValues
+    if (mode === "edit" && initialValues?.eventOutsources) {
+      const existingIds = new Set(baseList.map((o) => o.id));
+
+      initialValues.eventOutsources.forEach((assigned) => {
+        // ถ้า outsource นี้ถูกลบไปแล้ว ไม่ต้องดึงกลับมา (ปล่อยให้ Slot ว่าง)
+        if (assigned.isDeleted) return;
+
+        const oId = String(assigned.outsourceId);
+        if (!existingIds.has(oId)) {
+          baseList.push({
+            id: oId,
+            name: assigned.fullName || `Outsource #${oId}`,
+            roles: [],
+            status: "Working",
+          });
+        }
+      });
+    }
+
+    return baseList;
+  }, [outsourceData, mode, initialValues]);
 
   const title = mode === "create" ? "Create Event" : "Edit Event";
   const subtitle =
