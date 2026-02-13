@@ -4,8 +4,6 @@ import { useStore } from "@tanstack/react-form";
 import { useQuery, useSuspenseQueries } from "@tanstack/react-query";
 import { FileText, Loader2, Trash2, UploadCloud } from "lucide-react";
 
-// Import FileText เพิ่ม
-
 import { useAppForm } from "@/components/form";
 import { EquipmentSelectField } from "@/components/form/equipment-select-field";
 import ResourceAssignmentBuilder from "@/components/form/resource-manage-form";
@@ -49,10 +47,8 @@ import { equipmentBypackageIdQuery } from "../api/getEquipmentByPackageId";
 import { type EventData, getEventSchema } from "./event-schema";
 
 // --- Sub-Schemas ---
-
 interface EventFormProps {
   initialValues?: Partial<EventData>;
-  // Update onSubmit Type เพื่อรองรับ deletedFileIds (Optional)
   onSubmit: (
     values: EventData,
     deletedFileIds?: number[],
@@ -68,12 +64,12 @@ export default function EventForm({
   onSubmit,
   isPending,
   mode,
-  existingFiles = [], // Default เป็น empty array
+  existingFiles = [],
 }: EventFormProps) {
   const [alertOpen, setAlertOpen] = useState(false);
   const [pendingPackage, setPendingPackage] = useState<string | null>(null);
 
-  // --- [NEW] State สำหรับจัดการไฟล์เดิม ---
+  // --- State สำหรับจัดการไฟล์เดิม ---
   const [currentExistingFiles, setCurrentExistingFiles] =
     useState(existingFiles);
   const [deletedFileIds, setDeletedFileIds] = useState<number[]>([]);
@@ -83,7 +79,6 @@ export default function EventForm({
     setCurrentExistingFiles((prev) => prev.filter((f) => f.id !== fileId));
     setDeletedFileIds((prev) => [...prev, fileId]);
   };
-  // -------------------------------------
 
   // 1. Load Data
   const [
@@ -143,8 +138,9 @@ export default function EventForm({
       eventStaff: initialValues?.eventStaff ?? [],
       eventOutsources: initialValues?.eventOutsources ?? [],
       eventExtraEquipments: initialValues?.eventExtraEquipments ?? [],
-      // attachmentFiles คือไฟล์ใหม่เท่านั้น ให้เริ่มเป็น [] เสมอใน Form State
       attachmentFiles: [],
+      staffRequirements: initialValues?.staffRequirements ?? [],
+      outsourceRequirements: initialValues?.outsourceRequirements ?? [],
     } as EventData,
     validators: {
       onChange: getEventSchema(mode),
@@ -471,10 +467,23 @@ export default function EventForm({
                     <ResourceAssignmentBuilder
                       candidates={formattedStaffList}
                       availableRoles={roleData || []}
+                      initialRequirements={form.state.values.staffRequirements}
                       idKey="staffId"
                       entityLabel="Staff"
-                      onChange={(data) => field.handleChange(data)}
                       value={field.state.value}
+                      onChange={(data) => field.handleChange(data)}
+                      // รับค่า Quota Staff (SourceType = 1)
+                      onRequirementChange={(reqs) => {
+                        // ใช้ form.setFieldValue อัปเดต state เบื้องหลัง
+                        form.setFieldValue(
+                          "staffRequirements",
+                          reqs.map((r) => ({
+                            roleId: r.roleId,
+                            quantity: r.quantity,
+                            sourceType: 1, // Internal Staff
+                          })),
+                        );
+                      }}
                     />
                   )}
                 />
@@ -507,11 +516,25 @@ export default function EventForm({
                     <ResourceAssignmentBuilder
                       candidates={formattedOutsourceList}
                       availableRoles={roleData || []}
+                      initialRequirements={
+                        form.state.values.outsourceRequirements
+                      }
                       ignoreRoleValidation={true}
                       idKey="outsourceId"
                       entityLabel="Outsource"
-                      onChange={(data) => field.handleChange(data)}
                       value={field.state.value}
+                      onChange={(data) => field.handleChange(data)}
+                      // รับค่า Quota Outsource (SourceType = 2)
+                      onRequirementChange={(reqs) => {
+                        form.setFieldValue(
+                          "outsourceRequirements",
+                          reqs.map((r) => ({
+                            roleId: r.roleId,
+                            quantity: r.quantity,
+                            sourceType: 2, // Outsource
+                          })),
+                        );
+                      }}
                     />
                   )}
                 />

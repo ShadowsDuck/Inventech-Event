@@ -2,6 +2,7 @@ import { useMemo } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { format, parse } from "date-fns";
 
 import { Route } from "@/routes/event/$eventId/edit";
 import type { ExistingFileType } from "@/types/event";
@@ -11,9 +12,9 @@ import { eventQuery } from "../api/getEventById";
 import EventForm from "./event-form";
 import { type EventData } from "./event-schema";
 
-const API_BASE_URL = "https://localhost:7268";
+const API_URL = import.meta.env.VITE_API_URL;
 
-// Map ค่า Enum (เหมือนเดิม)
+// Map ค่า Enum
 const EVENT_TYPE_MAP: Record<string, number> = {
   Offline: 1,
   Hybrid: 2,
@@ -36,7 +37,7 @@ export default function EditEvent() {
         fileName: file.originalFileName,
 
         url: file.filePath
-          ? `${API_BASE_URL}/uploads/${file.filePath.replace(/\\/g, "/")}`
+          ? `${API_URL}/uploads/${file.filePath.replace(/\\/g, "/")}`
           : "#",
       })) ?? []
     );
@@ -53,9 +54,18 @@ export default function EditEvent() {
       eventDate: new Date(eventData.meetingDate),
       timePeriod: (PERIOD_MAP[eventData.period] ??
         1) as EventData["timePeriod"],
-      registrationTime: eventData.registrationTime,
-      startTime: eventData.startTime,
-      endTime: eventData.endTime,
+      registrationTime: eventData.registrationTime
+        ? format(
+            parse(eventData.registrationTime, "HH:mm:ss", new Date()),
+            "HH:mm",
+          )
+        : "",
+      startTime: eventData.startTime
+        ? format(parse(eventData.startTime, "HH:mm:ss", new Date()), "HH:mm")
+        : "",
+      endTime: eventData.endTime
+        ? format(parse(eventData.endTime, "HH:mm:ss", new Date()), "HH:mm")
+        : "",
       location:
         eventData.latitude && eventData.longitude
           ? `${eventData.latitude}, ${eventData.longitude}`
@@ -85,6 +95,26 @@ export default function EditEvent() {
         })) ?? [],
 
       attachmentFiles: [],
+
+      // Map Staff Requirements (SourceType = 1)
+      staffRequirements:
+        eventData.requirements // <--- ใช้ชื่อ requirements ตาม JSON
+          ?.filter((r) => r.sourceType === 1)
+          .map((r) => ({
+            roleId: r.roleId,
+            quantity: r.quantity,
+            sourceType: 1,
+          })) ?? [],
+
+      // Map Outsource Requirements (SourceType = 2)
+      outsourceRequirements:
+        eventData.requirements
+          ?.filter((r) => r.sourceType === 2) // กรองเอาเฉพาะ Outsource
+          .map((r) => ({
+            roleId: r.roleId,
+            quantity: r.quantity, // เลข Target เดิม
+            sourceType: 2,
+          })) ?? [],
     };
   }, [eventData]);
 

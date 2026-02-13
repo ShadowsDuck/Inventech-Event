@@ -22,6 +22,11 @@ export interface RoleAssignment {
   slots: (string | null)[];
 }
 
+export interface RoleRequirement {
+  roleId: number;
+  quantity: number; // จำนวน Slot ทั้งหมด (ทั้งว่างและไม่ว่าง)
+}
+
 interface ResourceAssignmentBuilderProps {
   availableRoles: RoleType[];
   candidates: AssignmentCandidate[];
@@ -33,6 +38,9 @@ interface ResourceAssignmentBuilderProps {
   // Props ใหม่สำหรับแยกประเภท
   idKey?: string; // ชื่อ key ขาออก
   entityLabel?: string; // คำเรียกที่จะแสดง
+
+  onRequirementChange?: (reqs: RoleRequirement[]) => void;
+  initialRequirements?: RoleRequirement[];
 }
 
 // --- 2. Sub-Component: Control Bar ---
@@ -68,7 +76,6 @@ const ControlBar = ({
         <label className="mb-2 block text-xs font-bold tracking-wide text-gray-500 uppercase">
           Select Role for {entityLabel}
         </label>
-        {/* ... (ส่วน Dropdown Role เหมือนเดิม) ... */}
         <button
           type="button"
           onClick={() => setIsRoleOpen(!isRoleOpen)}
@@ -452,28 +459,63 @@ const AssignmentCard = ({
 export default function ResourceAssignmentBuilder({
   availableRoles,
   candidates = [],
-  value = [], // รับค่าจาก Form (Flat Array)
+  value = [], // รับค่าจาก Form
   onChange,
   ignoreRoleValidation = false,
-  idKey = "staffId", // Default key
-  entityLabel = "Staff", // Default Label
+  idKey = "staffId",
+  entityLabel = "Staff",
+  onRequirementChange,
+  initialRequirements = [],
 }: ResourceAssignmentBuilderProps) {
-  // 1. สร้าง Initial State ทันทีโดยไม่ต้องใช้ useEffect เพื่อดักจับตอนโหลดครั้งแรก
+  // 1. Initial State: สร้างการ์ดตาม Requirements ก่อน แล้วค่อยเอาคนมาหยอด
   const [assignments, setAssignments] = useState<RoleAssignment[]>(() => {
-    if (!value || value.length === 0) return [];
-
     const groupedMap = new Map<number, RoleAssignment>();
 
+    // Step A: สร้าง "โครงการ์ด" จาก Requirements (โควต้า) รอไว้ก่อน
+    // เช่น Admin 1 คน -> สร้างการ์ด Admin ที่มี [null] รอไว้ (0/1)
+    initialRequirements.forEach((req) => {
+      const roleObj = availableRoles.find((r) => r.roleId === req.roleId);
+      groupedMap.set(req.roleId, {
+        roleId: req.roleId,
+        roleName: roleObj?.roleName || "Unknown Role",
+        slots: Array(req.quantity).fill(null),
+      });
+    });
+
+    // Step B: เอาคนที่มีอยู่จริง (value) มาหยอดใส่
     value.forEach((item) => {
       const rId = Number(item.roleId);
       const pId = item[idKey]?.toString() || null;
 
-      const roleName =
-        item.roleName ||
-        availableRoles.find((r) => r.roleId === rId)?.roleName ||
-        "Unknown Role";
-
+      // สร้างการ์ดก่อนเสมอ (ถ้ายังไม่มี)
       if (!groupedMap.has(rId)) {
+        const roleName =
+          item.roleName ||
+          availableRoles.find((r) => r.roleId === rId)?.roleName ||
+          "Unknown Role";
+        groupedMap.set(rId, {
+          roleId: rId,
+          roleName: roleName,
+          slots: [null], // สร้าง 1 slot ว่างไว้ก่อน
+        });
+      }
+
+      // [CHECK 1] กรองคน isDeleted: เช็คว่าคนนี้มีตัวตนใน candidates (Active List) ไหม?
+      const isValidCandidate = pId && candidates.some((c) => c.id === pId);
+
+      // ถ้าคนนี้ถูกลบ (ไม่อยู่ใน candidates) -> ข้ามการใส่คนไปเลย
+      // แต่การ์ดที่สร้างไว้ข้างบนจะยังอยู่ (กลายเป็น 0/1)
+      if (!isValidCandidate) {
+        console.log(`Skipping deleted ${entityLabel}: ${pId} for role ${rId}`); // เพิ่ม log debug
+        return; // ข้ามการใส่คน แต่การ์ดยังอยู่
+      }
+
+      // ถ้าเป็นการ์ดใหม่ที่ไม่ได้อยู่ใน Requirements ก็สร้างเพิ่ม (เผื่อกรณี Extra)
+      if (!groupedMap.has(rId)) {
+        const roleName =
+          item.roleName ||
+          availableRoles.find((r) => r.roleId === rId)?.roleName ||
+          "Unknown Role";
         groupedMap.set(rId, {
           roleId: rId,
           roleName: roleName,
@@ -481,8 +523,15 @@ export default function ResourceAssignmentBuilder({
         });
       }
 
-      if (pId) {
-        groupedMap.get(rId)!.slots.push(pId);
+      const currentAssign = groupedMap.get(rId)!;
+
+      // หยอดคนลงในช่องว่างแรกที่เจอ
+      const emptyIndex = currentAssign.slots.indexOf(null);
+      if (emptyIndex !== -1) {
+        currentAssign.slots[emptyIndex] = pId;
+      } else {
+        // ถ้าเต็มแล้ว หรือเป็นการ์ดงอกใหม่ ให้ต่อท้าย
+        currentAssign.slots.push(pId);
       }
     });
 
@@ -492,20 +541,32 @@ export default function ResourceAssignmentBuilder({
   // ใช้ useRef เพื่อเก็บค่า value ล่าสุด
   const prevValueRef = useRef(value);
 
-  // Sync props.value -> Internal State (Assignments)
+  // 2. Sync Props: เมื่อข้อมูลเปลี่ยน ก็ใช้ Logic เดียวกัน
   if (value !== prevValueRef.current) {
     prevValueRef.current = value;
 
     setAssignments((prev) => {
-      // 1. แปลง value ใหม่ให้เป็น Map เพื่อง่ายต่อการค้นหา
       const valueMap = new Map<number, string[]>();
       const roleNameMap = new Map<number, string>();
 
+      // วนลูปเก็บคนเข้า Map (เฉพาะคนที่ไม่ถูกลบ)
       value.forEach((item) => {
         const rId = Number(item.roleId);
-        // ใช้ Key ที่ส่งมา (staffId หรือ outsourceId)
         const pId = item[idKey]?.toString() || null;
 
+        // [CHECK 2] เช็คคน isDeleted เหมือนเดิม - ปรับให้ชัดเจนขึ้น
+        if (!pId) {
+          return; // ข้ามถ้าไม่มี ID
+        }
+
+        const isValidCandidate = candidates.some((c) => c.id === pId);
+
+        if (!isValidCandidate) {
+          console.log(`Filtering out deleted ${entityLabel}: ${pId}`); // เพิ่ม log
+          return; // ข้ามคนนี้ไป (ไม่เอาใส่ใน valueMap)
+        }
+
+        // เก็บชื่อ Role ไว้กันเหนียว
         if (!roleNameMap.has(rId)) {
           const name =
             item.roleName ||
@@ -522,35 +583,34 @@ export default function ResourceAssignmentBuilder({
         }
       });
 
-      // 2. Merge ข้อมูลใหม่เข้ากับ State เดิม (เพื่อรักษา Slot ว่างไว้)
+      // Merge กับ State เดิม (ซึ่งมีโครงการ์ดอยู่แล้ว)
       const mergedAssignments = prev.map((assignment) => {
         const incomingSlots = valueMap.get(assignment.roleId);
 
-        // กรณี A: Role นี้ไม่มีข้อมูลส่งกลับมา (อาจจะถูกลบคนออกหมด)
-        // ให้รักษาจำนวน Slot เท่าเดิม แต่เคลียร์คนออกเป็น null
+        // กรณี: ใน Role นี้ ไม่มีคนส่งมาเลย (อาจจะถูกลบออกหมดทุกคน หรือยังไม่มีใคร)
         if (!incomingSlots) {
           return {
             ...assignment,
+            // [KEY POINT] เคลียร์ Slot ให้เป็น null ทั้งหมด แต่รักษาความยาว (Quantity) เท่าเดิม
+            // ผลลัพธ์: การ์ดอยู่ แต่คนหายไป (0/4)
             slots: Array(assignment.slots.length).fill(null),
           };
         }
 
-        // กรณี B: มีข้อมูลส่งมา
-        // ให้ใช้ความยาวที่ "มากที่สุด" ระหว่าง (ของเดิม vs ของใหม่) เพื่อไม่ให้ Slot หด
+        // กรณี: มีคนส่งมา (บางส่วน)
+        // เทียบความยาวเดิม vs ใหม่ อันไหนยาวกว่าเอาอันนั้น (ไม่ให้ Slot หด)
         const targetLength = Math.max(
           assignment.slots.length,
           incomingSlots.length,
         );
 
-        // --- บอก Type ชัดเจนว่ารับ null ได้ ---
         const newSlots: (string | null)[] = [...incomingSlots];
 
-        // เติม null ใส่ต่อท้ายจนครบจำนวนเดิม
+        // เติม null ให้ครบตามจำนวน Target
         while (newSlots.length < targetLength) {
           newSlots.push(null);
         }
 
-        // ลบออกจาก Map เพื่อบอกว่า Role นี้จัดการแล้ว
         valueMap.delete(assignment.roleId);
 
         return {
@@ -559,11 +619,9 @@ export default function ResourceAssignmentBuilder({
         };
       });
 
-      // 3. จัดการ Role ใหม่ที่อาจจะเพิ่มเข้ามา (ที่ไม่อยู่ใน State เดิม)
+      // จัดการ Role ที่งอกมาใหม่ (นอกเหนือจากที่มีใน State เดิม)
       valueMap.forEach((slots, rId) => {
-        // แปลง string[] เป็น (string | null)[] เพื่อความชัวร์ของ Type
         const initialSlots: (string | null)[] = [...slots];
-
         mergedAssignments.push({
           roleId: rId,
           roleName: roleNameMap.get(rId) || "Unknown Role",
@@ -576,12 +634,15 @@ export default function ResourceAssignmentBuilder({
   }
 
   const onChangeRef = useRef(onChange);
-  useEffect(() => {
-    onChangeRef.current = onChange;
-  }, [onChange]);
+  const onReqChangeRef = useRef(onRequirementChange);
 
   useEffect(() => {
-    // โค้ดเดิมที่ใช้สำหรับแพ็คข้อมูลส่งกลับ
+    onChangeRef.current = onChange;
+    onReqChangeRef.current = onRequirementChange;
+  }, [onChange, onRequirementChange]);
+
+  useEffect(() => {
+    // ส่งรายชื่อคน (Assignment)
     const payload = assignments.flatMap((assign) => {
       return assign.slots
         .filter((slotId) => slotId !== null)
@@ -601,8 +662,20 @@ export default function ResourceAssignmentBuilder({
         onChangeRef.current(payload);
       }
     }
+
+    // ส่งจำนวน Slot (Requirement)
+    // ดึงจำนวน slots.length ของแต่ละ Role ออกมา
+    const requirementsPayload: RoleRequirement[] = assignments.map((a) => ({
+      roleId: a.roleId,
+      quantity: a.slots.length, // นี่คือเลข Target (เช่น 4)
+    }));
+
+    if (onReqChangeRef.current) {
+      onReqChangeRef.current(requirementsPayload);
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assignments, candidates, idKey]); // ไม่เอา value มาใส่ ป้องกัน loop นรก
+  }, [assignments, candidates, idKey]);
 
   const handleAddAssignment = (
     roleId: number,

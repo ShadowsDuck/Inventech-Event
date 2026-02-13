@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import axios, { isAxiosError } from "axios";
-// 1. import axios
 import { format } from "date-fns";
 
 import type { EventType } from "@/types/event";
@@ -17,26 +16,36 @@ type CreateEventPayload = EventData & {
 const createEvent = async (
   newEvent: CreateEventPayload,
 ): Promise<EventType> => {
-  // --- ส่วนเตรียม FormData (Logic เดิมเป๊ะๆ) ---
   const formData = new FormData();
 
+  // Basic Information
   formData.append("EventName", newEvent.eventName);
   formData.append("EventType", newEvent.eventType.toString());
-  formData.append("Address", newEvent.address || "");
   formData.append("CompanyId", newEvent.companyId.toString());
+  if (newEvent.address) {
+    formData.append("Address", newEvent.address);
+  }
+  if (newEvent.note) {
+    formData.append("Note", newEvent.note);
+  }
 
+  // Package
   if (newEvent.packageId && newEvent.packageId > 0) {
     formData.append("PackageId", newEvent.packageId.toString());
   } else {
     formData.append("PackageId", "");
   }
 
+  // Event Date
   const formattedDate = format(newEvent.eventDate, "yyyy-MM-dd");
   formData.append("MeetingDate", formattedDate);
-  formData.append("RegistrationTime", newEvent.registrationTime || "");
+  if (newEvent.registrationTime) {
+    formData.append("RegistrationTime", newEvent.registrationTime);
+  }
   formData.append("StartTime", newEvent.startTime);
   formData.append("EndTime", newEvent.endTime);
 
+  // Time Period
   const periodMapping: Record<string, string> = {
     morning: "1",
     afternoon: "2",
@@ -46,7 +55,7 @@ const createEvent = async (
     periodMapping[periodKey] || newEvent.timePeriod.toString();
   formData.append("Period", periodValue);
 
-  formData.append("Note", newEvent.note || "");
+  // มาแก้ไขด้วยหลังจากทำ User (Login, Register)
   formData.append("CreatedByStaffId", "1");
 
   // Location
@@ -57,7 +66,7 @@ const createEvent = async (
     formData.append("Longitude", newEvent.longitude.toString());
   }
 
-  // A. Equipment
+  // Extra Equipments
   if (
     newEvent.eventExtraEquipments &&
     newEvent.eventExtraEquipments.length > 0
@@ -89,7 +98,7 @@ const createEvent = async (
     });
   }
 
-  // Outsource
+  // Outsources
   if (newEvent.eventOutsources?.length > 0) {
     const validOutsources = newEvent.eventOutsources
       .map((item) => ({
@@ -116,11 +125,28 @@ const createEvent = async (
       formData.append("AttachmentFiles", f);
     });
   }
-  // ---------------------------------------------
+
+  // Role Requirements
+  const allRequirements = [
+    ...(newEvent.staffRequirements || []),
+    ...(newEvent.outsourceRequirements || []),
+  ];
+
+  if (allRequirements.length > 0) {
+    allRequirements.forEach((req, index) => {
+      formData.append(`Requirements[${index}].RoleId`, req.roleId.toString());
+      formData.append(
+        `Requirements[${index}].Quantity`,
+        req.quantity.toString(),
+      );
+      formData.append(
+        `Requirements[${index}].SourceType`,
+        req.sourceType.toString(),
+      );
+    });
+  }
 
   try {
-    // 2. ใช้ axios.post
-    // ส่ง formData เข้าไปตรงๆ ได้เลย Axios จัดการ Header ให้เอง
     const { data } = await axios.post<EventType>(
       `${API_URL}/api/events`,
       formData,
@@ -128,7 +154,6 @@ const createEvent = async (
 
     return data;
   } catch (error) {
-    // 3. จัดการ Error แบบ Axios
     if (isAxiosError(error) && error.response) {
       const errorData = error.response.data;
 
