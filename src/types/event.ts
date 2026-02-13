@@ -55,6 +55,15 @@ export interface EventAttachment {
   fileSize: number;
 }
 
+// 5. Role Requirement (Quota)
+export interface EventRoleRequirement {
+  eventId: number;
+  roleId: number;
+  role?: RoleType; // Optional: เผื่อ Backend Include Role มาให้แสดงชื่อ
+  quantity: number; // Target amount (e.g. 4)
+  sourceType: number; // 1 = Staff, 2 = Outsource
+}
+
 export interface EventType {
   eventId: number;
   eventName: string;
@@ -83,6 +92,8 @@ export interface EventType {
   eventOutsources: EventOutsource[];
   eventExtraEquipments: EventExtraEquipment[];
 
+  requirements: EventRoleRequirement[];
+
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
@@ -105,6 +116,12 @@ interface EventEquipmentForm {
   quantity: number;
 }
 
+export interface RoleRequirementForm {
+  roleId: number;
+  quantity: number;
+  sourceType: number;
+}
+
 export interface EventFormType extends Omit<
   EventType,
   "eventStaff" | "eventOutsources" | "eventExtraEquipments"
@@ -112,6 +129,9 @@ export interface EventFormType extends Omit<
   eventStaff: EventStaffForm[];
   eventOutsources: EventOutsourceForm[];
   eventExtraEquipments: EventEquipmentForm[];
+
+  staffRequirements: RoleRequirementForm[];
+  outsourceRequirements: RoleRequirementForm[];
 
   newFiles: File[];
   location: string;

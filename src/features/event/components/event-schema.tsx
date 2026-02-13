@@ -1,4 +1,3 @@
-// event-schema.ts
 import { z } from "zod";
 
 const EquipmentEventSchema = z.object({
@@ -14,6 +13,12 @@ const StaffSchema = z.object({
 const OutsourceSchema = z.object({
   outsourceId: z.number().or(z.string()),
   roleId: z.number(),
+});
+
+const RequirementSchema = z.object({
+  roleId: z.number(),
+  quantity: z.number(),
+  sourceType: z.union([z.literal(1), z.literal(2)]), // 1 = Staff, 2 = Outsource
 });
 
 const baseEventSchema = z.object({
@@ -32,7 +37,7 @@ const baseEventSchema = z.object({
       return "Invalid date format";
     },
   }),
-  registrationTime: z.string().optional(),
+  registrationTime: z.string().min(1, "Registration time is required"),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
   timePeriod: z.number().min(1, "Please select a time period"),
@@ -42,47 +47,55 @@ const baseEventSchema = z.object({
   eventOutsources: z.array(OutsourceSchema),
   eventExtraEquipments: z.array(EquipmentEventSchema),
   attachmentFiles: z.array(z.instanceof(File)),
+
+  staffRequirements: z.array(RequirementSchema),
+  outsourceRequirements: z.array(RequirementSchema),
 });
 
-// Export Type และ Function ออกไปใช้งาน
 export type EventData = z.infer<typeof baseEventSchema>;
 
 export const getEventSchema = (mode: "create" | "edit") => {
-  return baseEventSchema.superRefine((data, ctx) => {
-    if (data.registrationTime && data.startTime) {
-      if (data.registrationTime > data.startTime) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Registration time must be before start time",
-          path: ["registrationTime"],
-        });
-      }
-    }
+  let schema = baseEventSchema
+    .refine(
+      (data) => {
+        if (!data.registrationTime || !data.startTime) return true;
+        return data.registrationTime <= data.startTime;
+      },
+      {
+        error: "Registration time must be before start time",
+        path: ["registrationTime"],
+      },
+    )
+    .refine(
+      (data) => {
+        if (!data.startTime || !data.endTime) return true;
+        return data.startTime < data.endTime;
+      },
+      {
+        error: "Start time must be before end time",
+        path: ["startTime"],
+      },
+    );
 
-    if (data.startTime && data.endTime) {
-      if (data.startTime >= data.endTime) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Start time must be before end time",
-          path: ["startTime"],
-        });
-      }
-    }
+  if (mode === "create") {
+    schema = schema.refine(
+      (data) => {
+        if (!data.eventDate) return true;
 
-    if (mode === "create" && data.eventDate) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-      const selectedDate = new Date(data.eventDate);
-      selectedDate.setHours(0, 0, 0, 0);
+        const selectedDate = new Date(data.eventDate);
+        selectedDate.setHours(0, 0, 0, 0);
 
-      if (selectedDate < today) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Event date cannot be in the past",
-          path: ["eventDate"],
-        });
-      }
-    }
-  });
+        return selectedDate >= today;
+      },
+      {
+        error: "Event date cannot be in the past",
+        path: ["eventDate"],
+      },
+    );
+  }
+
+  return schema;
 };

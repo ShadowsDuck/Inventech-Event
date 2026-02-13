@@ -124,7 +124,26 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
     });
   }
 
-  // --- API Call ---
+  // Role Requirements
+  const allRequirements = [
+    ...(eventData.staffRequirements || []),
+    ...(eventData.outsourceRequirements || []),
+  ];
+
+  if (allRequirements.length > 0) {
+    allRequirements.forEach((req, index) => {
+      formData.append(`Requirements[${index}].RoleId`, req.roleId.toString());
+      formData.append(
+        `Requirements[${index}].Quantity`,
+        req.quantity.toString(),
+      );
+      formData.append(
+        `Requirements[${index}].SourceType`,
+        req.sourceType.toString(),
+      );
+    });
+  }
+
   try {
     const { data } = await axios.put<EventType>(
       `${API_URL}/api/events/${id}`,
