@@ -3,6 +3,7 @@ export interface OutsourceType {
   fullName: string;
   email: string;
   phoneNumber: string;
+  status: string;
   createdAt: string;
   updatedAt: string;
   isDeleted: boolean;

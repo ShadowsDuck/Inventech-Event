@@ -1,12 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
 import axios from "axios";
 
-import type { staffParams } from "@/routes/_sidebarLayout/staff";
+import type { StaffParams } from "@/routes/_sidebarLayout/staff";
 import type { StaffType } from "@/types/staff";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const getStaff = async (params?: staffParams): Promise<StaffType[]> => {
+const getStaff = async (params?: StaffParams): Promise<StaffType[]> => {
   const { data } = await axios.get<StaffType[]>(`${API_URL}/api/staff`, {
     params: params,
   });
@@ -14,7 +14,7 @@ const getStaff = async (params?: staffParams): Promise<StaffType[]> => {
   return data;
 };
 
-export const staffQuery = (params?: staffParams) =>
+export const staffQuery = (params?: StaffParams) =>
   queryOptions({
     queryKey: ["staff", "list", params],
     queryFn: () => getStaff(params),

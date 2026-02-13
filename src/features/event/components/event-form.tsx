@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useSuspenseQueries } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { FileText, Loader2, Trash2, UploadCloud } from "lucide-react";
 
 import { useAppForm } from "@/components/form";
@@ -84,8 +85,6 @@ export default function EventForm({
   const [
     { data: roleData },
     { data: companiesData },
-    { data: staffData },
-    { data: outsourceData },
     { data: packagesData },
     { data: equipmentData },
   ] = useSuspenseQueries({
@@ -94,14 +93,6 @@ export default function EventForm({
       {
         ...companiesQuery(),
         select: (data: CompanyType[]) => data.filter((s) => !s.isDeleted),
-      },
-      {
-        ...staffQuery(),
-        select: (data: StaffType[]) => data.filter((s) => !s.isDeleted),
-      },
-      {
-        ...outsourcesQuery(),
-        select: (data: OutsourceType[]) => data.filter((s) => !s.isDeleted),
       },
       {
         ...packageQuery(),
@@ -170,7 +161,7 @@ export default function EventForm({
     }));
   }, [packageDetail]);
 
-  //LockStaff And Outsource
+  // ดึงค่า date และ period จาก form
   const currentEventDate = useStore(
     form.store,
     (state) => state.values.eventDate,
@@ -179,28 +170,55 @@ export default function EventForm({
     form.store,
     (state) => state.values.timePeriod,
   );
+
+  // แปลง Date เป็น String (YYYY-MM-DD) และ Period
+  const dateString = currentEventDate
+    ? format(currentEventDate, "yyyy-MM-dd")
+    : undefined;
+  const periodNumber = currentTimePeriod || undefined;
+
+  // 4. Query Staff
+  const { data: staffData } = useQuery({
+    ...staffQuery({
+      date: dateString,
+      period: periodNumber,
+    }),
+    select: (data: StaffType[]) => data.filter((s) => !s.isDeleted),
+    enabled: !!dateString && !!periodNumber, // Query เมื่อมีทั้ง date และ period
+  });
+
+  // 5. Query Outsource
+  const { data: outsourceData } = useQuery({
+    ...outsourcesQuery({
+      date: dateString,
+      period: periodNumber,
+    }),
+    select: (data: OutsourceType[]) => data.filter((s) => !s.isDeleted),
+    enabled: !!dateString && !!periodNumber, // Query เมื่อมีทั้ง date และ period
+  });
+
   const isResourceLocked =
     !currentEventDate || !currentTimePeriod || currentTimePeriod === 0;
 
   const formattedStaffList = useMemo(() => {
-    return (
-      staffData?.map((s) => ({
-        id: String(s.staffId),
-        name: s.fullName,
-        roles: s.staffRoles ? s.staffRoles.map((r) => r.roleName) : [],
-        avatar: s.avatar || "",
-      })) || []
-    );
+    if (!staffData) return [];
+    return staffData.map((s) => ({
+      id: String(s.staffId),
+      name: s.fullName,
+      roles: s.staffRoles ? s.staffRoles.map((r) => r.roleName) : [],
+      avatar: s.avatar || "",
+      status: s.status,
+    }));
   }, [staffData]);
 
   const formattedOutsourceList = useMemo(() => {
-    return (
-      outsourceData?.map((o) => ({
-        id: String(o.outsourceId),
-        name: o.fullName,
-        roles: [],
-      })) || []
-    );
+    if (!outsourceData) return [];
+    return outsourceData.map((o) => ({
+      id: String(o.outsourceId),
+      name: o.fullName,
+      roles: [],
+      status: o.status,
+    }));
   }, [outsourceData]);
 
   const title = mode === "create" ? "Create Event" : "Edit Event";
