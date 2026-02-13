@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axios, { isAxiosError } from "axios";
 import { format } from "date-fns";
 
@@ -164,14 +164,10 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
 };
 
 export const useEditEvent = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: editEvent,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["events"] });
-    },
     meta: {
+      invalidatesQuery: [["events"], ["staff"], ["outsources"]],
       successMessage: "Updated event successfully",
       errorMessage: "Failed to update event",
     },

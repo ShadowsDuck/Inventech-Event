@@ -8,11 +8,16 @@ const EquipmentEventSchema = z.object({
 const StaffSchema = z.object({
   staffId: z.number().or(z.string()),
   roleId: z.number().min(1, "Role is required"),
+  fullName: z.string().optional(),
+  roleName: z.string().optional(),
+  isDeleted: z.boolean().optional(),
 });
 
 const OutsourceSchema = z.object({
   outsourceId: z.number().or(z.string()),
   roleId: z.number(),
+  fullName: z.string().optional(),
+  isDeleted: z.boolean().optional(),
 });
 
 const RequirementSchema = z.object({
