@@ -8,9 +8,11 @@ import StaffList from "@/features/staff/components/pages/StaffList";
 
 const staffParamsSchema = z.object({
   isDeleted: z.boolean().optional(),
+  date: z.string().optional(),
+  period: z.number().optional(),
 });
 
-export type staffParams = z.infer<typeof staffParamsSchema>;
+export type StaffParams = z.infer<typeof staffParamsSchema>;
 
 export const Route = createFileRoute("/_sidebarLayout/staff/")({
   component: StaffList,

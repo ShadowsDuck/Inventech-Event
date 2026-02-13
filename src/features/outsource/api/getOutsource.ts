@@ -1,23 +1,26 @@
 import { queryOptions } from "@tanstack/react-query";
 import axios from "axios";
 
-// 1. import axios
-
+import type { OutsourceParams } from "@/routes/_sidebarLayout/outsource";
 import type { OutsourceType } from "@/types/outsource";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const getOutsources = async (): Promise<OutsourceType[]> => {
-  // 2. ใช้ axios.get และระบุ Type <OutsourceType[]>
+const getOutsources = async (
+  params?: OutsourceParams,
+): Promise<OutsourceType[]> => {
   const { data } = await axios.get<OutsourceType[]>(
     `${API_URL}/api/outsources`,
+    {
+      params: params,
+    },
   );
 
-  return data; // 3. ส่ง data กลับไปได้เลย
+  return data;
 };
 
-export const outsourcesQuery = () =>
+export const outsourcesQuery = (params?: OutsourceParams) =>
   queryOptions({
-    queryKey: ["outsources", "list"],
-    queryFn: () => getOutsources(),
+    queryKey: ["outsources", "list", params],
+    queryFn: () => getOutsources(params),
   });

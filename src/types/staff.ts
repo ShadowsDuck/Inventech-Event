@@ -17,6 +17,7 @@ export interface StaffType {
   phoneNumber?: string;
   avatar?: string;
   isDeleted: boolean;
+  status: string;
   createdAt: string;
   updatedAt?: string;
   staffRoles: RoleType[];
