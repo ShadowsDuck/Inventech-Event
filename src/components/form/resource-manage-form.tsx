@@ -14,6 +14,7 @@ export interface AssignmentCandidate {
   name: string;
   roles: string[];
   avatar?: string;
+  status?: string;
 }
 
 export interface RoleAssignment {
@@ -196,8 +197,15 @@ const AssignmentCard = ({
         if (!hasRole) return false;
       }
 
-      // 4. Status Filter (Mock Logic)
-      if (status === "available") return true;
+      // 4. Status Filter
+      if (status === "available") {
+        return item.status === "Available";
+      } else if (status === "working") {
+        return item.status === "Working";
+      } else if (status === "unavailable") {
+        return item.status === "Unavailable";
+      }
+
       return false;
     });
   };
@@ -506,7 +514,6 @@ export default function ResourceAssignmentBuilder({
       // ถ้าคนนี้ถูกลบ (ไม่อยู่ใน candidates) -> ข้ามการใส่คนไปเลย
       // แต่การ์ดที่สร้างไว้ข้างบนจะยังอยู่ (กลายเป็น 0/1)
       if (!isValidCandidate) {
-        console.log(`Skipping deleted ${entityLabel}: ${pId} for role ${rId}`); // เพิ่ม log debug
         return; // ข้ามการใส่คน แต่การ์ดยังอยู่
       }
 
@@ -562,7 +569,6 @@ export default function ResourceAssignmentBuilder({
         const isValidCandidate = candidates.some((c) => c.id === pId);
 
         if (!isValidCandidate) {
-          console.log(`Filtering out deleted ${entityLabel}: ${pId}`); // เพิ่ม log
           return; // ข้ามคนนี้ไป (ไม่เอาใส่ใน valueMap)
         }
 
