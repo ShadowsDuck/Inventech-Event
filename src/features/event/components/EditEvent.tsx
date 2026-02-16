@@ -145,7 +145,7 @@ export default function EditEvent() {
 
     mutate(payload, {
       onSuccess: () => {
-        navigate({ to: "/event", replace: true });
+        navigate({ to: `/event/${eventId}`, replace: true });
       },
     });
   };

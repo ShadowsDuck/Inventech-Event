@@ -58,6 +58,7 @@ export default function EventList() {
     "calendar",
   );
 
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [searchText, setSearchText] = useState("");
   const [staffFilter, setStaffFilter] = useState<string[]>([]);
   const [companyFilter, setCompanyFilter] = useState<string[]>([]);
@@ -75,6 +76,16 @@ export default function EventList() {
     { value: "Complete", label: "Complete" },
   ];
 
+  const handleTabChange = (value: string) => {
+    if (value === "daily") {
+      setSelectedDate(new Date());
+    }
+    setActiveTab(value as "daily" | "calendar" | "year");
+  };
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+    setActiveTab("daily");
+  };
   return (
     <>
       <PageHeader
@@ -91,7 +102,7 @@ export default function EventList() {
 
       <Tabs
         value={activeTab}
-        onValueChange={(v) => setActiveTab(v as "daily" | "calendar" | "year")}
+        onValueChange={handleTabChange}
         className="flex flex-1 flex-col"
       >
         {/* Tabs + status chips */}
@@ -173,13 +184,17 @@ export default function EventList() {
 
         {/* Content Views */}
         <TabsPanel value="year">
-          <YearView events={EventData} />
+          <YearView events={EventData} onDateClick={handleDateClick} />
         </TabsPanel>
         <TabsPanel value="calendar">
-          <MonthView events={EventData} />
+          <MonthView events={EventData} onDateClick={handleDateClick} />
         </TabsPanel>
         <TabsPanel value="daily">
-          <DailyView events={EventData} />
+          <DailyView
+            key={selectedDate?.toISOString()}
+            events={EventData}
+            initialDate={selectedDate}
+          />
         </TabsPanel>
       </Tabs>
     </>

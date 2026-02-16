@@ -5,6 +5,16 @@ import { ChevronDown, Minus, Plus, Search, Trash2, X } from "lucide-react";
 import type { RoleType } from "@/types/role";
 
 import SearchBar from "../SearchBar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTab } from "../ui/tabs";
 
@@ -174,7 +184,12 @@ const AssignmentCard = ({
   const isComplete =
     filledCount === assignment.slots.length && assignment.slots.length > 0;
   const [search, setSearch] = useState("");
-
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [pendingAssign, setPendingAssign] = useState<{
+    index: number;
+    id: string;
+    name: string;
+  } | null>(null);
   const getFilteredCandidates = (
     status: "available" | "working" | "unavailable",
   ) => {
@@ -428,7 +443,16 @@ const AssignmentCard = ({
                             getFilteredCandidates("unavailable").map((s) => (
                               <div
                                 key={s.id}
-                                className="group/item flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 opacity-50"
+                                onClick={() => {
+                                  setPendingAssign({
+                                    index,
+                                    id: s.id,
+                                    name: s.name,
+                                  });
+                                  setAlertOpen(true);
+                                }}
+                                // =======================
+                                className="group/item flex cursor-pointer items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 opacity-60 shadow-sm transition-all hover:border-red-400 hover:opacity-100 hover:shadow-md"
                               >
                                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600">
                                   {s.name.charAt(0)}
@@ -450,6 +474,46 @@ const AssignmentCard = ({
                             </div>
                           )}
                         </TabsContent>
+                        <AlertDialog
+                          open={alertOpen}
+                          onOpenChange={setAlertOpen}
+                        >
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Assign Unavailable {entityLabel}?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {pendingAssign?.name} is currently marked as
+                                unavailable. Are you sure you want to assign
+                                them to this role?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel
+                                onClick={() => setPendingAssign(null)}
+                              >
+                                Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-red-600 hover:bg-red-700"
+                                onClick={() => {
+                                  if (pendingAssign) {
+                                    // เรียกฟังก์ชันเปลี่ยนตัวจริงตรงนี้
+                                    onAssign(
+                                      pendingAssign.index,
+                                      pendingAssign.id,
+                                    );
+                                    setPendingAssign(null);
+                                    setAlertOpen(false);
+                                  }
+                                }}
+                              >
+                                Confirm
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </Tabs>
                   </PopoverContent>

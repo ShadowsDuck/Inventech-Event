@@ -2,8 +2,15 @@ import React, { useMemo, useState } from "react";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const YearView = () => {
-  // today คงที่ตลอด lifecycle ของ component
+import type { EventType } from "@/types/event";
+
+interface YearViewProps {
+  events: EventType[];
+  // 1. เพิ่ม onDateClick เข้ามาเหมือน MonthView
+  onDateClick?: (date: Date) => void;
+}
+
+const YearView: React.FC<YearViewProps> = ({ events = [], onDateClick }) => {
   const today = useMemo(() => new Date(), []);
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
 
@@ -39,8 +46,21 @@ const YearView = () => {
     );
   };
 
+  // 2. ฟังก์ชันกรอง Event ประจำวัน (เหมือน MonthView)
+  const getEventsForDay = (year: number, month: number, day: number) => {
+    if (!day) return [];
+    return events.filter((event) => {
+      const eventDate = new Date(event.meetingDate);
+      return (
+        eventDate.getDate() === day &&
+        eventDate.getMonth() === month &&
+        eventDate.getFullYear() === year
+      );
+    });
+  };
+
   return (
-    <div className="mx-auto w-full max-w-[1200px] rounded-[32px] bg-white p-8 font-sans shadow-sm">
+    <div className="mx-auto w-full max-w-300 rounded-[32px] bg-white p-8 font-sans shadow-sm">
       {/* Header */}
       <div className="mb-12 flex items-center justify-between">
         <div>
@@ -85,9 +105,9 @@ const YearView = () => {
               </h3>
 
               <div className="mb-2 grid grid-cols-7">
-                {daysOfWeek.map((day) => (
+                {daysOfWeek.map((day, i) => (
                   <div
-                    key={day}
+                    key={i}
                     className="text-center text-[10px] font-bold text-gray-300"
                   >
                     {day}
@@ -95,25 +115,64 @@ const YearView = () => {
                 ))}
               </div>
 
-              <div className="grid grid-cols-7 gap-y-1">
+              {/* ปรับ gap-y-2 เพื่อให้มีพื้นที่เหลือสำหรับแสดงจุดสีข้างใต้วันที่ */}
+              <div className="grid grid-cols-7 gap-y-2">
                 {days.map((day, idx) => {
                   const isCurrentDay = isToday(currentYear, monthIdx, day);
+                  const dayEvents = day
+                    ? getEventsForDay(currentYear, monthIdx, day)
+                    : [];
 
                   return (
                     <div
                       key={idx}
-                      className="relative flex h-7 items-center justify-center"
+                      // 3. เพิ่มฟังก์ชันกดวันที่เพื่อเปลี่ยนหน้า
+                      onClick={() =>
+                        day &&
+                        onDateClick?.(new Date(currentYear, monthIdx, day))
+                      }
+                      className={`relative flex h-10 flex-col items-center justify-start ${
+                        day ? "cursor-pointer" : ""
+                      }`}
                     >
                       {day && (
-                        <span
-                          className={`flex h-7 w-7 items-center justify-center rounded-lg text-[12px] font-medium transition-all ${
-                            isCurrentDay
-                              ? "bg-blue-600 text-white shadow-md"
-                              : "text-gray-600 hover:bg-gray-100"
-                          } `}
-                        >
-                          {day}
-                        </span>
+                        <>
+                          <span
+                            className={`flex h-7 w-7 items-center justify-center rounded-lg text-[12px] font-medium transition-all ${
+                              isCurrentDay
+                                ? "bg-blue-600 text-white shadow-md"
+                                : "text-gray-600 hover:bg-gray-100"
+                            }`}
+                          >
+                            {day}
+                          </span>
+
+                          {/* 4. แสดงจุดสีใต้วันที่ตาม Status ของ Event */}
+                          {dayEvents.length > 0 && (
+                            <div className="mt-0.5 flex gap-1">
+                              {/* ตัดมาโชว์แค่ 3 จุดสูงสุด กันมันล้นกรอบ */}
+                              {dayEvents.slice(0, 3).map((event) => {
+                                const isComplete =
+                                  event.eventStatus === "Complete";
+                                const isPending =
+                                  event.eventStatus === "Pending";
+
+                                return (
+                                  <div
+                                    key={event.eventId}
+                                    className={`h-1.5 w-1.5 rounded-full ${
+                                      isComplete
+                                        ? "bg-green-500"
+                                        : isPending
+                                          ? "bg-yellow-400"
+                                          : "bg-gray-400"
+                                    }`}
+                                  />
+                                );
+                              })}
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   );

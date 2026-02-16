@@ -1,8 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 // 1. Import useNavigate (ปรับ import ให้ตรงกับ Library ที่ใช้ เช่น @tanstack/react-router)
 import { useNavigate } from "@tanstack/react-router";
 import {
+  Activity,
+  // <-- 1. เพิ่มไอคอน Activity สำหรับ Status
   Building2,
   Calendar,
   ChartNoAxesGantt,
@@ -12,7 +14,6 @@ import {
   Clock,
   Compass,
   Download,
-  // 2. เพิ่มไอคอน
   FileImage,
   FileText,
   Notebook,
@@ -28,7 +29,7 @@ const API_BASE_URL = "https://localhost:7268";
 
 interface DailyViewProps {
   events: EventType[];
-  initialDate?: Date;
+  initialDate?: Date | null;
   onDateChange?: (date: Date) => void;
 }
 
@@ -73,6 +74,21 @@ const DailyView = ({ events, initialDate }: DailyViewProps) => {
       to: "/event/$eventId", // **ตรวจสอบ Path นี้ให้ตรงกับ Router config ของคุณ**
       params: { eventId: eventId.toString() },
     });
+  };
+
+  // Helper สำหรับกำหนดสีของ Status เบื้องต้น (สามารถปรับเปลี่ยนคำและสีได้ตามต้องการ)
+  const getStatusColor = (status?: string) => {
+    const s = status?.toLowerCase() || "";
+    if (s.includes("pending")) return "bg-yellow-50 text-yellow-700";
+    if (
+      s.includes("complete") ||
+      s.includes("success") ||
+      s.includes("approve")
+    )
+      return "bg-emerald-50 text-emerald-700";
+    if (s.includes("cancel") || s.includes("reject"))
+      return "bg-red-50 text-red-700";
+    return "bg-gray-100 text-gray-700"; // สี Default
   };
 
   return (
@@ -189,6 +205,16 @@ const DailyView = ({ events, initialDate }: DailyViewProps) => {
                       </h2>
 
                       <div className="mb-3 flex flex-wrap gap-2">
+                        {/* <-- 2. เพิ่ม Status Badge โชว์ในหน้าการ์ดตรงนี้ --> */}
+                        {event.eventStatus && (
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-sm font-medium ${getStatusColor(event.eventStatus)}`}
+                          >
+                            <Activity className="h-3.5 w-3.5" />
+                            {event.eventStatus}
+                          </span>
+                        )}
+
                         <span className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
                           <div className="h-2 w-2 rounded-full bg-blue-600" />
                           {event.eventType}
@@ -204,7 +230,6 @@ const DailyView = ({ events, initialDate }: DailyViewProps) => {
 
                     {/* Action Buttons: Navigate & Expand */}
                     <div className="flex shrink-0 items-center gap-2">
-                      {/* 5. ปุ่ม Navigate */}
                       <button
                         onClick={(e) =>
                           handleNavigateToDetail(e, event.eventId)
@@ -262,18 +287,29 @@ const DailyView = ({ events, initialDate }: DailyViewProps) => {
                               </p>
                             </div>
 
-                            <div className="grid gap-4 sm:grid-cols-2">
-                              <div>
+                            {/* <-- 3. ปรับ grid ตรงนี้ให้รองรับ Status --> */}
+                            <div className="grid gap-4 sm:grid-cols-3">
+                              <div className="col-span-1 sm:col-span-1">
+                                <label className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                                  <Activity className="h-3.5 w-3.5" />
+                                  Status
+                                </label>
+                                <p className="text-base font-medium text-gray-900">
+                                  {event.eventStatus || "-"}
+                                </p>
+                              </div>
+
+                              <div className="col-span-1 sm:col-span-1">
                                 <label className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                                   <Building2 className="h-3.5 w-3.5" />
                                   Company
                                 </label>
-                                <p className="text-base font-medium text-gray-900">
+                                <p className="truncate text-base font-medium text-gray-900">
                                   {event.company?.companyName || "-"}
                                 </p>
                               </div>
 
-                              <div>
+                              <div className="col-span-1 sm:col-span-1">
                                 <label className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                                   <div className="h-2 w-2 rounded-full bg-gray-500" />
                                   Event Type

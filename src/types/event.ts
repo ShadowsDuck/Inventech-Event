@@ -78,6 +78,7 @@ export interface EventType {
   latitude: number;
   longitude: number;
   note: string;
+  eventStatus: string;
 
   // FK
   createdByStaffId: number;
