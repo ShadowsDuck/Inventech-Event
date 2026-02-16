@@ -59,7 +59,7 @@ const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
   };
 
   return (
-    <div className="flex h-full flex-col bg-gray-50 p-6 font-sans text-gray-700">
+    <div className="flex h-full flex-col bg-gray-50 px-6 pb-6 font-sans text-gray-700">
       <div className="flex flex-1 flex-col overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
         {/* --- Header --- */}
         <div className="flex items-center justify-between border-b border-gray-50 p-6">

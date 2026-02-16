@@ -2,15 +2,9 @@ import { useMemo, useState } from "react";
 
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import {
-  Building2,
-  CalendarDays,
-  Check,
-  Plus,
-  Search,
-  Users,
-} from "lucide-react";
+import { Building2, CalendarDays, Check, Plus, Users } from "lucide-react";
 
+import SearchBar from "@/components/SearchBar";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +13,6 @@ import {
 } from "@/components/ui/filter-multi-select";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { companiesQuery } from "@/features/company/api/getCompanies";
-import { companyQuery } from "@/features/company/api/getCompany";
 import { staffQuery } from "@/features/staff/api/getStaff";
 
 import { eventsQuery } from "../api/getEvent";
@@ -34,6 +27,7 @@ export default function EventList() {
     useSuspenseQueries({
       queries: [staffQuery(), companiesQuery(), eventsQuery()],
     });
+
   //  แปลง Staff Data
   const staffOptions = useMemo(() => {
     return (
@@ -59,7 +53,7 @@ export default function EventList() {
   );
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [searchText, setSearchText] = useState("");
+  const [search, setSearch] = useState("");
   const [staffFilter, setStaffFilter] = useState<string[]>([]);
   const [companyFilter, setCompanyFilter] = useState<string[]>([]);
   const [eventTypeFilter, setEventTypeFilter] = useState<string[]>([]);
@@ -82,10 +76,12 @@ export default function EventList() {
     }
     setActiveTab(value as "daily" | "calendar" | "year");
   };
+
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
     setActiveTab("daily");
   };
+
   return (
     <>
       <PageHeader
@@ -106,7 +102,7 @@ export default function EventList() {
         className="flex flex-1 flex-col"
       >
         {/* Tabs + status chips */}
-        <div className="px-6 pt-6 pb-1">
+        <div className="px-6 pt-6">
           <div className="flex items-center justify-between">
             <TabsList>
               <TabsTab value="daily">Daily View</TabsTab>
@@ -129,17 +125,16 @@ export default function EventList() {
 
         {/* Search + Filters UI */}
         {activeTab !== "daily" && (
-          <div className="px-6 pt-3 pb-2">
+          <div className="px-6 py-2">
             <div className="flex items-center">
-              <div className="flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm">
+              <div className="flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-white py-1 pr-3 shadow-sm">
                 <div className="flex flex-1 items-center gap-2 rounded-xl bg-slate-50 px-3 py-1">
-                  <Search className="h-4 w-4 text-gray-400" />
-                  <input
-                    type="text"
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
+                  <SearchBar
+                    value={search}
+                    onChange={(value) => setSearch(value)}
                     placeholder="Search events..."
-                    className="h-8 flex-1 border-none bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400"
+                    className="border-0 shadow-none"
+                    fullWidth
                   />
                 </div>
 
