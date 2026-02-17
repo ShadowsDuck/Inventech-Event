@@ -24,13 +24,11 @@ export const useLogout = () => {
 
   return useMutation({
     mutationFn: logoutUser,
-    // ใช้ onSettled แทน onSuccess เพื่อรับประกันว่าโค้ดส่วนนี้จะทำงาน 100%
+
     onSettled: () => {
-      // 1. ล้างของใน Local Storage
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
 
-      // 2. ลบ Header ใน Axios (เพื่อไม่ให้ Request อื่นๆ เผลอส่ง Token เก่าไป)
       delete api.defaults.headers.common["Authorization"];
 
       // 3. ล้าง Cache ของ TanStack Query ทั้งหมด (ป้องกัน User คนใหม่มาเห็นข้อมูลของคนเก่า)

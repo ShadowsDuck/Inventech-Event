@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import axios from "axios";
 
-import type { StaffParams } from "@/routes/_sidebarLayout/staff";
+import type { StaffParams } from "@/routes/_auth/_sidebarLayout/staff";
 import type { StaffType } from "@/types/staff";
 
 const API_URL = import.meta.env.VITE_API_URL;
