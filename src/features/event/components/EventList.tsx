@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/filter-multi-select";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { companiesQuery } from "@/features/company/api/getCompanies";
+import { outsourcesQuery } from "@/features/outsource/api/getOutsource";
 import { staffQuery } from "@/features/staff/api/getStaff";
 
 import { eventsQuery } from "../api/getEvent";
@@ -23,20 +24,37 @@ import YearView from "./year-view";
 export default function EventList() {
   const navigate = useNavigate();
 
-  const [{ data: staffData }, { data: companyData }, { data: EventData }] =
-    useSuspenseQueries({
-      queries: [staffQuery(), companiesQuery(), eventsQuery()],
-    });
+  const [
+    { data: staffData },
+    { data: outsourceData },
+    { data: companyData },
+    { data: EventData },
+  ] = useSuspenseQueries({
+    queries: [staffQuery(), outsourcesQuery(), companiesQuery(), eventsQuery()],
+  });
 
-  //  แปลง Staff Data
-  const staffOptions = useMemo(() => {
-    return (
+  // รวบ Staff และ Outsource เป็น Personnel
+  const personnelOptions = useMemo(() => {
+    const staff =
       staffData?.map((staff) => ({
-        value: String(staff.staffId), // แปลงเป็น String
-        label: staff.fullName,
-      })) || []
-    );
-  }, [staffData]); // dependency: ทำงานใหม่เมื่อ staffData เปลี่ยน
+        value: `staff-${staff.staffId}`, // ใส่ Prefix เพื่อป้องกัน ID ซ้ำกันระหว่าง 2 table
+        label: `${staff.fullName}`, // ใส่ Label ให้รู้ว่าเป็นคนจากกลุ่มไหน
+      })) || [];
+
+    const outsource =
+      outsourceData?.map((outsource) => ({
+        value: `outsource-${outsource.outsourceId}`,
+        label: `${outsource.fullName}`,
+      })) || [];
+    if (staff.length > 0 && outsource.length > 0) {
+      return [
+        ...staff,
+        { value: "divider-outsource", label: "Outsource", isDivider: true },
+        ...outsource,
+      ];
+    }
+    return [...staff, ...outsource];
+  }, [staffData, outsourceData]); // dependency: ทำงานใหม่เมื่อ data ตัวใดตัวนึงเปลี่ยน
 
   // แปลง Company Data
   const companyOptions = useMemo(() => {
@@ -47,6 +65,7 @@ export default function EventList() {
       })) || []
     );
   }, [companyData]); // dependency: ทำงานใหม่เมื่อ companyData เปลี่ยน
+
   // --- UI State (สำหรับควบคุม Tab และ Input ต่างๆ) ---
   const [activeTab, setActiveTab] = useState<"daily" | "calendar" | "year">(
     "calendar",
@@ -54,7 +73,9 @@ export default function EventList() {
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [search, setSearch] = useState("");
-  const [staffFilter, setStaffFilter] = useState<string[]>([]);
+
+  // ยุบ Filter State เหลือตัวเดียว
+  const [personnelFilter, setPersonnelFilter] = useState<string[]>([]);
   const [companyFilter, setCompanyFilter] = useState<string[]>([]);
   const [eventTypeFilter, setEventTypeFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
@@ -78,27 +99,32 @@ export default function EventList() {
         ? event.eventName?.toLowerCase().includes(search.toLowerCase())
         : true;
 
-      // 1.2 ตรวจสอบ Staff Filter (เช็คว่าใน eventStaff มี staffId ที่เลือกหรือไม่)
-      const matchesStaff =
-        staffFilter.length > 0
+      // ตรวจสอบ Personnel Filter (เช็คทั้งฝั่ง Staff และ Outsource)
+      const matchesPersonnel =
+        personnelFilter.length > 0
           ? event.eventStaff?.some((es) =>
-              staffFilter.includes(String(es.staff?.staffId)),
+              personnelFilter.includes(`staff-${es.staff?.staffId}`),
+            ) ||
+            event.eventOutsources?.some((eo) =>
+              personnelFilter.includes(
+                `outsource-${eo.outsource?.outsourceId}`,
+              ),
             )
           : true;
 
-      // 1.3 ตรวจสอบ Company Filter
+      // ตรวจสอบ Company Filter
       const matchesCompany =
         companyFilter.length > 0
           ? companyFilter.includes(String(event.company?.companyId))
           : true;
 
-      // 1.4 ตรวจสอบ Event Type Filter
+      // ตรวจสอบ Event Type Filter
       const matchesEventType =
         eventTypeFilter.length > 0
           ? eventTypeFilter.includes(event.eventType)
           : true;
 
-      // 1.5 ตรวจสอบ Status Filter
+      // ตรวจสอบ Status Filter
       const matchesStatus =
         statusFilter.length > 0
           ? statusFilter.includes(event.eventStatus)
@@ -107,7 +133,7 @@ export default function EventList() {
       // คืนค่า true เฉพาะ Event ที่ผ่าน "ทุก" เงื่อนไขที่ User เลือกไว้
       return (
         matchesSearch &&
-        matchesStaff &&
+        matchesPersonnel &&
         matchesCompany &&
         matchesEventType &&
         matchesStatus
@@ -116,7 +142,7 @@ export default function EventList() {
   }, [
     EventData,
     search,
-    staffFilter,
+    personnelFilter, // อัปเดต Dependency
     companyFilter,
     eventTypeFilter,
     statusFilter,
@@ -192,12 +218,13 @@ export default function EventList() {
 
                 <div className="h-6 w-px bg-gray-200" />
 
+                {/* เปลี่ยนเป็นปุ่ม Personnel ปุ่มเดียว */}
                 <FilterMultiSelect
-                  title="Staff"
+                  title="Person"
                   icon={Users}
-                  options={staffOptions}
-                  selected={staffFilter}
-                  onChange={setStaffFilter}
+                  options={personnelOptions}
+                  selected={personnelFilter}
+                  onChange={setPersonnelFilter}
                 />
 
                 <FilterMultiSelect

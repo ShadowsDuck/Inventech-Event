@@ -2,7 +2,14 @@ import React, { useMemo, useState } from "react";
 
 import { ChevronLeft, ChevronRight, Info } from "lucide-react";
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import type { EventType } from "@/types/event";
+
+import DayInfoPopover from "./day-info-popover";
 
 interface MonthViewProps {
   events: EventType[];
@@ -59,7 +66,7 @@ const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
   };
 
   return (
-    <div className="flex h-full flex-col bg-gray-50 px-6 pb-6 font-sans text-gray-700">
+    <div className="flex h-full flex-col bg-gray-50 p-6 font-sans text-gray-700">
       <div className="flex flex-1 flex-col overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
         {/* --- Header --- */}
         <div className="flex items-center justify-between border-b border-gray-50 p-6">
@@ -136,6 +143,8 @@ const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
               month === today.getMonth() &&
               year === today.getFullYear();
 
+            const formattedDate = new Date(year, month, day);
+            const dateString = `${formattedDate.getFullYear()}-${String(formattedDate.getMonth() + 1).padStart(2, "0")}-${String(formattedDate.getDate()).padStart(2, "0")}`;
             return (
               <div
                 key={index}
@@ -152,10 +161,20 @@ const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
                   >
                     {day}
                   </span>
-                  <Info
-                    size={14}
-                    className="text-gray-300 opacity-0 transition-opacity group-hover:opacity-100 hover:text-green-500"
-                  />
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Popover>
+                      <PopoverTrigger className="flex cursor-pointer text-gray-400 transition-colors outline-none hover:text-green-500">
+                        <Info size={16} />
+                      </PopoverTrigger>
+
+                      <PopoverContent
+                        align="end"
+                        className="w-56 rounded-xl border border-gray-100 bg-white shadow-lg"
+                      >
+                        <DayInfoPopover dateString={dateString} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-1.5">

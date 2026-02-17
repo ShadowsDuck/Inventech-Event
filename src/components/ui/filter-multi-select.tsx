@@ -14,6 +14,7 @@ export interface FilterOption {
   label: string;
   description?: string;
   icon?: React.ComponentType<{ className?: string }>;
+  isDivider?: boolean; // <-- 1. เพิ่มตรงนี้
 }
 
 interface FilterMultiSelectProps {
@@ -41,18 +42,13 @@ export function FilterMultiSelect({
     <MultiSelect values={selected} onValuesChange={onChange}>
       <MultiSelectTrigger
         className={cn(
-          // Style ปกติ (ยังไม่ได้เลือก) -> Border dashed, พื้นใส
           "hover:bg-hover h-8 w-fit rounded-xl border bg-white transition-colors",
-
-          // Style เมื่อมีการเลือก (Active) -> Border solid, พื้นสีฟ้าอ่อน, ตัวหนังสือสีน้ำเงิน
           isActive &&
             "border-solid border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
-
           className,
         )}
       >
         <div className="flex items-center gap-2">
-          {/* Icon */}
           {Icon && (
             <Icon
               className={cn(
@@ -62,7 +58,6 @@ export function FilterMultiSelect({
             />
           )}
 
-          {/* Title */}
           <span
             className={cn(
               "text-sm font-medium",
@@ -72,7 +67,6 @@ export function FilterMultiSelect({
             {title}
           </span>
 
-          {/* Badge Count (โชว์เฉพาะตอนเลือก) */}
           {isActive && (
             <div className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-xl bg-blue-200 px-1 text-xs font-bold text-blue-700">
               {selected.length}
@@ -89,28 +83,47 @@ export function FilterMultiSelect({
         align={align}
         onClear={isActive ? () => onChange([]) : undefined}
       >
-        {options.map((option) => (
-          <MultiSelectItem
-            key={option.value}
-            value={option.value}
-            hasDescription={option.description ? true : false}
-          >
-            {/* ถ้ามี Icon */}
-            {option.icon && (
-              <option.icon className="text-muted-foreground mr-2 h-4 w-4" />
-            )}
+        {options.map((option) => {
+          // 2. เช็คว่าเป็นเส้นแบ่งหรือไม่
+          if (option.isDivider) {
+            return (
+              <div
+                key={option.value}
+                className="pointer-events-none flex items-center px-2 py-2"
+              >
+                <div className="h-px flex-1 bg-gray-200"></div>
+                {/* ถ้าอยากให้มีคำว่า Outsource แทรกตรงกลางเส้นด้วย */}
+                {option.label && (
+                  <span className="px-2 text-[10px] font-semibold text-gray-400 uppercase">
+                    {option.label}
+                  </span>
+                )}
+                <div className="h-px flex-1 bg-gray-200"></div>
+              </div>
+            );
+          }
 
-            {/* ส่วนแสดงผล Text และ Description */}
-            <div className="flex flex-col">
-              <span className="leading-snug">{option.label}</span>
-              {option.description && (
-                <span className="text-muted-foreground/80 text-[11px]">
-                  {option.description}
-                </span>
+          // 3. ถ้าไม่ใช่เส้นแบ่ง ก็ Render ปกติ
+          return (
+            <MultiSelectItem
+              key={option.value}
+              value={option.value}
+              hasDescription={option.description ? true : false}
+            >
+              {option.icon && (
+                <option.icon className="text-muted-foreground mr-2 h-4 w-4" />
               )}
-            </div>
-          </MultiSelectItem>
-        ))}
+              <div className="flex flex-col">
+                <span className="leading-snug">{option.label}</span>
+                {option.description && (
+                  <span className="text-muted-foreground/80 text-[11px]">
+                    {option.description}
+                  </span>
+                )}
+              </div>
+            </MultiSelectItem>
+          );
+        })}
       </MultiSelectContent>
     </MultiSelect>
   );
