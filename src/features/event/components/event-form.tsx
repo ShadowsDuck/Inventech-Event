@@ -196,27 +196,61 @@ export default function EventForm({
     select: (data: OutsourceType[]) => data.filter((s) => !s.isDeleted),
     enabled: !!dateString && !!periodNumber, // Query เมื่อมีทั้ง date และ period
   });
+  const isSameSchedule = useMemo(() => {
+    if (mode !== "edit" || !initialValues?.eventDate || !currentEventDate)
+      return false;
 
+    const initialDateStr = format(initialValues.eventDate, "yyyy-MM-dd");
+    const currentDateStr = format(currentEventDate, "yyyy-MM-dd");
+
+    return (
+      initialDateStr === currentDateStr &&
+      initialValues.timePeriod === currentTimePeriod
+    );
+  }, [mode, initialValues, currentEventDate, currentTimePeriod]);
   const isResourceLocked =
     !currentEventDate || !currentTimePeriod || currentTimePeriod === 0;
 
   const formattedStaffList = useMemo(() => {
-    // 1. เริ่มจากข้อมูลที่ได้จาก API
-    const baseList =
-      staffData?.map((s) => ({
-        id: String(s.staffId),
-        name: s.fullName,
-        roles: s.staffRoles ? s.staffRoles.map((r) => r.roleName) : [],
-        avatar: s.avatar || "",
-        status: s.status,
-      })) || [];
+    const initialAssignedIds = new Set(
+      mode === "edit"
+        ? initialValues?.eventStaff
+            ?.filter((s) => !s.isDeleted)
+            .map((s) => String(s.staffId))
+        : [],
+    );
 
-    // 2. ถ้าเป็นโหมด Edit ให้เช็คคนที่มีอยู่แล้วใน initialValues
+    const baseList =
+      staffData?.map((s) => {
+        const sId = String(s.staffId);
+        const isAlreadyInThisEvent = initialAssignedIds.has(sId);
+
+        // [FIX] จะเปลี่ยนให้เป็น Available ก็ต่อเมื่อ:
+        // 1. เป็นวันและเวลาเดิมของ Event นี้ (isSameSchedule)
+        // 2. อยู่ใน Event นี้แต่แรก (isAlreadyInThisEvent)
+        // 3. API ฟ้องว่า Unavailable (ติดชนกับตัวเอง)
+        let displayStatus = s.status;
+        if (
+          isSameSchedule &&
+          isAlreadyInThisEvent &&
+          s.status === "Unavailable"
+        ) {
+          displayStatus = "Available";
+        }
+
+        return {
+          id: sId,
+          name: s.fullName,
+          roles: s.staffRoles ? s.staffRoles.map((r) => r.roleName) : [],
+          avatar: s.avatar || "",
+          status: displayStatus,
+        };
+      }) || [];
+
     if (mode === "edit" && initialValues?.eventStaff) {
       const existingIds = new Set(baseList.map((s) => s.id));
 
       initialValues.eventStaff.forEach((assigned) => {
-        // ถ้าคนนี้ถูกลบไปแล้ว ไม่ต้องดึงกลับมา (ปล่อยให้ Slot ว่าง)
         if (assigned.isDeleted) return;
 
         const sId = String(assigned.staffId);
@@ -226,31 +260,51 @@ export default function EventForm({
             name: assigned.fullName || `Staff #${sId}`,
             roles: [assigned.roleName || "Unknown Role"],
             avatar: "",
-            status: "Working",
+            // ถ้าตารางเวลาเปลี่ยนไปแล้ว ให้ยึดเป็น Unavailable ไว้ก่อน (เพราะ API ไม่ส่งรายชื่อมาเลย)
+            status: isSameSchedule ? "Available" : "Unavailable",
           });
         }
       });
     }
 
     return baseList;
-  }, [staffData, mode, initialValues]);
+  }, [staffData, mode, initialValues, isSameSchedule]);
 
   const formattedOutsourceList = useMemo(() => {
-    // 1. เริ่มจากข้อมูลที่ได้จาก API
-    const baseList =
-      outsourceData?.map((o) => ({
-        id: String(o.outsourceId),
-        name: o.fullName,
-        roles: [],
-        status: o.status,
-      })) || [];
+    const initialAssignedIds = new Set(
+      mode === "edit"
+        ? initialValues?.eventOutsources
+            ?.filter((o) => !o.isDeleted)
+            .map((o) => String(o.outsourceId))
+        : [],
+    );
 
-    // 2. ถ้าเป็นโหมด Edit ให้เช็คคนที่มีอยู่แล้วใน initialValues
+    const baseList =
+      outsourceData?.map((o) => {
+        const oId = String(o.outsourceId);
+        const isAlreadyInThisEvent = initialAssignedIds.has(oId);
+
+        let displayStatus = o.status;
+        if (
+          isSameSchedule &&
+          isAlreadyInThisEvent &&
+          o.status === "Unavailable"
+        ) {
+          displayStatus = "Available";
+        }
+
+        return {
+          id: oId,
+          name: o.fullName,
+          roles: [],
+          status: displayStatus,
+        };
+      }) || [];
+
     if (mode === "edit" && initialValues?.eventOutsources) {
       const existingIds = new Set(baseList.map((o) => o.id));
 
       initialValues.eventOutsources.forEach((assigned) => {
-        // ถ้า outsource นี้ถูกลบไปแล้ว ไม่ต้องดึงกลับมา (ปล่อยให้ Slot ว่าง)
         if (assigned.isDeleted) return;
 
         const oId = String(assigned.outsourceId);
@@ -259,14 +313,14 @@ export default function EventForm({
             id: oId,
             name: assigned.fullName || `Outsource #${oId}`,
             roles: [],
-            status: "Working",
+            status: isSameSchedule ? "Available" : "Unavailable",
           });
         }
       });
     }
 
     return baseList;
-  }, [outsourceData, mode, initialValues]);
+  }, [outsourceData, mode, initialValues, isSameSchedule]);
 
   const title = mode === "create" ? "Create Event" : "Edit Event";
   const subtitle =

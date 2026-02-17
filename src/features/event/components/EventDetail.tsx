@@ -1,14 +1,13 @@
 import { useState } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { Building2, Pencil } from "lucide-react";
 
 import PageHeader from "@/components/layout/PageHeader";
 import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { Route } from "@/routes/_sidebarLayout/event/$eventId";
 
 import { eventQuery } from "../api/getEventById";
 import EventDocuments from "./event-detail/event-document";
@@ -17,7 +16,9 @@ import EventOverview from "./event-detail/event-overview";
 import EventTeam from "./event-detail/event-team";
 
 export function EventDetail() {
-  const { eventId } = Route.useParams();
+  const { eventId } = useParams({
+    from: "/_auth/_sidebarLayout/event/$eventId",
+  });
   const { data: eventData } = useSuspenseQuery(eventQuery(eventId));
   const [activeTab, setActiveTab] = useState("Overview");
 

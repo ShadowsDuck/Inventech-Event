@@ -163,7 +163,7 @@ const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
                   </span>
                   <div onClick={(e) => e.stopPropagation()}>
                     <Popover>
-                      <PopoverTrigger className="flex cursor-pointer text-gray-400 transition-colors outline-none hover:text-green-500">
+                      <PopoverTrigger className="flex cursor-pointer text-gray-300 opacity-0 transition-opacity outline-none group-hover:opacity-100 hover:text-green-500">
                         <Info size={16} />
                       </PopoverTrigger>
 
