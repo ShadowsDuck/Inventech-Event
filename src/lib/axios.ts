@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { useAuthStore } from "@/store/auth-store";
+
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true, // ให้ Browser ยอมรับ HttpOnly Cookie
@@ -8,9 +10,17 @@ export const api = axios.create({
   },
 });
 
-// 2. Request Interceptor: ยัด Token ใส่ Header
+// 2. Request Interceptor: ยัด AccessToken ใส่ Header
 api.interceptors.request.use(
   (config) => {
+    // ดึง AccessToken จาก Store
+    const token = useAuthStore.getState().accessToken;
+
+    // ถ้ามี AccessToken ให้ใส่ Authorization Header
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     // ถ้าส่ง FormData ต้องลบ Content-Type เพื่อให้ Browser จัดการ Boundary เอง
     if (config.data instanceof FormData) {
       delete config.headers["Content-Type"];

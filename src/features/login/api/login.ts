@@ -51,11 +51,6 @@ export const useLogin = () => {
       // เก็บ Token เข้า Store
       setToken(data.accessToken);
 
-      // ยัด Token ใส่ Header ของ Axios
-      // เพื่อให้ Request ต่อๆ ไปใช้งานได้เลยโดยไม่ต้อง Refresh หน้าจอ
-      api.defaults.headers.common["Authorization"] =
-        `Bearer ${data.accessToken}`;
-
       // ล้าง Cache เก่าทิ้งให้หมด (ป้องกันข้อมูล User เก่าค้าง)
       queryClient.clear();
 

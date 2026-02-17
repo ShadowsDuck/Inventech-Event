@@ -35,10 +35,6 @@ function RootLayout() {
 
         // เก็บ Token ใหม่ลง Store
         setToken(data.accessToken);
-
-        // อัปเดต Header ของ Axios ให้พร้อมใช้งาน
-        api.defaults.headers.common["Authorization"] =
-          `Bearer ${data.accessToken}`;
       } catch {
         // ถ้า Refresh ไม่ผ่าน (เช่น ยังไม่ได้ Login หรือ Cookie หมดอายุ) ให้เป็น null
         setToken(null);
