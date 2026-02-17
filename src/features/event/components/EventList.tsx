@@ -70,6 +70,58 @@ export default function EventList() {
     { value: "Complete", label: "Complete" },
   ];
 
+  const filteredEvents = useMemo(() => {
+    if (!EventData) return [];
+
+    return EventData.filter((event) => {
+      const matchesSearch = search
+        ? event.eventName?.toLowerCase().includes(search.toLowerCase())
+        : true;
+
+      // 1.2 ตรวจสอบ Staff Filter (เช็คว่าใน eventStaff มี staffId ที่เลือกหรือไม่)
+      const matchesStaff =
+        staffFilter.length > 0
+          ? event.eventStaff?.some((es) =>
+              staffFilter.includes(String(es.staff?.staffId)),
+            )
+          : true;
+
+      // 1.3 ตรวจสอบ Company Filter
+      const matchesCompany =
+        companyFilter.length > 0
+          ? companyFilter.includes(String(event.company?.companyId))
+          : true;
+
+      // 1.4 ตรวจสอบ Event Type Filter
+      const matchesEventType =
+        eventTypeFilter.length > 0
+          ? eventTypeFilter.includes(event.eventType)
+          : true;
+
+      // 1.5 ตรวจสอบ Status Filter
+      const matchesStatus =
+        statusFilter.length > 0
+          ? statusFilter.includes(event.eventStatus)
+          : true;
+
+      // คืนค่า true เฉพาะ Event ที่ผ่าน "ทุก" เงื่อนไขที่ User เลือกไว้
+      return (
+        matchesSearch &&
+        matchesStaff &&
+        matchesCompany &&
+        matchesEventType &&
+        matchesStatus
+      );
+    });
+  }, [
+    EventData,
+    search,
+    staffFilter,
+    companyFilter,
+    eventTypeFilter,
+    statusFilter,
+  ]);
+
   const handleTabChange = (value: string) => {
     if (value === "daily") {
       setSelectedDate(new Date());
@@ -179,10 +231,10 @@ export default function EventList() {
 
         {/* Content Views */}
         <TabsPanel value="year">
-          <YearView events={EventData} onDateClick={handleDateClick} />
+          <YearView events={filteredEvents} onDateClick={handleDateClick} />
         </TabsPanel>
         <TabsPanel value="calendar">
-          <MonthView events={EventData} onDateClick={handleDateClick} />
+          <MonthView events={filteredEvents} onDateClick={handleDateClick} />
         </TabsPanel>
         <TabsPanel value="daily">
           <DailyView
