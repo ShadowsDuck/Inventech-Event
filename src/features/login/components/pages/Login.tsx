@@ -1,6 +1,32 @@
+import { useEffect } from "react";
+
+import { useNavigate } from "@tanstack/react-router";
+
+import { useAuthStore } from "@/store/auth-store";
+
 import { LoginForm } from "../login-form";
 
 export default function LoginPage() {
+  const { accessToken, isInitialized } = useAuthStore();
+  const navigate = useNavigate();
+
+  // ถ้าอยู่หน้า Login แล้วได้รับ Token มาให้ดีดไปหน้าแรก
+  useEffect(() => {
+    if (isInitialized && accessToken) {
+      navigate({ to: "/", replace: true });
+    }
+  }, [isInitialized, accessToken, navigate]);
+
+  // ถ้าระบบกำลังเช็คของ (Silent Refresh) อย่าเพิ่งโชว์ฟอร์ม
+  if (!isInitialized) {
+    return null;
+  }
+
+  // ถ้ามี Token แล้ว (กำลังจะดีด) ก็ไม่ต้องโชว์ฟอร์มเช่นกัน
+  if (accessToken) {
+    return null;
+  }
+
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       {/* Left side */}

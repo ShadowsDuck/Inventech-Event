@@ -43,6 +43,7 @@ export function LoginForm({
   return (
     <form
       id="login-form-id"
+      autoComplete="off"
       onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();

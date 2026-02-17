@@ -4,6 +4,7 @@ import { isAxiosError } from "axios";
 
 import { api } from "@/lib/axios";
 import { queryClient } from "@/lib/query-client";
+import { useAuthStore } from "@/store/auth-store";
 
 // Type ของสิ่งที่ส่งไป (LoginDto)
 export interface LoginCredentials {
@@ -42,14 +43,15 @@ const loginUser = async (
 
 export const useLogin = () => {
   const navigate = useNavigate();
+  const setToken = useAuthStore((state) => state.setToken);
 
   return useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
-      localStorage.setItem("token", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
+      // เก็บ Token เข้า Store
+      setToken(data.accessToken);
 
-      // ยัด Token ใส่ Header ของ Axios ทันที
+      // ยัด Token ใส่ Header ของ Axios
       // เพื่อให้ Request ต่อๆ ไปใช้งานได้เลยโดยไม่ต้อง Refresh หน้าจอ
       api.defaults.headers.common["Authorization"] =
         `Bearer ${data.accessToken}`;

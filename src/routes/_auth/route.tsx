@@ -1,55 +1,32 @@
-// import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
-// import { jwtDecode } from "jwt-decode";
-// export const Route = createFileRoute("/_auth")({
-//   beforeLoad: ({ location }) => {
-//     const token = localStorage.getItem("token");
-//     if (!token) {
-//       throw redirect({
-//         to: "/login",
-//         search: { redirect: location.href },
-//       });
-//     }
-//     try {
-//       // 2. ตรวจสอบสิทธิ์ (Role)
-//       const decoded = jwtDecode(token);
-//       const role = decoded.role; // ปรับตาม Claim ใน .NET ของคุณ
-//       // 🛡️ กฎเหล็ก: ถ้าเป็น User ต้องอยู่ได้แค่หน้า /event เท่านั้น
-//       if (role === "user" && !location.pathname.startsWith("/event")) {
-//         console.warn("User tried to access admin area!");
-//         throw redirect({ to: "/event" });
-//       }
-//       // ส่ง Role ไปให้หน้าลูกๆ ใช้ผ่าน Context
-//       return {
-//         userRole: role,
-//       };
-//     } catch {
-//       localStorage.removeItem("token");
-//       throw redirect({ to: "/login" });
-//     }
-//   },
-//   // ปล่อยให้ลูกๆ (SidebarLayout หรือหน้า Create) แสดงผลต่อ
-//   component: () => <Outlet />,
-// });
-import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import { useEffect } from "react";
+
+import { Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
+
+import { useAuthStore } from "@/store/auth-store";
 
 export const Route = createFileRoute("/_auth")({
-  beforeLoad: ({ location }) => {
-    // 1. ดึง Token มาเช็คดื้อๆ เลย
-    const token = localStorage.getItem("token");
-
-    // 2. ถ้าไม่มี Token (เป็น null หรือ undefined)
-    if (!token) {
-      // 🚫 ดีดไปหน้า Login พร้อมฝาก URL ปัจจุบันไว้ใน search param
-      throw redirect({
-        to: "/login",
-        search: {
-          redirect: location.href,
-        },
-      });
-    }
-
-    // ถ้ามี Token ก็ไม่ต้องทำอะไร (ปล่อยให้โหลด Component ต่อไป)
-  },
-  // แสดงผลหน้าลูกๆ ที่อยู่ใน Folder _auth ทั้งหมด
-  component: () => <Outlet />,
+  component: AuthLayout,
 });
+
+function AuthLayout() {
+  const { accessToken, isInitialized } = useAuthStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // ถ้าโหลดเสร็จแล้ว (isInitialized = true) และยังไม่มี Token
+    if (isInitialized && !accessToken) {
+      navigate({ to: "/login" });
+    }
+  }, [isInitialized, accessToken, navigate]);
+
+  // ถ้ายังโหลดไม่เสร็จ ให้โชว์ Loading
+  if (!isInitialized) {
+    return null;
+  }
+
+  // ถ้าโหลดเสร็จแล้วแต่ไม่มี Token (เดี๋ยว useEffect ข้างบนจะดีดไปเอง)
+  if (!accessToken) return null;
+
+  // ถ้ามี Token ครบถ้วน ก็โชว์เนื้อหาได้เลย
+  return <Outlet />;
+}

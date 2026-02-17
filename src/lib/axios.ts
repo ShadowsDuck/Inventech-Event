@@ -2,6 +2,7 @@ import axios from "axios";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true, // ให้ Browser ยอมรับ HttpOnly Cookie
   headers: {
     "Content-Type": "application/json",
   },
@@ -10,13 +11,6 @@ export const api = axios.create({
 // 2. Request Interceptor: ยัด Token ใส่ Header
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-
-    // ยัด Token ใส่ Header
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
     // ถ้าส่ง FormData ต้องลบ Content-Type เพื่อให้ Browser จัดการ Boundary เอง
     if (config.data instanceof FormData) {
       delete config.headers["Content-Type"];
@@ -31,13 +25,18 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // เช็คก่อนว่า URL ที่ Error คือ /api/auth/login หรือไม่?
-    // ถ้าใช่ แปลว่า User กำลังพยายาม Login (แล้วใส่รหัสผิด) -> ไม่ต้อง Redirect ปล่อยให้ UI จัดการ
-    const isLoginRequest = error.config?.url?.includes("/api/auth/login");
+    const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !isLoginRequest) {
-      // เข้าเงื่อนไขนี้เฉพาะตอน Token หมดอายุจริงๆ (ไม่ใช่ตอน Login)
-      localStorage.removeItem("token");
+    // เช็ค URL ว่าใช่ Login หรือ Refresh ไหม?
+    const isLoginRequest = originalRequest?.url?.includes("/auth/login");
+    const isRefreshRequest = originalRequest?.url?.includes("/auth/refresh");
+
+    // ถ้า Error 401 และ ไม่ใช่ Login และ ไม่ใช่ Refresh
+    if (
+      error.response?.status === 401 &&
+      !isLoginRequest &&
+      !isRefreshRequest
+    ) {
       window.location.href = "/login";
     }
 
