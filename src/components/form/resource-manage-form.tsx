@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
+import { AlertCircle } from "lucide-react";
 import { ChevronDown, Minus, Plus, Search, Trash2, X } from "lucide-react";
 
 import type { RoleType } from "@/types/role";
@@ -275,24 +276,53 @@ const AssignmentCard = ({
             <div key={index} className="relative">
               {person ? (
                 // === Filled Slot ===
-                <div className="flex items-center justify-between rounded-xl border border-green-200 bg-green-50/50 p-3">
+                <div
+                  className={`flex items-center justify-between rounded-xl border p-3 transition-colors ${
+                    person.status === "Unavailable"
+                      ? "border-amber-300 bg-amber-50/80 shadow-[0_0_10px_rgba(245,158,11,0.1)]" // เปลี่ยนเป็นสีส้ม/เหลืองทอง (Warning)
+                      : "border-green-200 bg-green-50/50" // สีเขียวปกติ
+                  }`}
+                >
                   <div className="flex items-center gap-4">
-                    <span className="rounded bg-white/80 px-2 py-1 text-xs font-bold text-green-300">
+                    <span
+                      className={`rounded px-2 py-1 text-xs font-bold ${
+                        person.status === "Unavailable"
+                          ? "bg-white/80 text-amber-500"
+                          : "bg-white/80 text-green-300"
+                      }`}
+                    >
                       #{index + 1}
                     </span>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-green-200 text-xs font-bold text-green-700 shadow-sm">
+                    <div
+                      className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-white text-xs font-bold shadow-sm ${
+                        person.status === "Unavailable"
+                          ? "bg-amber-200 text-amber-700"
+                          : "bg-green-200 text-green-700"
+                      }`}
+                    >
                       {person.name.charAt(0)}
                     </div>
                     <div>
                       <p className="text-sm font-bold text-gray-800">
                         {person.name}
                       </p>
+                      {/* เปลี่ยนข้อความให้ดูซอฟต์ลง เป็นการเตือนแทน */}
+                      {person.status === "Unavailable" && (
+                        <p className="mt-0.5 flex items-center gap-1 text-[11px] font-bold text-amber-600">
+                          <AlertCircle size={12} />
+                          Schedule conflict detected
+                        </p>
+                      )}
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => onClearSlot(index)}
-                    className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                    className={`rounded-lg p-2 transition-colors ${
+                      person.status === "Unavailable"
+                        ? "text-amber-400 hover:bg-amber-100 hover:text-amber-600"
+                        : "text-gray-400 hover:bg-red-50 hover:text-red-500"
+                    }`}
                   >
                     <X size={16} />
                   </button>
