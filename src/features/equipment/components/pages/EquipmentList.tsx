@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { useSuspenseQueries } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { ListFilter, Plus, Tag } from "lucide-react";
 
 import SearchBar from "@/components/SearchBar";
@@ -10,14 +11,13 @@ import { Button } from "@/components/ui/button";
 import { FilterMultiSelect } from "@/components/ui/filter-multi-select";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { SELECT_OPTIONS } from "@/data/constants";
-import { Route } from "@/routes/_sidebarLayout/equipment";
 
 import { categoryQuery } from "../../api/getCategory";
 import { equipmentQuery } from "../../api/getEquipment";
 import { equipmentColumns } from "../Equipment-column";
 
 export default function EquipmentList() {
-  const navigate = Route.useNavigate();
+  const navigate = useNavigate();
 
   const [{ data: equipment }, { data: categories }] = useSuspenseQueries({
     queries: [equipmentQuery(), categoryQuery()],

@@ -12,6 +12,7 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
 
+    // ยัด Token ใส่ Header
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -31,14 +32,12 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     // เช็คก่อนว่า URL ที่ Error คือ /api/auth/login หรือไม่?
-    // ถ้าใช่ แปลว่า User กำลังพยายาม Login (แล้วใส่รหัสผิด) -> ไม่ต้อง Redirect! ปล่อยให้ UI จัดการ
+    // ถ้าใช่ แปลว่า User กำลังพยายาม Login (แล้วใส่รหัสผิด) -> ไม่ต้อง Redirect ปล่อยให้ UI จัดการ
     const isLoginRequest = error.config?.url?.includes("/api/auth/login");
 
     if (error.response?.status === 401 && !isLoginRequest) {
-      // ✅ เข้าเงื่อนไขนี้เฉพาะตอน Token หมดอายุจริงๆ (ไม่ใช่ตอน Login)
-      console.error("Session Expired");
+      // เข้าเงื่อนไขนี้เฉพาะตอน Token หมดอายุจริงๆ (ไม่ใช่ตอน Login)
       localStorage.removeItem("token");
-      // สั่ง Redirect ไป Login
       window.location.href = "/login";
     }
 

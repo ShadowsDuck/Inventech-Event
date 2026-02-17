@@ -1,8 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 
 import { cleanPhoneNumber, formatPhoneNumberInput } from "@/lib/format";
-import { Route } from "@/routes/staff/$staffId/edit";
 
 import { staffByIdQuery } from "../../api/getStaffById";
 import { useUpdateStaff } from "../../api/updateStaff";
@@ -11,7 +10,7 @@ import { type StaffData, StaffForm } from "../staff-form";
 export default function EditStaff() {
   const navigate = useNavigate();
 
-  const { staffId } = Route.useParams();
+  const { staffId } = useParams({ from: "/_auth/staff/$staffId/edit" });
   const { data: staffData } = useSuspenseQuery(staffByIdQuery(staffId));
   const { mutate, isPending: isSaving } = useUpdateStaff();
 

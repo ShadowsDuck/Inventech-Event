@@ -1,10 +1,9 @@
 import { useMemo } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { format, parse } from "date-fns";
 
-import { Route } from "@/routes/event/$eventId/edit";
 import type { ExistingFileType } from "@/types/event";
 
 import { useEditEvent } from "../api/editEvent";
@@ -24,7 +23,7 @@ const PERIOD_MAP: Record<string, number> = { Morning: 1, Afternoon: 2 };
 
 export default function EditEvent() {
   const navigate = useNavigate();
-  const { eventId } = Route.useParams();
+  const { eventId } = useParams({ from: "/_auth/event/$eventId/edit" });
 
   // 1. Fetch Data
   const { data: eventData } = useSuspenseQuery(eventQuery(eventId));

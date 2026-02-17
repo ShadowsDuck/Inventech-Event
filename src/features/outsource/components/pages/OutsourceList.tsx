@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { ListFilter, Plus } from "lucide-react";
 
 import SearchBar from "@/components/SearchBar";
@@ -10,12 +11,11 @@ import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { SELECT_OPTIONS } from "@/data/constants";
 import { outsourceColumns } from "@/features/outsource/components/outsource-column";
-import { Route } from "@/routes/_sidebarLayout/outsource";
 
 import { outsourcesQuery } from "../../api/getOutsource";
 
 export default function OutsourceList() {
-  const navigate = Route.useNavigate();
+  const navigate = useNavigate();
   const { data: outsources } = useSuspenseQuery(outsourcesQuery());
 
   const [search, setSearch] = useState("");

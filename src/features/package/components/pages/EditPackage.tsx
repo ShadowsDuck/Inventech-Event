@@ -1,7 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-
-import { Route } from "@/routes/package/$packageId/edit";
+import { useNavigate, useParams } from "@tanstack/react-router";
 
 import { useEditPackage } from "../../api/editPackage";
 import { packageByIdQuery } from "../../api/getPackageById";
@@ -11,7 +9,7 @@ import PackageForm from "../package-form";
 export default function EditPackage() {
   const navigate = useNavigate();
 
-  const { packageId } = Route.useParams();
+  const { packageId } = useParams({ from: "/_auth/package/$packageId/edit" });
   const { data: packageData } = useSuspenseQuery(packageByIdQuery(packageId));
   const { mutate, isPending: isSaving } = useEditPackage();
 

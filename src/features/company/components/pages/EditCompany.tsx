@@ -1,8 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 
 import { cleanPhoneNumber, formatPhoneNumberDisplay } from "@/lib/format";
-import { Route } from "@/routes/company/$companyId/edit";
 
 import { companyQuery } from "../../api/getCompany";
 import { useUpdateCompany } from "../../api/updateCompany";
@@ -11,7 +10,7 @@ import { type CompanyData, CompanyForm } from "../company-form";
 export default function EditCompany() {
   const navigate = useNavigate();
 
-  const { companyId } = Route.useParams();
+  const { companyId } = useParams({ from: "/_auth/company/$companyId/edit" });
   const { data: companyData } = useSuspenseQuery(companyQuery(companyId));
   const { mutate, isPending: isSaving } = useUpdateCompany();
 

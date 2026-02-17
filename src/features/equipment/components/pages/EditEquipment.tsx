@@ -1,7 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-
-import { Route } from "@/routes/equipment/$equipmentId/edit";
+import { useNavigate, useParams } from "@tanstack/react-router";
 
 import { useEditEquipment } from "../../api/editEquipment";
 import { equipmentByIdQuery } from "../../api/getEquipmentById";
@@ -9,7 +7,9 @@ import { type EquipmentData, EquipmentForm } from "../equipment-form";
 
 export default function EditEquipment() {
   const navigate = useNavigate();
-  const { equipmentId } = Route.useParams();
+  const { equipmentId } = useParams({
+    from: "/_auth/equipment/$equipmentId/edit",
+  });
 
   const { data: equipmentData } = useSuspenseQuery(
     equipmentByIdQuery(equipmentId),

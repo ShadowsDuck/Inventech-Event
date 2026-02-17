@@ -9,33 +9,34 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SidebarLayoutRouteRouteImport } from './routes/_sidebarLayout/route'
+import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
-import { Route as SidebarLayoutIndexRouteImport } from './routes/_sidebarLayout/index'
-import { Route as StaffCreateRouteImport } from './routes/staff/create'
-import { Route as PackageCreateRouteImport } from './routes/package/create'
-import { Route as OutsourceCreateRouteImport } from './routes/outsource/create'
-import { Route as EventCreateRouteImport } from './routes/event/create'
-import { Route as EquipmentCreateRouteImport } from './routes/equipment/create'
-import { Route as CompanyCreateRouteImport } from './routes/company/create'
-import { Route as SidebarLayoutPackageRouteImport } from './routes/_sidebarLayout/package'
-import { Route as SidebarLayoutEquipmentRouteImport } from './routes/_sidebarLayout/equipment'
-import { Route as SidebarLayoutStaffIndexRouteImport } from './routes/_sidebarLayout/staff/index'
-import { Route as SidebarLayoutOutsourceIndexRouteImport } from './routes/_sidebarLayout/outsource/index'
-import { Route as SidebarLayoutEventIndexRouteImport } from './routes/_sidebarLayout/event/index'
-import { Route as SidebarLayoutCompanyIndexRouteImport } from './routes/_sidebarLayout/company/index'
-import { Route as StaffStaffIdEditRouteImport } from './routes/staff/$staffId/edit'
-import { Route as PackagePackageIdEditRouteImport } from './routes/package/$packageId/edit'
-import { Route as OutsourceOutsourceIdEditRouteImport } from './routes/outsource/$outsourceId/edit'
-import { Route as EventEventIdEditRouteImport } from './routes/event/$eventId/edit'
-import { Route as EquipmentEquipmentIdEditRouteImport } from './routes/equipment/$equipmentId/edit'
-import { Route as CompanyCompanyIdEditRouteImport } from './routes/company/$companyId/edit'
-import { Route as SidebarLayoutStaffStaffIdRouteImport } from './routes/_sidebarLayout/staff/$staffId'
-import { Route as SidebarLayoutEventEventIdRouteImport } from './routes/_sidebarLayout/event/$eventId'
-import { Route as SidebarLayoutCompanyCompanyIdRouteImport } from './routes/_sidebarLayout/company/$companyId'
+import { Route as AuthSidebarLayoutRouteRouteImport } from './routes/_auth/_sidebarLayout/route'
+import { Route as AuthSidebarLayoutIndexRouteImport } from './routes/_auth/_sidebarLayout/index'
+import { Route as AuthStaffCreateRouteImport } from './routes/_auth/staff/create'
+import { Route as AuthPackageCreateRouteImport } from './routes/_auth/package/create'
+import { Route as AuthOutsourceCreateRouteImport } from './routes/_auth/outsource/create'
+import { Route as AuthEventCreateRouteImport } from './routes/_auth/event/create'
+import { Route as AuthEquipmentCreateRouteImport } from './routes/_auth/equipment/create'
+import { Route as AuthCompanyCreateRouteImport } from './routes/_auth/company/create'
+import { Route as AuthSidebarLayoutPackageRouteImport } from './routes/_auth/_sidebarLayout/package'
+import { Route as AuthSidebarLayoutEquipmentRouteImport } from './routes/_auth/_sidebarLayout/equipment'
+import { Route as AuthSidebarLayoutStaffIndexRouteImport } from './routes/_auth/_sidebarLayout/staff/index'
+import { Route as AuthSidebarLayoutOutsourceIndexRouteImport } from './routes/_auth/_sidebarLayout/outsource/index'
+import { Route as AuthSidebarLayoutEventIndexRouteImport } from './routes/_auth/_sidebarLayout/event/index'
+import { Route as AuthSidebarLayoutCompanyIndexRouteImport } from './routes/_auth/_sidebarLayout/company/index'
+import { Route as AuthStaffStaffIdEditRouteImport } from './routes/_auth/staff/$staffId/edit'
+import { Route as AuthPackagePackageIdEditRouteImport } from './routes/_auth/package/$packageId/edit'
+import { Route as AuthOutsourceOutsourceIdEditRouteImport } from './routes/_auth/outsource/$outsourceId/edit'
+import { Route as AuthEventEventIdEditRouteImport } from './routes/_auth/event/$eventId/edit'
+import { Route as AuthEquipmentEquipmentIdEditRouteImport } from './routes/_auth/equipment/$equipmentId/edit'
+import { Route as AuthCompanyCompanyIdEditRouteImport } from './routes/_auth/company/$companyId/edit'
+import { Route as AuthSidebarLayoutStaffStaffIdRouteImport } from './routes/_auth/_sidebarLayout/staff/$staffId'
+import { Route as AuthSidebarLayoutEventEventIdRouteImport } from './routes/_auth/_sidebarLayout/event/$eventId'
+import { Route as AuthSidebarLayoutCompanyCompanyIdRouteImport } from './routes/_auth/_sidebarLayout/company/$companyId'
 
-const SidebarLayoutRouteRoute = SidebarLayoutRouteRouteImport.update({
-  id: '/_sidebarLayout',
+const AuthRouteRoute = AuthRouteRouteImport.update({
+  id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginIndexRoute = LoginIndexRouteImport.update({
@@ -43,204 +44,216 @@ const LoginIndexRoute = LoginIndexRouteImport.update({
   path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SidebarLayoutIndexRoute = SidebarLayoutIndexRouteImport.update({
+const AuthSidebarLayoutRouteRoute = AuthSidebarLayoutRouteRouteImport.update({
+  id: '/_sidebarLayout',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthSidebarLayoutIndexRoute = AuthSidebarLayoutIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => SidebarLayoutRouteRoute,
+  getParentRoute: () => AuthSidebarLayoutRouteRoute,
 } as any)
-const StaffCreateRoute = StaffCreateRouteImport.update({
+const AuthStaffCreateRoute = AuthStaffCreateRouteImport.update({
   id: '/staff/create',
   path: '/staff/create',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
-const PackageCreateRoute = PackageCreateRouteImport.update({
+const AuthPackageCreateRoute = AuthPackageCreateRouteImport.update({
   id: '/package/create',
   path: '/package/create',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
-const OutsourceCreateRoute = OutsourceCreateRouteImport.update({
+const AuthOutsourceCreateRoute = AuthOutsourceCreateRouteImport.update({
   id: '/outsource/create',
   path: '/outsource/create',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
-const EventCreateRoute = EventCreateRouteImport.update({
+const AuthEventCreateRoute = AuthEventCreateRouteImport.update({
   id: '/event/create',
   path: '/event/create',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
-const EquipmentCreateRoute = EquipmentCreateRouteImport.update({
+const AuthEquipmentCreateRoute = AuthEquipmentCreateRouteImport.update({
   id: '/equipment/create',
   path: '/equipment/create',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
-const CompanyCreateRoute = CompanyCreateRouteImport.update({
+const AuthCompanyCreateRoute = AuthCompanyCreateRouteImport.update({
   id: '/company/create',
   path: '/company/create',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
-const SidebarLayoutPackageRoute = SidebarLayoutPackageRouteImport.update({
-  id: '/package',
-  path: '/package',
-  getParentRoute: () => SidebarLayoutRouteRoute,
-} as any)
-const SidebarLayoutEquipmentRoute = SidebarLayoutEquipmentRouteImport.update({
-  id: '/equipment',
-  path: '/equipment',
-  getParentRoute: () => SidebarLayoutRouteRoute,
-} as any)
-const SidebarLayoutStaffIndexRoute = SidebarLayoutStaffIndexRouteImport.update({
-  id: '/staff/',
-  path: '/staff/',
-  getParentRoute: () => SidebarLayoutRouteRoute,
-} as any)
-const SidebarLayoutOutsourceIndexRoute =
-  SidebarLayoutOutsourceIndexRouteImport.update({
+const AuthSidebarLayoutPackageRoute =
+  AuthSidebarLayoutPackageRouteImport.update({
+    id: '/package',
+    path: '/package',
+    getParentRoute: () => AuthSidebarLayoutRouteRoute,
+  } as any)
+const AuthSidebarLayoutEquipmentRoute =
+  AuthSidebarLayoutEquipmentRouteImport.update({
+    id: '/equipment',
+    path: '/equipment',
+    getParentRoute: () => AuthSidebarLayoutRouteRoute,
+  } as any)
+const AuthSidebarLayoutStaffIndexRoute =
+  AuthSidebarLayoutStaffIndexRouteImport.update({
+    id: '/staff/',
+    path: '/staff/',
+    getParentRoute: () => AuthSidebarLayoutRouteRoute,
+  } as any)
+const AuthSidebarLayoutOutsourceIndexRoute =
+  AuthSidebarLayoutOutsourceIndexRouteImport.update({
     id: '/outsource/',
     path: '/outsource/',
-    getParentRoute: () => SidebarLayoutRouteRoute,
+    getParentRoute: () => AuthSidebarLayoutRouteRoute,
   } as any)
-const SidebarLayoutEventIndexRoute = SidebarLayoutEventIndexRouteImport.update({
-  id: '/event/',
-  path: '/event/',
-  getParentRoute: () => SidebarLayoutRouteRoute,
-} as any)
-const SidebarLayoutCompanyIndexRoute =
-  SidebarLayoutCompanyIndexRouteImport.update({
+const AuthSidebarLayoutEventIndexRoute =
+  AuthSidebarLayoutEventIndexRouteImport.update({
+    id: '/event/',
+    path: '/event/',
+    getParentRoute: () => AuthSidebarLayoutRouteRoute,
+  } as any)
+const AuthSidebarLayoutCompanyIndexRoute =
+  AuthSidebarLayoutCompanyIndexRouteImport.update({
     id: '/company/',
     path: '/company/',
-    getParentRoute: () => SidebarLayoutRouteRoute,
+    getParentRoute: () => AuthSidebarLayoutRouteRoute,
   } as any)
-const StaffStaffIdEditRoute = StaffStaffIdEditRouteImport.update({
+const AuthStaffStaffIdEditRoute = AuthStaffStaffIdEditRouteImport.update({
   id: '/staff/$staffId/edit',
   path: '/staff/$staffId/edit',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
-const PackagePackageIdEditRoute = PackagePackageIdEditRouteImport.update({
-  id: '/package/$packageId/edit',
-  path: '/package/$packageId/edit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OutsourceOutsourceIdEditRoute =
-  OutsourceOutsourceIdEditRouteImport.update({
+const AuthPackagePackageIdEditRoute =
+  AuthPackagePackageIdEditRouteImport.update({
+    id: '/package/$packageId/edit',
+    path: '/package/$packageId/edit',
+    getParentRoute: () => AuthRouteRoute,
+  } as any)
+const AuthOutsourceOutsourceIdEditRoute =
+  AuthOutsourceOutsourceIdEditRouteImport.update({
     id: '/outsource/$outsourceId/edit',
     path: '/outsource/$outsourceId/edit',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthRouteRoute,
   } as any)
-const EventEventIdEditRoute = EventEventIdEditRouteImport.update({
+const AuthEventEventIdEditRoute = AuthEventEventIdEditRouteImport.update({
   id: '/event/$eventId/edit',
   path: '/event/$eventId/edit',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
-const EquipmentEquipmentIdEditRoute =
-  EquipmentEquipmentIdEditRouteImport.update({
+const AuthEquipmentEquipmentIdEditRoute =
+  AuthEquipmentEquipmentIdEditRouteImport.update({
     id: '/equipment/$equipmentId/edit',
     path: '/equipment/$equipmentId/edit',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthRouteRoute,
   } as any)
-const CompanyCompanyIdEditRoute = CompanyCompanyIdEditRouteImport.update({
-  id: '/company/$companyId/edit',
-  path: '/company/$companyId/edit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SidebarLayoutStaffStaffIdRoute =
-  SidebarLayoutStaffStaffIdRouteImport.update({
+const AuthCompanyCompanyIdEditRoute =
+  AuthCompanyCompanyIdEditRouteImport.update({
+    id: '/company/$companyId/edit',
+    path: '/company/$companyId/edit',
+    getParentRoute: () => AuthRouteRoute,
+  } as any)
+const AuthSidebarLayoutStaffStaffIdRoute =
+  AuthSidebarLayoutStaffStaffIdRouteImport.update({
     id: '/staff/$staffId',
     path: '/staff/$staffId',
-    getParentRoute: () => SidebarLayoutRouteRoute,
+    getParentRoute: () => AuthSidebarLayoutRouteRoute,
   } as any)
-const SidebarLayoutEventEventIdRoute =
-  SidebarLayoutEventEventIdRouteImport.update({
+const AuthSidebarLayoutEventEventIdRoute =
+  AuthSidebarLayoutEventEventIdRouteImport.update({
     id: '/event/$eventId',
     path: '/event/$eventId',
-    getParentRoute: () => SidebarLayoutRouteRoute,
+    getParentRoute: () => AuthSidebarLayoutRouteRoute,
   } as any)
-const SidebarLayoutCompanyCompanyIdRoute =
-  SidebarLayoutCompanyCompanyIdRouteImport.update({
+const AuthSidebarLayoutCompanyCompanyIdRoute =
+  AuthSidebarLayoutCompanyCompanyIdRouteImport.update({
     id: '/company/$companyId',
     path: '/company/$companyId',
-    getParentRoute: () => SidebarLayoutRouteRoute,
+    getParentRoute: () => AuthSidebarLayoutRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/equipment': typeof SidebarLayoutEquipmentRoute
-  '/package': typeof SidebarLayoutPackageRoute
-  '/company/create': typeof CompanyCreateRoute
-  '/equipment/create': typeof EquipmentCreateRoute
-  '/event/create': typeof EventCreateRoute
-  '/outsource/create': typeof OutsourceCreateRoute
-  '/package/create': typeof PackageCreateRoute
-  '/staff/create': typeof StaffCreateRoute
-  '/': typeof SidebarLayoutIndexRoute
   '/login': typeof LoginIndexRoute
-  '/company/$companyId': typeof SidebarLayoutCompanyCompanyIdRoute
-  '/event/$eventId': typeof SidebarLayoutEventEventIdRoute
-  '/staff/$staffId': typeof SidebarLayoutStaffStaffIdRoute
-  '/company/$companyId/edit': typeof CompanyCompanyIdEditRoute
-  '/equipment/$equipmentId/edit': typeof EquipmentEquipmentIdEditRoute
-  '/event/$eventId/edit': typeof EventEventIdEditRoute
-  '/outsource/$outsourceId/edit': typeof OutsourceOutsourceIdEditRoute
-  '/package/$packageId/edit': typeof PackagePackageIdEditRoute
-  '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
-  '/company': typeof SidebarLayoutCompanyIndexRoute
-  '/event': typeof SidebarLayoutEventIndexRoute
-  '/outsource': typeof SidebarLayoutOutsourceIndexRoute
-  '/staff': typeof SidebarLayoutStaffIndexRoute
+  '/equipment': typeof AuthSidebarLayoutEquipmentRoute
+  '/package': typeof AuthSidebarLayoutPackageRoute
+  '/company/create': typeof AuthCompanyCreateRoute
+  '/equipment/create': typeof AuthEquipmentCreateRoute
+  '/event/create': typeof AuthEventCreateRoute
+  '/outsource/create': typeof AuthOutsourceCreateRoute
+  '/package/create': typeof AuthPackageCreateRoute
+  '/staff/create': typeof AuthStaffCreateRoute
+  '/': typeof AuthSidebarLayoutIndexRoute
+  '/company/$companyId': typeof AuthSidebarLayoutCompanyCompanyIdRoute
+  '/event/$eventId': typeof AuthSidebarLayoutEventEventIdRoute
+  '/staff/$staffId': typeof AuthSidebarLayoutStaffStaffIdRoute
+  '/company/$companyId/edit': typeof AuthCompanyCompanyIdEditRoute
+  '/equipment/$equipmentId/edit': typeof AuthEquipmentEquipmentIdEditRoute
+  '/event/$eventId/edit': typeof AuthEventEventIdEditRoute
+  '/outsource/$outsourceId/edit': typeof AuthOutsourceOutsourceIdEditRoute
+  '/package/$packageId/edit': typeof AuthPackagePackageIdEditRoute
+  '/staff/$staffId/edit': typeof AuthStaffStaffIdEditRoute
+  '/company': typeof AuthSidebarLayoutCompanyIndexRoute
+  '/event': typeof AuthSidebarLayoutEventIndexRoute
+  '/outsource': typeof AuthSidebarLayoutOutsourceIndexRoute
+  '/staff': typeof AuthSidebarLayoutStaffIndexRoute
 }
 export interface FileRoutesByTo {
-  '/equipment': typeof SidebarLayoutEquipmentRoute
-  '/package': typeof SidebarLayoutPackageRoute
-  '/company/create': typeof CompanyCreateRoute
-  '/equipment/create': typeof EquipmentCreateRoute
-  '/event/create': typeof EventCreateRoute
-  '/outsource/create': typeof OutsourceCreateRoute
-  '/package/create': typeof PackageCreateRoute
-  '/staff/create': typeof StaffCreateRoute
-  '/': typeof SidebarLayoutIndexRoute
   '/login': typeof LoginIndexRoute
-  '/company/$companyId': typeof SidebarLayoutCompanyCompanyIdRoute
-  '/event/$eventId': typeof SidebarLayoutEventEventIdRoute
-  '/staff/$staffId': typeof SidebarLayoutStaffStaffIdRoute
-  '/company/$companyId/edit': typeof CompanyCompanyIdEditRoute
-  '/equipment/$equipmentId/edit': typeof EquipmentEquipmentIdEditRoute
-  '/event/$eventId/edit': typeof EventEventIdEditRoute
-  '/outsource/$outsourceId/edit': typeof OutsourceOutsourceIdEditRoute
-  '/package/$packageId/edit': typeof PackagePackageIdEditRoute
-  '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
-  '/company': typeof SidebarLayoutCompanyIndexRoute
-  '/event': typeof SidebarLayoutEventIndexRoute
-  '/outsource': typeof SidebarLayoutOutsourceIndexRoute
-  '/staff': typeof SidebarLayoutStaffIndexRoute
+  '/equipment': typeof AuthSidebarLayoutEquipmentRoute
+  '/package': typeof AuthSidebarLayoutPackageRoute
+  '/company/create': typeof AuthCompanyCreateRoute
+  '/equipment/create': typeof AuthEquipmentCreateRoute
+  '/event/create': typeof AuthEventCreateRoute
+  '/outsource/create': typeof AuthOutsourceCreateRoute
+  '/package/create': typeof AuthPackageCreateRoute
+  '/staff/create': typeof AuthStaffCreateRoute
+  '/': typeof AuthSidebarLayoutIndexRoute
+  '/company/$companyId': typeof AuthSidebarLayoutCompanyCompanyIdRoute
+  '/event/$eventId': typeof AuthSidebarLayoutEventEventIdRoute
+  '/staff/$staffId': typeof AuthSidebarLayoutStaffStaffIdRoute
+  '/company/$companyId/edit': typeof AuthCompanyCompanyIdEditRoute
+  '/equipment/$equipmentId/edit': typeof AuthEquipmentEquipmentIdEditRoute
+  '/event/$eventId/edit': typeof AuthEventEventIdEditRoute
+  '/outsource/$outsourceId/edit': typeof AuthOutsourceOutsourceIdEditRoute
+  '/package/$packageId/edit': typeof AuthPackagePackageIdEditRoute
+  '/staff/$staffId/edit': typeof AuthStaffStaffIdEditRoute
+  '/company': typeof AuthSidebarLayoutCompanyIndexRoute
+  '/event': typeof AuthSidebarLayoutEventIndexRoute
+  '/outsource': typeof AuthSidebarLayoutOutsourceIndexRoute
+  '/staff': typeof AuthSidebarLayoutStaffIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_sidebarLayout': typeof SidebarLayoutRouteRouteWithChildren
-  '/_sidebarLayout/equipment': typeof SidebarLayoutEquipmentRoute
-  '/_sidebarLayout/package': typeof SidebarLayoutPackageRoute
-  '/company/create': typeof CompanyCreateRoute
-  '/equipment/create': typeof EquipmentCreateRoute
-  '/event/create': typeof EventCreateRoute
-  '/outsource/create': typeof OutsourceCreateRoute
-  '/package/create': typeof PackageCreateRoute
-  '/staff/create': typeof StaffCreateRoute
-  '/_sidebarLayout/': typeof SidebarLayoutIndexRoute
+  '/_auth': typeof AuthRouteRouteWithChildren
+  '/_auth/_sidebarLayout': typeof AuthSidebarLayoutRouteRouteWithChildren
   '/login/': typeof LoginIndexRoute
-  '/_sidebarLayout/company/$companyId': typeof SidebarLayoutCompanyCompanyIdRoute
-  '/_sidebarLayout/event/$eventId': typeof SidebarLayoutEventEventIdRoute
-  '/_sidebarLayout/staff/$staffId': typeof SidebarLayoutStaffStaffIdRoute
-  '/company/$companyId/edit': typeof CompanyCompanyIdEditRoute
-  '/equipment/$equipmentId/edit': typeof EquipmentEquipmentIdEditRoute
-  '/event/$eventId/edit': typeof EventEventIdEditRoute
-  '/outsource/$outsourceId/edit': typeof OutsourceOutsourceIdEditRoute
-  '/package/$packageId/edit': typeof PackagePackageIdEditRoute
-  '/staff/$staffId/edit': typeof StaffStaffIdEditRoute
-  '/_sidebarLayout/company/': typeof SidebarLayoutCompanyIndexRoute
-  '/_sidebarLayout/event/': typeof SidebarLayoutEventIndexRoute
-  '/_sidebarLayout/outsource/': typeof SidebarLayoutOutsourceIndexRoute
-  '/_sidebarLayout/staff/': typeof SidebarLayoutStaffIndexRoute
+  '/_auth/_sidebarLayout/equipment': typeof AuthSidebarLayoutEquipmentRoute
+  '/_auth/_sidebarLayout/package': typeof AuthSidebarLayoutPackageRoute
+  '/_auth/company/create': typeof AuthCompanyCreateRoute
+  '/_auth/equipment/create': typeof AuthEquipmentCreateRoute
+  '/_auth/event/create': typeof AuthEventCreateRoute
+  '/_auth/outsource/create': typeof AuthOutsourceCreateRoute
+  '/_auth/package/create': typeof AuthPackageCreateRoute
+  '/_auth/staff/create': typeof AuthStaffCreateRoute
+  '/_auth/_sidebarLayout/': typeof AuthSidebarLayoutIndexRoute
+  '/_auth/_sidebarLayout/company/$companyId': typeof AuthSidebarLayoutCompanyCompanyIdRoute
+  '/_auth/_sidebarLayout/event/$eventId': typeof AuthSidebarLayoutEventEventIdRoute
+  '/_auth/_sidebarLayout/staff/$staffId': typeof AuthSidebarLayoutStaffStaffIdRoute
+  '/_auth/company/$companyId/edit': typeof AuthCompanyCompanyIdEditRoute
+  '/_auth/equipment/$equipmentId/edit': typeof AuthEquipmentEquipmentIdEditRoute
+  '/_auth/event/$eventId/edit': typeof AuthEventEventIdEditRoute
+  '/_auth/outsource/$outsourceId/edit': typeof AuthOutsourceOutsourceIdEditRoute
+  '/_auth/package/$packageId/edit': typeof AuthPackagePackageIdEditRoute
+  '/_auth/staff/$staffId/edit': typeof AuthStaffStaffIdEditRoute
+  '/_auth/_sidebarLayout/company/': typeof AuthSidebarLayoutCompanyIndexRoute
+  '/_auth/_sidebarLayout/event/': typeof AuthSidebarLayoutEventIndexRoute
+  '/_auth/_sidebarLayout/outsource/': typeof AuthSidebarLayoutOutsourceIndexRoute
+  '/_auth/_sidebarLayout/staff/': typeof AuthSidebarLayoutStaffIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/login'
     | '/equipment'
     | '/package'
     | '/company/create'
@@ -250,7 +263,6 @@ export interface FileRouteTypes {
     | '/package/create'
     | '/staff/create'
     | '/'
-    | '/login'
     | '/company/$companyId'
     | '/event/$eventId'
     | '/staff/$staffId'
@@ -266,6 +278,7 @@ export interface FileRouteTypes {
     | '/staff'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/login'
     | '/equipment'
     | '/package'
     | '/company/create'
@@ -275,7 +288,6 @@ export interface FileRouteTypes {
     | '/package/create'
     | '/staff/create'
     | '/'
-    | '/login'
     | '/company/$companyId'
     | '/event/$eventId'
     | '/staff/$staffId'
@@ -291,56 +303,45 @@ export interface FileRouteTypes {
     | '/staff'
   id:
     | '__root__'
-    | '/_sidebarLayout'
-    | '/_sidebarLayout/equipment'
-    | '/_sidebarLayout/package'
-    | '/company/create'
-    | '/equipment/create'
-    | '/event/create'
-    | '/outsource/create'
-    | '/package/create'
-    | '/staff/create'
-    | '/_sidebarLayout/'
+    | '/_auth'
+    | '/_auth/_sidebarLayout'
     | '/login/'
-    | '/_sidebarLayout/company/$companyId'
-    | '/_sidebarLayout/event/$eventId'
-    | '/_sidebarLayout/staff/$staffId'
-    | '/company/$companyId/edit'
-    | '/equipment/$equipmentId/edit'
-    | '/event/$eventId/edit'
-    | '/outsource/$outsourceId/edit'
-    | '/package/$packageId/edit'
-    | '/staff/$staffId/edit'
-    | '/_sidebarLayout/company/'
-    | '/_sidebarLayout/event/'
-    | '/_sidebarLayout/outsource/'
-    | '/_sidebarLayout/staff/'
+    | '/_auth/_sidebarLayout/equipment'
+    | '/_auth/_sidebarLayout/package'
+    | '/_auth/company/create'
+    | '/_auth/equipment/create'
+    | '/_auth/event/create'
+    | '/_auth/outsource/create'
+    | '/_auth/package/create'
+    | '/_auth/staff/create'
+    | '/_auth/_sidebarLayout/'
+    | '/_auth/_sidebarLayout/company/$companyId'
+    | '/_auth/_sidebarLayout/event/$eventId'
+    | '/_auth/_sidebarLayout/staff/$staffId'
+    | '/_auth/company/$companyId/edit'
+    | '/_auth/equipment/$equipmentId/edit'
+    | '/_auth/event/$eventId/edit'
+    | '/_auth/outsource/$outsourceId/edit'
+    | '/_auth/package/$packageId/edit'
+    | '/_auth/staff/$staffId/edit'
+    | '/_auth/_sidebarLayout/company/'
+    | '/_auth/_sidebarLayout/event/'
+    | '/_auth/_sidebarLayout/outsource/'
+    | '/_auth/_sidebarLayout/staff/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  SidebarLayoutRouteRoute: typeof SidebarLayoutRouteRouteWithChildren
-  CompanyCreateRoute: typeof CompanyCreateRoute
-  EquipmentCreateRoute: typeof EquipmentCreateRoute
-  EventCreateRoute: typeof EventCreateRoute
-  OutsourceCreateRoute: typeof OutsourceCreateRoute
-  PackageCreateRoute: typeof PackageCreateRoute
-  StaffCreateRoute: typeof StaffCreateRoute
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren
   LoginIndexRoute: typeof LoginIndexRoute
-  CompanyCompanyIdEditRoute: typeof CompanyCompanyIdEditRoute
-  EquipmentEquipmentIdEditRoute: typeof EquipmentEquipmentIdEditRoute
-  EventEventIdEditRoute: typeof EventEventIdEditRoute
-  OutsourceOutsourceIdEditRoute: typeof OutsourceOutsourceIdEditRoute
-  PackagePackageIdEditRoute: typeof PackagePackageIdEditRoute
-  StaffStaffIdEditRoute: typeof StaffStaffIdEditRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_sidebarLayout': {
-      id: '/_sidebarLayout'
+    '/_auth': {
+      id: '/_auth'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof SidebarLayoutRouteRouteImport
+      preLoaderRoute: typeof AuthRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login/': {
@@ -350,207 +351,242 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_sidebarLayout/': {
-      id: '/_sidebarLayout/'
+    '/_auth/_sidebarLayout': {
+      id: '/_auth/_sidebarLayout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthSidebarLayoutRouteRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/_sidebarLayout/': {
+      id: '/_auth/_sidebarLayout/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof SidebarLayoutIndexRouteImport
-      parentRoute: typeof SidebarLayoutRouteRoute
+      preLoaderRoute: typeof AuthSidebarLayoutIndexRouteImport
+      parentRoute: typeof AuthSidebarLayoutRouteRoute
     }
-    '/staff/create': {
-      id: '/staff/create'
+    '/_auth/staff/create': {
+      id: '/_auth/staff/create'
       path: '/staff/create'
       fullPath: '/staff/create'
-      preLoaderRoute: typeof StaffCreateRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthStaffCreateRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/package/create': {
-      id: '/package/create'
+    '/_auth/package/create': {
+      id: '/_auth/package/create'
       path: '/package/create'
       fullPath: '/package/create'
-      preLoaderRoute: typeof PackageCreateRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthPackageCreateRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/outsource/create': {
-      id: '/outsource/create'
+    '/_auth/outsource/create': {
+      id: '/_auth/outsource/create'
       path: '/outsource/create'
       fullPath: '/outsource/create'
-      preLoaderRoute: typeof OutsourceCreateRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthOutsourceCreateRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/event/create': {
-      id: '/event/create'
+    '/_auth/event/create': {
+      id: '/_auth/event/create'
       path: '/event/create'
       fullPath: '/event/create'
-      preLoaderRoute: typeof EventCreateRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthEventCreateRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/equipment/create': {
-      id: '/equipment/create'
+    '/_auth/equipment/create': {
+      id: '/_auth/equipment/create'
       path: '/equipment/create'
       fullPath: '/equipment/create'
-      preLoaderRoute: typeof EquipmentCreateRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthEquipmentCreateRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/company/create': {
-      id: '/company/create'
+    '/_auth/company/create': {
+      id: '/_auth/company/create'
       path: '/company/create'
       fullPath: '/company/create'
-      preLoaderRoute: typeof CompanyCreateRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthCompanyCreateRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/_sidebarLayout/package': {
-      id: '/_sidebarLayout/package'
+    '/_auth/_sidebarLayout/package': {
+      id: '/_auth/_sidebarLayout/package'
       path: '/package'
       fullPath: '/package'
-      preLoaderRoute: typeof SidebarLayoutPackageRouteImport
-      parentRoute: typeof SidebarLayoutRouteRoute
+      preLoaderRoute: typeof AuthSidebarLayoutPackageRouteImport
+      parentRoute: typeof AuthSidebarLayoutRouteRoute
     }
-    '/_sidebarLayout/equipment': {
-      id: '/_sidebarLayout/equipment'
+    '/_auth/_sidebarLayout/equipment': {
+      id: '/_auth/_sidebarLayout/equipment'
       path: '/equipment'
       fullPath: '/equipment'
-      preLoaderRoute: typeof SidebarLayoutEquipmentRouteImport
-      parentRoute: typeof SidebarLayoutRouteRoute
+      preLoaderRoute: typeof AuthSidebarLayoutEquipmentRouteImport
+      parentRoute: typeof AuthSidebarLayoutRouteRoute
     }
-    '/_sidebarLayout/staff/': {
-      id: '/_sidebarLayout/staff/'
+    '/_auth/_sidebarLayout/staff/': {
+      id: '/_auth/_sidebarLayout/staff/'
       path: '/staff'
       fullPath: '/staff'
-      preLoaderRoute: typeof SidebarLayoutStaffIndexRouteImport
-      parentRoute: typeof SidebarLayoutRouteRoute
+      preLoaderRoute: typeof AuthSidebarLayoutStaffIndexRouteImport
+      parentRoute: typeof AuthSidebarLayoutRouteRoute
     }
-    '/_sidebarLayout/outsource/': {
-      id: '/_sidebarLayout/outsource/'
+    '/_auth/_sidebarLayout/outsource/': {
+      id: '/_auth/_sidebarLayout/outsource/'
       path: '/outsource'
       fullPath: '/outsource'
-      preLoaderRoute: typeof SidebarLayoutOutsourceIndexRouteImport
-      parentRoute: typeof SidebarLayoutRouteRoute
+      preLoaderRoute: typeof AuthSidebarLayoutOutsourceIndexRouteImport
+      parentRoute: typeof AuthSidebarLayoutRouteRoute
     }
-    '/_sidebarLayout/event/': {
-      id: '/_sidebarLayout/event/'
+    '/_auth/_sidebarLayout/event/': {
+      id: '/_auth/_sidebarLayout/event/'
       path: '/event'
       fullPath: '/event'
-      preLoaderRoute: typeof SidebarLayoutEventIndexRouteImport
-      parentRoute: typeof SidebarLayoutRouteRoute
+      preLoaderRoute: typeof AuthSidebarLayoutEventIndexRouteImport
+      parentRoute: typeof AuthSidebarLayoutRouteRoute
     }
-    '/_sidebarLayout/company/': {
-      id: '/_sidebarLayout/company/'
+    '/_auth/_sidebarLayout/company/': {
+      id: '/_auth/_sidebarLayout/company/'
       path: '/company'
       fullPath: '/company'
-      preLoaderRoute: typeof SidebarLayoutCompanyIndexRouteImport
-      parentRoute: typeof SidebarLayoutRouteRoute
+      preLoaderRoute: typeof AuthSidebarLayoutCompanyIndexRouteImport
+      parentRoute: typeof AuthSidebarLayoutRouteRoute
     }
-    '/staff/$staffId/edit': {
-      id: '/staff/$staffId/edit'
+    '/_auth/staff/$staffId/edit': {
+      id: '/_auth/staff/$staffId/edit'
       path: '/staff/$staffId/edit'
       fullPath: '/staff/$staffId/edit'
-      preLoaderRoute: typeof StaffStaffIdEditRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthStaffStaffIdEditRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/package/$packageId/edit': {
-      id: '/package/$packageId/edit'
+    '/_auth/package/$packageId/edit': {
+      id: '/_auth/package/$packageId/edit'
       path: '/package/$packageId/edit'
       fullPath: '/package/$packageId/edit'
-      preLoaderRoute: typeof PackagePackageIdEditRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthPackagePackageIdEditRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/outsource/$outsourceId/edit': {
-      id: '/outsource/$outsourceId/edit'
+    '/_auth/outsource/$outsourceId/edit': {
+      id: '/_auth/outsource/$outsourceId/edit'
       path: '/outsource/$outsourceId/edit'
       fullPath: '/outsource/$outsourceId/edit'
-      preLoaderRoute: typeof OutsourceOutsourceIdEditRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthOutsourceOutsourceIdEditRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/event/$eventId/edit': {
-      id: '/event/$eventId/edit'
+    '/_auth/event/$eventId/edit': {
+      id: '/_auth/event/$eventId/edit'
       path: '/event/$eventId/edit'
       fullPath: '/event/$eventId/edit'
-      preLoaderRoute: typeof EventEventIdEditRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthEventEventIdEditRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/equipment/$equipmentId/edit': {
-      id: '/equipment/$equipmentId/edit'
+    '/_auth/equipment/$equipmentId/edit': {
+      id: '/_auth/equipment/$equipmentId/edit'
       path: '/equipment/$equipmentId/edit'
       fullPath: '/equipment/$equipmentId/edit'
-      preLoaderRoute: typeof EquipmentEquipmentIdEditRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthEquipmentEquipmentIdEditRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/company/$companyId/edit': {
-      id: '/company/$companyId/edit'
+    '/_auth/company/$companyId/edit': {
+      id: '/_auth/company/$companyId/edit'
       path: '/company/$companyId/edit'
       fullPath: '/company/$companyId/edit'
-      preLoaderRoute: typeof CompanyCompanyIdEditRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthCompanyCompanyIdEditRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/_sidebarLayout/staff/$staffId': {
-      id: '/_sidebarLayout/staff/$staffId'
+    '/_auth/_sidebarLayout/staff/$staffId': {
+      id: '/_auth/_sidebarLayout/staff/$staffId'
       path: '/staff/$staffId'
       fullPath: '/staff/$staffId'
-      preLoaderRoute: typeof SidebarLayoutStaffStaffIdRouteImport
-      parentRoute: typeof SidebarLayoutRouteRoute
+      preLoaderRoute: typeof AuthSidebarLayoutStaffStaffIdRouteImport
+      parentRoute: typeof AuthSidebarLayoutRouteRoute
     }
-    '/_sidebarLayout/event/$eventId': {
-      id: '/_sidebarLayout/event/$eventId'
+    '/_auth/_sidebarLayout/event/$eventId': {
+      id: '/_auth/_sidebarLayout/event/$eventId'
       path: '/event/$eventId'
       fullPath: '/event/$eventId'
-      preLoaderRoute: typeof SidebarLayoutEventEventIdRouteImport
-      parentRoute: typeof SidebarLayoutRouteRoute
+      preLoaderRoute: typeof AuthSidebarLayoutEventEventIdRouteImport
+      parentRoute: typeof AuthSidebarLayoutRouteRoute
     }
-    '/_sidebarLayout/company/$companyId': {
-      id: '/_sidebarLayout/company/$companyId'
+    '/_auth/_sidebarLayout/company/$companyId': {
+      id: '/_auth/_sidebarLayout/company/$companyId'
       path: '/company/$companyId'
       fullPath: '/company/$companyId'
-      preLoaderRoute: typeof SidebarLayoutCompanyCompanyIdRouteImport
-      parentRoute: typeof SidebarLayoutRouteRoute
+      preLoaderRoute: typeof AuthSidebarLayoutCompanyCompanyIdRouteImport
+      parentRoute: typeof AuthSidebarLayoutRouteRoute
     }
   }
 }
 
-interface SidebarLayoutRouteRouteChildren {
-  SidebarLayoutEquipmentRoute: typeof SidebarLayoutEquipmentRoute
-  SidebarLayoutPackageRoute: typeof SidebarLayoutPackageRoute
-  SidebarLayoutIndexRoute: typeof SidebarLayoutIndexRoute
-  SidebarLayoutCompanyCompanyIdRoute: typeof SidebarLayoutCompanyCompanyIdRoute
-  SidebarLayoutEventEventIdRoute: typeof SidebarLayoutEventEventIdRoute
-  SidebarLayoutStaffStaffIdRoute: typeof SidebarLayoutStaffStaffIdRoute
-  SidebarLayoutCompanyIndexRoute: typeof SidebarLayoutCompanyIndexRoute
-  SidebarLayoutEventIndexRoute: typeof SidebarLayoutEventIndexRoute
-  SidebarLayoutOutsourceIndexRoute: typeof SidebarLayoutOutsourceIndexRoute
-  SidebarLayoutStaffIndexRoute: typeof SidebarLayoutStaffIndexRoute
+interface AuthSidebarLayoutRouteRouteChildren {
+  AuthSidebarLayoutEquipmentRoute: typeof AuthSidebarLayoutEquipmentRoute
+  AuthSidebarLayoutPackageRoute: typeof AuthSidebarLayoutPackageRoute
+  AuthSidebarLayoutIndexRoute: typeof AuthSidebarLayoutIndexRoute
+  AuthSidebarLayoutCompanyCompanyIdRoute: typeof AuthSidebarLayoutCompanyCompanyIdRoute
+  AuthSidebarLayoutEventEventIdRoute: typeof AuthSidebarLayoutEventEventIdRoute
+  AuthSidebarLayoutStaffStaffIdRoute: typeof AuthSidebarLayoutStaffStaffIdRoute
+  AuthSidebarLayoutCompanyIndexRoute: typeof AuthSidebarLayoutCompanyIndexRoute
+  AuthSidebarLayoutEventIndexRoute: typeof AuthSidebarLayoutEventIndexRoute
+  AuthSidebarLayoutOutsourceIndexRoute: typeof AuthSidebarLayoutOutsourceIndexRoute
+  AuthSidebarLayoutStaffIndexRoute: typeof AuthSidebarLayoutStaffIndexRoute
 }
 
-const SidebarLayoutRouteRouteChildren: SidebarLayoutRouteRouteChildren = {
-  SidebarLayoutEquipmentRoute: SidebarLayoutEquipmentRoute,
-  SidebarLayoutPackageRoute: SidebarLayoutPackageRoute,
-  SidebarLayoutIndexRoute: SidebarLayoutIndexRoute,
-  SidebarLayoutCompanyCompanyIdRoute: SidebarLayoutCompanyCompanyIdRoute,
-  SidebarLayoutEventEventIdRoute: SidebarLayoutEventEventIdRoute,
-  SidebarLayoutStaffStaffIdRoute: SidebarLayoutStaffStaffIdRoute,
-  SidebarLayoutCompanyIndexRoute: SidebarLayoutCompanyIndexRoute,
-  SidebarLayoutEventIndexRoute: SidebarLayoutEventIndexRoute,
-  SidebarLayoutOutsourceIndexRoute: SidebarLayoutOutsourceIndexRoute,
-  SidebarLayoutStaffIndexRoute: SidebarLayoutStaffIndexRoute,
+const AuthSidebarLayoutRouteRouteChildren: AuthSidebarLayoutRouteRouteChildren =
+  {
+    AuthSidebarLayoutEquipmentRoute: AuthSidebarLayoutEquipmentRoute,
+    AuthSidebarLayoutPackageRoute: AuthSidebarLayoutPackageRoute,
+    AuthSidebarLayoutIndexRoute: AuthSidebarLayoutIndexRoute,
+    AuthSidebarLayoutCompanyCompanyIdRoute:
+      AuthSidebarLayoutCompanyCompanyIdRoute,
+    AuthSidebarLayoutEventEventIdRoute: AuthSidebarLayoutEventEventIdRoute,
+    AuthSidebarLayoutStaffStaffIdRoute: AuthSidebarLayoutStaffStaffIdRoute,
+    AuthSidebarLayoutCompanyIndexRoute: AuthSidebarLayoutCompanyIndexRoute,
+    AuthSidebarLayoutEventIndexRoute: AuthSidebarLayoutEventIndexRoute,
+    AuthSidebarLayoutOutsourceIndexRoute: AuthSidebarLayoutOutsourceIndexRoute,
+    AuthSidebarLayoutStaffIndexRoute: AuthSidebarLayoutStaffIndexRoute,
+  }
+
+const AuthSidebarLayoutRouteRouteWithChildren =
+  AuthSidebarLayoutRouteRoute._addFileChildren(
+    AuthSidebarLayoutRouteRouteChildren,
+  )
+
+interface AuthRouteRouteChildren {
+  AuthSidebarLayoutRouteRoute: typeof AuthSidebarLayoutRouteRouteWithChildren
+  AuthCompanyCreateRoute: typeof AuthCompanyCreateRoute
+  AuthEquipmentCreateRoute: typeof AuthEquipmentCreateRoute
+  AuthEventCreateRoute: typeof AuthEventCreateRoute
+  AuthOutsourceCreateRoute: typeof AuthOutsourceCreateRoute
+  AuthPackageCreateRoute: typeof AuthPackageCreateRoute
+  AuthStaffCreateRoute: typeof AuthStaffCreateRoute
+  AuthCompanyCompanyIdEditRoute: typeof AuthCompanyCompanyIdEditRoute
+  AuthEquipmentEquipmentIdEditRoute: typeof AuthEquipmentEquipmentIdEditRoute
+  AuthEventEventIdEditRoute: typeof AuthEventEventIdEditRoute
+  AuthOutsourceOutsourceIdEditRoute: typeof AuthOutsourceOutsourceIdEditRoute
+  AuthPackagePackageIdEditRoute: typeof AuthPackagePackageIdEditRoute
+  AuthStaffStaffIdEditRoute: typeof AuthStaffStaffIdEditRoute
 }
 
-const SidebarLayoutRouteRouteWithChildren =
-  SidebarLayoutRouteRoute._addFileChildren(SidebarLayoutRouteRouteChildren)
+const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthSidebarLayoutRouteRoute: AuthSidebarLayoutRouteRouteWithChildren,
+  AuthCompanyCreateRoute: AuthCompanyCreateRoute,
+  AuthEquipmentCreateRoute: AuthEquipmentCreateRoute,
+  AuthEventCreateRoute: AuthEventCreateRoute,
+  AuthOutsourceCreateRoute: AuthOutsourceCreateRoute,
+  AuthPackageCreateRoute: AuthPackageCreateRoute,
+  AuthStaffCreateRoute: AuthStaffCreateRoute,
+  AuthCompanyCompanyIdEditRoute: AuthCompanyCompanyIdEditRoute,
+  AuthEquipmentEquipmentIdEditRoute: AuthEquipmentEquipmentIdEditRoute,
+  AuthEventEventIdEditRoute: AuthEventEventIdEditRoute,
+  AuthOutsourceOutsourceIdEditRoute: AuthOutsourceOutsourceIdEditRoute,
+  AuthPackagePackageIdEditRoute: AuthPackagePackageIdEditRoute,
+  AuthStaffStaffIdEditRoute: AuthStaffStaffIdEditRoute,
+}
+
+const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
+  AuthRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
-  SidebarLayoutRouteRoute: SidebarLayoutRouteRouteWithChildren,
-  CompanyCreateRoute: CompanyCreateRoute,
-  EquipmentCreateRoute: EquipmentCreateRoute,
-  EventCreateRoute: EventCreateRoute,
-  OutsourceCreateRoute: OutsourceCreateRoute,
-  PackageCreateRoute: PackageCreateRoute,
-  StaffCreateRoute: StaffCreateRoute,
+  AuthRouteRoute: AuthRouteRouteWithChildren,
   LoginIndexRoute: LoginIndexRoute,
-  CompanyCompanyIdEditRoute: CompanyCompanyIdEditRoute,
-  EquipmentEquipmentIdEditRoute: EquipmentEquipmentIdEditRoute,
-  EventEventIdEditRoute: EventEventIdEditRoute,
-  OutsourceOutsourceIdEditRoute: OutsourceOutsourceIdEditRoute,
-  PackagePackageIdEditRoute: PackagePackageIdEditRoute,
-  StaffStaffIdEditRoute: StaffStaffIdEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

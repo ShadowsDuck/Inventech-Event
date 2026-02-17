@@ -1,8 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 
 import { cleanPhoneNumber, formatPhoneNumberInput } from "@/lib/format";
-import { Route } from "@/routes/outsource/$outsourceId/edit";
 
 import { outsourceByIdQuery } from "../../api/getOutsourceById";
 import { useUpdateOutsource } from "../../api/updateOutsource";
@@ -10,7 +9,9 @@ import { type OutsourceData, OutsourceForm } from "../outsource-form";
 
 export default function EditOutsource() {
   const navigate = useNavigate();
-  const { outsourceId } = Route.useParams();
+  const { outsourceId } = useParams({
+    from: "/_auth/outsource/$outsourceId/edit",
+  });
 
   const { data: outsourceData } = useSuspenseQuery(
     outsourceByIdQuery(outsourceId),

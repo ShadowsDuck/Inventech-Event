@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { useSuspenseQueries } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { ListFilter, Plus, Users } from "lucide-react";
 
 import SearchBar from "@/components/SearchBar";
@@ -11,13 +12,12 @@ import { FilterMultiSelect } from "@/components/ui/filter-multi-select";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { SELECT_OPTIONS } from "@/data/constants";
 import { staffColumns } from "@/features/staff/components/staff-column";
-import { Route } from "@/routes/_sidebarLayout/staff";
 
 import { rolesQuery } from "../../api/getRoles";
 import { staffQuery } from "../../api/getStaff";
 
 export default function StaffList() {
-  const navigate = Route.useNavigate();
+  const navigate = useNavigate();
 
   // Suspense รอจนกว่าข้อมูลจะพร้อม แล้วจึงจะเรนเดอร์
   // ถ้าใช้ useQueries ข้อมูลอาจจะยังไม่ถูกโหลดขึ้นมา ตอนที่มาที่หน้านี้แล้ว

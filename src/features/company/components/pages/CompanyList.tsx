@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { ListFilter, Plus } from "lucide-react";
 
 import { DataTable } from "@/components/tables/data-table";
@@ -8,14 +9,13 @@ import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { SELECT_OPTIONS } from "@/data/constants";
 import { companyColumns } from "@/features/company/components/companies-column";
-import { Route } from "@/routes/_sidebarLayout/company";
 
 import SearchBar from "../../../../components/SearchBar";
 import PageHeader from "../../../../components/layout/PageHeader";
 import { companiesQuery } from "../../api/getCompanies";
 
 export default function CompanyList() {
-  const navigate = Route.useNavigate();
+  const navigate = useNavigate();
 
   // Suspense รอจนกว่าข้อมูลจะพร้อม แล้วจึงจะเรนเดอร์
   // ถ้าใช้ useQuery ข้อมูลอาจจะยังไม่ถูกโหลดขึ้นมา ตอนที่มาที่หน้านี้แล้ว
