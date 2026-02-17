@@ -11,6 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
+import { Route as ProfileChangePasswordRouteImport } from './routes/profile/change-password'
+import { Route as AuthSetPasswordRouteImport } from './routes/auth/set-password'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthSidebarLayoutRouteRouteImport } from './routes/_auth/_sidebarLayout/route'
 import { Route as AuthSidebarLayoutIndexRouteImport } from './routes/_auth/_sidebarLayout/index'
 import { Route as AuthStaffCreateRouteImport } from './routes/_auth/staff/create'
@@ -42,6 +45,21 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
 const LoginIndexRoute = LoginIndexRouteImport.update({
   id: '/login/',
   path: '/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileChangePasswordRoute = ProfileChangePasswordRouteImport.update({
+  id: '/profile/change-password',
+  path: '/profile/change-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSetPasswordRoute = AuthSetPasswordRouteImport.update({
+  id: '/auth/set-password',
+  path: '/auth/set-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
+  id: '/auth/forgot-password',
+  path: '/auth/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSidebarLayoutRouteRoute = AuthSidebarLayoutRouteRouteImport.update({
@@ -173,6 +191,9 @@ const AuthSidebarLayoutCompanyCompanyIdRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/set-password': typeof AuthSetPasswordRoute
+  '/profile/change-password': typeof ProfileChangePasswordRoute
   '/login': typeof LoginIndexRoute
   '/equipment': typeof AuthSidebarLayoutEquipmentRoute
   '/package': typeof AuthSidebarLayoutPackageRoute
@@ -198,6 +219,9 @@ export interface FileRoutesByFullPath {
   '/staff': typeof AuthSidebarLayoutStaffIndexRoute
 }
 export interface FileRoutesByTo {
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/set-password': typeof AuthSetPasswordRoute
+  '/profile/change-password': typeof ProfileChangePasswordRoute
   '/login': typeof LoginIndexRoute
   '/equipment': typeof AuthSidebarLayoutEquipmentRoute
   '/package': typeof AuthSidebarLayoutPackageRoute
@@ -226,6 +250,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_auth/_sidebarLayout': typeof AuthSidebarLayoutRouteRouteWithChildren
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/set-password': typeof AuthSetPasswordRoute
+  '/profile/change-password': typeof ProfileChangePasswordRoute
   '/login/': typeof LoginIndexRoute
   '/_auth/_sidebarLayout/equipment': typeof AuthSidebarLayoutEquipmentRoute
   '/_auth/_sidebarLayout/package': typeof AuthSidebarLayoutPackageRoute
@@ -253,6 +280,9 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/auth/forgot-password'
+    | '/auth/set-password'
+    | '/profile/change-password'
     | '/login'
     | '/equipment'
     | '/package'
@@ -278,6 +308,9 @@ export interface FileRouteTypes {
     | '/staff'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/auth/forgot-password'
+    | '/auth/set-password'
+    | '/profile/change-password'
     | '/login'
     | '/equipment'
     | '/package'
@@ -305,6 +338,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_auth'
     | '/_auth/_sidebarLayout'
+    | '/auth/forgot-password'
+    | '/auth/set-password'
+    | '/profile/change-password'
     | '/login/'
     | '/_auth/_sidebarLayout/equipment'
     | '/_auth/_sidebarLayout/package'
@@ -332,6 +368,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
+  AuthSetPasswordRoute: typeof AuthSetPasswordRoute
+  ProfileChangePasswordRoute: typeof ProfileChangePasswordRoute
   LoginIndexRoute: typeof LoginIndexRoute
 }
 
@@ -349,6 +388,27 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile/change-password': {
+      id: '/profile/change-password'
+      path: '/profile/change-password'
+      fullPath: '/profile/change-password'
+      preLoaderRoute: typeof ProfileChangePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/set-password': {
+      id: '/auth/set-password'
+      path: '/auth/set-password'
+      fullPath: '/auth/set-password'
+      preLoaderRoute: typeof AuthSetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/auth/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth/_sidebarLayout': {
@@ -586,6 +646,9 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
+  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
+  AuthSetPasswordRoute: AuthSetPasswordRoute,
+  ProfileChangePasswordRoute: ProfileChangePasswordRoute,
   LoginIndexRoute: LoginIndexRoute,
 }
 export const routeTree = rootRouteImport
