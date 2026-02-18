@@ -16,12 +16,12 @@ export interface ForgotPasswordResponse {
 }
 
 const forgotPass = async (
-  payload: ForgotPasswordRequest,
+  forgotpass: ForgotPasswordRequest,
 ): Promise<ForgotPasswordResponse> => {
   try {
     const { data } = await api.post<ForgotPasswordResponse>(
       "/api/auth/forgot-password",
-      payload,
+      forgotpass,
     );
 
     if (!data.success) {
