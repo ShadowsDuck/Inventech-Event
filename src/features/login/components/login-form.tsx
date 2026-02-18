@@ -1,6 +1,6 @@
 import { revalidateLogic } from "@tanstack/react-form";
-import { Link, useNavigate, useRouter } from "@tanstack/react-router";
-import { KeyRound, Mail } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { KeyRound, Loader2, Mail } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
@@ -99,8 +99,15 @@ export function LoginForm({
         </Field>
 
         <Field>
-          <Button type="submit" form="login-form-id">
-            Login
+          <Button type="submit" form="login-form-id" disabled={isPending}>
+            {isPending ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 className="size-4 animate-spin" />
+                <p>Logging in...</p>
+              </span>
+            ) : (
+              "Login"
+            )}
           </Button>
         </Field>
       </FieldGroup>

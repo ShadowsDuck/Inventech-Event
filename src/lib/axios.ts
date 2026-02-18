@@ -21,11 +21,6 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // ถ้าส่ง FormData ต้องลบ Content-Type เพื่อให้ Browser จัดการ Boundary เอง
-    if (config.data instanceof FormData) {
-      delete config.headers["Content-Type"];
-    }
-
     return config;
   },
   (error) => Promise.reject(error),
@@ -37,19 +32,17 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // เช็ค URL ว่าใช่ Login หรือ Refresh ไหม?
-    const isLoginRequest = originalRequest?.url?.includes("/auth/login");
-    const isRefreshRequest = originalRequest?.url?.includes("/auth/refresh");
-
-    // ถ้า Error 401 และ ไม่ใช่ Login และ ไม่ใช่ Refresh
-    if (
-      error.response?.status === 401 &&
-      !isLoginRequest &&
-      !isRefreshRequest
-    ) {
-      window.location.href = "/login";
+    // ถ้า error 401 และไม่ใช่การขอ refresh
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      // ถ้าคุณจะทำ Auto-Refresh ใน Interceptor ให้ใส่ Logic ตรงนี้
+      // แต่ถ้าใช้แบบเดิมที่ "ดีดออก" ให้เช็คหน้าปัจจุบันด้วย
+      if (window.location.pathname !== "/login") {
+        // แทนที่จะ redirect ทันที อาจจะลองใช้ store.logout()
+        // เพื่อให้ state ในแอพสอดคล้องกัน
+        useAuthStore.getState().logout();
+        window.location.href = "/login";
+      }
     }
-
     return Promise.reject(error);
   },
 );

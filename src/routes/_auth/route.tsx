@@ -1,32 +1,30 @@
-import { useEffect } from "react";
-
-import { Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 
 import { useAuthStore } from "@/store/auth-store";
 
 export const Route = createFileRoute("/_auth")({
+  // ป้องกันปัญหา Race Condition ที่ดีด User ไปหน้า Login ทั้งที่มี Refresh Token อยู่
+  beforeLoad: async () => {
+    const { initAuth } = useAuthStore.getState();
+
+    // รอผลลัพธ์จากการ Refresh Token (ถ้ากด F5 ตัวนี้จะยิงหา Backend ก่อน)
+    const token = await initAuth();
+
+    // เมื่อรู้ผลแน่ชัดแล้วว่าไม่มี Token จริงๆ ถึงจะให้ดีดไปหน้า Login
+    if (!token) {
+      throw redirect({ to: "/login" });
+    }
+  },
   component: AuthLayout,
 });
 
 function AuthLayout() {
-  const { accessToken, isInitialized } = useAuthStore();
-  const navigate = useNavigate();
+  const { isInitialized } = useAuthStore();
 
-  useEffect(() => {
-    // ถ้าโหลดเสร็จแล้ว (isInitialized = true) และยังไม่มี Token
-    if (isInitialized && !accessToken) {
-      navigate({ to: "/login" });
-    }
-  }, [isInitialized, accessToken, navigate]);
-
-  // ถ้ายังโหลดไม่เสร็จ ให้โชว์ Loading
+  // ถ้ายังโหลด AccessToken ไม่เสร็จให้รอ
   if (!isInitialized) {
     return null;
   }
 
-  // ถ้าโหลดเสร็จแล้วแต่ไม่มี Token (เดี๋ยว useEffect ข้างบนจะดีดไปเอง)
-  if (!accessToken) return null;
-
-  // ถ้ามี Token ครบถ้วน ก็โชว์เนื้อหาได้เลย
   return <Outlet />;
 }

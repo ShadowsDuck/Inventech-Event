@@ -206,12 +206,12 @@ export default function EventList() {
           <div className="px-6 py-2">
             <div className="flex items-center">
               <div className="flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-white py-1 pr-3 shadow-sm">
-                <div className="flex flex-1 items-center gap-2 rounded-xl bg-slate-50 px-3 py-1">
+                <div className="flex flex-1 items-center gap-2 rounded-xl px-3 py-1">
                   <SearchBar
                     value={search}
                     onChange={(value) => setSearch(value)}
                     placeholder="Search events..."
-                    className="border-0 shadow-none"
+                    className="bg-accent/50 border-0 shadow-none"
                     fullWidth
                   />
                 </div>
