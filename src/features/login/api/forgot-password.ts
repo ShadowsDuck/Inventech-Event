@@ -46,15 +46,9 @@ const forgotPass = async (
 };
 
 export const useForgotPassword = () => {
-  const navigate = useNavigate();
-
   return useMutation({
     mutationFn: forgotPass,
-    onSuccess: (data) => {
-      if (data.success) {
-        navigate({ to: "/login", replace: true });
-      }
-    },
+
     meta: {
       successMessage: "ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว",
       errorMessage: "ไม่สามารถทำรายการได้ในขณะนี้",

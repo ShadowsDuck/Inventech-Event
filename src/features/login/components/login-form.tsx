@@ -79,7 +79,7 @@ export function LoginForm({
 
             <Link
               to="/auth/forgot-password"
-              className="text-sm text-blue-600 hover:underline"
+              className="ml-auto text-sm text-blue-600 hover:underline"
             >
               Forgot your password?
             </Link>
