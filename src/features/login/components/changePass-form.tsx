@@ -86,9 +86,8 @@ export default function ChangePasswordForm({
           <form.AppField
             name="currentPassword"
             children={(field) => (
-              <field.TextField
+              <field.PasswordField
                 label="Current Password"
-                type="password"
                 placeholder="********"
               />
             )}
@@ -98,9 +97,8 @@ export default function ChangePasswordForm({
           <form.AppField
             name="newPassword"
             children={(field) => (
-              <field.TextField
+              <field.PasswordField
                 label="New Password"
-                type="password"
                 placeholder="********"
               />
             )}
@@ -110,9 +108,8 @@ export default function ChangePasswordForm({
           <form.AppField
             name="confirmPassword"
             children={(field) => (
-              <field.TextField
+              <field.PasswordField
                 label="Confirm Password"
-                type="password"
                 placeholder="********"
               />
             )}
