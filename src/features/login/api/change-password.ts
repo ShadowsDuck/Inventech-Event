@@ -1,10 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
 
 import { api } from "@/lib/axios";
 
-export interface ChangePasswordRequest {
+export interface ChangePasswordData {
   currentPassword: string;
   newPassword: string;
 }
@@ -14,21 +13,21 @@ export interface ChangePasswordResponse {
   message?: string;
 }
 
-// 2. API Call Function
-const changePass = async (
-  changepass: ChangePasswordRequest,
+const changePassword = async (
+  changepass: ChangePasswordData,
 ): Promise<ChangePasswordResponse> => {
   try {
-    const { data } = await api.post<ChangePasswordResponse>(
-      "/api/auth/change-password",
-      changepass,
-    );
+    const res = await api.post("/api/auth/change-password", changepass);
 
-    if (!data.success) {
-      throw new Error(data.message || "Cannot change password");
+    if (res.status === 200 && res.data.success === undefined) {
+      return { success: true };
     }
 
-    return data;
+    if (!res.data.success) {
+      throw new Error(res.data.message || "Something went wrong");
+    }
+
+    return res.data;
   } catch (error) {
     if (isAxiosError(error) && error.response) {
       const errorData = error.response.data;
@@ -36,30 +35,22 @@ const changePass = async (
       const errorMessage =
         (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
         errorData.detail ||
-        errorData.message ||
-        "Cannot change password because password is same as current password";
+        "Failed to reset password";
 
       throw new Error(errorMessage);
     }
 
-    throw error instanceof Error ? error : new Error("Network error");
+    if (error instanceof Error) throw error;
+    throw new Error("An unexpected network error occurred");
   }
 };
 
-// 3. React Query Hook
 export const useChangePassword = () => {
-  const navigate = useNavigate();
-
   return useMutation({
-    mutationFn: changePass,
-    onSuccess: (data) => {
-      if (data.success) {
-        navigate({ to: "/login", replace: true });
-      }
-    },
+    mutationFn: changePassword,
     meta: {
-      successMessage: "Change Password Success",
-      errorMessage: "Cannot change password",
+      successMessage: "Change password successfully",
+      errorMessage: "Failed to change password",
     },
   });
 };
