@@ -7,6 +7,7 @@ import { EventFormatField } from "./event-format-field";
 import { LocationField } from "./location-field";
 import { MultiSelectField } from "./multiselect-field";
 import PackageEventField from "./package-event-field";
+import { PasswordField } from "./password-field";
 import { PeriodSelectField } from "./period-field";
 import StaffAssignmentBuilder from "./resource-manage-form";
 import { SelectField } from "./select-field";
@@ -36,6 +37,7 @@ export const { useAppForm } = createFormHook({
     PackageEventField,
     StaffAssignmentBuilder,
     TextAreaField,
+    PasswordField,
   },
   formComponents: {},
   fieldContext,
