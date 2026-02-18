@@ -1,20 +1,21 @@
 import { revalidateLogic } from "@tanstack/react-form";
+import { Loader2 } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
+import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
 
 import { useChangePassword } from "../api/change-password";
 
-export const ChangePassSchema = z
+export const ChangePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Please enter your current password"),
     newPassword: z
       .string()
-
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
-        "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร ประกอบด้วยพิมพ์ใหญ่ พิมพ์เล็ก และตัวเลข",
+        "A password must be at least 8 characters long and contain uppercase letters, lowercase letters, and numbers.",
       ),
     confirmPassword: z.string().min(1, "Please confirm your new password"),
   })
@@ -24,55 +25,48 @@ export const ChangePassSchema = z
   })
   .refine((data) => data.currentPassword !== data.newPassword, {
     message: "New password cannot be the same as current password",
-    path: ["newPassword"], // แถมให้ครับ! ดักไม่ให้ตั้งรหัสใหม่ซ้ำกับรหัสเดิม
+    path: ["newPassword"],
   });
 
-export type ChangePassFormData = z.infer<typeof ChangePassSchema>;
+export type ChangePasswordFormData = z.infer<typeof ChangePasswordSchema>;
 
 interface ChangePasswordFormProps {
-  onSuccessCallback?: () => void;
+  onSuccess?: () => void;
 }
 
 export default function ChangePasswordForm({
-  onSuccessCallback,
+  onSuccess,
 }: ChangePasswordFormProps) {
-  const { mutate: changePassword, isPending } = useChangePassword();
+  const { mutateAsync: changePassword, isPending } = useChangePassword();
 
   const form = useAppForm({
     defaultValues: {
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
-    } as ChangePassFormData,
+    } as ChangePasswordFormData,
     validators: {
-      onSubmit: ChangePassSchema,
+      onSubmit: ChangePasswordSchema,
     },
     validationLogic: revalidateLogic({
       mode: "submit",
       modeAfterSubmission: "blur",
     }),
     onSubmit: async ({ value }) => {
-      // 2. ยิง API เปลี่ยนรหัสผ่าน
-      changePassword(
-        {
-          currentPassword: value.currentPassword,
-          newPassword: value.newPassword,
-        },
-        {
-          onSuccess: () => {
-            form.reset();
-            if (onSuccessCallback) {
-              onSuccessCallback();
-            }
-          },
-        },
-      );
+      await changePassword({
+        currentPassword: value.currentPassword,
+        newPassword: value.newPassword,
+      });
+      form.reset();
+      if (onSuccess) {
+        onSuccess();
+      }
     },
   });
 
   return (
     <form
-      id="change-pass-form"
+      id="change-password-form"
       autoComplete="off"
       onSubmit={(e) => {
         e.preventDefault();
@@ -116,16 +110,23 @@ export default function ChangePasswordForm({
           />
         </Field>
       </FieldGroup>
-      <div className="mt-6 flex justify-end gap-2">
-        {/* ปุ่ม Cancel ไว้กดปิด Popup (ถ้ามี) */}
 
-        <button
+      <div className="mt-6 flex justify-end gap-2">
+        <Button
+          form="change-password-form"
           type="submit"
           disabled={isPending}
           className="rounded-md bg-blue-600 px-4 py-2 text-white"
         >
-          {isPending ? "Saving..." : "Change Password"}
-        </button>
+          {isPending ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="size-4 animate-spin" />
+              <p>Saving...</p>
+            </span>
+          ) : (
+            "Change Password"
+          )}
+        </Button>
       </div>
     </form>
   );
