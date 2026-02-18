@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useParams } from "@tanstack/react-router";
 import { format } from "date-fns";
 import {
   Building2,
@@ -14,7 +15,6 @@ import PageHeader from "@/components/layout/PageHeader";
 import MapPreview from "@/components/map-preview";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
-import { Route } from "@/routes/_auth/_sidebarLayout/company/$companyId";
 
 import { companyQuery } from "../../api/getCompany";
 import {
@@ -27,7 +27,9 @@ export default function CompanyDetail() {
     "overview",
   );
 
-  const { companyId } = Route.useParams();
+  const { companyId } = useParams({
+    from: "/_auth/_sidebarLayout/company/$companyId",
+  });
   const { data: company } = useSuspenseQuery(companyQuery(companyId));
 
   const primaryContact = company.companyContacts?.find((c) => c.isPrimary);

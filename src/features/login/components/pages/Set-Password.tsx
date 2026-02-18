@@ -12,7 +12,7 @@ export default function SetPassword() {
       {/* Left side - Banner */}
       <div className="bg-muted relative hidden lg:block">
         <img
-          src={inventechBanner}
+          src="/src/assets/inventech-banner.png"
           alt="Banner"
           className="absolute inset-0 h-full w-full object-cover object-[35%_65%] dark:brightness-[0.2] dark:grayscale"
         />
