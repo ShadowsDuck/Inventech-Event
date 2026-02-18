@@ -16,12 +16,12 @@ export interface ChangePasswordResponse {
 
 // 2. API Call Function
 const changePass = async (
-  payload: ChangePasswordRequest,
+  changepass: ChangePasswordRequest,
 ): Promise<ChangePasswordResponse> => {
   try {
     const { data } = await api.post<ChangePasswordResponse>(
       "/api/auth/change-password",
-      payload,
+      changepass,
     );
 
     if (!data.success) {

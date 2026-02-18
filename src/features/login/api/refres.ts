@@ -78,7 +78,7 @@ api.interceptors.response.use(
       }
     }
 
-    // ถ้าเป็น Error อื่นๆ (เช่น 400, 404, 500) ก็ปล่อยให้มันพังไปตามปกติ
+    // ถ้าเป็น Error อื่นๆ 400, 404, 500 ก็ปล่อยให้มันพังไปตามปกติ
     return Promise.reject(error);
   },
 );
