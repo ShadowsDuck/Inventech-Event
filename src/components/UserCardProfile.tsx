@@ -42,8 +42,12 @@ export function UserCardProfile() {
             <Card className="hover:bg-muted/80 bg-muted/60 flex cursor-pointer flex-row items-center gap-3 border-none p-3 shadow-sm transition-colors">
               <Avatar className="h-9 w-9 border">
                 <AvatarImage
-                  src={`${API_URL}/uploads/${user?.avatar}`}
-                  alt="Admin"
+                  src={
+                    user?.avatar
+                      ? `${API_URL}/uploads/${user.avatar}`
+                      : undefined
+                  }
+                  alt={user?.fullName || "Admin"}
                 />
                 <AvatarFallback className="bg-blue-600 font-bold text-white uppercase">
                   {user?.fullName?.substring(0, 2).toUpperCase() || "UN"}

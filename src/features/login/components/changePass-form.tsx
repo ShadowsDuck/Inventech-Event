@@ -52,8 +52,6 @@ export default function ChangePasswordForm({
       modeAfterSubmission: "blur",
     }),
     onSubmit: async ({ value }) => {
-      const token = localStorage.getItem("token") || "";
-
       // 2. ยิง API เปลี่ยนรหัสผ่าน
       changePassword(
         {
@@ -88,8 +86,9 @@ export default function ChangePasswordForm({
           <form.AppField
             name="currentPassword"
             children={(field) => (
-              <field.PasswordField
+              <field.TextField
                 label="Current Password"
+                type="password"
                 placeholder="********"
               />
             )}
@@ -99,8 +98,9 @@ export default function ChangePasswordForm({
           <form.AppField
             name="newPassword"
             children={(field) => (
-              <field.PasswordField
+              <field.TextField
                 label="New Password"
+                type="password"
                 placeholder="********"
               />
             )}
@@ -110,8 +110,9 @@ export default function ChangePasswordForm({
           <form.AppField
             name="confirmPassword"
             children={(field) => (
-              <field.PasswordField
+              <field.TextField
                 label="Confirm Password"
+                type="password"
                 placeholder="********"
               />
             )}

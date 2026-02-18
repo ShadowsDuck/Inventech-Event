@@ -40,7 +40,7 @@ export default function SetPasswordForm({
       confirmPassword: "",
     } as SetpassFormData,
     validators: {
-      onChange: SetpassSchema,
+      onSubmit: SetpassSchema,
     },
     validationLogic: revalidateLogic({
       mode: "submit",
@@ -49,7 +49,7 @@ export default function SetPasswordForm({
     onSubmit: async ({ value }) => {
       setPassword({
         newPassword: value.newPassword,
-        accessToken: token,
+        token: token,
       });
     },
   });

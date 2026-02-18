@@ -6,7 +6,7 @@ import { api } from "@/lib/axios";
 
 export interface SetPasswordRequest {
   newPassword: string;
-  accessToken: string;
+  token: string;
 }
 
 export interface SetPasswordResponse {

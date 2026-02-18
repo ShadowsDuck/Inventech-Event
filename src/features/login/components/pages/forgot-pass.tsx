@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
 
-// เปลี่ยนมาใช้ Link
-import SetPasswordForm from "../setPass-form";
+import ForgotPassword from "../forgotPass-form";
 
+// เปลี่ยนมาใช้ Link
+
+// 1. เปลี่ยนเป็นชื่อตัวพิมพ์ใหญ่ SetPassword
 export default function SetPassword() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
@@ -26,16 +28,7 @@ export default function SetPassword() {
         {/* Form Center Wrapper */}
         <div className="-mt-2 flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <div className="mb-6 text-center">
-              <h1 className="text-2xl font-semibold tracking-tight">
-                Set New Password
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                Please enter your new password below.
-              </p>
-            </div>
-
-            <SetPasswordForm />
+            <ForgotPassword />
           </div>
         </div>
       </div>
