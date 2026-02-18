@@ -5,10 +5,10 @@ import { useAuthStore } from "@/store/auth-store";
 export const Route = createFileRoute("/_auth")({
   // ป้องกันปัญหา Race Condition ที่ดีด User ไปหน้า Login ทั้งที่มี Refresh Token อยู่
   beforeLoad: async () => {
-    const { initAuth } = useAuthStore.getState();
+    const { checkAuth } = useAuthStore.getState();
 
     // รอผลลัพธ์จากการ Refresh Token (ถ้ากด F5 ตัวนี้จะยิงหา Backend ก่อน)
-    const token = await initAuth();
+    const token = await checkAuth();
 
     // เมื่อรู้ผลแน่ชัดแล้วว่าไม่มี Token จริงๆ ถึงจะให้ดีดไปหน้า Login
     if (!token) {

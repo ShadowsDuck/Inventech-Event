@@ -1,4 +1,5 @@
 import { revalidateLogic } from "@tanstack/react-form";
+import { Loader2 } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
@@ -9,13 +10,13 @@ import { Route } from "@/routes/auth/set-password";
 
 import { useSetPassword } from "../api/set-password";
 
-export const SetpassSchema = z
+export const SetPasswordSchema = z
   .object({
     newPassword: z
       .string()
       .min(8, "Password must be at least 8 characters")
       .regex(/[A-Z]/, "Must contain at least one uppercase letter")
-      .regex(/[A-Z]/, "Must contain at least one lowercase letter")
+      .regex(/[a-z]/, "Must contain at least one lowercase letter")
       .regex(/[0-9]/, "Must contain at least one number"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
   })
@@ -24,7 +25,7 @@ export const SetpassSchema = z
     path: ["confirmPassword"],
   });
 
-export type SetpassFormData = z.infer<typeof SetpassSchema>;
+export type SetpassFormData = z.infer<typeof SetPasswordSchema>;
 
 export default function SetPasswordForm({
   className,
@@ -40,7 +41,7 @@ export default function SetPasswordForm({
       confirmPassword: "",
     } as SetpassFormData,
     validators: {
-      onSubmit: SetpassSchema,
+      onSubmit: SetPasswordSchema,
     },
     validationLogic: revalidateLogic({
       mode: "submit",
@@ -49,7 +50,7 @@ export default function SetPasswordForm({
     onSubmit: async ({ value }) => {
       setPassword({
         newPassword: value.newPassword,
-        token: token,
+        token,
       });
     },
   });
@@ -94,8 +95,15 @@ export default function SetPasswordForm({
           />
         </Field>
         <Field>
-          <Button type="submit" form="set-password-form">
-            Set Password
+          <Button type="submit" form="set-password-form" disabled={isPending}>
+            {isPending ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 className="size-4 animate-spin" />
+                <p>Changing Password...</p>
+              </span>
+            ) : (
+              "Change Password"
+            )}
           </Button>
         </Field>
       </FieldGroup>

@@ -32,17 +32,27 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // ถ้า error 401 และไม่ใช่การขอ refresh
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      // ถ้าคุณจะทำ Auto-Refresh ใน Interceptor ให้ใส่ Logic ตรงนี้
-      // แต่ถ้าใช้แบบเดิมที่ "ดีดออก" ให้เช็คหน้าปัจจุบันด้วย
-      if (window.location.pathname !== "/login") {
-        // แทนที่จะ redirect ทันที อาจจะลองใช้ store.logout()
-        // เพื่อให้ state ในแอพสอดคล้องกัน
+    const isRefreshRequest = originalRequest.url?.includes("/refresh");
+
+    // ถ้า error 401 และ ไม่ใช่ การยิงเช็ค Auth (Refresh)
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isRefreshRequest
+    ) {
+      const isPublicPage =
+        window.location.pathname.startsWith("/auth/") ||
+        window.location.pathname === "/login";
+
+      if (!isPublicPage) {
         useAuthStore.getState().logout();
         window.location.href = "/login";
+        return Promise.reject(error);
       }
     }
+
+    // ถ้าเป็น 401 จากการ Refresh Token ปล่อยให้มัน Error ไปปกติ
+    // เพื่อให้ checkAuth() ใน Store จับ catch ได้ แล้ว set user = null
     return Promise.reject(error);
   },
 );

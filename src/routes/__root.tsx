@@ -8,6 +8,8 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 
+import { useAuthStore } from "@/store/auth-store";
+
 import { RouterProgress } from "../components/RouterProgress";
 
 function RootLayout() {
@@ -39,6 +41,10 @@ function RootLayout() {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
+    beforeLoad: async () => {
+      // ตรวจสอบสถานะ Auth ให้เสร็จก่อนเริ่มโหลดหน้าเว็บ
+      await useAuthStore.getState().checkAuth();
+    },
     component: RootLayout,
     errorComponent: ({ error }) => {
       return (

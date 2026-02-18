@@ -15,7 +15,7 @@ type AuthStore = {
   isInitialized: boolean;
   setInitialized: (value: boolean) => void;
   // ฟังก์ชันสำหรับตรวจสอบการเข้าสู่ระบบ
-  initAuth: () => Promise<string | null>;
+  checkAuth: () => Promise<string | null>;
 };
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -40,7 +40,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   setInitialized: (value) => set({ isInitialized: value }),
 
   // ฟังก์ชันสำหรับตรวจสอบสถานะ Auth เมื่อเริ่มต้นแอป (เช่น การกด F5)
-  initAuth: async () => {
+  checkAuth: async () => {
     // 1. ถ้าเช็คสถานะ Auth ไปแล้วใน session นี้ ให้ส่งค่าเดิมกลับไปได้เลย (ไม่ต้องยิง API ใหม่ทุกครั้งที่เปลี่ยนหน้า)
     if (get().isInitialized) return get().accessToken;
 
