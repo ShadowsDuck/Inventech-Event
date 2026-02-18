@@ -4,52 +4,60 @@ import { isAxiosError } from "axios";
 
 import { api } from "@/lib/axios";
 
-export interface SetPasswordRequest {
+export interface SetPasswordData {
   newPassword: string;
   token: string;
 }
 
 export interface SetPasswordResponse {
   success: boolean;
+  message?: string;
 }
-const setPass = async (
-  setpass: SetPasswordRequest,
+
+const setPassword = async (
+  setPassword: SetPasswordData,
 ): Promise<SetPasswordResponse> => {
   try {
-    const { data } = await api.post("/api/auth/set-password", setpass);
+    const res = await api.post("/api/auth/set-password", setPassword);
 
-    if (!data.success) {
-      // โยน Error พร้อม Message จริงจาก Backend ออกไป
-      throw new Error(data.message || "Something went wrong");
+    if (res.status === 200 && res.data.success === undefined) {
+      return { success: true };
     }
-    return data;
+
+    if (!res.data.success) {
+      throw new Error(res.data.message || "Something went wrong");
+    }
+
+    return res.data;
   } catch (error) {
     if (isAxiosError(error) && error.response) {
       const errorData = error.response.data;
+
       const errorMessage =
         (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
         errorData.detail ||
         "Failed to reset password";
+
       throw new Error(errorMessage);
     }
 
-    throw error instanceof Error
-      ? error
-      : new Error("An unexpected error occurred");
+    if (error instanceof Error) throw error;
+    throw new Error("An unexpected network error occurred");
   }
 };
+
 export const useSetPassword = () => {
   const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: setPass,
+    mutationFn: setPassword,
     onSuccess: (data) => {
       if (data.success) {
         navigate({ to: "/login", replace: true });
       }
     },
     meta: {
-      successMessage: "Password reset successfully",
+      successMessage: "Reset password successfully",
       errorMessage: "Failed to reset password",
     },
   });
