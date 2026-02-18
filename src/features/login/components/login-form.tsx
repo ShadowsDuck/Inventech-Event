@@ -78,8 +78,8 @@ export function LoginForm({
             <FieldLabel htmlFor="password">Password</FieldLabel>
 
             <Link
-              to="/"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
+              to="/auth/forgot-password"
+              className="text-sm text-blue-600 hover:underline"
             >
               Forgot your password?
             </Link>

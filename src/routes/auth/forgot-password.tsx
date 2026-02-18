@@ -4,9 +4,7 @@ import ForgotPass from "@/features/login/components/pages/forgot-pass";
 
 export const Route = createFileRoute("/auth/forgot-password")({
   validateSearch: (search: Record<string, unknown>) => {
-    return {
-      token: (search.token as string) || "",
-    };
+    return {};
   },
   component: ForgotPass,
 });
