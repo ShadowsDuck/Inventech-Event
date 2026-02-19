@@ -23,7 +23,7 @@ const PERIOD_MAP: Record<string, number> = { Morning: 1, Afternoon: 2 };
 
 export default function EditEvent() {
   const navigate = useNavigate();
-  const { eventId } = useParams({ from: "/_auth/event/$eventId/edit" });
+  const { eventId } = useParams({ from: "/_auth/_admin/event/$eventId/edit" });
 
   // 1. Fetch Data
   const { data: eventData } = useSuspenseQuery(eventQuery(eventId));

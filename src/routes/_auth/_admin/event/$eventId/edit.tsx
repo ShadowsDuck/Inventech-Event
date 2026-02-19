@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { eventQuery } from "@/features/event/api/getEventById";
 import EditEvent from "@/features/event/components/EditEvent";
 
-export const Route = createFileRoute("/_auth/event/$eventId/edit")({
+export const Route = createFileRoute("/_auth/_admin/event/$eventId/edit")({
   component: EditEvent,
   staticData: {
     title: "Edit Eventd",

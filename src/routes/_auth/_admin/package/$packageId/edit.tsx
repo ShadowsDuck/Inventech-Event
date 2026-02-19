@@ -4,7 +4,7 @@ import { equipmentQuery } from "@/features/equipment/api/getEquipment";
 import { packageByIdQuery } from "@/features/package/api/getPackageById";
 import EditPackage from "@/features/package/components/pages/EditPackage";
 
-export const Route = createFileRoute("/_auth/package/$packageId/edit")({
+export const Route = createFileRoute("/_auth/_admin/package/$packageId/edit")({
   component: EditPackage,
   staticData: {
     title: "Edit Package",

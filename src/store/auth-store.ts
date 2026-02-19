@@ -60,4 +60,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       return null;
     }
   },
+
+  isAdmin: () => {
+    const permissions = get().user?.permission;
+    if (!permissions) return false;
+
+    return Array.isArray(permissions)
+      ? permissions.includes("admin")
+      : permissions === "admin";
+  },
 }));

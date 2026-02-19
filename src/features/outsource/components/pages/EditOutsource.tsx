@@ -10,7 +10,7 @@ import { type OutsourceData, OutsourceForm } from "../outsource-form";
 export default function EditOutsource() {
   const navigate = useNavigate();
   const { outsourceId } = useParams({
-    from: "/_auth/outsource/$outsourceId/edit",
+    from: "/_auth/_admin/outsource/$outsourceId/edit",
   });
 
   const { data: outsourceData } = useSuspenseQuery(

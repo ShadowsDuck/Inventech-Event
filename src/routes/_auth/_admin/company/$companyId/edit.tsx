@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { companyQuery } from "@/features/company/api/getCompany";
 import EditCompany from "@/features/company/components/pages/EditCompany";
 
-export const Route = createFileRoute("/_auth/company/$companyId/edit")({
+export const Route = createFileRoute("/_auth/_admin/company/$companyId/edit")({
   component: EditCompany,
   staticData: {
     title: "Edit Company",

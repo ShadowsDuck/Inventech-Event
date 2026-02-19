@@ -10,7 +10,7 @@ import { type StaffData, StaffForm } from "../staff-form";
 export default function EditStaff() {
   const navigate = useNavigate();
 
-  const { staffId } = useParams({ from: "/_auth/staff/$staffId/edit" });
+  const { staffId } = useParams({ from: "/_auth/_admin/staff/$staffId/edit" });
   const { data: staffData } = useSuspenseQuery(staffByIdQuery(staffId));
   const { mutate, isPending: isSaving } = useUpdateStaff();
 

@@ -22,4 +22,5 @@ export interface StaffType {
   updatedAt?: string;
   isPending: boolean;
   staffRoles: RoleType[];
+  permission?: string | string[];
 }
