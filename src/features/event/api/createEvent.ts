@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import axios, { isAxiosError } from "axios";
 import { format } from "date-fns";
 
+import { api } from "@/lib/axios";
 import type { EventType } from "@/types/event";
 
 import type { EventData } from "../components/event-schema";
@@ -147,7 +148,7 @@ const createEvent = async (
   }
 
   try {
-    const { data } = await axios.post<EventType>(
+    const { data } = await api.post<EventType>(
       `${API_URL}/api/events`,
       formData,
     );

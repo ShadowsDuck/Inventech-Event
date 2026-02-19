@@ -21,6 +21,7 @@ import {
   PrimaryContactCard,
   StandardContactCard,
 } from "./../company-contact-card";
+import { CompanyHistoryTab } from "./companyevent";
 
 export default function CompanyDetail() {
   const [activeTab, setActiveTab] = useState<"overview" | "history">(
@@ -150,11 +151,8 @@ export default function CompanyDetail() {
 
       {activeTab === "history" && (
         <div className="flex flex-col gap-4 p-6">
-          <h1 className="font-bold">Project History</h1>
-          {/*<DataTable
-            columns={companyProjectsColumns}
-            data={company.events || []}
-          />*/}
+          <h1 className="text-lg font-bold">Project History</h1>
+          <CompanyHistoryTab companyId={companyId} />
         </div>
       )}
     </>

@@ -20,5 +20,6 @@ export interface StaffType {
   status: string;
   createdAt: string;
   updatedAt?: string;
+  isPending: boolean;
   staffRoles: RoleType[];
 }

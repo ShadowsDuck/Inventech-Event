@@ -1,4 +1,5 @@
 import { type ColumnDef } from "@tanstack/react-table";
+import { Clock } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -34,8 +35,19 @@ export const staffColumns: ColumnDef<StaffType>[] = [
           </Avatar>
 
           {/* 3. ส่วนชื่อ (Code เดิม) */}
-          <div className="truncate font-medium" title={fullName}>
-            {fullName}
+          <div className="flex min-w-0 flex-col">
+            <div className="truncate font-medium" title={fullName}>
+              {fullName}
+            </div>
+
+            {staff.isPending && (
+              <div className="mt-1 flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-1 rounded-md border border-amber-500 bg-amber-200/50 px-1 py-0.5 text-[10px] font-bold tracking-wider text-amber-700 uppercase">
+                  <Clock className="size-3" />
+                  <span>Pending Invite</span>
+                </span>
+              </div>
+            )}
           </div>
         </div>
       );
