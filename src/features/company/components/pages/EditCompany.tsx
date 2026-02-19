@@ -10,7 +10,9 @@ import { type CompanyData, CompanyForm } from "../company-form";
 export default function EditCompany() {
   const navigate = useNavigate();
 
-  const { companyId } = useParams({ from: "/_auth/company/$companyId/edit" });
+  const { companyId } = useParams({
+    from: "/_auth/_admin/company/$companyId/edit",
+  });
   const { data: companyData } = useSuspenseQuery(companyQuery(companyId));
   const { mutate, isPending: isSaving } = useUpdateCompany();
 

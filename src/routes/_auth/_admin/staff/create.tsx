@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { rolesQuery } from "@/features/staff/api/getRoles";
 import AddStaff from "@/features/staff/components/pages/AddStaff";
 
-export const Route = createFileRoute("/_auth/staff/create")({
+export const Route = createFileRoute("/_auth/_admin/staff/create")({
   component: AddStaff,
   staticData: {
     title: "Add Staff",

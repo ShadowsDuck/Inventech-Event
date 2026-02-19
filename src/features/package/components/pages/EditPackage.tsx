@@ -9,7 +9,9 @@ import PackageForm from "../package-form";
 export default function EditPackage() {
   const navigate = useNavigate();
 
-  const { packageId } = useParams({ from: "/_auth/package/$packageId/edit" });
+  const { packageId } = useParams({
+    from: "/_auth/_admin/package/$packageId/edit",
+  });
   const { data: packageData } = useSuspenseQuery(packageByIdQuery(packageId));
   const { mutate, isPending: isSaving } = useEditPackage();
 

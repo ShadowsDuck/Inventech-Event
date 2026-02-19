@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { staffByIdQuery } from "@/features/staff/api/getStaffById";
 import EditStaff from "@/features/staff/components/pages/EditStaff";
 
-export const Route = createFileRoute("/_auth/staff/$staffId/edit")({
+export const Route = createFileRoute("/_auth/_admin/staff/$staffId/edit")({
   component: EditStaff,
   staticData: {
     title: "Edit Staff",

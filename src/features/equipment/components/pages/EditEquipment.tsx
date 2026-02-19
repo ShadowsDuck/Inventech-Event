@@ -8,7 +8,7 @@ import { type EquipmentData, EquipmentForm } from "../equipment-form";
 export default function EditEquipment() {
   const navigate = useNavigate();
   const { equipmentId } = useParams({
-    from: "/_auth/equipment/$equipmentId/edit",
+    from: "/_auth/_admin/equipment/$equipmentId/edit",
   });
 
   const { data: equipmentData } = useSuspenseQuery(
