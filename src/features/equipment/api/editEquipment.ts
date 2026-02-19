@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
+
+import { api } from "@/lib/axios";
 
 // 1. import axios และ helper สำหรับจัดการ error
 
@@ -16,7 +18,7 @@ const UpdateEquipment = async ({
   ...data
 }: UpdateEquipmentData): Promise<void> => {
   try {
-    await axios.put(`${API_URL}/api/equipments/${id}`, data);
+    await api.put(`${API_URL}/api/equipments/${id}`, data);
 
     return; // ส่งค่ากลับเป็น void ตามเดิม
   } catch (error) {

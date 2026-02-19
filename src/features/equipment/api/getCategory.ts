@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import axios from "axios";
 
+import { api } from "@/lib/axios";
 // 1. import axios
 
 import type { CategoryType } from "@/types/equipment";
@@ -8,7 +8,7 @@ import type { CategoryType } from "@/types/equipment";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const getCategory = async (): Promise<CategoryType[]> => {
-  const { data } = await axios.get<CategoryType[]>(`${API_URL}/api/categories`);
+  const { data } = await api.get<CategoryType[]>(`${API_URL}/api/categories`);
 
   return data;
 };

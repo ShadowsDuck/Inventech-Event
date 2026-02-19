@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
+
+import { api } from "@/lib/axios";
 
 // 1. import axios
 
@@ -17,7 +19,7 @@ const updateOutsource = async ({
 }: UpdateOutsourceData): Promise<void> => {
   try {
     // 2. ใช้ axios.put
-    await axios.put(`${API_URL}/api/outsources/${id}`, data);
+    await api.put(`${API_URL}/api/outsources/${id}`, data);
 
     return;
   } catch (error) {

@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
-import axios from "axios";
 
-import type { OutsourceParams } from "@/routes/_sidebarLayout/outsource";
+import { api } from "@/lib/axios";
+import type { OutsourceParams } from "@/routes/_auth/_sidebarLayout/outsource";
 import type { OutsourceType } from "@/types/outsource";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -9,12 +9,9 @@ const API_URL = import.meta.env.VITE_API_URL;
 const getOutsources = async (
   params?: OutsourceParams,
 ): Promise<OutsourceType[]> => {
-  const { data } = await axios.get<OutsourceType[]>(
-    `${API_URL}/api/outsources`,
-    {
-      params: params,
-    },
-  );
+  const { data } = await api.get<OutsourceType[]>(`${API_URL}/api/outsources`, {
+    params: params,
+  });
 
   return data;
 };

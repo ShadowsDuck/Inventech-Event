@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
+
+import { api } from "@/lib/axios";
 
 import type { StaffData } from "../components/staff-form";
 
@@ -27,7 +29,7 @@ const createStaff = async (newStaff: StaffData): Promise<void> => {
   }
 
   try {
-    await axios.post(`${API_URL}/api/staff`, formData);
+    await api.post(`${API_URL}/api/staff`, formData);
 
     return;
   } catch (error) {

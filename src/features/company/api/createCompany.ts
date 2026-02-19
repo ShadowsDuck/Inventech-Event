@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
 
+import { api } from "@/lib/axios";
 // 1. import axios
 
 import type { CompanyType } from "@/types/company";
@@ -13,7 +14,7 @@ const createCompany = async (newCompany: CompanyData): Promise<CompanyType> => {
   try {
     // 2. ใช้ axios.post แทน fetch
 
-    const { data } = await axios.post(`${API_URL}/api/companies`, newCompany);
+    const { data } = await api.post(`${API_URL}/api/companies`, newCompany);
 
     return data;
   } catch (error) {

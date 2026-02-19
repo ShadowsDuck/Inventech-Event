@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
+
+import { api } from "@/lib/axios";
 
 // 1. Import axios และ helper
 
@@ -18,7 +20,7 @@ const updatePackage = async ({
   try {
     // 2. ใช้ axios.put
     // ส่ง id ไปกับ URL และส่ง data ไปเป็น body ได้เลย (ไม่ต้อง JSON.stringify)
-    await axios.put(`${API_URL}/api/packages/${id}`, data);
+    await api.put(`${API_URL}/api/packages/${id}`, data);
 
     return;
   } catch (error) {

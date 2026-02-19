@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
 
+import { api } from "@/lib/axios";
 import type { EquipmentType } from "@/types/equipment";
 
 import type { EquipmentData } from "../components/equipment-form";
@@ -10,10 +11,7 @@ const createEquipment = async (
   newEquipment: EquipmentData,
 ): Promise<EquipmentType> => {
   try {
-    const { data } = await axios.post(
-      `${API_URL}/api/equipments`,
-      newEquipment,
-    );
+    const { data } = await api.post(`${API_URL}/api/equipments`, newEquipment);
     return data;
   } catch (error) {
     if (isAxiosError(error) && error.response) {

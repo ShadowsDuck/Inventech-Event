@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
+
+import { api } from "@/lib/axios";
 
 import type { OutsourceData } from "../components/outsource-form";
 
@@ -7,7 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const createOutsource = async (newOutsource: OutsourceData): Promise<void> => {
   try {
-    await axios.post(`${API_URL}/api/outsources`, newOutsource);
+    await api.post(`${API_URL}/api/outsources`, newOutsource);
 
     return;
   } catch (error) {

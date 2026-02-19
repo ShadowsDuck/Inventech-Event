@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
+
+import { api } from "@/lib/axios";
 
 // 1. import axios
 
@@ -42,7 +44,7 @@ const updateStaff = async ({ id, ...data }: UpdateStaffData): Promise<void> => {
 
   try {
     // 2. ใช้ axios.put
-    await axios.put(`${API_URL}/api/staff/${id}`, formData);
+    await api.put(`${API_URL}/api/staff/${id}`, formData);
 
     return;
   } catch (error) {

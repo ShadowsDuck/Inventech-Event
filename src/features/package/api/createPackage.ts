@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
+
+import { api } from "@/lib/axios";
 
 // 1. Import axios และ helper
 
@@ -10,7 +12,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const createPackage = async (newPackage: PackageData): Promise<void> => {
   try {
     // 2. ใช้ axios.post ส่ง object ไปได้เลย
-    await axios.post(`${API_URL}/api/packages`, newPackage);
+    await api.post(`${API_URL}/api/packages`, newPackage);
 
     return;
   } catch (error) {
