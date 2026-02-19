@@ -36,6 +36,7 @@ export const StaffSchema = z.object({
     .union([z.instanceof(File), z.string()])
     .optional()
     .nullable(),
+  resendInvite: z.boolean().optional(),
 });
 
 export type StaffData = z.infer<typeof StaffSchema>;
@@ -73,6 +74,7 @@ export function StaffForm({
       staffRoles: initialValues?.staffRoles ?? [],
       isDeleted: initialValues?.isDeleted ?? false,
       avatar: initialValues?.avatar ?? null,
+      resendInvite: false,
     } as StaffData,
     validators: {
       onChange: StaffSchema,
@@ -82,6 +84,7 @@ export function StaffForm({
       modeAfterSubmission: "blur",
     }),
     onSubmit: async ({ value }) => {
+      // ข้อมูล value ตอนนี้จะมี resendInvite: true/false ติดไปด้วยอัตโนมัติ
       onSubmit(value);
     },
   });
@@ -163,16 +166,12 @@ export function StaffForm({
                       <AvatarUpload
                         key={resetKey}
                         maxSize={5 * 1024 * 1024}
-                        // ถ้าค่าใน Form เป็น String (URL) ให้แสดงเป็นรูปเริ่มต้น
-                        // ถ้าเป็น File (อัปใหม่) Component จะจัดการ Preview เอง
                         defaultAvatar={
                           typeof field.state.value === "string"
                             ? getImageUrl(field.state.value)
                             : undefined
                         }
                         onFileChange={(fileWithPreview) => {
-                          // ถ้ามีไฟล์ส่งมา ให้เก็บ File object
-                          // ถ้าเป็น null (ลบ) ให้เก็บ null
                           field.handleChange(
                             fileWithPreview
                               ? (fileWithPreview.file as File)
@@ -180,7 +179,6 @@ export function StaffForm({
                           );
                         }}
                       />
-                      {/* แสดง Error Message จาก Form Validations (ถ้ามี) */}
                       {field.state.meta.errors.length > 0 && (
                         <p className="text-destructive mt-2 animate-pulse text-center text-sm font-medium">
                           {field.state.meta.errors.join(", ")}
@@ -244,6 +242,37 @@ export function StaffForm({
                   />
                 )}
               />
+
+              {/* 5. Checkbox ส่งคำเชิญใหม่ (แสดงเฉพาะ Edit Mode) */}
+              {mode === "edit" && (
+                <form.AppField
+                  name="resendInvite"
+                  children={(field) => (
+                    <div className="mt-4 rounded-md border border-yellow-200 bg-yellow-50 p-4">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id="resend-checkbox"
+                          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          checked={field.state.value || false}
+                          onChange={(e) => field.handleChange(e.target.checked)}
+                        />
+                        <label
+                          htmlFor="resend-checkbox"
+                          className="cursor-pointer text-sm font-medium text-gray-800 select-none"
+                        >
+                          ส่งอีเมลคำเชิญใหม่ (Resend Invitation Email)
+                          <span className="mt-1 block text-xs font-normal text-gray-500">
+                            ติ๊กเลือกหากต้องการบังคับส่งอีเมลคำเชิญใหม่ เช่น
+                            กรณีพนักงานยังไม่ได้รับอีเมล หรือเหตุการ
+                            พี่ส่งมาใหม่ได้ป้ะของผมมันหมดเวลาแล้วอะ
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                />
+              )}
             </form>
           </CardContent>
         </Card>

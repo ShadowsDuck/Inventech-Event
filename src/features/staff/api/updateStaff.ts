@@ -34,7 +34,9 @@ const updateStaff = async ({ id, ...data }: UpdateStaffData): Promise<void> => {
       formData.append("StaffRoles", roleId.toString());
     });
   }
-
+  if (data.resendInvite) {
+    formData.append("ResendInvite", "true");
+  }
   formData.append("IsDeleted", data.isDeleted.toString());
   // ---------------------------------------
 
