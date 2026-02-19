@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { outsourceByIdQuery } from "@/features/outsource/api/getOutsourceById";
 import EditOutsource from "@/features/outsource/components/pages/EditOutsource";
 
-export const Route = createFileRoute("/_auth/outsource/$outsourceId/edit")({
+export const Route = createFileRoute("/_auth/_admin/outsource/$outsourceId/edit")({
   component: EditOutsource,
   staticData: {
     title: "Edit Outsource",

@@ -14,29 +14,30 @@ import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as AuthSetPasswordRouteImport } from './routes/auth/set-password'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthSidebarLayoutRouteRouteImport } from './routes/_auth/_sidebarLayout/route'
+import { Route as AuthAdminRouteRouteImport } from './routes/_auth/_admin/route'
 import { Route as AuthSidebarLayoutIndexRouteImport } from './routes/_auth/_sidebarLayout/index'
-import { Route as AuthStaffCreateRouteImport } from './routes/_auth/staff/create'
 import { Route as AuthProfileChangePasswordRouteImport } from './routes/_auth/profile/change-password'
-import { Route as AuthPackageCreateRouteImport } from './routes/_auth/package/create'
-import { Route as AuthOutsourceCreateRouteImport } from './routes/_auth/outsource/create'
-import { Route as AuthEventCreateRouteImport } from './routes/_auth/event/create'
-import { Route as AuthEquipmentCreateRouteImport } from './routes/_auth/equipment/create'
-import { Route as AuthCompanyCreateRouteImport } from './routes/_auth/company/create'
 import { Route as AuthSidebarLayoutPackageRouteImport } from './routes/_auth/_sidebarLayout/package'
 import { Route as AuthSidebarLayoutEquipmentRouteImport } from './routes/_auth/_sidebarLayout/equipment'
 import { Route as AuthSidebarLayoutStaffIndexRouteImport } from './routes/_auth/_sidebarLayout/staff/index'
 import { Route as AuthSidebarLayoutOutsourceIndexRouteImport } from './routes/_auth/_sidebarLayout/outsource/index'
 import { Route as AuthSidebarLayoutEventIndexRouteImport } from './routes/_auth/_sidebarLayout/event/index'
 import { Route as AuthSidebarLayoutCompanyIndexRouteImport } from './routes/_auth/_sidebarLayout/company/index'
-import { Route as AuthStaffStaffIdEditRouteImport } from './routes/_auth/staff/$staffId/edit'
-import { Route as AuthPackagePackageIdEditRouteImport } from './routes/_auth/package/$packageId/edit'
-import { Route as AuthOutsourceOutsourceIdEditRouteImport } from './routes/_auth/outsource/$outsourceId/edit'
-import { Route as AuthEventEventIdEditRouteImport } from './routes/_auth/event/$eventId/edit'
-import { Route as AuthEquipmentEquipmentIdEditRouteImport } from './routes/_auth/equipment/$equipmentId/edit'
-import { Route as AuthCompanyCompanyIdEditRouteImport } from './routes/_auth/company/$companyId/edit'
 import { Route as AuthSidebarLayoutStaffStaffIdRouteImport } from './routes/_auth/_sidebarLayout/staff/$staffId'
 import { Route as AuthSidebarLayoutEventEventIdRouteImport } from './routes/_auth/_sidebarLayout/event/$eventId'
 import { Route as AuthSidebarLayoutCompanyCompanyIdRouteImport } from './routes/_auth/_sidebarLayout/company/$companyId'
+import { Route as AuthAdminStaffCreateRouteImport } from './routes/_auth/_admin/staff/create'
+import { Route as AuthAdminPackageCreateRouteImport } from './routes/_auth/_admin/package/create'
+import { Route as AuthAdminOutsourceCreateRouteImport } from './routes/_auth/_admin/outsource/create'
+import { Route as AuthAdminEventCreateRouteImport } from './routes/_auth/_admin/event/create'
+import { Route as AuthAdminEquipmentCreateRouteImport } from './routes/_auth/_admin/equipment/create'
+import { Route as AuthAdminCompanyCreateRouteImport } from './routes/_auth/_admin/company/create'
+import { Route as AuthAdminStaffStaffIdEditRouteImport } from './routes/_auth/_admin/staff/$staffId/edit'
+import { Route as AuthAdminPackagePackageIdEditRouteImport } from './routes/_auth/_admin/package/$packageId/edit'
+import { Route as AuthAdminOutsourceOutsourceIdEditRouteImport } from './routes/_auth/_admin/outsource/$outsourceId/edit'
+import { Route as AuthAdminEventEventIdEditRouteImport } from './routes/_auth/_admin/event/$eventId/edit'
+import { Route as AuthAdminEquipmentEquipmentIdEditRouteImport } from './routes/_auth/_admin/equipment/$equipmentId/edit'
+import { Route as AuthAdminCompanyCompanyIdEditRouteImport } from './routes/_auth/_admin/company/$companyId/edit'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/_auth',
@@ -61,15 +62,14 @@ const AuthSidebarLayoutRouteRoute = AuthSidebarLayoutRouteRouteImport.update({
   id: '/_sidebarLayout',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AuthAdminRouteRoute = AuthAdminRouteRouteImport.update({
+  id: '/_admin',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 const AuthSidebarLayoutIndexRoute = AuthSidebarLayoutIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthSidebarLayoutRouteRoute,
-} as any)
-const AuthStaffCreateRoute = AuthStaffCreateRouteImport.update({
-  id: '/staff/create',
-  path: '/staff/create',
-  getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthProfileChangePasswordRoute =
   AuthProfileChangePasswordRouteImport.update({
@@ -77,31 +77,6 @@ const AuthProfileChangePasswordRoute =
     path: '/profile/change-password',
     getParentRoute: () => AuthRouteRoute,
   } as any)
-const AuthPackageCreateRoute = AuthPackageCreateRouteImport.update({
-  id: '/package/create',
-  path: '/package/create',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthOutsourceCreateRoute = AuthOutsourceCreateRouteImport.update({
-  id: '/outsource/create',
-  path: '/outsource/create',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthEventCreateRoute = AuthEventCreateRouteImport.update({
-  id: '/event/create',
-  path: '/event/create',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthEquipmentCreateRoute = AuthEquipmentCreateRouteImport.update({
-  id: '/equipment/create',
-  path: '/equipment/create',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthCompanyCreateRoute = AuthCompanyCreateRouteImport.update({
-  id: '/company/create',
-  path: '/company/create',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
 const AuthSidebarLayoutPackageRoute =
   AuthSidebarLayoutPackageRouteImport.update({
     id: '/package',
@@ -138,40 +113,6 @@ const AuthSidebarLayoutCompanyIndexRoute =
     path: '/company/',
     getParentRoute: () => AuthSidebarLayoutRouteRoute,
   } as any)
-const AuthStaffStaffIdEditRoute = AuthStaffStaffIdEditRouteImport.update({
-  id: '/staff/$staffId/edit',
-  path: '/staff/$staffId/edit',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthPackagePackageIdEditRoute =
-  AuthPackagePackageIdEditRouteImport.update({
-    id: '/package/$packageId/edit',
-    path: '/package/$packageId/edit',
-    getParentRoute: () => AuthRouteRoute,
-  } as any)
-const AuthOutsourceOutsourceIdEditRoute =
-  AuthOutsourceOutsourceIdEditRouteImport.update({
-    id: '/outsource/$outsourceId/edit',
-    path: '/outsource/$outsourceId/edit',
-    getParentRoute: () => AuthRouteRoute,
-  } as any)
-const AuthEventEventIdEditRoute = AuthEventEventIdEditRouteImport.update({
-  id: '/event/$eventId/edit',
-  path: '/event/$eventId/edit',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthEquipmentEquipmentIdEditRoute =
-  AuthEquipmentEquipmentIdEditRouteImport.update({
-    id: '/equipment/$equipmentId/edit',
-    path: '/equipment/$equipmentId/edit',
-    getParentRoute: () => AuthRouteRoute,
-  } as any)
-const AuthCompanyCompanyIdEditRoute =
-  AuthCompanyCompanyIdEditRouteImport.update({
-    id: '/company/$companyId/edit',
-    path: '/company/$companyId/edit',
-    getParentRoute: () => AuthRouteRoute,
-  } as any)
 const AuthSidebarLayoutStaffStaffIdRoute =
   AuthSidebarLayoutStaffStaffIdRouteImport.update({
     id: '/staff/$staffId',
@@ -190,6 +131,74 @@ const AuthSidebarLayoutCompanyCompanyIdRoute =
     path: '/company/$companyId',
     getParentRoute: () => AuthSidebarLayoutRouteRoute,
   } as any)
+const AuthAdminStaffCreateRoute = AuthAdminStaffCreateRouteImport.update({
+  id: '/staff/create',
+  path: '/staff/create',
+  getParentRoute: () => AuthAdminRouteRoute,
+} as any)
+const AuthAdminPackageCreateRoute = AuthAdminPackageCreateRouteImport.update({
+  id: '/package/create',
+  path: '/package/create',
+  getParentRoute: () => AuthAdminRouteRoute,
+} as any)
+const AuthAdminOutsourceCreateRoute =
+  AuthAdminOutsourceCreateRouteImport.update({
+    id: '/outsource/create',
+    path: '/outsource/create',
+    getParentRoute: () => AuthAdminRouteRoute,
+  } as any)
+const AuthAdminEventCreateRoute = AuthAdminEventCreateRouteImport.update({
+  id: '/event/create',
+  path: '/event/create',
+  getParentRoute: () => AuthAdminRouteRoute,
+} as any)
+const AuthAdminEquipmentCreateRoute =
+  AuthAdminEquipmentCreateRouteImport.update({
+    id: '/equipment/create',
+    path: '/equipment/create',
+    getParentRoute: () => AuthAdminRouteRoute,
+  } as any)
+const AuthAdminCompanyCreateRoute = AuthAdminCompanyCreateRouteImport.update({
+  id: '/company/create',
+  path: '/company/create',
+  getParentRoute: () => AuthAdminRouteRoute,
+} as any)
+const AuthAdminStaffStaffIdEditRoute =
+  AuthAdminStaffStaffIdEditRouteImport.update({
+    id: '/staff/$staffId/edit',
+    path: '/staff/$staffId/edit',
+    getParentRoute: () => AuthAdminRouteRoute,
+  } as any)
+const AuthAdminPackagePackageIdEditRoute =
+  AuthAdminPackagePackageIdEditRouteImport.update({
+    id: '/package/$packageId/edit',
+    path: '/package/$packageId/edit',
+    getParentRoute: () => AuthAdminRouteRoute,
+  } as any)
+const AuthAdminOutsourceOutsourceIdEditRoute =
+  AuthAdminOutsourceOutsourceIdEditRouteImport.update({
+    id: '/outsource/$outsourceId/edit',
+    path: '/outsource/$outsourceId/edit',
+    getParentRoute: () => AuthAdminRouteRoute,
+  } as any)
+const AuthAdminEventEventIdEditRoute =
+  AuthAdminEventEventIdEditRouteImport.update({
+    id: '/event/$eventId/edit',
+    path: '/event/$eventId/edit',
+    getParentRoute: () => AuthAdminRouteRoute,
+  } as any)
+const AuthAdminEquipmentEquipmentIdEditRoute =
+  AuthAdminEquipmentEquipmentIdEditRouteImport.update({
+    id: '/equipment/$equipmentId/edit',
+    path: '/equipment/$equipmentId/edit',
+    getParentRoute: () => AuthAdminRouteRoute,
+  } as any)
+const AuthAdminCompanyCompanyIdEditRoute =
+  AuthAdminCompanyCompanyIdEditRouteImport.update({
+    id: '/company/$companyId/edit',
+    path: '/company/$companyId/edit',
+    getParentRoute: () => AuthAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -197,27 +206,27 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginIndexRoute
   '/equipment': typeof AuthSidebarLayoutEquipmentRoute
   '/package': typeof AuthSidebarLayoutPackageRoute
-  '/company/create': typeof AuthCompanyCreateRoute
-  '/equipment/create': typeof AuthEquipmentCreateRoute
-  '/event/create': typeof AuthEventCreateRoute
-  '/outsource/create': typeof AuthOutsourceCreateRoute
-  '/package/create': typeof AuthPackageCreateRoute
   '/profile/change-password': typeof AuthProfileChangePasswordRoute
-  '/staff/create': typeof AuthStaffCreateRoute
   '/': typeof AuthSidebarLayoutIndexRoute
+  '/company/create': typeof AuthAdminCompanyCreateRoute
+  '/equipment/create': typeof AuthAdminEquipmentCreateRoute
+  '/event/create': typeof AuthAdminEventCreateRoute
+  '/outsource/create': typeof AuthAdminOutsourceCreateRoute
+  '/package/create': typeof AuthAdminPackageCreateRoute
+  '/staff/create': typeof AuthAdminStaffCreateRoute
   '/company/$companyId': typeof AuthSidebarLayoutCompanyCompanyIdRoute
   '/event/$eventId': typeof AuthSidebarLayoutEventEventIdRoute
   '/staff/$staffId': typeof AuthSidebarLayoutStaffStaffIdRoute
-  '/company/$companyId/edit': typeof AuthCompanyCompanyIdEditRoute
-  '/equipment/$equipmentId/edit': typeof AuthEquipmentEquipmentIdEditRoute
-  '/event/$eventId/edit': typeof AuthEventEventIdEditRoute
-  '/outsource/$outsourceId/edit': typeof AuthOutsourceOutsourceIdEditRoute
-  '/package/$packageId/edit': typeof AuthPackagePackageIdEditRoute
-  '/staff/$staffId/edit': typeof AuthStaffStaffIdEditRoute
   '/company': typeof AuthSidebarLayoutCompanyIndexRoute
   '/event': typeof AuthSidebarLayoutEventIndexRoute
   '/outsource': typeof AuthSidebarLayoutOutsourceIndexRoute
   '/staff': typeof AuthSidebarLayoutStaffIndexRoute
+  '/company/$companyId/edit': typeof AuthAdminCompanyCompanyIdEditRoute
+  '/equipment/$equipmentId/edit': typeof AuthAdminEquipmentEquipmentIdEditRoute
+  '/event/$eventId/edit': typeof AuthAdminEventEventIdEditRoute
+  '/outsource/$outsourceId/edit': typeof AuthAdminOutsourceOutsourceIdEditRoute
+  '/package/$packageId/edit': typeof AuthAdminPackagePackageIdEditRoute
+  '/staff/$staffId/edit': typeof AuthAdminStaffStaffIdEditRoute
 }
 export interface FileRoutesByTo {
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -225,58 +234,59 @@ export interface FileRoutesByTo {
   '/login': typeof LoginIndexRoute
   '/equipment': typeof AuthSidebarLayoutEquipmentRoute
   '/package': typeof AuthSidebarLayoutPackageRoute
-  '/company/create': typeof AuthCompanyCreateRoute
-  '/equipment/create': typeof AuthEquipmentCreateRoute
-  '/event/create': typeof AuthEventCreateRoute
-  '/outsource/create': typeof AuthOutsourceCreateRoute
-  '/package/create': typeof AuthPackageCreateRoute
   '/profile/change-password': typeof AuthProfileChangePasswordRoute
-  '/staff/create': typeof AuthStaffCreateRoute
   '/': typeof AuthSidebarLayoutIndexRoute
+  '/company/create': typeof AuthAdminCompanyCreateRoute
+  '/equipment/create': typeof AuthAdminEquipmentCreateRoute
+  '/event/create': typeof AuthAdminEventCreateRoute
+  '/outsource/create': typeof AuthAdminOutsourceCreateRoute
+  '/package/create': typeof AuthAdminPackageCreateRoute
+  '/staff/create': typeof AuthAdminStaffCreateRoute
   '/company/$companyId': typeof AuthSidebarLayoutCompanyCompanyIdRoute
   '/event/$eventId': typeof AuthSidebarLayoutEventEventIdRoute
   '/staff/$staffId': typeof AuthSidebarLayoutStaffStaffIdRoute
-  '/company/$companyId/edit': typeof AuthCompanyCompanyIdEditRoute
-  '/equipment/$equipmentId/edit': typeof AuthEquipmentEquipmentIdEditRoute
-  '/event/$eventId/edit': typeof AuthEventEventIdEditRoute
-  '/outsource/$outsourceId/edit': typeof AuthOutsourceOutsourceIdEditRoute
-  '/package/$packageId/edit': typeof AuthPackagePackageIdEditRoute
-  '/staff/$staffId/edit': typeof AuthStaffStaffIdEditRoute
   '/company': typeof AuthSidebarLayoutCompanyIndexRoute
   '/event': typeof AuthSidebarLayoutEventIndexRoute
   '/outsource': typeof AuthSidebarLayoutOutsourceIndexRoute
   '/staff': typeof AuthSidebarLayoutStaffIndexRoute
+  '/company/$companyId/edit': typeof AuthAdminCompanyCompanyIdEditRoute
+  '/equipment/$equipmentId/edit': typeof AuthAdminEquipmentEquipmentIdEditRoute
+  '/event/$eventId/edit': typeof AuthAdminEventEventIdEditRoute
+  '/outsource/$outsourceId/edit': typeof AuthAdminOutsourceOutsourceIdEditRoute
+  '/package/$packageId/edit': typeof AuthAdminPackagePackageIdEditRoute
+  '/staff/$staffId/edit': typeof AuthAdminStaffStaffIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteRouteWithChildren
+  '/_auth/_admin': typeof AuthAdminRouteRouteWithChildren
   '/_auth/_sidebarLayout': typeof AuthSidebarLayoutRouteRouteWithChildren
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/set-password': typeof AuthSetPasswordRoute
   '/login/': typeof LoginIndexRoute
   '/_auth/_sidebarLayout/equipment': typeof AuthSidebarLayoutEquipmentRoute
   '/_auth/_sidebarLayout/package': typeof AuthSidebarLayoutPackageRoute
-  '/_auth/company/create': typeof AuthCompanyCreateRoute
-  '/_auth/equipment/create': typeof AuthEquipmentCreateRoute
-  '/_auth/event/create': typeof AuthEventCreateRoute
-  '/_auth/outsource/create': typeof AuthOutsourceCreateRoute
-  '/_auth/package/create': typeof AuthPackageCreateRoute
   '/_auth/profile/change-password': typeof AuthProfileChangePasswordRoute
-  '/_auth/staff/create': typeof AuthStaffCreateRoute
   '/_auth/_sidebarLayout/': typeof AuthSidebarLayoutIndexRoute
+  '/_auth/_admin/company/create': typeof AuthAdminCompanyCreateRoute
+  '/_auth/_admin/equipment/create': typeof AuthAdminEquipmentCreateRoute
+  '/_auth/_admin/event/create': typeof AuthAdminEventCreateRoute
+  '/_auth/_admin/outsource/create': typeof AuthAdminOutsourceCreateRoute
+  '/_auth/_admin/package/create': typeof AuthAdminPackageCreateRoute
+  '/_auth/_admin/staff/create': typeof AuthAdminStaffCreateRoute
   '/_auth/_sidebarLayout/company/$companyId': typeof AuthSidebarLayoutCompanyCompanyIdRoute
   '/_auth/_sidebarLayout/event/$eventId': typeof AuthSidebarLayoutEventEventIdRoute
   '/_auth/_sidebarLayout/staff/$staffId': typeof AuthSidebarLayoutStaffStaffIdRoute
-  '/_auth/company/$companyId/edit': typeof AuthCompanyCompanyIdEditRoute
-  '/_auth/equipment/$equipmentId/edit': typeof AuthEquipmentEquipmentIdEditRoute
-  '/_auth/event/$eventId/edit': typeof AuthEventEventIdEditRoute
-  '/_auth/outsource/$outsourceId/edit': typeof AuthOutsourceOutsourceIdEditRoute
-  '/_auth/package/$packageId/edit': typeof AuthPackagePackageIdEditRoute
-  '/_auth/staff/$staffId/edit': typeof AuthStaffStaffIdEditRoute
   '/_auth/_sidebarLayout/company/': typeof AuthSidebarLayoutCompanyIndexRoute
   '/_auth/_sidebarLayout/event/': typeof AuthSidebarLayoutEventIndexRoute
   '/_auth/_sidebarLayout/outsource/': typeof AuthSidebarLayoutOutsourceIndexRoute
   '/_auth/_sidebarLayout/staff/': typeof AuthSidebarLayoutStaffIndexRoute
+  '/_auth/_admin/company/$companyId/edit': typeof AuthAdminCompanyCompanyIdEditRoute
+  '/_auth/_admin/equipment/$equipmentId/edit': typeof AuthAdminEquipmentEquipmentIdEditRoute
+  '/_auth/_admin/event/$eventId/edit': typeof AuthAdminEventEventIdEditRoute
+  '/_auth/_admin/outsource/$outsourceId/edit': typeof AuthAdminOutsourceOutsourceIdEditRoute
+  '/_auth/_admin/package/$packageId/edit': typeof AuthAdminPackagePackageIdEditRoute
+  '/_auth/_admin/staff/$staffId/edit': typeof AuthAdminStaffStaffIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -286,27 +296,27 @@ export interface FileRouteTypes {
     | '/login'
     | '/equipment'
     | '/package'
+    | '/profile/change-password'
+    | '/'
     | '/company/create'
     | '/equipment/create'
     | '/event/create'
     | '/outsource/create'
     | '/package/create'
-    | '/profile/change-password'
     | '/staff/create'
-    | '/'
     | '/company/$companyId'
     | '/event/$eventId'
     | '/staff/$staffId'
+    | '/company'
+    | '/event'
+    | '/outsource'
+    | '/staff'
     | '/company/$companyId/edit'
     | '/equipment/$equipmentId/edit'
     | '/event/$eventId/edit'
     | '/outsource/$outsourceId/edit'
     | '/package/$packageId/edit'
     | '/staff/$staffId/edit'
-    | '/company'
-    | '/event'
-    | '/outsource'
-    | '/staff'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth/forgot-password'
@@ -314,57 +324,58 @@ export interface FileRouteTypes {
     | '/login'
     | '/equipment'
     | '/package'
+    | '/profile/change-password'
+    | '/'
     | '/company/create'
     | '/equipment/create'
     | '/event/create'
     | '/outsource/create'
     | '/package/create'
-    | '/profile/change-password'
     | '/staff/create'
-    | '/'
     | '/company/$companyId'
     | '/event/$eventId'
     | '/staff/$staffId'
+    | '/company'
+    | '/event'
+    | '/outsource'
+    | '/staff'
     | '/company/$companyId/edit'
     | '/equipment/$equipmentId/edit'
     | '/event/$eventId/edit'
     | '/outsource/$outsourceId/edit'
     | '/package/$packageId/edit'
     | '/staff/$staffId/edit'
-    | '/company'
-    | '/event'
-    | '/outsource'
-    | '/staff'
   id:
     | '__root__'
     | '/_auth'
+    | '/_auth/_admin'
     | '/_auth/_sidebarLayout'
     | '/auth/forgot-password'
     | '/auth/set-password'
     | '/login/'
     | '/_auth/_sidebarLayout/equipment'
     | '/_auth/_sidebarLayout/package'
-    | '/_auth/company/create'
-    | '/_auth/equipment/create'
-    | '/_auth/event/create'
-    | '/_auth/outsource/create'
-    | '/_auth/package/create'
     | '/_auth/profile/change-password'
-    | '/_auth/staff/create'
     | '/_auth/_sidebarLayout/'
+    | '/_auth/_admin/company/create'
+    | '/_auth/_admin/equipment/create'
+    | '/_auth/_admin/event/create'
+    | '/_auth/_admin/outsource/create'
+    | '/_auth/_admin/package/create'
+    | '/_auth/_admin/staff/create'
     | '/_auth/_sidebarLayout/company/$companyId'
     | '/_auth/_sidebarLayout/event/$eventId'
     | '/_auth/_sidebarLayout/staff/$staffId'
-    | '/_auth/company/$companyId/edit'
-    | '/_auth/equipment/$equipmentId/edit'
-    | '/_auth/event/$eventId/edit'
-    | '/_auth/outsource/$outsourceId/edit'
-    | '/_auth/package/$packageId/edit'
-    | '/_auth/staff/$staffId/edit'
     | '/_auth/_sidebarLayout/company/'
     | '/_auth/_sidebarLayout/event/'
     | '/_auth/_sidebarLayout/outsource/'
     | '/_auth/_sidebarLayout/staff/'
+    | '/_auth/_admin/company/$companyId/edit'
+    | '/_auth/_admin/equipment/$equipmentId/edit'
+    | '/_auth/_admin/event/$eventId/edit'
+    | '/_auth/_admin/outsource/$outsourceId/edit'
+    | '/_auth/_admin/package/$packageId/edit'
+    | '/_auth/_admin/staff/$staffId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -411,6 +422,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSidebarLayoutRouteRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/_admin': {
+      id: '/_auth/_admin'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthAdminRouteRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/_auth/_sidebarLayout/': {
       id: '/_auth/_sidebarLayout/'
       path: '/'
@@ -418,53 +436,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSidebarLayoutIndexRouteImport
       parentRoute: typeof AuthSidebarLayoutRouteRoute
     }
-    '/_auth/staff/create': {
-      id: '/_auth/staff/create'
-      path: '/staff/create'
-      fullPath: '/staff/create'
-      preLoaderRoute: typeof AuthStaffCreateRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
     '/_auth/profile/change-password': {
       id: '/_auth/profile/change-password'
       path: '/profile/change-password'
       fullPath: '/profile/change-password'
       preLoaderRoute: typeof AuthProfileChangePasswordRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/package/create': {
-      id: '/_auth/package/create'
-      path: '/package/create'
-      fullPath: '/package/create'
-      preLoaderRoute: typeof AuthPackageCreateRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/outsource/create': {
-      id: '/_auth/outsource/create'
-      path: '/outsource/create'
-      fullPath: '/outsource/create'
-      preLoaderRoute: typeof AuthOutsourceCreateRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/event/create': {
-      id: '/_auth/event/create'
-      path: '/event/create'
-      fullPath: '/event/create'
-      preLoaderRoute: typeof AuthEventCreateRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/equipment/create': {
-      id: '/_auth/equipment/create'
-      path: '/equipment/create'
-      fullPath: '/equipment/create'
-      preLoaderRoute: typeof AuthEquipmentCreateRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/company/create': {
-      id: '/_auth/company/create'
-      path: '/company/create'
-      fullPath: '/company/create'
-      preLoaderRoute: typeof AuthCompanyCreateRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/_auth/_sidebarLayout/package': {
@@ -509,48 +485,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSidebarLayoutCompanyIndexRouteImport
       parentRoute: typeof AuthSidebarLayoutRouteRoute
     }
-    '/_auth/staff/$staffId/edit': {
-      id: '/_auth/staff/$staffId/edit'
-      path: '/staff/$staffId/edit'
-      fullPath: '/staff/$staffId/edit'
-      preLoaderRoute: typeof AuthStaffStaffIdEditRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/package/$packageId/edit': {
-      id: '/_auth/package/$packageId/edit'
-      path: '/package/$packageId/edit'
-      fullPath: '/package/$packageId/edit'
-      preLoaderRoute: typeof AuthPackagePackageIdEditRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/outsource/$outsourceId/edit': {
-      id: '/_auth/outsource/$outsourceId/edit'
-      path: '/outsource/$outsourceId/edit'
-      fullPath: '/outsource/$outsourceId/edit'
-      preLoaderRoute: typeof AuthOutsourceOutsourceIdEditRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/event/$eventId/edit': {
-      id: '/_auth/event/$eventId/edit'
-      path: '/event/$eventId/edit'
-      fullPath: '/event/$eventId/edit'
-      preLoaderRoute: typeof AuthEventEventIdEditRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/equipment/$equipmentId/edit': {
-      id: '/_auth/equipment/$equipmentId/edit'
-      path: '/equipment/$equipmentId/edit'
-      fullPath: '/equipment/$equipmentId/edit'
-      preLoaderRoute: typeof AuthEquipmentEquipmentIdEditRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/company/$companyId/edit': {
-      id: '/_auth/company/$companyId/edit'
-      path: '/company/$companyId/edit'
-      fullPath: '/company/$companyId/edit'
-      preLoaderRoute: typeof AuthCompanyCompanyIdEditRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
     '/_auth/_sidebarLayout/staff/$staffId': {
       id: '/_auth/_sidebarLayout/staff/$staffId'
       path: '/staff/$staffId'
@@ -572,8 +506,128 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSidebarLayoutCompanyCompanyIdRouteImport
       parentRoute: typeof AuthSidebarLayoutRouteRoute
     }
+    '/_auth/_admin/staff/create': {
+      id: '/_auth/_admin/staff/create'
+      path: '/staff/create'
+      fullPath: '/staff/create'
+      preLoaderRoute: typeof AuthAdminStaffCreateRouteImport
+      parentRoute: typeof AuthAdminRouteRoute
+    }
+    '/_auth/_admin/package/create': {
+      id: '/_auth/_admin/package/create'
+      path: '/package/create'
+      fullPath: '/package/create'
+      preLoaderRoute: typeof AuthAdminPackageCreateRouteImport
+      parentRoute: typeof AuthAdminRouteRoute
+    }
+    '/_auth/_admin/outsource/create': {
+      id: '/_auth/_admin/outsource/create'
+      path: '/outsource/create'
+      fullPath: '/outsource/create'
+      preLoaderRoute: typeof AuthAdminOutsourceCreateRouteImport
+      parentRoute: typeof AuthAdminRouteRoute
+    }
+    '/_auth/_admin/event/create': {
+      id: '/_auth/_admin/event/create'
+      path: '/event/create'
+      fullPath: '/event/create'
+      preLoaderRoute: typeof AuthAdminEventCreateRouteImport
+      parentRoute: typeof AuthAdminRouteRoute
+    }
+    '/_auth/_admin/equipment/create': {
+      id: '/_auth/_admin/equipment/create'
+      path: '/equipment/create'
+      fullPath: '/equipment/create'
+      preLoaderRoute: typeof AuthAdminEquipmentCreateRouteImport
+      parentRoute: typeof AuthAdminRouteRoute
+    }
+    '/_auth/_admin/company/create': {
+      id: '/_auth/_admin/company/create'
+      path: '/company/create'
+      fullPath: '/company/create'
+      preLoaderRoute: typeof AuthAdminCompanyCreateRouteImport
+      parentRoute: typeof AuthAdminRouteRoute
+    }
+    '/_auth/_admin/staff/$staffId/edit': {
+      id: '/_auth/_admin/staff/$staffId/edit'
+      path: '/staff/$staffId/edit'
+      fullPath: '/staff/$staffId/edit'
+      preLoaderRoute: typeof AuthAdminStaffStaffIdEditRouteImport
+      parentRoute: typeof AuthAdminRouteRoute
+    }
+    '/_auth/_admin/package/$packageId/edit': {
+      id: '/_auth/_admin/package/$packageId/edit'
+      path: '/package/$packageId/edit'
+      fullPath: '/package/$packageId/edit'
+      preLoaderRoute: typeof AuthAdminPackagePackageIdEditRouteImport
+      parentRoute: typeof AuthAdminRouteRoute
+    }
+    '/_auth/_admin/outsource/$outsourceId/edit': {
+      id: '/_auth/_admin/outsource/$outsourceId/edit'
+      path: '/outsource/$outsourceId/edit'
+      fullPath: '/outsource/$outsourceId/edit'
+      preLoaderRoute: typeof AuthAdminOutsourceOutsourceIdEditRouteImport
+      parentRoute: typeof AuthAdminRouteRoute
+    }
+    '/_auth/_admin/event/$eventId/edit': {
+      id: '/_auth/_admin/event/$eventId/edit'
+      path: '/event/$eventId/edit'
+      fullPath: '/event/$eventId/edit'
+      preLoaderRoute: typeof AuthAdminEventEventIdEditRouteImport
+      parentRoute: typeof AuthAdminRouteRoute
+    }
+    '/_auth/_admin/equipment/$equipmentId/edit': {
+      id: '/_auth/_admin/equipment/$equipmentId/edit'
+      path: '/equipment/$equipmentId/edit'
+      fullPath: '/equipment/$equipmentId/edit'
+      preLoaderRoute: typeof AuthAdminEquipmentEquipmentIdEditRouteImport
+      parentRoute: typeof AuthAdminRouteRoute
+    }
+    '/_auth/_admin/company/$companyId/edit': {
+      id: '/_auth/_admin/company/$companyId/edit'
+      path: '/company/$companyId/edit'
+      fullPath: '/company/$companyId/edit'
+      preLoaderRoute: typeof AuthAdminCompanyCompanyIdEditRouteImport
+      parentRoute: typeof AuthAdminRouteRoute
+    }
   }
 }
+
+interface AuthAdminRouteRouteChildren {
+  AuthAdminCompanyCreateRoute: typeof AuthAdminCompanyCreateRoute
+  AuthAdminEquipmentCreateRoute: typeof AuthAdminEquipmentCreateRoute
+  AuthAdminEventCreateRoute: typeof AuthAdminEventCreateRoute
+  AuthAdminOutsourceCreateRoute: typeof AuthAdminOutsourceCreateRoute
+  AuthAdminPackageCreateRoute: typeof AuthAdminPackageCreateRoute
+  AuthAdminStaffCreateRoute: typeof AuthAdminStaffCreateRoute
+  AuthAdminCompanyCompanyIdEditRoute: typeof AuthAdminCompanyCompanyIdEditRoute
+  AuthAdminEquipmentEquipmentIdEditRoute: typeof AuthAdminEquipmentEquipmentIdEditRoute
+  AuthAdminEventEventIdEditRoute: typeof AuthAdminEventEventIdEditRoute
+  AuthAdminOutsourceOutsourceIdEditRoute: typeof AuthAdminOutsourceOutsourceIdEditRoute
+  AuthAdminPackagePackageIdEditRoute: typeof AuthAdminPackagePackageIdEditRoute
+  AuthAdminStaffStaffIdEditRoute: typeof AuthAdminStaffStaffIdEditRoute
+}
+
+const AuthAdminRouteRouteChildren: AuthAdminRouteRouteChildren = {
+  AuthAdminCompanyCreateRoute: AuthAdminCompanyCreateRoute,
+  AuthAdminEquipmentCreateRoute: AuthAdminEquipmentCreateRoute,
+  AuthAdminEventCreateRoute: AuthAdminEventCreateRoute,
+  AuthAdminOutsourceCreateRoute: AuthAdminOutsourceCreateRoute,
+  AuthAdminPackageCreateRoute: AuthAdminPackageCreateRoute,
+  AuthAdminStaffCreateRoute: AuthAdminStaffCreateRoute,
+  AuthAdminCompanyCompanyIdEditRoute: AuthAdminCompanyCompanyIdEditRoute,
+  AuthAdminEquipmentEquipmentIdEditRoute:
+    AuthAdminEquipmentEquipmentIdEditRoute,
+  AuthAdminEventEventIdEditRoute: AuthAdminEventEventIdEditRoute,
+  AuthAdminOutsourceOutsourceIdEditRoute:
+    AuthAdminOutsourceOutsourceIdEditRoute,
+  AuthAdminPackagePackageIdEditRoute: AuthAdminPackagePackageIdEditRoute,
+  AuthAdminStaffStaffIdEditRoute: AuthAdminStaffStaffIdEditRoute,
+}
+
+const AuthAdminRouteRouteWithChildren = AuthAdminRouteRoute._addFileChildren(
+  AuthAdminRouteRouteChildren,
+)
 
 interface AuthSidebarLayoutRouteRouteChildren {
   AuthSidebarLayoutEquipmentRoute: typeof AuthSidebarLayoutEquipmentRoute
@@ -609,37 +663,15 @@ const AuthSidebarLayoutRouteRouteWithChildren =
   )
 
 interface AuthRouteRouteChildren {
+  AuthAdminRouteRoute: typeof AuthAdminRouteRouteWithChildren
   AuthSidebarLayoutRouteRoute: typeof AuthSidebarLayoutRouteRouteWithChildren
-  AuthCompanyCreateRoute: typeof AuthCompanyCreateRoute
-  AuthEquipmentCreateRoute: typeof AuthEquipmentCreateRoute
-  AuthEventCreateRoute: typeof AuthEventCreateRoute
-  AuthOutsourceCreateRoute: typeof AuthOutsourceCreateRoute
-  AuthPackageCreateRoute: typeof AuthPackageCreateRoute
   AuthProfileChangePasswordRoute: typeof AuthProfileChangePasswordRoute
-  AuthStaffCreateRoute: typeof AuthStaffCreateRoute
-  AuthCompanyCompanyIdEditRoute: typeof AuthCompanyCompanyIdEditRoute
-  AuthEquipmentEquipmentIdEditRoute: typeof AuthEquipmentEquipmentIdEditRoute
-  AuthEventEventIdEditRoute: typeof AuthEventEventIdEditRoute
-  AuthOutsourceOutsourceIdEditRoute: typeof AuthOutsourceOutsourceIdEditRoute
-  AuthPackagePackageIdEditRoute: typeof AuthPackagePackageIdEditRoute
-  AuthStaffStaffIdEditRoute: typeof AuthStaffStaffIdEditRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthAdminRouteRoute: AuthAdminRouteRouteWithChildren,
   AuthSidebarLayoutRouteRoute: AuthSidebarLayoutRouteRouteWithChildren,
-  AuthCompanyCreateRoute: AuthCompanyCreateRoute,
-  AuthEquipmentCreateRoute: AuthEquipmentCreateRoute,
-  AuthEventCreateRoute: AuthEventCreateRoute,
-  AuthOutsourceCreateRoute: AuthOutsourceCreateRoute,
-  AuthPackageCreateRoute: AuthPackageCreateRoute,
   AuthProfileChangePasswordRoute: AuthProfileChangePasswordRoute,
-  AuthStaffCreateRoute: AuthStaffCreateRoute,
-  AuthCompanyCompanyIdEditRoute: AuthCompanyCompanyIdEditRoute,
-  AuthEquipmentEquipmentIdEditRoute: AuthEquipmentEquipmentIdEditRoute,
-  AuthEventEventIdEditRoute: AuthEventEventIdEditRoute,
-  AuthOutsourceOutsourceIdEditRoute: AuthOutsourceOutsourceIdEditRoute,
-  AuthPackagePackageIdEditRoute: AuthPackagePackageIdEditRoute,
-  AuthStaffStaffIdEditRoute: AuthStaffStaffIdEditRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
