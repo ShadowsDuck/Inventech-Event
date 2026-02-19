@@ -21,16 +21,26 @@ import {
   PrimaryContactCard,
   StandardContactCard,
 } from "./../company-contact-card";
-import { CompanyHistoryTab } from "./companyevent";
+import { CompanyHistoryTab } from "./companyEvent";
 
 export default function CompanyDetail() {
-  const [activeTab, setActiveTab] = useState<"overview" | "history">(
-    "overview",
-  );
-
   const { companyId } = useParams({
     from: "/_auth/_sidebarLayout/company/$companyId",
   });
+
+  const [activeTab, setActiveTab] = useState<"overview" | "history">(() => {
+    const savedTab = sessionStorage.getItem(`companyTab-${companyId}`);
+    return savedTab === "overview" || savedTab === "history"
+      ? savedTab
+      : "overview";
+  });
+
+  const handleTabChange = (value: string) => {
+    const tab = value as "overview" | "history";
+    setActiveTab(tab);
+    sessionStorage.setItem(`companyTab-${companyId}`, tab);
+  };
+
   const { data: company } = useSuspenseQuery(companyQuery(companyId));
 
   const primaryContact = company.companyContacts?.find((c) => c.isPrimary);
@@ -51,7 +61,7 @@ export default function CompanyDetail() {
 
       <Tabs
         value={activeTab}
-        onValueChange={(v) => setActiveTab(v as "overview" | "history")}
+        onValueChange={handleTabChange}
         className="w-full"
       >
         <div className="px-6 pt-6 pb-1">
@@ -86,7 +96,9 @@ export default function CompanyDetail() {
               {/* Company Name */}
               <div className="flex items-center gap-4 text-2xl">
                 <div className="bg-chart-1/30 flex h-14 w-14 items-center justify-center rounded-xl p-4">
-                  <span className="text-primary font-bold">A</span>
+                  <span className="text-primary font-bold">
+                    {company.companyName.charAt(0).toUpperCase()}
+                  </span>
                 </div>
                 <div className="flex flex-col">
                   <div className="flex items-center gap-3">
@@ -106,7 +118,7 @@ export default function CompanyDetail() {
                 </div>
               </div>
 
-              <div className="border-t border-gray-200" />
+              <div className="my-6 border-t border-gray-200" />
 
               <p className="text-muted-foreground -mb-2 text-[11px] font-bold tracking-wider uppercase">
                 Contact Persons ({company.companyContacts?.length || 0})
@@ -131,14 +143,14 @@ export default function CompanyDetail() {
             {/* Company Location */}
             <Card className="col-span-1 gap-4 p-6">
               {/* Header */}
-              <div className="flex items-center gap-2">
+              <div className="mb-4 flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-red-400" />
                 <p className="text-md font-bold">Location</p>
               </div>
 
               {/* Map Preview */}
               <MapPreview position={position} popUp={company.companyName} />
-              <div className="flex flex-col gap-1">
+              <div className="mt-4 flex flex-col gap-1">
                 <h1 className="text-[15px] font-bold">{company.companyName}</h1>
                 <p className="text-muted-foreground text-xs">
                   {company.address || "No address provided"}

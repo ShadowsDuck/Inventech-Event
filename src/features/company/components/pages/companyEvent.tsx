@@ -1,29 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { FolderX } from "lucide-react";
 
 import { DataTable } from "@/components/tables/data-table";
 
 import { companyEventsQuery } from "../../api/getEventByCompany";
-import { projectHistoryColumns } from "../history-column";
-
-// ตรวจสอบ path ของ DataTable ในโปรเจกต์คุณด้วยนะครับ
-// แก้ path ให้ชี้ไปที่ไฟล์ API ที่เพิ่งสร้าง
-
-// แก้ path ให้ชี้ไปที่ไฟล์ Columns ที่เพิ่งสร้าง
+import { projectHistoryColumns } from "../event-column";
 
 interface CompanyHistoryTabProps {
   companyId: string;
 }
 
 export function CompanyHistoryTab({ companyId }: CompanyHistoryTabProps) {
-  // 🌟 เรียกใช้ API Hook ที่เราสร้างไว้
+  const navigate = useNavigate();
   const {
     data: projects,
     isLoading,
     isError,
   } = useQuery(companyEventsQuery(companyId));
 
-  // แสดงตอนกำลังโหลดข้อมูล
   if (isLoading) {
     return (
       <div className="text-muted-foreground flex h-64 animate-pulse items-center justify-center text-sm font-medium">
@@ -32,7 +27,7 @@ export function CompanyHistoryTab({ companyId }: CompanyHistoryTabProps) {
     );
   }
 
-  // แสดงตอน API มีปัญหา
+  // 2. แสดงตอน API มีปัญหา
   if (isError) {
     return (
       <div className="text-destructive flex h-64 items-center justify-center text-sm font-medium">
@@ -41,8 +36,9 @@ export function CompanyHistoryTab({ companyId }: CompanyHistoryTabProps) {
     );
   }
 
-  // แสดงตอนไม่มีข้อมูลโปรเจกต์เลย (Empty State)
-  if (!projects || projects.length === 0) {
+  const safeProjects = Array.isArray(projects) ? projects : [];
+
+  if (safeProjects.length === 0) {
     return (
       <div className="text-muted-foreground flex h-64 flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-gray-50/50">
         <FolderX className="h-8 w-8 opacity-50" />
@@ -53,10 +49,18 @@ export function CompanyHistoryTab({ companyId }: CompanyHistoryTabProps) {
     );
   }
 
-  // แสดงตารางเมื่อมีข้อมูล
   return (
     <div className="rounded-md border bg-white shadow-sm">
-      <DataTable columns={projectHistoryColumns} data={projects} />
+      <DataTable
+        columns={projectHistoryColumns}
+        data={safeProjects}
+        onRowClick={(row) => {
+          navigate({
+            to: "/event/$eventId",
+            params: { eventId: row.eventId.toString() },
+          });
+        }}
+      />
     </div>
   );
 }

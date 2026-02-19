@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Box, Calendar, Users } from "lucide-react";
@@ -13,7 +14,10 @@ export const projectHistoryColumns: ColumnDef<EventType>[] = [
     size: 250,
     cell: ({ row }) => (
       <div className="flex flex-col overflow-hidden">
-        <span className="truncate font-semibold" title={row.original.eventName}>
+        <span
+          className="text-foreground truncate font-semibold"
+          title={row.original.eventName}
+        >
           {row.original.eventName}
         </span>
         <span className="text-muted-foreground truncate text-[11px] font-medium tracking-wider uppercase">
