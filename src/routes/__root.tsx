@@ -8,6 +8,8 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 
+import { GlobalError } from "@/components/error/GobalError";
+import { NotFound } from "@/components/error/NotFound";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/store/auth-store";
 
@@ -47,13 +49,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       await useAuthStore.getState().checkAuth();
     },
     component: RootLayout,
-    errorComponent: ({ error }) => {
-      return (
-        <div className="bg-red-50 p-4 text-red-900">
-          <h1 className="font-bold">Error! 💥</h1>
-          <p>{error.message}</p>
-        </div>
-      );
-    },
+
+    errorComponent: GlobalError,
+    notFoundComponent: NotFound,
   },
 );

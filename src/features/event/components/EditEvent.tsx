@@ -148,7 +148,7 @@ export default function EditEvent() {
       },
     });
   };
-
+  // throw new Error("ระบบระเบิดตู้ม! เทสหน้า Error จ้า");
   return (
     <EventForm
       mode="edit"

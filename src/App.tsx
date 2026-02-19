@@ -9,6 +9,7 @@ import { routeTree } from "./routeTree.gen";
 const router = createRouter({
   routeTree,
   context: { queryClient },
+  notFoundMode: "root",
 });
 
 declare module "@tanstack/react-router" {
