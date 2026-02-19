@@ -1,24 +1,14 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
-import { Link, useRouter } from "@tanstack/react-router";
-import { ChevronLeft, Menu } from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
+import { ChevronLeft } from "lucide-react";
 
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import { NAV_LINKS } from "@/data/constants";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 
 import { Badge } from "../ui/badge";
+import { SidebarTrigger } from "../ui/sidebar";
 
 interface PageHeaderProps {
   title: ReactNode;
@@ -32,7 +22,7 @@ interface PageHeaderProps {
   backButton?: boolean;
   showStatusBadge?: boolean;
   isDeleted?: boolean;
-  tabs?: ReactNode; // เพิ่ม Property นี้
+  tabs?: ReactNode;
 }
 
 export function PageHeader({
@@ -72,52 +62,8 @@ export function PageHeader({
       {/* ส่วนบน: Title และ Actions */}
       <div className="flex min-h-20 items-center justify-between px-6 py-4">
         <div className="flex items-center gap-4">
-          <div className="-ml-2 lg:hidden">
-            <Drawer open={isOpen} onOpenChange={setIsOpen} direction="left">
-              <DrawerTrigger asChild>
-                <button className="hover:bg-muted-foreground/10 rounded-full p-2 duration-150">
-                  <Menu className="h-5 w-5 text-gray-600" />
-                </button>
-              </DrawerTrigger>
-              <DrawerContent>
-                <div className="mx-auto w-full max-w-sm">
-                  <DrawerHeader>
-                    <DrawerTitle className="pt-3 text-center text-xl font-semibold">
-                      Event Management
-                    </DrawerTitle>
-                    <DrawerDescription className="sr-only">
-                      Navigation Menu
-                    </DrawerDescription>
-                  </DrawerHeader>
-                  <div className="px-4 py-1">
-                    <div className="flex flex-col gap-2">
-                      {NAV_LINKS.map((item) => (
-                        <DrawerClose asChild key={item.title}>
-                          <Link
-                            to={item.url}
-                            className="text-muted-foreground hover:bg-muted hover:text-foreground/90 active:bg-muted flex items-center gap-4 rounded-xl px-4 py-3"
-                            activeProps={{
-                              className:
-                                "bg-sidebar-primary/5 text-blue-600! font-medium",
-                            }}
-                          >
-                            <item.icon className="h-5 w-5" />
-                            <span className="text-base">{item.title}</span>
-                          </Link>
-                        </DrawerClose>
-                      ))}
-                    </div>
-                  </div>
-                  <DrawerFooter>
-                    <DrawerClose asChild>
-                      <button className="w-full rounded-lg border p-3 text-sm font-medium hover:bg-gray-50">
-                        Close
-                      </button>
-                    </DrawerClose>
-                  </DrawerFooter>
-                </div>
-              </DrawerContent>
-            </Drawer>
+          <div className="-ml-2 block lg:hidden">
+            <SidebarTrigger />
           </div>
 
           {backButton && (

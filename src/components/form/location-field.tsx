@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { MapPin, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 
 import { useFieldContext } from "@/components/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/lib/toast";
 import { cn, parseCoordinates } from "@/lib/utils";
 
 import MapPreview from "../map-preview";

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -13,12 +13,14 @@ type PasswordFieldProps = {
   label: string;
   placeholder?: string;
   required?: boolean;
+  startIcon?: LucideIcon;
 };
 
 export const PasswordField = ({
   label,
   placeholder,
   required,
+  startIcon,
 }: PasswordFieldProps) => {
   const field = useFieldContext<string>();
 
@@ -50,8 +52,8 @@ export const PasswordField = ({
           onChange={(e) => field.handleChange(e.target.value)}
           placeholder={placeholder}
           aria-invalid={hasError}
-          // เผื่อพื้นที่ด้านขวา (pr-10) และซ่อนปุ่มตาเดิมของเบราว์เซอร์ทิ้ง
-          className="pr-10 [&::-ms-reveal]:hidden"
+          className={cn(startIcon && "pl-9", "pr-10 [&::-ms-reveal]:hidden")}
+          startIcon={startIcon}
         />
 
         {/* 3. ปุ่มตาของเราเอง */}
@@ -69,10 +71,7 @@ export const PasswordField = ({
         </button>
       </div>
 
-      {/* 4. จองพื้นที่ความสูงกัน Card ยืด (Layout Shift) */}
-      <div className="mt-1 min-h-[28px]">
-        {hasError && <FieldErrors meta={field.state.meta} />}
-      </div>
+      {hasError && <FieldErrors meta={field.state.meta} />}
     </div>
   );
 };

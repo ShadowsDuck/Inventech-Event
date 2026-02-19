@@ -11,7 +11,16 @@ import { cn } from "@/lib/utils";
 import { useLogin } from "../api/login";
 
 export const LoginSchema = z.object({
-  email: z.email().min(1, "Email is required"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .refine(
+      (val) => {
+        if (val === "") return true;
+        return z.email().safeParse(val).success;
+      },
+      { error: "Invalid email address" },
+    ),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -29,7 +38,7 @@ export function LoginForm({
       password: "",
     } as LoginFormData,
     validators: {
-      onChange: LoginSchema,
+      onSubmit: LoginSchema,
     },
     validationLogic: revalidateLogic({
       mode: "submit",
@@ -66,7 +75,7 @@ export function LoginForm({
               <field.TextField
                 label="Email Address"
                 type="email"
-                placeholder="staff@inventecvt.com"
+                placeholder="Email"
                 startIcon={Mail}
               />
             )}
@@ -88,10 +97,9 @@ export function LoginForm({
           <form.AppField
             name="password"
             children={(field) => (
-              <field.TextField
+              <field.PasswordField
                 label=""
-                type="password"
-                placeholder="password"
+                placeholder="Password"
                 startIcon={KeyRound}
               />
             )}

@@ -147,3 +147,41 @@
   width: 100%;
   border-radius: 1rem;
 }
+
+/* day info popover custom scroll bar */
+/* 1. กำหนดความกว้างของ Scrollbar */
+.day-info-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* 2. ซ่อนลูกศร (ปุ่มขึ้น-ลง) */
+.day-info-scrollbar::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* 3. สีและสไตล์ของราง (Track) พื้นหลัง Scrollbar */
+.day-info-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 9999px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+/* 4. สีและสไตล์ของตัวจับ (Thumb) */
+.day-info-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 9999px;
+}
+
+/* 5. สีของตัวจับตอนเอาเมาส์ชี้ (Hover) */
+.day-info-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #a8a8a8;
+}
+
+/* --- สำหรับ Firefox เท่านั้น  --- */
+@supports (-moz-appearance: none) {
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #e5e7eb transparent;
+  }
+}
