@@ -68,6 +68,14 @@ function SidebarProvider({
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
 
+  React.useEffect(() => {
+    if (!isMobile) {
+      // ถ้าหน้าจอใหญ่ขึ้นจนเกินจุด Breakpoint ของ Mobile แล้ว
+      // สั่งพับ Sidebar ของ Mobile เก็บไปเลย
+      setOpenMobile(false);
+    }
+  }, [isMobile]);
+
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen);
@@ -255,7 +263,17 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar();
+  // 1. เปลี่ยนมาดึง Context ตรงๆ แทนการใช้ useSidebar() เพื่อหลบการแจ้ง Error
+  const context = React.useContext(SidebarContext);
+
+  // 2. ถ้าหา Provider ไม่เจอ (เช่น ตอนอยู่ในหน้า Add New Staff)
+  // ให้ Return null เพื่อ "ซ่อนปุ่มทิ้งไปเลย" และแอปก็จะไม่ระเบิดด้วย!
+  if (!context) {
+    return null;
+  }
+
+  // 3. ถ้ามี Provider (อยู่ใน _sidebarLayout) ก็ดึงคำสั่งมาทำงานตามปกติ
+  const { toggleSidebar } = context;
 
   return (
     <Button

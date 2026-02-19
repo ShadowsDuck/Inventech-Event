@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 
-import { ChevronLeft, ChevronRight, Info } from "lucide-react";
+import { ChevronLeft, ChevronRight, Info, X } from "lucide-react";
 
 import {
   Popover,
@@ -21,6 +21,7 @@ const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
   const [currentDate, setCurrentDate] = useState(
     new Date(today.getFullYear(), today.getMonth(), 1),
   );
+  const [openPopovers, setOpenPopovers] = useState<Record<string, boolean>>({});
 
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
   const months = [
@@ -133,11 +134,6 @@ const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
             const displayLimit = 3;
             const hiddenCount = dayEvents.length - displayLimit;
 
-            // 2. เช็คว่ามี Pending ที่ถูกซ่อนอยู่หรือไม่
-            const hasHiddenPending = dayEvents
-              .slice(displayLimit)
-              .some((e) => e.eventStatus === "Pending");
-
             const isToday =
               day === today.getDate() &&
               month === today.getMonth() &&
@@ -149,7 +145,7 @@ const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
               <div
                 key={index}
                 onClick={() => onDateClick?.(new Date(year, month, day))}
-                className="group relative flex min-h-[120px] cursor-pointer flex-col border-r border-b border-gray-50 p-2 transition-all hover:bg-gray-50/40"
+                className="group relative flex min-h-30 cursor-pointer flex-col border-r border-b border-gray-50 p-2 transition-all hover:bg-gray-50/40"
               >
                 <div className="mb-1 flex items-center justify-between">
                   <span
@@ -162,14 +158,44 @@ const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
                     {day}
                   </span>
                   <div onClick={(e) => e.stopPropagation()}>
-                    <Popover>
-                      <PopoverTrigger className="flex cursor-pointer text-gray-300 opacity-0 transition-opacity outline-none group-hover:opacity-100 hover:text-green-500">
-                        <Info size={16} />
+                    <Popover
+                      open={openPopovers[dateString] ?? false}
+                      onOpenChange={(val) =>
+                        setOpenPopovers((prev) => ({
+                          ...prev,
+                          [dateString]: val,
+                        }))
+                      }
+                    >
+                      <PopoverTrigger
+                        className={`relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-full transition-all duration-300 outline-none ${
+                          openPopovers[dateString]
+                            ? "bg-blue-100 text-blue-600 opacity-100"
+                            : "text-gray-300 opacity-0 group-hover:opacity-100 hover:bg-gray-100 hover:text-gray-600"
+                        }`}
+                      >
+                        <X
+                          size={14}
+                          strokeWidth={3}
+                          className={`absolute transition-all duration-300 ${
+                            openPopovers[dateString]
+                              ? "scale-100 rotate-0 opacity-100"
+                              : "scale-50 -rotate-90 opacity-0"
+                          }`}
+                        />
+                        <Info
+                          size={16}
+                          className={`absolute transition-all duration-300 ${
+                            openPopovers[dateString]
+                              ? "scale-50 rotate-90 opacity-0"
+                              : "scale-100 rotate-0 opacity-100"
+                          }`}
+                        />
                       </PopoverTrigger>
 
                       <PopoverContent
                         align="end"
-                        className="w-56 rounded-xl border border-gray-100 bg-white shadow-lg"
+                        className="w-3xs overflow-hidden rounded-xl border border-gray-100 bg-white p-0 shadow-lg"
                       >
                         <DayInfoPopover dateString={dateString} />
                       </PopoverContent>

@@ -164,7 +164,7 @@ export default function EventList() {
     <>
       <PageHeader
         title="Event"
-        count={0}
+        count={EventData.length}
         countLabel="Event"
         actions={
           <Button size="add" onClick={() => navigate({ to: "/event/create" })}>

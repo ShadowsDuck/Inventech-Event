@@ -8,6 +8,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/store/auth-store";
 
 import { RouterProgress } from "../components/RouterProgress";

@@ -3,7 +3,8 @@ import {
   QueryClient,
   type QueryKey,
 } from "@tanstack/react-query";
-import { toast } from "sonner";
+
+import { toast } from "./toast";
 
 declare module "@tanstack/react-query" {
   interface Register {

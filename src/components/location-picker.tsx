@@ -2,10 +2,10 @@ import { useState } from "react";
 
 import type { LatLngTuple } from "leaflet";
 import { MapPin, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/lib/toast";
 import { parseCoordinates } from "@/lib/utils";
 
 import MapPreview from "./map-preview";
@@ -53,7 +53,6 @@ export function LocationPicker({
           onBlur={onBlur}
           placeholder="e.g. 13.7563, 100.5018"
           className={error ? "border-red-500" : ""}
-          // เพิ่ม Event: กด Enter แล้วปักหมุดได้เลย เพื่อความสะดวก
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();

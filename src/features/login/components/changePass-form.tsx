@@ -4,7 +4,6 @@ import z from "zod";
 
 import { useAppForm } from "@/components/form";
 import { Button } from "@/components/ui/button";
-import { Field, FieldGroup } from "@/components/ui/field";
 
 import { useChangePassword } from "../api/change-password";
 
@@ -13,20 +12,39 @@ export const ChangePasswordSchema = z
     currentPassword: z.string().min(1, "Please enter your current password"),
     newPassword: z
       .string()
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
-        "A password must be at least 8 characters long and contain uppercase letters, lowercase letters, and numbers.",
+      .min(1, "Please enter a new password")
+      .refine(
+        (val) => {
+          if (val === "") return true;
+          return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(val);
+        },
+        {
+          error:
+            "A password must be at least 8 characters long and contain uppercase letters, lowercase letters, and numbers.",
+        },
       ),
     confirmPassword: z.string().min(1, "Please confirm your new password"),
   })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  })
-  .refine((data) => data.currentPassword !== data.newPassword, {
-    message: "New password cannot be the same as current password",
-    path: ["newPassword"],
-  });
+  .refine(
+    (data) => {
+      if (!data.confirmPassword) return true;
+      return data.newPassword === data.confirmPassword;
+    },
+    {
+      error: "Passwords do not match",
+      path: ["confirmPassword"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (!data.currentPassword || !data.newPassword) return true;
+      return data.currentPassword !== data.newPassword;
+    },
+    {
+      error: "New password cannot be the same as current password",
+      path: ["newPassword"],
+    },
+  );
 
 export type ChangePasswordFormData = z.infer<typeof ChangePasswordSchema>;
 
@@ -73,50 +91,41 @@ export default function ChangePasswordForm({
         e.stopPropagation();
         form.handleSubmit();
       }}
-      className="space-y-4"
+      className="space-y-6"
     >
-      <FieldGroup>
-        <Field>
-          <form.AppField
-            name="currentPassword"
-            children={(field) => (
-              <field.PasswordField
-                label="Current Password"
-                placeholder="********"
-              />
-            )}
+      <form.AppField
+        name="currentPassword"
+        children={(field) => (
+          <field.PasswordField label="Password" placeholder="Password" />
+        )}
+      />
+
+      <form.AppField
+        name="newPassword"
+        children={(field) => (
+          <field.PasswordField
+            label="New Password"
+            placeholder="New Password"
           />
-        </Field>
-        <Field>
-          <form.AppField
-            name="newPassword"
-            children={(field) => (
-              <field.PasswordField
-                label="New Password"
-                placeholder="********"
-              />
-            )}
+        )}
+      />
+
+      <form.AppField
+        name="confirmPassword"
+        children={(field) => (
+          <field.PasswordField
+            label="Confirm Password"
+            placeholder="Confirm Password"
           />
-        </Field>
-        <Field>
-          <form.AppField
-            name="confirmPassword"
-            children={(field) => (
-              <field.PasswordField
-                label="Confirm Password"
-                placeholder="********"
-              />
-            )}
-          />
-        </Field>
-      </FieldGroup>
+        )}
+      />
 
       <div className="mt-6 flex justify-end gap-2">
         <Button
           form="change-password-form"
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-blue-600 px-4 py-2 text-white"
+          className="rounded-xl bg-blue-600 px-4 py-2 text-white"
         >
           {isPending ? (
             <span className="flex items-center justify-center gap-2">

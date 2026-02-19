@@ -18,18 +18,26 @@ import {
 } from "./ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
-export function UserCardProfile() {
+interface UserCardProfileProps {
+  onBeforeOpenDialog?: () => void;
+}
+
+export function UserCardProfile({ onBeforeOpenDialog }: UserCardProfileProps) {
   const { mutate: logout, isPending } = useLogout();
   const user = useAuthStore((state) => state.user);
+  const API_URL = import.meta.env.VITE_API_URL;
 
+  // State คุม Dialog Change Password
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  // State คุม Popover (เมนู Profile/Settings)
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   return (
     <>
       <div className="p-2">
-        <Popover>
+        {/* สั่งให้ Popover ถูกควบคุมด้วย State นี้ */}
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger className="w-full">
             <Card className="hover:bg-muted/80 bg-muted/60 flex cursor-pointer flex-row items-center gap-3 border-none p-3 shadow-sm transition-colors">
               <Avatar className="h-9 w-9 border">
@@ -42,7 +50,7 @@ export function UserCardProfile() {
                   alt={user?.fullName || "Admin"}
                 />
                 <AvatarFallback className="bg-blue-600 font-bold text-white uppercase">
-                  {user?.fullName?.substring(0, 2).toUpperCase() || "UN"}
+                  <User size={14} />
                 </AvatarFallback>
               </Avatar>
 
@@ -80,7 +88,15 @@ export function UserCardProfile() {
               </Button>
 
               <Button
-                onClick={() => setIsPasswordModalOpen(true)}
+                onClick={() => {
+                  onBeforeOpenDialog?.();
+
+                  // 1. สั่งปิด Popover ทันที
+                  setIsPopoverOpen(false);
+
+                  // 2. สั่งเปิด Modal Password
+                  setIsPasswordModalOpen(true);
+                }}
                 variant="ghost"
                 className="h-9 w-full justify-start gap-2 text-sm font-normal"
               >
@@ -114,13 +130,15 @@ export function UserCardProfile() {
       <Dialog open={isPasswordModalOpen} onOpenChange={setIsPasswordModalOpen}>
         <DialogContent className="sm:max-w-106">
           <DialogHeader>
-            <DialogTitle>Change Password</DialogTitle>
+            <DialogTitle className="text-lg font-bold">
+              Change Password
+            </DialogTitle>
             <DialogDescription>
               Enter your current password and choose a new one.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-4">
+          <div>
             <ChangePasswordForm
               onSuccess={() => setIsPasswordModalOpen(false)}
             />

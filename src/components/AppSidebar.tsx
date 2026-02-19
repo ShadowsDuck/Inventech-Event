@@ -11,12 +11,15 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { NAV_LINKS } from "@/data/constants";
 
 import { UserCardProfile } from "./UserCardProfile";
 
 export function AppSidebar() {
+  const { isMobile, setOpenMobile } = useSidebar();
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -53,6 +56,11 @@ export function AppSidebar() {
                   >
                     <Link
                       to={item.url}
+                      onClick={() => {
+                        if (isMobile) {
+                          setOpenMobile(false);
+                        }
+                      }}
                       className="text-muted-foreground hover:text-foreground/90 hover:bg-hover flex w-full items-center gap-3 px-3 py-3 transition-colors"
                       activeProps={{
                         className:
