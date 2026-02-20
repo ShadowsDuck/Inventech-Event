@@ -35,7 +35,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   logout: () => {
-    set({ accessToken: null });
+    set({ accessToken: null, user: null, isInitialized: true });
   },
 
   isInitialized: false,
@@ -49,7 +49,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       const { data } = await api.post("/api/auth/refresh");
 
-      // 2. เรียกใช้ setToken เพื่อแกะข้อมูลพนักงานจาก JWT และบันทึก Token ลง Store ทันที
+      // 1. เรียกใช้ setToken เพื่อแกะข้อมูลพนักงานจาก JWT และบันทึก Token ลง Store ทันที
       // (เป็นการ Re-use logic การ decode jwt ที่เขียนไว้แล้ว)
       get().setToken(data.accessToken);
 
@@ -57,7 +57,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       return data.accessToken;
     } catch {
-      // 3. ถ้า Refresh ไม่ผ่าน ให้ล้างค่าทิ้ง
+      // 2. ถ้า Refresh ไม่ผ่าน ให้ล้างค่าทิ้ง
       set({ accessToken: null, user: null, isInitialized: true });
       return null;
     }

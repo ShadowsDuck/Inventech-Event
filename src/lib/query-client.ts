@@ -45,15 +45,17 @@ export const queryClient = new QueryClient({
       if (queryKey) {
         // เช็คว่าส่งมาเป็น Array ของ Key (เช่น [["a"], ["b"]]) หรือแค่ Key เดียว (เช่น ["a"])
         const isMultiKey = Array.isArray(queryKey[0]);
-        const keysToRefetch = isMultiKey
+        const keysToInvalidate = isMultiKey
           ? (queryKey as QueryKey[])
           : [queryKey as QueryKey];
 
-        // ใช้ refetchQueries และ await เพื่อให้โหลด "ของใหม่" ให้เสร็จก่อน
-        // Promise.all จะช่วยให้โหลดทุก Key พร้อมกัน ไม่ต้องรอทีละตัว
         await Promise.all(
-          keysToRefetch.map((key) =>
-            queryClient.refetchQueries({ queryKey: key }),
+          keysToInvalidate.map((key) =>
+            queryClient.invalidateQueries({
+              queryKey: key,
+              // ใช้ refetchType: 'active' เพื่อให้ยิงใหม่เฉพาะตัวที่โชว์อยู่บนจอ
+              refetchType: "active",
+            }),
           ),
         );
       }

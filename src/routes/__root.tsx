@@ -10,7 +10,6 @@ import {
 
 import { GlobalError } from "@/components/error/GobalError";
 import { NotFound } from "@/components/error/NotFound";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/store/auth-store";
 
 import { RouterProgress } from "../components/RouterProgress";
