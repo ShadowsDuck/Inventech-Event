@@ -84,7 +84,7 @@ export function CompanyForm({
   const form = useAppForm({
     defaultValues,
     validators: {
-      onChange: CompanySchema,
+      onSubmit: CompanySchema,
     },
     validationLogic: revalidateLogic({
       mode: "submit",

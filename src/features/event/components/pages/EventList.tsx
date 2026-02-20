@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { useSuspenseQueries } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Building2, CalendarDays, Check, Users } from "lucide-react";
 
 import { AdminOnly } from "@/components/AdminOnly";
@@ -24,6 +24,7 @@ import YearView from "../year-view";
 
 export default function EventList() {
   const navigate = useNavigate();
+  const params = useSearch({ from: "/_auth/_sidebarLayout/event/" });
 
   const [
     { data: staffData },
@@ -31,7 +32,12 @@ export default function EventList() {
     { data: companyData },
     { data: EventData },
   ] = useSuspenseQueries({
-    queries: [staffQuery(), outsourcesQuery(), companiesQuery(), eventsQuery()],
+    queries: [
+      staffQuery(),
+      outsourcesQuery(),
+      companiesQuery(),
+      eventsQuery(params),
+    ],
   });
 
   // รวบ Staff และ Outsource เป็น Person
