@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { companiesQuery } from "@/features/company/api/getCompanies";
 import { eventsQuery } from "@/features/event/api/getEvent";
-import EventList from "@/features/event/components/EventList";
+import EventList from "@/features/event/components/pages/EventList";
 import { outsourcesQuery } from "@/features/outsource/api/getOutsource";
 import { staffQuery } from "@/features/staff/api/getStaff";
 

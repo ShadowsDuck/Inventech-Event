@@ -16,6 +16,8 @@ type AuthStore = {
   setInitialized: (value: boolean) => void;
   // ฟังก์ชันสำหรับตรวจสอบการเข้าสู่ระบบ
   checkAuth: () => Promise<string | null>;
+  // ฟังก์ชันสำหรับตรวจสอบว่าเป็นแอดมินไหม
+  isAdmin: () => boolean;
 };
 
 export const useAuthStore = create<AuthStore>((set, get) => ({

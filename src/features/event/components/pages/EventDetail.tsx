@@ -9,11 +9,11 @@ import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
-import { eventQuery } from "../api/getEventById";
-import EventDocuments from "./event-detail/event-document";
-import EventEquipment from "./event-detail/event-equipmet";
-import EventOverview from "./event-detail/event-overview";
-import EventTeam from "./event-detail/event-team";
+import { eventQuery } from "../../api/getEventById";
+import EventDocuments from "../event-detail/event-document";
+import EventEquipment from "../event-detail/event-equipment";
+import EventOverview from "../event-detail/event-overview";
+import EventTeam from "../event-detail/event-team";
 
 export function EventDetail() {
   const { eventId } = useParams({
@@ -25,7 +25,6 @@ export function EventDetail() {
   const tabItems = ["Overview", "Team", "Equipment", "Documents"];
 
   return (
-    // 1. ย้าย Tabs มาคลุมทั้งหมดเพื่อให้ครอบคลุมทั้ง Header และ Content
     <Tabs
       value={activeTab}
       onValueChange={(v) => setActiveTab(v)}
@@ -59,7 +58,6 @@ export function EventDetail() {
           <Link
             to="/event/$eventId/edit"
             params={{ eventId }}
-            // ใช้ buttonVariants เพื่อดึง Style ของปุ่มมาใช้กับ Link โดยตรง
             className={cn(
               buttonVariants({ variant: "default", size: "sm" }),
               "bg-blue-600 text-white hover:bg-blue-700",
@@ -74,7 +72,6 @@ export function EventDetail() {
           </Link>
         }
         tabs={
-          // 2. ส่งเฉพาะ TabsList เข้าไปใน PageHeader
           <TabsList
             variant="underline"
             className="h-10 w-full gap-8 border-b-0"
@@ -94,7 +91,6 @@ export function EventDetail() {
         }
       />
 
-      {/* 3. ส่วนของ TabsPanel ที่อยู่นอก Header */}
       <div className="p-6">
         <TabsPanel value="Overview">
           <EventOverview events={eventData} />

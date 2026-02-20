@@ -6,10 +6,10 @@ import { format, parse } from "date-fns";
 
 import type { ExistingFileType } from "@/types/event";
 
-import { useEditEvent } from "../api/editEvent";
-import { eventQuery } from "../api/getEventById";
-import EventForm from "./event-form";
-import { type EventData } from "./event-schema";
+import { useEditEvent } from "../../api/editEvent";
+import { eventQuery } from "../../api/getEventById";
+import EventForm from "../event-form";
+import type { EventData } from "../event-schema";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -42,7 +42,7 @@ export default function EditEvent() {
     );
   }, [eventData]);
 
-  // 2. Prepare Initial Values (สำหรับ Form Control)
+  // 2. Prepare Initial Values
   const initialValues: EventData = useMemo(() => {
     return {
       eventName: eventData.eventName,
@@ -114,7 +114,7 @@ export default function EditEvent() {
           ?.filter((r) => r.sourceType === 2) // กรองเอาเฉพาะ Outsource
           .map((r) => ({
             roleId: r.roleId,
-            quantity: r.quantity, // เลข Target เดิม
+            quantity: r.quantity,
             sourceType: 2,
           })) ?? [],
     };
@@ -148,7 +148,7 @@ export default function EditEvent() {
       },
     });
   };
-  // throw new Error("ระบบระเบิดตู้ม! เทสหน้า Error จ้า");
+
   return (
     <EventForm
       mode="edit"

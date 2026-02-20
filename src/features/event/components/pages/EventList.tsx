@@ -2,24 +2,25 @@ import { useMemo, useState } from "react";
 
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Building2, CalendarDays, Check, Plus, Users } from "lucide-react";
+import { Building2, CalendarDays, Check, Users } from "lucide-react";
 
+import { AdminOnly } from "@/components/AdminOnly";
 import SearchBar from "@/components/SearchBar";
 import PageHeader from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
 import {
   FilterMultiSelect,
   type FilterOption,
 } from "@/components/ui/filter-multi-select";
+import PageHeaderButton from "@/components/ui/page-header-button";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { companiesQuery } from "@/features/company/api/getCompanies";
 import { outsourcesQuery } from "@/features/outsource/api/getOutsource";
 import { staffQuery } from "@/features/staff/api/getStaff";
 
-import { eventsQuery } from "../api/getEvent";
-import DailyView from "./daily-view";
-import MonthView from "./month-view";
-import YearView from "./year-view";
+import { eventsQuery } from "../../api/getEvent";
+import DailyView from "../daily-view";
+import MonthView from "../month-view";
+import YearView from "../year-view";
 
 export default function EventList() {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function EventList() {
     queries: [staffQuery(), outsourcesQuery(), companiesQuery(), eventsQuery()],
   });
 
-  // รวบ Staff และ Outsource เป็น Personnel
+  // รวบ Staff และ Outsource เป็น Person
   const personnelOptions = useMemo(() => {
     const staff =
       staffData?.map((staff) => ({
@@ -54,27 +55,25 @@ export default function EventList() {
       ];
     }
     return [...staff, ...outsource];
-  }, [staffData, outsourceData]); // dependency: ทำงานใหม่เมื่อ data ตัวใดตัวนึงเปลี่ยน
+  }, [staffData, outsourceData]);
 
   // แปลง Company Data
   const companyOptions = useMemo(() => {
     return (
       companyData?.map((comp) => ({
-        value: String(comp.companyId), // แปลงเป็น String
+        value: String(comp.companyId),
         label: comp.companyName,
       })) || []
     );
-  }, [companyData]); // dependency: ทำงานใหม่เมื่อ companyData เปลี่ยน
+  }, [companyData]);
 
-  // --- UI State (สำหรับควบคุม Tab และ Input ต่างๆ) ---
-  const [activeTab, setActiveTab] = useState<"daily" | "calendar" | "year">(
-    "calendar",
+  const [activeTab, setActiveTab] = useState<"daily" | "month" | "year">(
+    "month",
   );
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [search, setSearch] = useState("");
 
-  // ยุบ Filter State เหลือตัวเดียว
   const [personnelFilter, setPersonnelFilter] = useState<string[]>([]);
   const [companyFilter, setCompanyFilter] = useState<string[]>([]);
   const [eventTypeFilter, setEventTypeFilter] = useState<string[]>([]);
@@ -99,8 +98,8 @@ export default function EventList() {
         ? event.eventName?.toLowerCase().includes(search.toLowerCase())
         : true;
 
-      // ตรวจสอบ Personnel Filter (เช็คทั้งฝั่ง Staff และ Outsource)
-      const matchesPersonnel =
+      // ตรวจสอบ Person Filter (เช็คทั้งฝั่ง Staff และ Outsource)
+      const matchesPerson =
         personnelFilter.length > 0
           ? event.eventStaff?.some((es) =>
               personnelFilter.includes(`staff-${es.staff?.staffId}`),
@@ -130,10 +129,9 @@ export default function EventList() {
           ? statusFilter.includes(event.eventStatus)
           : true;
 
-      // คืนค่า true เฉพาะ Event ที่ผ่าน "ทุก" เงื่อนไขที่ User เลือกไว้
       return (
         matchesSearch &&
-        matchesPersonnel &&
+        matchesPerson &&
         matchesCompany &&
         matchesEventType &&
         matchesStatus
@@ -142,7 +140,7 @@ export default function EventList() {
   }, [
     EventData,
     search,
-    personnelFilter, // อัปเดต Dependency
+    personnelFilter,
     companyFilter,
     eventTypeFilter,
     statusFilter,
@@ -152,7 +150,7 @@ export default function EventList() {
     if (value === "daily") {
       setSelectedDate(new Date());
     }
-    setActiveTab(value as "daily" | "calendar" | "year");
+    setActiveTab(value as "daily" | "month" | "year");
   };
 
   const handleDateClick = (date: Date) => {
@@ -167,10 +165,12 @@ export default function EventList() {
         count={EventData.length}
         countLabel="Event"
         actions={
-          <Button size="add" onClick={() => navigate({ to: "/event/create" })}>
-            <Plus size={18} strokeWidth={2.5} />
-            Create Event
-          </Button>
+          <AdminOnly>
+            <PageHeaderButton
+              onClick={() => navigate({ to: "/event/create" })}
+              label="Create Event"
+            />
+          </AdminOnly>
         }
       />
 
@@ -184,7 +184,7 @@ export default function EventList() {
           <div className="flex items-center justify-between">
             <TabsList>
               <TabsTab value="daily">Daily View</TabsTab>
-              <TabsTab value="calendar">Month View</TabsTab>
+              <TabsTab value="month">Month View</TabsTab>
               <TabsTab value="year">Year View</TabsTab>
             </TabsList>
 
@@ -260,7 +260,7 @@ export default function EventList() {
         <TabsPanel value="year">
           <YearView events={filteredEvents} onDateClick={handleDateClick} />
         </TabsPanel>
-        <TabsPanel value="calendar">
+        <TabsPanel value="month">
           <MonthView events={filteredEvents} onDateClick={handleDateClick} />
         </TabsPanel>
         <TabsPanel value="daily">
