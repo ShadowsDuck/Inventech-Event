@@ -300,7 +300,18 @@ const AssignmentCard = ({
                           : "bg-green-200 text-green-700"
                       }`}
                     >
-                      {person.name.charAt(0)}
+                      {person.avatar ? (
+                        <img
+                          src={person.avatar}
+                          alt={person.name}
+                          className="h-full w-full rounded-full object-cover"
+                          onError={(e) =>
+                            (e.currentTarget.style.display = "none")
+                          }
+                        />
+                      ) : (
+                        person.name.charAt(0)
+                      )}
                     </div>
                     <div>
                       <p className="text-sm font-bold text-gray-800">
@@ -410,8 +421,16 @@ const AssignmentCard = ({
                                 onClick={() => onAssign(index, s.id)}
                                 className="group/item flex cursor-pointer items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-sm transition-all hover:border-blue-400 hover:shadow-md"
                               >
-                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 transition-colors group-hover/item:bg-blue-600 group-hover/item:text-white">
-                                  {s.name.charAt(0)}
+                                <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-blue-100 text-xs font-bold text-blue-600 transition-colors group-hover/item:bg-blue-600 group-hover/item:text-white">
+                                  {s.avatar ? (
+                                    <img
+                                      src={s.avatar}
+                                      alt={s.name}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  ) : (
+                                    s.name.charAt(0)
+                                  )}
                                 </div>
                                 <div>
                                   <p className="text-sm font-bold text-gray-800">
@@ -443,8 +462,16 @@ const AssignmentCard = ({
                                 onClick={() => onAssign(index, s.id)}
                                 className="group/item flex cursor-pointer items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-sm transition-all hover:border-blue-400 hover:shadow-md"
                               >
-                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 transition-colors group-hover/item:bg-blue-600 group-hover/item:text-white">
-                                  {s.name.charAt(0)}
+                                <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-blue-100 text-xs font-bold text-blue-600 transition-colors group-hover/item:bg-blue-600 group-hover/item:text-white">
+                                  {s.avatar ? (
+                                    <img
+                                      src={s.avatar}
+                                      alt={s.name}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  ) : (
+                                    s.name.charAt(0)
+                                  )}
                                 </div>
                                 <div>
                                   <p className="text-sm font-bold text-gray-800">
@@ -484,8 +511,16 @@ const AssignmentCard = ({
                                 // =======================
                                 className="group/item flex cursor-pointer items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 opacity-60 shadow-sm transition-all hover:border-red-400 hover:opacity-100 hover:shadow-md"
                               >
-                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600">
-                                  {s.name.charAt(0)}
+                                <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-blue-100 text-xs font-bold text-blue-600 transition-colors group-hover/item:bg-blue-600 group-hover/item:text-white">
+                                  {s.avatar ? (
+                                    <img
+                                      src={s.avatar}
+                                      alt={s.name}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  ) : (
+                                    s.name.charAt(0)
+                                  )}
                                 </div>
                                 <div>
                                   <p className="text-sm font-bold text-gray-800">

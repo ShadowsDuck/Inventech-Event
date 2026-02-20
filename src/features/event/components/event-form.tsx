@@ -212,6 +212,9 @@ export default function EventForm({
     !currentEventDate || !currentTimePeriod || currentTimePeriod === 0;
 
   const formattedStaffList = useMemo(() => {
+    // กำหนด Base URL สำหรับดึงรูปภาพจาก AP
+    const BASE_IMAGE_URL = "https://localhost:7268/uploads/";
+
     const initialAssignedIds = new Set(
       mode === "edit"
         ? initialValues?.eventStaff
@@ -225,10 +228,6 @@ export default function EventForm({
         const sId = String(s.staffId);
         const isAlreadyInThisEvent = initialAssignedIds.has(sId);
 
-        // [FIX] จะเปลี่ยนให้เป็น Available ก็ต่อเมื่อ:
-        // 1. เป็นวันและเวลาเดิมของ Event นี้ (isSameSchedule)
-        // 2. อยู่ใน Event นี้แต่แรก (isAlreadyInThisEvent)
-        // 3. API ฟ้องว่า Unavailable (ติดชนกับตัวเอง)
         let displayStatus = s.status;
         if (
           isSameSchedule &&
@@ -242,7 +241,8 @@ export default function EventForm({
           id: sId,
           name: s.fullName,
           roles: s.staffRoles ? s.staffRoles.map((r) => r.roleName) : [],
-          avatar: s.avatar || "",
+
+          avatar: s.avatar ? `${BASE_IMAGE_URL}${s.avatar}` : "",
           status: displayStatus,
         };
       }) || [];
@@ -260,7 +260,7 @@ export default function EventForm({
             name: assigned.fullName || `Staff #${sId}`,
             roles: [assigned.roleName || "Unknown Role"],
             avatar: "",
-            // ถ้าตารางเวลาเปลี่ยนไปแล้ว ให้ยึดเป็น Unavailable ไว้ก่อน (เพราะ API ไม่ส่งรายชื่อมาเลย)
+
             status: isSameSchedule ? "Available" : "Unavailable",
           });
         }

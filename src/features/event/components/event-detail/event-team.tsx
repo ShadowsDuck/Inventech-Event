@@ -222,6 +222,7 @@ const TeamGroupCard = ({ assignment }: { assignment: RoleAssignmentView }) => {
 // --- 3. Main Component ---
 
 export default function EventTeam({ events }: EventTeamProps) {
+  const API_BASE_URL = "https://localhost:7268";
   const assignments = useMemo(() => {
     const roleMap = new Map<number, RoleAssignmentView>();
 
@@ -260,10 +261,17 @@ export default function EventTeam({ events }: EventTeamProps) {
       const current = roleMap.get(rId)!;
 
       if (item.staff) {
+        const avatarFile = item.staff.avatar;
+        const fullAvatarUrl = avatarFile
+          ? `${API_BASE_URL}/uploads/${avatarFile}`
+          : undefined;
+
+        console.log("Image Path Check:", fullAvatarUrl);
+
         const member: TeamMember = {
           id: item.staff.staffId.toString(),
           name: item.staff.fullName,
-          avatar: item.staff.avatar || undefined,
+          avatar: fullAvatarUrl,
           type: "staff",
         };
 
