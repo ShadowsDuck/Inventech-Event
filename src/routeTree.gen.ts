@@ -13,10 +13,15 @@ import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as AuthSetPasswordRouteImport } from './routes/auth/set-password'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
+import { Route as AuthMobileRouteRouteImport } from './routes/_auth/mobile/route'
 import { Route as AuthSidebarLayoutRouteRouteImport } from './routes/_auth/_sidebarLayout/route'
 import { Route as AuthAdminRouteRouteImport } from './routes/_auth/_admin/route'
+import { Route as AuthMobileIndexRouteImport } from './routes/_auth/mobile/index'
 import { Route as AuthSidebarLayoutIndexRouteImport } from './routes/_auth/_sidebarLayout/index'
 import { Route as AuthProfileChangePasswordRouteImport } from './routes/_auth/profile/change-password'
+import { Route as AuthMobileProfileRouteImport } from './routes/_auth/mobile/profile'
+import { Route as AuthMobileCalendarRouteImport } from './routes/_auth/mobile/calendar'
+import { Route as AuthMobileEventIdRouteImport } from './routes/_auth/mobile/$eventId'
 import { Route as AuthSidebarLayoutPackageRouteImport } from './routes/_auth/_sidebarLayout/package'
 import { Route as AuthSidebarLayoutEquipmentRouteImport } from './routes/_auth/_sidebarLayout/equipment'
 import { Route as AuthSidebarLayoutStaffIndexRouteImport } from './routes/_auth/_sidebarLayout/staff/index'
@@ -58,6 +63,11 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   path: '/auth/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthMobileRouteRoute = AuthMobileRouteRouteImport.update({
+  id: '/mobile',
+  path: '/mobile',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 const AuthSidebarLayoutRouteRoute = AuthSidebarLayoutRouteRouteImport.update({
   id: '/_sidebarLayout',
   getParentRoute: () => AuthRouteRoute,
@@ -65,6 +75,11 @@ const AuthSidebarLayoutRouteRoute = AuthSidebarLayoutRouteRouteImport.update({
 const AuthAdminRouteRoute = AuthAdminRouteRouteImport.update({
   id: '/_admin',
   getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthMobileIndexRoute = AuthMobileIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthMobileRouteRoute,
 } as any)
 const AuthSidebarLayoutIndexRoute = AuthSidebarLayoutIndexRouteImport.update({
   id: '/',
@@ -77,6 +92,21 @@ const AuthProfileChangePasswordRoute =
     path: '/profile/change-password',
     getParentRoute: () => AuthRouteRoute,
   } as any)
+const AuthMobileProfileRoute = AuthMobileProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthMobileRouteRoute,
+} as any)
+const AuthMobileCalendarRoute = AuthMobileCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AuthMobileRouteRoute,
+} as any)
+const AuthMobileEventIdRoute = AuthMobileEventIdRouteImport.update({
+  id: '/$eventId',
+  path: '/$eventId',
+  getParentRoute: () => AuthMobileRouteRoute,
+} as any)
 const AuthSidebarLayoutPackageRoute =
   AuthSidebarLayoutPackageRouteImport.update({
     id: '/package',
@@ -201,13 +231,18 @@ const AuthAdminCompanyCompanyIdEditRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/mobile': typeof AuthMobileRouteRouteWithChildren
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/set-password': typeof AuthSetPasswordRoute
   '/login': typeof LoginIndexRoute
   '/equipment': typeof AuthSidebarLayoutEquipmentRoute
   '/package': typeof AuthSidebarLayoutPackageRoute
+  '/mobile/$eventId': typeof AuthMobileEventIdRoute
+  '/mobile/calendar': typeof AuthMobileCalendarRoute
+  '/mobile/profile': typeof AuthMobileProfileRoute
   '/profile/change-password': typeof AuthProfileChangePasswordRoute
   '/': typeof AuthSidebarLayoutIndexRoute
+  '/mobile/': typeof AuthMobileIndexRoute
   '/company/create': typeof AuthAdminCompanyCreateRoute
   '/equipment/create': typeof AuthAdminEquipmentCreateRoute
   '/event/create': typeof AuthAdminEventCreateRoute
@@ -234,8 +269,12 @@ export interface FileRoutesByTo {
   '/login': typeof LoginIndexRoute
   '/equipment': typeof AuthSidebarLayoutEquipmentRoute
   '/package': typeof AuthSidebarLayoutPackageRoute
+  '/mobile/$eventId': typeof AuthMobileEventIdRoute
+  '/mobile/calendar': typeof AuthMobileCalendarRoute
+  '/mobile/profile': typeof AuthMobileProfileRoute
   '/profile/change-password': typeof AuthProfileChangePasswordRoute
   '/': typeof AuthSidebarLayoutIndexRoute
+  '/mobile': typeof AuthMobileIndexRoute
   '/company/create': typeof AuthAdminCompanyCreateRoute
   '/equipment/create': typeof AuthAdminEquipmentCreateRoute
   '/event/create': typeof AuthAdminEventCreateRoute
@@ -261,13 +300,18 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_auth/_admin': typeof AuthAdminRouteRouteWithChildren
   '/_auth/_sidebarLayout': typeof AuthSidebarLayoutRouteRouteWithChildren
+  '/_auth/mobile': typeof AuthMobileRouteRouteWithChildren
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/set-password': typeof AuthSetPasswordRoute
   '/login/': typeof LoginIndexRoute
   '/_auth/_sidebarLayout/equipment': typeof AuthSidebarLayoutEquipmentRoute
   '/_auth/_sidebarLayout/package': typeof AuthSidebarLayoutPackageRoute
+  '/_auth/mobile/$eventId': typeof AuthMobileEventIdRoute
+  '/_auth/mobile/calendar': typeof AuthMobileCalendarRoute
+  '/_auth/mobile/profile': typeof AuthMobileProfileRoute
   '/_auth/profile/change-password': typeof AuthProfileChangePasswordRoute
   '/_auth/_sidebarLayout/': typeof AuthSidebarLayoutIndexRoute
+  '/_auth/mobile/': typeof AuthMobileIndexRoute
   '/_auth/_admin/company/create': typeof AuthAdminCompanyCreateRoute
   '/_auth/_admin/equipment/create': typeof AuthAdminEquipmentCreateRoute
   '/_auth/_admin/event/create': typeof AuthAdminEventCreateRoute
@@ -291,13 +335,18 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/mobile'
     | '/auth/forgot-password'
     | '/auth/set-password'
     | '/login'
     | '/equipment'
     | '/package'
+    | '/mobile/$eventId'
+    | '/mobile/calendar'
+    | '/mobile/profile'
     | '/profile/change-password'
     | '/'
+    | '/mobile/'
     | '/company/create'
     | '/equipment/create'
     | '/event/create'
@@ -324,8 +373,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/equipment'
     | '/package'
+    | '/mobile/$eventId'
+    | '/mobile/calendar'
+    | '/mobile/profile'
     | '/profile/change-password'
     | '/'
+    | '/mobile'
     | '/company/create'
     | '/equipment/create'
     | '/event/create'
@@ -350,13 +403,18 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/_auth/_admin'
     | '/_auth/_sidebarLayout'
+    | '/_auth/mobile'
     | '/auth/forgot-password'
     | '/auth/set-password'
     | '/login/'
     | '/_auth/_sidebarLayout/equipment'
     | '/_auth/_sidebarLayout/package'
+    | '/_auth/mobile/$eventId'
+    | '/_auth/mobile/calendar'
+    | '/_auth/mobile/profile'
     | '/_auth/profile/change-password'
     | '/_auth/_sidebarLayout/'
+    | '/_auth/mobile/'
     | '/_auth/_admin/company/create'
     | '/_auth/_admin/equipment/create'
     | '/_auth/_admin/event/create'
@@ -415,6 +473,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/mobile': {
+      id: '/_auth/mobile'
+      path: '/mobile'
+      fullPath: '/mobile'
+      preLoaderRoute: typeof AuthMobileRouteRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/_auth/_sidebarLayout': {
       id: '/_auth/_sidebarLayout'
       path: ''
@@ -429,6 +494,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAdminRouteRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/mobile/': {
+      id: '/_auth/mobile/'
+      path: '/'
+      fullPath: '/mobile/'
+      preLoaderRoute: typeof AuthMobileIndexRouteImport
+      parentRoute: typeof AuthMobileRouteRoute
+    }
     '/_auth/_sidebarLayout/': {
       id: '/_auth/_sidebarLayout/'
       path: '/'
@@ -442,6 +514,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/profile/change-password'
       preLoaderRoute: typeof AuthProfileChangePasswordRouteImport
       parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/mobile/profile': {
+      id: '/_auth/mobile/profile'
+      path: '/profile'
+      fullPath: '/mobile/profile'
+      preLoaderRoute: typeof AuthMobileProfileRouteImport
+      parentRoute: typeof AuthMobileRouteRoute
+    }
+    '/_auth/mobile/calendar': {
+      id: '/_auth/mobile/calendar'
+      path: '/calendar'
+      fullPath: '/mobile/calendar'
+      preLoaderRoute: typeof AuthMobileCalendarRouteImport
+      parentRoute: typeof AuthMobileRouteRoute
+    }
+    '/_auth/mobile/$eventId': {
+      id: '/_auth/mobile/$eventId'
+      path: '/$eventId'
+      fullPath: '/mobile/$eventId'
+      preLoaderRoute: typeof AuthMobileEventIdRouteImport
+      parentRoute: typeof AuthMobileRouteRoute
     }
     '/_auth/_sidebarLayout/package': {
       id: '/_auth/_sidebarLayout/package'
@@ -662,15 +755,35 @@ const AuthSidebarLayoutRouteRouteWithChildren =
     AuthSidebarLayoutRouteRouteChildren,
   )
 
+interface AuthMobileRouteRouteChildren {
+  AuthMobileEventIdRoute: typeof AuthMobileEventIdRoute
+  AuthMobileCalendarRoute: typeof AuthMobileCalendarRoute
+  AuthMobileProfileRoute: typeof AuthMobileProfileRoute
+  AuthMobileIndexRoute: typeof AuthMobileIndexRoute
+}
+
+const AuthMobileRouteRouteChildren: AuthMobileRouteRouteChildren = {
+  AuthMobileEventIdRoute: AuthMobileEventIdRoute,
+  AuthMobileCalendarRoute: AuthMobileCalendarRoute,
+  AuthMobileProfileRoute: AuthMobileProfileRoute,
+  AuthMobileIndexRoute: AuthMobileIndexRoute,
+}
+
+const AuthMobileRouteRouteWithChildren = AuthMobileRouteRoute._addFileChildren(
+  AuthMobileRouteRouteChildren,
+)
+
 interface AuthRouteRouteChildren {
   AuthAdminRouteRoute: typeof AuthAdminRouteRouteWithChildren
   AuthSidebarLayoutRouteRoute: typeof AuthSidebarLayoutRouteRouteWithChildren
+  AuthMobileRouteRoute: typeof AuthMobileRouteRouteWithChildren
   AuthProfileChangePasswordRoute: typeof AuthProfileChangePasswordRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthAdminRouteRoute: AuthAdminRouteRouteWithChildren,
   AuthSidebarLayoutRouteRoute: AuthSidebarLayoutRouteRouteWithChildren,
+  AuthMobileRouteRoute: AuthMobileRouteRouteWithChildren,
   AuthProfileChangePasswordRoute: AuthProfileChangePasswordRoute,
 }
 

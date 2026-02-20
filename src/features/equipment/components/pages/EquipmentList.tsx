@@ -2,14 +2,14 @@ import { useMemo, useState } from "react";
 
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { ListFilter, Plus, Tag } from "lucide-react";
+import { ListFilter, Tag } from "lucide-react";
 
 import SearchBar from "@/components/SearchBar";
 import PageHeader from "@/components/layout/PageHeader";
 import { DataTable } from "@/components/tables/data-table";
-import { Button } from "@/components/ui/button";
 import { FilterMultiSelect } from "@/components/ui/filter-multi-select";
 import { FilterSelect } from "@/components/ui/filter-select";
+import PageHeaderButton from "@/components/ui/page-header-button";
 import { SELECT_OPTIONS } from "@/data/constants";
 
 import { categoryQuery } from "../../api/getCategory";
@@ -63,13 +63,10 @@ export default function EquipmentList() {
         count={filteredEquipment.length}
         countLabel="items"
         actions={
-          <Button
-            size="add"
+          <PageHeaderButton
             onClick={() => navigate({ to: "/equipment/create" })}
-          >
-            <Plus size={18} strokeWidth={2.5} />
-            Add Equipment
-          </Button>
+            label="Add Equipment"
+          />
         }
       />
 

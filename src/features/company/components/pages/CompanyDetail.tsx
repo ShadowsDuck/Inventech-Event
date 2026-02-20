@@ -21,7 +21,7 @@ import {
   PrimaryContactCard,
   StandardContactCard,
 } from "./../company-contact-card";
-import { CompanyHistoryTab } from "./companyEvent";
+import { CompanyEventHistory } from "./CompanyEventHistory";
 
 export default function CompanyDetail() {
   const { companyId } = useParams({
@@ -164,7 +164,7 @@ export default function CompanyDetail() {
       {activeTab === "history" && (
         <div className="flex flex-col gap-4 p-6">
           <h1 className="text-lg font-bold">Project History</h1>
-          <CompanyHistoryTab companyId={companyId} />
+          <CompanyEventHistory companyId={companyId} />
         </div>
       )}
     </>

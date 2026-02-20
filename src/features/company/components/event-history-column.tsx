@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Box, Calendar, Users } from "lucide-react";
@@ -7,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { EventType } from "@/types/event";
 
-export const projectHistoryColumns: ColumnDef<EventType>[] = [
+export const eventHistoryColumns: ColumnDef<EventType>[] = [
   {
     accessorKey: "eventName",
     header: "Project Name",
@@ -98,7 +97,6 @@ export const projectHistoryColumns: ColumnDef<EventType>[] = [
     size: 100,
     cell: ({ row }) => {
       const status = row.original.eventStatus;
-      // เช็คว่าสถานะคือ Complete หรือไม่ (แก้ตาม string ที่ API ส่งมาจริง)
       const isComplete = status === "Complete";
 
       return (
