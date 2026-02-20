@@ -35,7 +35,7 @@ const changePassword = async (
       const errorMessage =
         (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
         errorData.detail ||
-        "Failed to reset password";
+        "Failed to change password";
 
       throw new Error(errorMessage);
     }

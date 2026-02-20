@@ -36,7 +36,7 @@ const setPassword = async (
       const errorMessage =
         (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
         errorData.detail ||
-        "Failed to reset password";
+        "Failed to set password";
 
       throw new Error(errorMessage);
     }
@@ -57,8 +57,8 @@ export const useSetPassword = () => {
       }
     },
     meta: {
-      successMessage: "Reset password successfully",
-      errorMessage: "Failed to reset password",
+      successMessage: "Set password successfully",
+      errorMessage: "Failed to set password",
     },
   });
 };
