@@ -64,25 +64,42 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
   ].filter((item): item is EquipmentType => !!item);
 
   const printableEquipmentList: ExportEquipmentProp[] = useMemo(() => {
-    const pItems = packageItems.map((item) => ({
-      id: item.equipmentId,
-      name: item.equipmentName,
-      category: "-",
-      source: "Package" as const,
-      quantity: item.quantity,
-    }));
+    const equipmentMap = new Map<number, ExportEquipmentProp>();
 
-    const eItems = extraItems.map((item) => ({
-      id: item.equipmentId,
-      name: item.equipmentName,
-      category: item.categoryName || "-",
-      source: "Extra" as const,
-      quantity: item.quantity,
-    }));
+    //  จัดการของจาก Package: ใส่ลงใน Map
+    packageItems.forEach((item) => {
+      equipmentMap.set(item.equipmentId, {
+        id: item.equipmentId,
+        name: item.equipmentName,
+        category: "-",
+        source: "Package",
+        quantity: item.quantity,
+      });
+    });
 
-    return [...pItems, ...eItems];
+    // จัดการของจาก Extra: ถ้าซ้ำกับ Package ให้บวกเลขเพิ่ม ถ้าไม่ซ้ำให้เพิ่มแถวใหม่
+    extraItems.forEach((item) => {
+      if (equipmentMap.has(item.equipmentId)) {
+        // ถ้ามีอยู่แล้ว (ซ้ำ) ให้ดึงตัวเก่ามาบวก quantity เพิ่ม
+        const existing = equipmentMap.get(item.equipmentId)!;
+        existing.quantity += item.quantity;
+      } else {
+        // ถ้ายังไม่มี ให้เพิ่มเข้าไปใหม่
+        equipmentMap.set(item.equipmentId, {
+          id: item.equipmentId,
+          name: item.equipmentName,
+          category: item.categoryName || "-",
+          source: "Extra",
+          quantity: item.quantity,
+        });
+      }
+    });
+
+    // แปลง Map เป็น Array และเรียงลำดับตามชื่อ (ก-ฮ, A-Z)
+    return Array.from(equipmentMap.values()).sort((a, b) =>
+      a.name.localeCompare(b.name, "th"),
+    );
   }, [packageItems, extraItems]);
-
   return (
     <div>
       {/* ส่วนหัว และ ปุ่ม Export PDF */}
