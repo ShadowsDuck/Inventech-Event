@@ -110,7 +110,7 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
           className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
         >
           <Printer size={18} />
-          Export ใบเบิกอุปกรณ์ PDF
+          Export อุปกรณ์ PDF
         </button>
       </div>
 

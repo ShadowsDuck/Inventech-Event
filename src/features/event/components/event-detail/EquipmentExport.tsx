@@ -20,9 +20,7 @@ export const ExportEquipment = ({
   return (
     <div className="hidden print:block print:bg-white print:p-12">
       <div className="mb-6 text-center">
-        <h1 className="mb-2 text-2xl font-bold text-black">
-          ใบเบิกจ่ายและตรวจสอบอุปกรณ์
-        </h1>
+        <h1 className="mb-2 text-2xl font-bold text-black">รายการอุปกรณ์</h1>
         <p className="text-gray-600">
           ชื่องาน: {eventName} | วันที่
           ........................................................
