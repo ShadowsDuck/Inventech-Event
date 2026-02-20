@@ -8,6 +8,7 @@ import { type EquipmentType } from "@/types/equipment";
 
 export type PackageItem = {
   equipmentId: number;
+  equipmentName: string;
   quantity: number;
 };
 

@@ -31,6 +31,7 @@ export function EventDetail() {
       className="flex w-full flex-col"
     >
       <PageHeader
+        className="print:hidden"
         title={eventData.eventName}
         subtitle={
           <div className="flex items-center gap-4 text-sm text-gray-500">

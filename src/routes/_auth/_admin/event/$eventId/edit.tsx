@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { eventQuery } from "@/features/event/api/getEventById";
-import EditEvent from "@/features/event/components/EditEvent";
+import EditEvent from "@/features/event/components/pages/EditEvent";
 
 export const Route = createFileRoute("/_auth/_admin/event/$eventId/edit")({
   component: EditEvent,

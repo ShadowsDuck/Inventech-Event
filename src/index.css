@@ -185,3 +185,23 @@
     scrollbar-color: #e5e7eb transparent;
   }
 }
+@media print {
+  html,
+  body,
+  #root {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+  @page {
+    margin: 0;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

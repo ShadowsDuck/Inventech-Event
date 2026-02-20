@@ -1,8 +1,13 @@
+// EventTeam.tsx
 import { useMemo } from "react";
 
-import { User } from "lucide-react";
+import { Printer, User } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+
+import { PersonnelExport, type ReportStaff } from "./PersonnelExport";
+
+// Import Component และ Type ที่แยกออกไป (ปรับ path ให้ตรงกับโปรเจกต์ของคุณ)
 
 // --- 1. Type Definitions ---
 
@@ -62,6 +67,7 @@ interface EventTeamProps {
     eventStaff: EventStaff[];
     eventOutsources: EventOutsource[];
     requirements: EventRoleRequirement[];
+    eventName?: string;
   };
 }
 
@@ -85,7 +91,6 @@ const TeamGroupCard = ({ assignment }: { assignment: RoleAssignmentView }) => {
       const slotNumber = baseIndex + index + 1;
 
       if (member) {
-        // === Filled Slot ===
         const isStaff = type === "staff";
         return (
           <div
@@ -135,7 +140,6 @@ const TeamGroupCard = ({ assignment }: { assignment: RoleAssignmentView }) => {
         );
       }
 
-      // === Empty Slot (Unassigned) ===
       return (
         <div
           key={`empty-${type}-${index}`}
@@ -221,7 +225,6 @@ export default function EventTeam({ events }: EventTeamProps) {
   const assignments = useMemo(() => {
     const roleMap = new Map<number, RoleAssignmentView>();
 
-    // 1. กาง "โครงการ์ด" ตาม Requirements
     events.requirements?.forEach((req) => {
       const name = req.roleName || req.role?.roleName || "Unknown Role";
 
@@ -235,14 +238,12 @@ export default function EventTeam({ events }: EventTeamProps) {
       }
 
       const current = roleMap.get(req.roleId)!;
-      // sourceType: 1=Staff, 2=Outsource
       if (req.sourceType === 1)
         current.staffSlots = Array(req.quantity).fill(null);
       if (req.sourceType === 2)
         current.outsourceSlots = Array(req.quantity).fill(null);
     });
 
-    // 2. หยอด Staff
     events.eventStaff?.forEach((item) => {
       const rId = item.eventRole?.roleId;
       if (!rId) return;
@@ -272,7 +273,6 @@ export default function EventTeam({ events }: EventTeamProps) {
       }
     });
 
-    // 3. หยอด Outsource
     events.eventOutsources?.forEach((item) => {
       const rId = item.role?.roleId || item.roleId;
       if (!rId) return;
@@ -304,9 +304,38 @@ export default function EventTeam({ events }: EventTeamProps) {
     return Array.from(roleMap.values());
   }, [events]);
 
+  {
+    /* Export PDF */
+  }
+  const allStaffList: ReportStaff[] = useMemo(() => {
+    return assignments.flatMap((assign) => {
+      const filledStaff = assign.staffSlots.filter(
+        (s) => s !== null,
+      ) as TeamMember[];
+      const filledOutsource = assign.outsourceSlots.filter(
+        (s) => s !== null,
+      ) as TeamMember[];
+
+      return [
+        ...filledStaff.map((staff) => ({
+          id: staff.id,
+          name: staff.name,
+          roleName: assign.roleName,
+          type: staff.type,
+        })),
+        ...filledOutsource.map((outsource) => ({
+          id: outsource.id,
+          name: outsource.name,
+          roleName: assign.roleName,
+          type: outsource.type,
+        })),
+      ];
+    });
+  }, [assignments]);
+
   if (assignments.length === 0) {
     return (
-      <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 py-16 text-center">
+      <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 py-16 text-center print:hidden">
         <User size={32} className="mb-3 text-gray-300" />
         <p className="font-medium text-gray-500">No team members assigned.</p>
       </div>
@@ -314,10 +343,25 @@ export default function EventTeam({ events }: EventTeamProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {assignments.map((assign) => (
-        <TeamGroupCard key={assign.roleId} assignment={assign} />
-      ))}
+    <div>
+      <div className="mb-6 flex items-center justify-between print:hidden">
+        <h2 className="text-2xl font-bold text-gray-800">Team Assignments</h2>
+        <button
+          onClick={() => window.print()}
+          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+        >
+          <Printer size={18} />
+          Export ใบลงเวลา PDF
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3 print:hidden">
+        {assignments.map((assign) => (
+          <TeamGroupCard key={assign.roleId} assignment={assign} />
+        ))}
+      </div>
+
+      <PersonnelExport staffList={allStaffList} eventName={events.eventName} />
     </div>
   );
 }
