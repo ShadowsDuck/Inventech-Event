@@ -188,20 +188,91 @@
 @media print {
   html,
   body,
-  #root {
+  #root,
+  main,
+  .overflow-hidden,
+  .overflow-y-auto,
+  .h-screen,
+  .min-h-screen,
+  .max-h-screen {
     height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
     overflow: visible !important;
-  }
-
-  ::-webkit-scrollbar {
-    display: none !important;
-  }
-  @page {
-    margin: 0;
+    display: block !important;
   }
 
   body {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  @media print {
+    html,
+    body,
+    #root,
+    main,
+    .overflow-hidden,
+    .overflow-y-auto,
+    .h-screen,
+    .min-h-screen,
+    .max-h-screen {
+      height: auto !important;
+      min-height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      display: block !important;
+    }
+
+    html,
+    body,
+    #root,
+    main,
+    .flex-1,
+    #root > *,
+    main > * div {
+      padding: 2 !important;
+      margin: 0 !important;
+      background-color: white !important;
+    }
+
+    body {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    ::-webkit-scrollbar {
+      display: none !important;
+    }
+
+    @page {
+      margin: 0;
+    }
+
+    .flex-1 {
+      display: block !important;
+      flex: none !important;
+    }
+
+    /* 7. บังคับตารางให้ตัดหน้ากระดาษอย่างถูกต้อง */
+    table {
+      page-break-inside: auto !important;
+    }
+    tr {
+      page-break-inside: avoid !important;
+      page-break-after: auto !important;
+    }
+    thead {
+      display: table-header-group !important;
+    }
+    tfoot {
+      display: table-footer-group !important;
+    }
   }
 }

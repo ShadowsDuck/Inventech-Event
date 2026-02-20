@@ -9,6 +9,7 @@ function Tabs({ className, ...props }: TabsPrimitive.Root.Props) {
     <TabsPrimitive.Root
       className={cn(
         "flex flex-col gap-2 data-[orientation=vertical]:flex-row",
+        "print:block print:h-auto print:overflow-visible",
         className,
       )}
       data-slot="tabs"
@@ -89,7 +90,11 @@ function TabsTab({
 function TabsPanel({ className, ...props }: TabsPrimitive.Panel.Props) {
   return (
     <TabsPrimitive.Panel
-      className={cn("flex-1 outline-none", className)}
+      className={cn(
+        "flex-1 outline-none",
+        "print:block print:h-auto print:w-full print:overflow-visible",
+        className,
+      )}
       data-slot="tabs-content"
       {...props}
     />

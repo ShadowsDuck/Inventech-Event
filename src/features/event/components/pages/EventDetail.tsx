@@ -31,6 +31,7 @@ export function EventDetail() {
       className="flex w-full flex-col"
     >
       <PageHeader
+        backButton={true}
         className="print:hidden"
         title={eventData.eventName}
         subtitle={
@@ -97,7 +98,10 @@ export function EventDetail() {
           <EventOverview events={eventData} />
         </TabsPanel>
 
-        <TabsPanel value="Team">
+        <TabsPanel
+          value="Team"
+          className="print:block print:h-auto print:w-full print:overflow-visible"
+        >
           <EventTeam events={eventData} />
         </TabsPanel>
 

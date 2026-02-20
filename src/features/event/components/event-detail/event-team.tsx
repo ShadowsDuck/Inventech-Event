@@ -351,7 +351,7 @@ export default function EventTeam({ events }: EventTeamProps) {
   }
 
   return (
-    <div>
+    <div className="print:m-0 print:p-0">
       <div className="mb-6 flex items-center justify-between print:hidden">
         <h2 className="text-2xl font-bold text-gray-800">Team Assignments</h2>
         <button
@@ -362,13 +362,11 @@ export default function EventTeam({ events }: EventTeamProps) {
           Export Personnel PDF
         </button>
       </div>
-
       <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3 print:hidden">
         {assignments.map((assign) => (
           <TeamGroupCard key={assign.roleId} assignment={assign} />
         ))}
       </div>
-
       <PersonnelExport staffList={allStaffList} eventName={events.eventName} />
     </div>
   );
