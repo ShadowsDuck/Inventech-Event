@@ -20,7 +20,6 @@ export default function ForgotPassword({
 }: React.HTMLAttributes<HTMLFormElement>) {
   const { mutate: forgotPassword, isPending } = useForgotPassword();
 
-  // 🌟 1. State สำหรับควบคุมการเปลี่ยน UI หน้าจอ
   const [isSuccess, setIsSuccess] = useState(false);
 
   const form = useAppForm({
@@ -39,8 +38,6 @@ export default function ForgotPassword({
         { email: value.email },
         {
           onSuccess: () => {
-            // 🌟 2. ลบ alert() ออก! แล้วสั่งเปลี่ยนหน้าจอ UI แทน
-            // จะไม่มี Popup เด้ง และไม่มีการเตะไปหน้าอื่นครับ
             setIsSuccess(true);
           },
           onError: () => {
@@ -53,7 +50,6 @@ export default function ForgotPassword({
     },
   });
 
-  // 🌟 3. หน้าจอตอน "ส่งสำเร็จ" (ฟอร์มจะหายไป แทนที่ด้วยข้อความนี้ ค้างอยู่หน้านี้เลย)
   if (isSuccess) {
     return (
       <div className={`space-y-6 py-8 text-center ${className}`}>
@@ -93,7 +89,6 @@ export default function ForgotPassword({
     );
   }
 
-  // 🌟 4. หน้าจอตอน "กรอกอีเมล" (ค่าเริ่มต้น)
   return (
     <form
       id="forgot-pass-form"
@@ -119,9 +114,8 @@ export default function ForgotPassword({
           <form.AppField
             name="email"
             children={(field) => (
-              <field.TextField
+              <field.PasswordField
                 label="Email Address"
-                type="email"
                 placeholder="name@company.com"
               />
             )}

@@ -72,9 +72,8 @@ export default function SetPasswordForm({
           <form.AppField
             name="newPassword"
             children={(field) => (
-              <field.TextField
+              <field.PasswordField
                 label="New Password"
-                type="password"
                 placeholder="Enter your new password"
                 required
               />
@@ -85,9 +84,8 @@ export default function SetPasswordForm({
           <form.AppField
             name="confirmPassword"
             children={(field) => (
-              <field.TextField
+              <field.PasswordField
                 label="Confirm Password"
-                type="password"
                 placeholder="Confirm your new password"
                 required
               />

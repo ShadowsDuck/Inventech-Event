@@ -41,7 +41,6 @@ export const PasswordField = ({
         {label} {required && <span className="text-destructive -ml-1">*</span>}
       </Label>
 
-      {/* 2. หุ้มด้วย relative เพื่อวางปุ่มตา */}
       <div className="relative w-full">
         <Input
           id={field.name}
@@ -56,7 +55,6 @@ export const PasswordField = ({
           startIcon={startIcon}
         />
 
-        {/* 3. ปุ่มตาของเราเอง */}
         <button
           type="button"
           tabIndex={-1}
