@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useSuspenseQueries } from "@tanstack/react-query";
@@ -69,8 +69,8 @@ export default function EventForm({
 }: EventFormProps) {
   const [alertOpen, setAlertOpen] = useState(false);
   const [pendingPackage, setPendingPackage] = useState<string | null>(null);
-
-  // --- State สำหรับจัดการไฟล์เดิม ---
+  const [dateAlertOpen, setDateAlertOpen] = useState(false);
+  const prevEventDateRef = useRef<Date | undefined>(initialValues?.eventDate);
   const [currentExistingFiles, setCurrentExistingFiles] =
     useState(existingFiles);
   const [deletedFileIds, setDeletedFileIds] = useState<number[]>([]);
@@ -170,7 +170,30 @@ export default function EventForm({
     form.store,
     (state) => state.values.timePeriod,
   );
+  const currentStaff = useStore(form.store, (state) => state.values.eventStaff);
+  const currentOutsources = useStore(
+    form.store,
+    (state) => state.values.eventOutsources,
+  );
+  useEffect(() => {
+    const currTime = currentEventDate?.getTime();
+    const prevTime = prevEventDateRef.current?.getTime();
+    if (currTime !== prevTime) {
+      const hasResources =
+        (currentStaff && currentStaff.length > 0) ||
+        (currentOutsources && currentOutsources.length > 0);
 
+      if (hasResources) {
+        // มีคนอยู่ เปิด Alert
+        setTimeout(() => {
+          setDateAlertOpen(true);
+        }, 0);
+      } else {
+        // ไม่มีคนอยู่ อัปเดต Date เดิมเป็น Date ใหม่ได้เลย
+        prevEventDateRef.current = currentEventDate;
+      }
+    }
+  }, [currentEventDate, currentStaff, currentOutsources]);
   // แปลง Date เป็น String (YYYY-MM-DD) และ Period
   const dateString = currentEventDate
     ? format(currentEventDate, "yyyy-MM-dd")
@@ -459,6 +482,60 @@ export default function EventForm({
                     <field.LocationField label="Select Location " />
                   )}
                 />
+                {/* Alert ของ Schedue */}
+                <AlertDialog
+                  open={dateAlertOpen}
+                  onOpenChange={(isOpen) => {
+                    // ถ้าสถานะคือการ "ปิด" (เช่น กด ESC) ให้ Revert วันที่กลับอัตโนมัติ
+                    if (!isOpen) {
+                      form.setFieldValue(
+                        "eventDate",
+                        prevEventDateRef.current as Date,
+                      );
+                      setDateAlertOpen(false);
+                    }
+                  }}
+                >
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Change Event Date?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        If you change the event date, all assigned Staff and
+                        Outsources will be cleared due to schedule changes.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel
+                        onClick={() => {
+                          // ถ้ายกเลิก ให้ดึงเอาวันที่เดิมที่เก็บไว้ยัดกลับคืน
+                          form.setFieldValue(
+                            "eventDate",
+                            prevEventDateRef.current as Date,
+                          );
+                          setDateAlertOpen(false);
+                        }}
+                      >
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-red-600 hover:bg-red-700"
+                        onClick={() => {
+                          // ถ้าคอนเฟิร์ม ให้ล้างข้อมูลคนทิ้งทั้งหมด
+                          form.setFieldValue("eventStaff", []);
+                          form.setFieldValue("eventOutsources", []);
+                          form.setFieldValue("staffRequirements", []);
+                          form.setFieldValue("outsourceRequirements", []);
+
+                          // อัปเดตว่ายอมรับวันที่ใหม่แล้ว
+                          prevEventDateRef.current = currentEventDate;
+                          setDateAlertOpen(false);
+                        }}
+                      >
+                        Confirm
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </section>
             </CardContent>
           </Card>

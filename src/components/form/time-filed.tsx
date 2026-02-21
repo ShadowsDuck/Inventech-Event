@@ -25,10 +25,7 @@ const minutes = Array.from({ length: 60 }, (_, i) =>
   i.toString().padStart(2, "0"),
 );
 
-export const TimeField = ({
-  label,
-  placeholder = "00:00", // ปรับ placeholder ให้เข้ากับ 24h
-}: TimeFieldProps) => {
+export const TimeField = ({ label, placeholder = "00:00" }: TimeFieldProps) => {
   const field = useFieldContext<string>();
 
   const isSubmitted = field.form.state.isSubmitted;
