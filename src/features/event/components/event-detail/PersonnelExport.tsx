@@ -10,36 +10,35 @@ export interface ReportStaff {
 interface Props {
   staffList: ReportStaff[];
   eventName?: string;
+  meetingDate?: string;
 }
 
 export const PersonnelExport = ({
   staffList,
   eventName = "ไม่ระบุ",
+  meetingDate = "ไม่ระบุ",
 }: Props) => {
   return (
     <div className="hidden print:block">
-      {/* 🔴 1. เอาคลาส 'border border-gray-800' ออกจาก table เพื่อไม่ให้มันตีเส้นครอบหัวเอกสาร */}
       <table className="w-full border-collapse text-sm">
         <thead className="print:table-header-group">
-          {/* 🟢 2. เพิ่มแถวนี้: ทำหน้าที่เป็น "ขอบกระดาษด้านบน (Top Margin)" ให้ทุกหน้า */}
           <tr className="hidden print:table-row">
             <th colSpan={7} className="h-[1.5cm] border-0 p-0"></th>
           </tr>
 
-          {/* 🟢 3. ส่วนหัวเอกสาร (ตอนนี้จะไม่อยู่ในกรอบแล้ว เพราะเราเอา border ของ table ออก) */}
           <tr>
             <th colSpan={7} className="border-0 pb-6 text-center font-normal">
               <h1 className="mb-2 text-2xl font-bold text-black">
                 ใบลงทะเบียนลงเวลาปฏิบัติงาน
               </h1>
               <p className="text-gray-600">
-                ชื่องาน: {eventName} | วันที่
-                ........................................................
+                ชื่องาน: {eventName} | วันที่: {meetingDate}
+                {}
+                {}
               </p>
             </th>
           </tr>
 
-          {/* 🟢 4. หัวตารางคอลัมน์ (เส้นขอบตามเซลล์ยังอยู่ปกติ) */}
           <tr className="break-inside-avoid bg-gray-100">
             <th className="w-12 border border-gray-800 p-2 text-center">
               ลำดับ
@@ -107,7 +106,6 @@ export const PersonnelExport = ({
           ))}
         </tbody>
 
-        {/* 🟢 5. เพิ่ม tfoot: ทำหน้าที่เป็น "ขอบกระดาษด้านล่าง (Bottom Margin)" ให้ทุกหน้า */}
         <tfoot className="hidden print:table-footer-group">
           <tr>
             <td colSpan={7} className="h-[1.5cm] border-0 p-0"></td>

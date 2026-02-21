@@ -11,11 +11,13 @@ export interface ExportEquipmentProp {
 interface Props {
   equipmentList: ExportEquipmentProp[];
   eventName?: string;
+  meetingDate?: string;
 }
 
 export const ExportEquipment = ({
   equipmentList,
   eventName = "ไม่ระบุ",
+  meetingDate = "ไม่ระบุ",
 }: Props) => {
   return (
     // เอา print:p-12 ออก เพื่อให้ใช้ระยะขอบจาก CSS แทน
@@ -35,8 +37,7 @@ export const ExportEquipment = ({
                 รายการอุปกรณ์
               </h1>
               <p className="text-gray-600">
-                ชื่องาน: {eventName} | วันที่
-                ........................................................
+                ชื่องาน: {eventName} | วันที่: {meetingDate}
               </p>
             </th>
           </tr>

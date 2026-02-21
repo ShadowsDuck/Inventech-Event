@@ -167,6 +167,7 @@ export default function EventList() {
   return (
     <>
       <PageHeader
+        className="sticky top-0 z-9999 bg-white"
         title="Event"
         count={EventData.length}
         countLabel="Event"

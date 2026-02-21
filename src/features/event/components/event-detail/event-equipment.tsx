@@ -151,6 +151,7 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
       <ExportEquipment
         equipmentList={printableEquipmentList}
         eventName={events.eventName}
+        meetingDate={events.meetingDate}
       />
     </div>
   );

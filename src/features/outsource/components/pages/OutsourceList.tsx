@@ -39,6 +39,7 @@ export default function OutsourceList() {
   return (
     <>
       <PageHeader
+        className="sticky top-0 z-9999 bg-white"
         title="Outsource"
         count={filteredOutsources.length}
         countLabel="outsource members"

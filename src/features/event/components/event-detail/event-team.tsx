@@ -68,6 +68,7 @@ interface EventTeamProps {
     eventOutsources: EventOutsource[];
     requirements: EventRoleRequirement[];
     eventName?: string;
+    meetingDate?: string;
   };
 }
 
@@ -367,7 +368,11 @@ export default function EventTeam({ events }: EventTeamProps) {
           <TeamGroupCard key={assign.roleId} assignment={assign} />
         ))}
       </div>
-      <PersonnelExport staffList={allStaffList} eventName={events.eventName} />
+      <PersonnelExport
+        staffList={allStaffList}
+        eventName={events.eventName}
+        meetingDate={events.meetingDate}
+      />
     </div>
   );
 }
