@@ -44,11 +44,15 @@ function RootLayout() {
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
     beforeLoad: async () => {
+      const { accessToken, refreshAuth } = useAuthStore.getState();
+
       // ตรวจสอบสถานะ Auth ให้เสร็จก่อนเริ่มโหลดหน้าเว็บ
-      await useAuthStore.getState().checkAuth();
+      // ถ้ายังไม่มี Token (เช่น เพิ่งกด F5, เข้าเว็บมาใหม่) ให้พยายามดึง Token ดูก่อน 1 รอบ
+      if (!accessToken) {
+        await refreshAuth();
+      }
     },
     component: RootLayout,
-
     errorComponent: GlobalError,
     notFoundComponent: NotFound,
   },
