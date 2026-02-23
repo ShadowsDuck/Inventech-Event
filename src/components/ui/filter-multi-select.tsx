@@ -84,26 +84,28 @@ export function FilterMultiSelect({
         onClear={isActive ? () => onChange([]) : undefined}
       >
         {options.map((option) => {
-          // 2. เช็คว่าเป็นเส้นแบ่งหรือไม่
           if (option.isDivider) {
             return (
-              <div
+              <MultiSelectItem
                 key={option.value}
-                className="pointer-events-none flex items-center px-2 py-2"
+                value={option.value}
+                disabled
+                hideCheckbox
+                className="pointer-events-none p-0 opacity-100 data-disabled:opacity-100 [&_svg]:hidden [&>span:first-child]:hidden"
               >
-                <div className="h-px flex-1 bg-gray-200"></div>
-                {/* ถ้าอยากให้มีคำว่า Outsource แทรกตรงกลางเส้นด้วย */}
-                {option.label && (
-                  <span className="px-2 text-[10px] font-semibold text-gray-400 uppercase">
-                    {option.label}
-                  </span>
-                )}
-                <div className="h-px flex-1 bg-gray-200"></div>
-              </div>
+                <div className="flex w-full items-center px-2 py-2">
+                  <div className="h-px flex-1 bg-gray-200"></div>
+                  {option.label && (
+                    <span className="px-2 text-[10px] font-semibold text-gray-400 uppercase">
+                      {option.label}
+                    </span>
+                  )}
+                  <div className="h-px flex-1 bg-gray-200"></div>
+                </div>
+              </MultiSelectItem>
             );
           }
 
-          // 3. ถ้าไม่ใช่เส้นแบ่ง ก็ Render ปกติ
           return (
             <MultiSelectItem
               key={option.value}
