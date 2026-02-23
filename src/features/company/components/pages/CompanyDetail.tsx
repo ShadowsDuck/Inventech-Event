@@ -2,171 +2,70 @@ import { useState } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import { format } from "date-fns";
-import {
-  Building2,
-  CalendarDays,
-  Folder,
-  LayoutDashboard,
-  MapPin,
-} from "lucide-react";
+import { Building2 } from "lucide-react";
 
 import PageHeader from "@/components/layout/PageHeader";
-import MapPreview from "@/components/map-preview";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 
 import { companyQuery } from "../../api/getCompany";
-import {
-  PrimaryContactCard,
-  StandardContactCard,
-} from "./../company-contact-card";
 import { CompanyEventHistory } from "./CompanyEventHistory";
+import CompanyOverview from "./CompanyOverview";
 
 export default function CompanyDetail() {
   const { companyId } = useParams({
     from: "/_auth/_sidebarLayout/company/$companyId",
   });
 
-  const [activeTab, setActiveTab] = useState<"overview" | "history">(() => {
-    const savedTab = sessionStorage.getItem(`companyTab-${companyId}`);
-    return savedTab === "overview" || savedTab === "history"
-      ? savedTab
-      : "overview";
-  });
-
-  const handleTabChange = (value: string) => {
-    const tab = value as "overview" | "history";
-    setActiveTab(tab);
-    sessionStorage.setItem(`companyTab-${companyId}`, tab);
-  };
+  const [activeTab, setActiveTab] = useState("Overview");
+  const tabItems = ["Overview", "History"];
 
   const { data: company } = useSuspenseQuery(companyQuery(companyId));
 
-  const primaryContact = company.companyContacts?.find((c) => c.isPrimary);
-
-  const lat = company?.latitude ? Number(company.latitude) : null;
-  const lng = company?.longitude ? Number(company.longitude) : null;
-  const position: [number, number] | null = lat && lng ? [lat, lng] : null;
-
   return (
-    <>
+    <Tabs
+      value={activeTab}
+      onValueChange={(v) => setActiveTab(v)}
+      className="flex w-full flex-col"
+    >
       <PageHeader
-        title={company.companyName}
-        subtitle={company.address || ""}
         backButton={true}
-        showStatusBadge={true}
-        isDeleted={company.isDeleted}
+        className="z-10 print:hidden"
+        title={company.companyName}
+        subtitle={
+          <div className="flex items-center gap-4 text-sm text-gray-500">
+            <div className="flex items-center gap-1.5">
+              <Building2 className="size-4" />
+              <span>{company.companyName}</span>
+            </div>
+          </div>
+        }
+        tabs={
+          <TabsList
+            variant="underline"
+            className="h-10 w-full gap-8 border-b-0"
+          >
+            {tabItems.map((tab) => (
+              <TabsTab
+                key={tab}
+                value={tab}
+                inactiveColor="text-slate-500"
+                activeColor="data-active:text-blue-600"
+                className="data-active h-10 items-center rounded-none px-0 pb-3 text-sm font-medium shadow-none transition-all"
+              >
+                {tab}
+              </TabsTab>
+            ))}
+          </TabsList>
+        }
       />
 
-      <Tabs
-        value={activeTab}
-        onValueChange={handleTabChange}
-        className="w-full"
-      >
-        <div className="px-6 pt-6 pb-1">
-          <TabsList className="flex w-full">
-            <TabsTab
-              value="overview"
-              className="flex-1 gap-2 text-center text-[13px]"
-            >
-              <LayoutDashboard />
-              Overview
-            </TabsTab>
-            <TabsTab
-              value="history"
-              className="flex-1 gap-2 text-center text-[13px]"
-            >
-              <Folder />
-              Projects History
-            </TabsTab>
-          </TabsList>
-        </div>
-      </Tabs>
+      <TabsPanel value="Overview">
+        <CompanyOverview company={company} />
+      </TabsPanel>
 
-      {activeTab === "overview" && (
-        <>
-          <div className="grid grid-cols-1 gap-4 p-6 xl:grid-cols-3">
-            <Card className="col-span-2 p-8">
-              <h2 className="flex items-center text-sm font-bold">
-                <Building2 className="text-primary mr-2 inline h-5 w-5" />
-                Client Information
-              </h2>
-
-              {/* Company Name */}
-              <div className="flex items-center gap-4 text-2xl">
-                <div className="bg-chart-1/30 flex h-14 w-14 items-center justify-center rounded-xl p-4">
-                  <span className="text-primary font-bold">
-                    {company.companyName.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-3">
-                    <h1 className="text-xl font-bold">{company.companyName}</h1>
-                  </div>
-
-                  {/* System Metadata Line */}
-                  <div className="text-muted-foreground mt-1 flex items-center gap-3 text-sm">
-                    <div className="flex gap-1.5">
-                      <CalendarDays className="h-3.5 w-3.5 opacity-70" />
-                      <span className="text-xs">
-                        Customer since{" "}
-                        {format(company.createdAt, "MMMM d, yyyy")}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="my-6 border-t border-gray-200" />
-
-              <p className="text-muted-foreground -mb-2 text-[11px] font-bold tracking-wider uppercase">
-                Contact Persons ({company.companyContacts?.length || 0})
-              </p>
-
-              {primaryContact && (
-                <PrimaryContactCard contact={primaryContact} />
-              )}
-
-              <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-4">
-                {company.companyContacts
-                  ?.filter((contact) => !contact.isPrimary)
-                  .map((contact) => (
-                    <StandardContactCard
-                      key={contact.companyContactId}
-                      contact={contact}
-                    />
-                  ))}
-              </div>
-            </Card>
-
-            {/* Company Location */}
-            <Card className="col-span-1 gap-4 p-6">
-              {/* Header */}
-              <div className="mb-4 flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-red-400" />
-                <p className="text-md font-bold">Location</p>
-              </div>
-
-              {/* Map Preview */}
-              <MapPreview position={position} popUp={company.companyName} />
-              <div className="mt-4 flex flex-col gap-1">
-                <h1 className="text-[15px] font-bold">{company.companyName}</h1>
-                <p className="text-muted-foreground text-xs">
-                  {company.address || "No address provided"}
-                </p>
-              </div>
-            </Card>
-          </div>
-        </>
-      )}
-
-      {activeTab === "history" && (
-        <div className="flex flex-col gap-4 p-6">
-          <h1 className="text-lg font-bold">Project History</h1>
-          <CompanyEventHistory companyId={companyId} />
-        </div>
-      )}
-    </>
+      <TabsPanel value="History">
+        <CompanyEventHistory companyId={companyId} />
+      </TabsPanel>
+    </Tabs>
   );
 }

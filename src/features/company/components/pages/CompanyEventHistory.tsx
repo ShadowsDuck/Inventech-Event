@@ -33,7 +33,7 @@ export function CompanyEventHistory({ companyId }: { companyId: string }) {
   }
 
   return (
-    <div className="rounded-md border bg-white shadow-sm">
+    <div className="p-6">
       <DataTable
         columns={eventHistoryColumns}
         data={safeProjects}

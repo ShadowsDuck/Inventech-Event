@@ -57,7 +57,7 @@ export default function CompanyList() {
   return (
     <>
       <PageHeader
-        className="sticky top-0 z-9999 bg-white"
+        className="sticky top-0 z-10 bg-white"
         title="Company"
         count={filteredCompanies.length}
         countLabel="companies"

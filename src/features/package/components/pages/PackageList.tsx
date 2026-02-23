@@ -18,6 +18,7 @@ const PackageList = () => {
         title="Package"
         count={PackageData.length}
         countLabel="Package"
+        className="sticky top-0 z-10 bg-white"
         actions={
           <Button
             size="add"

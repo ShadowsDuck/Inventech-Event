@@ -4,7 +4,6 @@ import { useSuspenseQueries } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Building2, CalendarDays, Check, Users } from "lucide-react";
 
-import { AdminOnly } from "@/components/AdminOnly";
 import SearchBar from "@/components/SearchBar";
 import PageHeader from "@/components/layout/PageHeader";
 import {
@@ -171,17 +170,15 @@ export default function EventList() {
   return (
     <>
       <PageHeader
-        className="sticky top-0 z-9999 bg-white"
+        className="sticky top-0 z-10 bg-white"
         title="Event"
         count={filteredEvents.length}
         countLabel="Event"
         actions={
-          <AdminOnly>
-            <PageHeaderButton
-              onClick={() => navigate({ to: "/event/create" })}
-              label="Create Event"
-            />
-          </AdminOnly>
+          <PageHeaderButton
+            onClick={() => navigate({ to: "/event/create" })}
+            label="Create Event"
+          />
         }
       />
 

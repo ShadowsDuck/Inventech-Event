@@ -32,7 +32,7 @@ export function EventDetail() {
     >
       <PageHeader
         backButton={true}
-        className="print:hidden"
+        className="z-10 print:hidden"
         title={eventData.eventName}
         subtitle={
           <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -40,20 +40,6 @@ export function EventDetail() {
               <Building2 className="size-4" />
               <span>{eventData.company?.companyName}</span>
             </div>
-            {/*<div className="flex items-center gap-1.5">
-              <Calendar className="size-4" />
-              <span>{eventData.meetingDate}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Clock className="size-4" />
-              <span>
-                {eventData.startTime} - {eventData.endTime}
-              </span>
-            </div>*/}
-            {/*<div className="flex items-center gap-1.5">
-              <MapPinCheckInside className="size-4" />
-              <span>{eventData.address}</span>
-            </div>*/}
           </div>
         }
         actions={
