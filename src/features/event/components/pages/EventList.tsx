@@ -173,7 +173,7 @@ export default function EventList() {
         className="sticky top-0 z-10 bg-white"
         title="Event"
         count={filteredEvents.length}
-        countLabel="Event"
+        countLabel="events"
         actions={
           <PageHeaderButton
             onClick={() => navigate({ to: "/event/create" })}

@@ -64,7 +64,9 @@ export function EquipmentForm({
   // --- 4. เตรียมข้อความแสดงผล (UI Labels) ---
   const title = mode === "create" ? "Add Equipment" : "Edit Equipment";
   const subtitle =
-    mode === "create" ? "Create Equipment" : "Update Equipment information";
+    mode === "create"
+      ? "Add a new equipment item to the inventory"
+      : "Update equipment details";
   const saveLabel = mode === "create" ? "Add Equipment" : "Save Changes";
   const loadingLabel = mode === "create" ? "Adding..." : "Saving...";
 

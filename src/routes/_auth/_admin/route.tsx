@@ -12,5 +12,9 @@ export const Route = createFileRoute("/_auth/_admin")({
       });
     }
   },
-  component: () => <Outlet />,
+  component: () => (
+    <div className="scrollbar scrollbar-track-transparent scrollbar-thumb-gray-400/40 scrollbar-w-2.5 h-screen w-full overflow-y-auto">
+      <Outlet />
+    </div>
+  ),
 });
