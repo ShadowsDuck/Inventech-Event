@@ -4,6 +4,8 @@ import { Loader2, Save, Tag } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
+import { CreateFormButton } from "@/components/form/ui/create-form-button";
+import { ResetFormButton } from "@/components/form/ui/reset-form-button";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,29 +80,17 @@ export function EquipmentForm({
         backButton={true}
         actions={
           <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
+            <ResetFormButton
               onClick={() => {
                 form.reset();
               }}
-              disabled={isPending}
-            >
-              Reset
-            </Button>
-            <Button
-              size="add"
-              type="submit"
+            />
+            <CreateFormButton
+              saveLabel={saveLabel}
+              loadingLabel={loadingLabel}
               form="equipment-form-id"
-              disabled={isPending}
-            >
-              {isPending ? (
-                <Loader2 className="animate-spin" size={18} />
-              ) : (
-                <Save size={18} strokeWidth={2.5} />
-              )}
-              {isPending ? loadingLabel : saveLabel}
-            </Button>
+              isPending={isPending}
+            />
           </div>
         }
       />

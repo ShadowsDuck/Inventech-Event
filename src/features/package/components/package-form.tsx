@@ -3,6 +3,8 @@ import { Save } from "lucide-react";
 import { z } from "zod";
 
 import { useAppForm } from "@/components/form";
+import { CreateFormButton } from "@/components/form/ui/create-form-button";
+import { ResetFormButton } from "@/components/form/ui/reset-form-button";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -69,85 +71,86 @@ export default function PackageForm({
         backButton
         actions={
           <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isPending}
-              onClick={() => form.reset()}
-            >
-              Reset
-            </Button>
-            <Button
-              size="add"
-              type="button"
-              disabled={isPending}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                form.handleSubmit();
+            <ResetFormButton
+              onClick={() => {
+                form.reset();
               }}
-            >
-              <Save size={18} strokeWidth={2.5} />
-              {isPending ? loadingLabel : saveLabel}
-            </Button>
+            />
+            <CreateFormButton
+              saveLabel={saveLabel}
+              loadingLabel={loadingLabel}
+              form="package-form-id"
+              isPending={isPending}
+            />
           </div>
         }
       />
 
       <div className="custom-scrollbar mx-auto w-full max-w-6xl flex-1 space-y-8 overflow-y-auto p-6 pb-20 lg:p-10">
-        {/* Card 1: Package Name */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-              <span className="h-6 w-1.5 rounded-full bg-blue-600" />
-              Package Information
-            </CardTitle>
-          </CardHeader>
+        <form
+          id="package-form-id"
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}
+          className="space-y-6"
+          noValidate
+        >
+          {/* Card 1: Package Name */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                <span className="h-6 w-1.5 rounded-full bg-blue-600" />
+                Package Information
+              </CardTitle>
+            </CardHeader>
 
-          <CardContent>
-            <FieldGroup>
+            <CardContent>
+              <FieldGroup>
+                <form.AppField
+                  name="packageName"
+                  validators={{
+                    onChange: PackageSchema.shape.packageName,
+                  }}
+                  children={(field) => (
+                    <field.TextField
+                      label="Package Name"
+                      type="text"
+                      placeholder="e.g. Premium Event Package"
+                      required
+                    />
+                  )}
+                />
+              </FieldGroup>
+            </CardContent>
+          </Card>
+
+          {/* Card 2: Equipment Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                <span className="h-6 w-1.5 rounded-full bg-blue-600" />
+                Equipment Management
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
               <form.AppField
-                name="packageName"
+                name="equipmentSets"
                 validators={{
-                  onChange: PackageSchema.shape.packageName,
+                  onChange: PackageSchema.shape.equipmentSets,
                 }}
                 children={(field) => (
-                  <field.TextField
-                    label="Package Name"
-                    type="text"
-                    placeholder="e.g. Premium Event Package"
+                  <field.EquipmentSelectField
+                    equipmentList={equipmentData}
                     required
                   />
                 )}
               />
-            </FieldGroup>
-          </CardContent>
-        </Card>
-
-        {/* Card 2: Equipment Selection */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-              <span className="h-6 w-1.5 rounded-full bg-blue-600" />
-              Equipment Management
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <form.AppField
-              name="equipmentSets"
-              validators={{
-                onChange: PackageSchema.shape.equipmentSets,
-              }}
-              children={(field) => (
-                <field.EquipmentSelectField
-                  equipmentList={equipmentData}
-                  required
-                />
-              )}
-            />
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </form>
       </div>
     </div>
   );
