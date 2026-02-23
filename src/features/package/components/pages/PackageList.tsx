@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { PackageOpen, Plus } from "lucide-react";
+import { PackageOpen } from "lucide-react";
 
 import PageHeader from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
+import PageHeaderButton from "@/components/ui/page-header-button";
 import CarouselPackage from "@/features/package/components/carousel-package";
 
 import { packageQuery } from "../../api/getPackage";
@@ -20,13 +20,10 @@ const PackageList = () => {
         countLabel="packages"
         className="sticky top-0 z-10 bg-white"
         actions={
-          <Button
-            size="add"
+          <PageHeaderButton
             onClick={() => navigate({ to: "/package/create" })}
-          >
-            <Plus size={18} strokeWidth={2.5} />
-            Create Package
-          </Button>
+            label="Create Package"
+          />
         }
       />
       <div className="flex min-h-0 flex-1 flex-col p-6 lg:p-10">

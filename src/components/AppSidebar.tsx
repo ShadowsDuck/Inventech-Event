@@ -37,7 +37,7 @@ export function AppSidebar() {
             {state === "collapsed" ? (
               <>
                 {/* Mini Sidebar */}
-                <div className="hidden pt-2 md:block">
+                <div className="hidden pt-4 pl-1 md:block">
                   <Tooltip>
                     <TooltipTrigger>
                       <SidebarTrigger />
@@ -71,10 +71,10 @@ export function AppSidebar() {
               </>
             ) : (
               // Full Sidebar
-              <div className="flex items-center justify-between px-1 pt-2">
+              <div className="flex items-center justify-between pt-2">
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground flex-1"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground -mb-2 flex-1"
                 >
                   <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg bg-blue-600">
                     <span className="font-bold text-white">EF</span>
@@ -109,10 +109,13 @@ export function AppSidebar() {
                       isActive={isActive}
                       onClick={() => {
                         navigate({ to: item.url });
-                        if (isMobile) setOpenMobile(false);
+
+                        if (isMobile) {
+                          setOpenMobile(false);
+                        }
                       }}
                       className={cn(
-                        "px-4 py-5",
+                        "h-10 px-4 group-data-[collapsible=icon]:h-10! group-data-[collapsible=icon]:w-10! group-data-[collapsible=icon]:justify-center",
                         isActive
                           ? "bg-sidebar-primary/10! rounded-lg font-medium text-blue-600! hover:text-blue-600"
                           : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground/90 transition-colors",

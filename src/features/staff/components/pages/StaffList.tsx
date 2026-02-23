@@ -10,6 +10,7 @@ import { DataTable } from "@/components/tables/data-table";
 import { Button } from "@/components/ui/button";
 import { FilterMultiSelect } from "@/components/ui/filter-multi-select";
 import { FilterSelect } from "@/components/ui/filter-select";
+import PageHeaderButton from "@/components/ui/page-header-button";
 import { SELECT_OPTIONS } from "@/data/constants";
 import { staffColumns } from "@/features/staff/components/staff-column";
 
@@ -99,10 +100,10 @@ export default function StaffList() {
         count={filteredStaff.length}
         countLabel="staff members"
         actions={
-          <Button size="add" onClick={() => navigate({ to: "/staff/create" })}>
-            <Plus size={18} strokeWidth={2.5} />
-            Add Staff
-          </Button>
+          <PageHeaderButton
+            onClick={() => navigate({ to: "/staff/create" })}
+            label="Add Staff"
+          />
         }
       />
 

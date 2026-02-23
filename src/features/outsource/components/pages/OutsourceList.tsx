@@ -2,13 +2,13 @@ import { useMemo, useState } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { ListFilter, Plus } from "lucide-react";
+import { ListFilter } from "lucide-react";
 
 import SearchBar from "@/components/SearchBar";
 import PageHeader from "@/components/layout/PageHeader";
 import { DataTable } from "@/components/tables/data-table";
-import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
+import PageHeaderButton from "@/components/ui/page-header-button";
 import { SELECT_OPTIONS } from "@/data/constants";
 import { outsourceColumns } from "@/features/outsource/components/outsource-column";
 
@@ -44,13 +44,10 @@ export default function OutsourceList() {
         count={filteredOutsources.length}
         countLabel="outsource members"
         actions={
-          <Button
-            size="add"
+          <PageHeaderButton
             onClick={() => navigate({ to: "/outsource/create" })}
-          >
-            <Plus size={18} strokeWidth={2.5} />
-            Add Outsource
-          </Button>
+            label="Add Outsource"
+          />
         }
       />
 

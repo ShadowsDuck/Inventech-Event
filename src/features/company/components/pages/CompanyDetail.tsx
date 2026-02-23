@@ -1,10 +1,11 @@
 import { useState } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useParams } from "@tanstack/react-router";
-import { Building2 } from "lucide-react";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import { Building2, Pencil } from "lucide-react";
 
 import PageHeader from "@/components/layout/PageHeader";
+import PageHeaderButton from "@/components/ui/page-header-button";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 
 import { companyQuery } from "../../api/getCompany";
@@ -12,6 +13,7 @@ import { CompanyEventHistory } from "./CompanyEventHistory";
 import CompanyOverview from "./CompanyOverview";
 
 export default function CompanyDetail() {
+  const navigate = useNavigate();
   const { companyId } = useParams({
     from: "/_auth/_sidebarLayout/company/$companyId",
   });
@@ -38,6 +40,13 @@ export default function CompanyDetail() {
               <span>{company.companyName}</span>
             </div>
           </div>
+        }
+        actions={
+          <PageHeaderButton
+            onClick={() => navigate({ to: `/company/${companyId}/edit` })}
+            label="Edit Company"
+            icon={Pencil}
+          />
         }
         tabs={
           <TabsList

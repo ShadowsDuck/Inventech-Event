@@ -1,13 +1,12 @@
 import { useState } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link, useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { Building2, Pencil } from "lucide-react";
 
 import PageHeader from "@/components/layout/PageHeader";
-import { buttonVariants } from "@/components/ui/button";
+import PageHeaderButton from "@/components/ui/page-header-button";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 
 import { eventQuery } from "../../api/getEventById";
 import EventDocuments from "../event-detail/event-document";
@@ -16,6 +15,8 @@ import EventOverview from "../event-detail/event-overview";
 import EventTeam from "../event-detail/event-team";
 
 export function EventDetail() {
+  const navigate = useNavigate();
+
   const { eventId } = useParams({
     from: "/_auth/_sidebarLayout/event/$eventId",
   });
@@ -43,21 +44,11 @@ export function EventDetail() {
           </div>
         }
         actions={
-          <Link
-            to="/event/$eventId/edit"
-            params={{ eventId }}
-            className={cn(
-              buttonVariants({ variant: "default", size: "sm" }),
-              "bg-blue-600 text-white hover:bg-blue-700",
-              "active:bg-blue-800",
-              "shadow-sm hover:shadow-md",
-              "transition-all duration-200 ease-in-out",
-              "rounded-xl border-0 px-5 font-semibold",
-            )}
-          >
-            <Pencil className="mr-2 size-4" />
-            Edit Event
-          </Link>
+          <PageHeaderButton
+            onClick={() => navigate({ to: `/event/${eventId}/edit` })}
+            label="Edit Event"
+            icon={Pencil}
+          />
         }
         tabs={
           <TabsList
