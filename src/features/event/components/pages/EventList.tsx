@@ -16,6 +16,7 @@ import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { companiesQuery } from "@/features/company/api/getCompanies";
 import { outsourcesQuery } from "@/features/outsource/api/getOutsource";
 import { staffQuery } from "@/features/staff/api/getStaff";
+import type { EventType } from "@/types/event";
 
 import { eventsQuery } from "../../api/getEvent";
 import DailyView from "../daily-view";
@@ -30,7 +31,7 @@ export default function EventList() {
     { data: staffData },
     { data: outsourceData },
     { data: companyData },
-    { data: EventData },
+    { data: eventsData },
   ] = useSuspenseQueries({
     queries: [
       staffQuery(),
@@ -44,8 +45,8 @@ export default function EventList() {
   const personnelOptions = useMemo(() => {
     const staff =
       staffData?.map((staff) => ({
-        value: `staff-${staff.staffId}`, // ใส่ Prefix เพื่อป้องกัน ID ซ้ำกันระหว่าง 2 table
-        label: `${staff.fullName}`, // ใส่ Label ให้รู้ว่าเป็นคนจากกลุ่มไหน
+        value: `staff-${staff.staffId}`,
+        label: `${staff.fullName}`,
       })) || [];
 
     const outsource =
@@ -97,14 +98,13 @@ export default function EventList() {
   ];
 
   const filteredEvents = useMemo(() => {
-    if (!EventData) return [];
+    if (!eventsData) return [];
 
-    return EventData.filter((event) => {
+    return eventsData.filter((event) => {
       const matchesSearch = search
         ? event.eventName?.toLowerCase().includes(search.toLowerCase())
         : true;
 
-      // ตรวจสอบ Person Filter (เช็คทั้งฝั่ง Staff และ Outsource)
       const matchesPerson =
         personnelFilter.length > 0
           ? event.eventStaff?.some((es) =>
@@ -117,19 +117,16 @@ export default function EventList() {
             )
           : true;
 
-      // ตรวจสอบ Company Filter
       const matchesCompany =
         companyFilter.length > 0
           ? companyFilter.includes(String(event.company?.companyId))
           : true;
 
-      // ตรวจสอบ Event Type Filter
       const matchesEventType =
         eventTypeFilter.length > 0
           ? eventTypeFilter.includes(event.eventType)
           : true;
 
-      // ตรวจสอบ Status Filter
       const matchesStatus =
         statusFilter.length > 0
           ? statusFilter.includes(event.eventStatus)
@@ -144,7 +141,7 @@ export default function EventList() {
       );
     });
   }, [
-    EventData,
+    eventsData,
     search,
     personnelFilter,
     companyFilter,
@@ -164,12 +161,19 @@ export default function EventList() {
     setActiveTab("daily");
   };
 
+  const handleNavigateToDetail = (event: EventType) => {
+    navigate({
+      to: "/event/$eventId",
+      params: { eventId: event.eventId.toString() },
+    });
+  };
+
   return (
     <>
       <PageHeader
         className="sticky top-0 z-9999 bg-white"
         title="Event"
-        count={EventData.length}
+        count={filteredEvents.length}
         countLabel="Event"
         actions={
           <AdminOnly>
@@ -186,7 +190,6 @@ export default function EventList() {
         onValueChange={handleTabChange}
         className="flex flex-1 flex-col"
       >
-        {/* Tabs + status chips */}
         <div className="px-6 pt-6">
           <div className="flex items-center justify-between">
             <TabsList>
@@ -208,7 +211,6 @@ export default function EventList() {
           </div>
         </div>
 
-        {/* Search + Filters UI */}
         {activeTab !== "daily" && (
           <div className="px-6 py-2">
             <div className="flex items-center">
@@ -225,7 +227,6 @@ export default function EventList() {
 
                 <div className="h-6 w-px bg-gray-200" />
 
-                {/* เปลี่ยนเป็นปุ่ม Personnel ปุ่มเดียว */}
                 <FilterMultiSelect
                   title="Person"
                   icon={Users}
@@ -263,17 +264,26 @@ export default function EventList() {
           </div>
         )}
 
-        {/* Content Views */}
         <TabsPanel value="year">
-          <YearView events={filteredEvents} onDateClick={handleDateClick} />
+          <YearView
+            events={filteredEvents}
+            onDateClick={handleDateClick}
+            // onEventClick={handleNavigateToDetail} // ถ้า YearView รองรับ
+          />
         </TabsPanel>
+
         <TabsPanel value="month">
-          <MonthView events={filteredEvents} onDateClick={handleDateClick} />
+          <MonthView
+            events={filteredEvents}
+            onDateClick={handleDateClick}
+            onEventClick={handleNavigateToDetail}
+          />
         </TabsPanel>
+
         <TabsPanel value="daily">
           <DailyView
             key={selectedDate?.toISOString()}
-            events={EventData}
+            events={eventsData}
             initialDate={selectedDate}
           />
         </TabsPanel>

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 
-import { ChevronLeft, ChevronRight, Info, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, Info, X } from "lucide-react";
 
 import {
   Popover,
@@ -14,9 +14,14 @@ import DayInfoPopover from "./day-info-popover";
 interface MonthViewProps {
   events: EventType[];
   onDateClick?: (date: Date) => void;
+  onEventClick?: (event: EventType) => void;
 }
 
-const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
+const MonthView: React.FC<MonthViewProps> = ({
+  events = [],
+  onDateClick,
+  onEventClick,
+}) => {
   const today = useMemo(() => new Date(), []);
   const [currentDate, setCurrentDate] = useState(
     new Date(today.getFullYear(), today.getMonth(), 1),
@@ -131,6 +136,7 @@ const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
               return a.startTime.localeCompare(b.startTime);
             });
 
+            // ค่าสำหรับการประเมิน UI (ยังเก็บไว้สำหรับโชว์ป้ายเตือนด้านล่าง)
             const displayLimit = 3;
             const hiddenCount = dayEvents.length - displayLimit;
 
@@ -141,22 +147,27 @@ const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
 
             const formattedDate = new Date(year, month, day);
             const dateString = `${formattedDate.getFullYear()}-${String(formattedDate.getMonth() + 1).padStart(2, "0")}-${String(formattedDate.getDate()).padStart(2, "0")}`;
+
             return (
               <div
                 key={index}
-                onClick={() => onDateClick?.(new Date(year, month, day))}
-                className="group relative flex min-h-30 cursor-pointer flex-col border-r border-b border-gray-50 p-2 transition-all hover:bg-gray-50/40"
+                className="group relative flex min-h-30 flex-col border-r border-b border-gray-50 p-2 transition-all hover:bg-gray-50/40"
               >
                 <div className="mb-1 flex items-center justify-between">
-                  <span
-                    className={`flex h-7 w-7 items-center justify-center rounded-lg text-sm font-semibold ${
+                  {/* Normal Button */}
+                  <button
+                    onClick={() => onDateClick?.(new Date(year, month, day))}
+                    className={`group flex items-center justify-center gap-1 rounded-lg px-2 py-1 text-sm font-semibold transition-all duration-300 ease-out active:scale-95 ${
                       isToday
-                        ? "bg-blue-600 text-white shadow-md shadow-blue-200"
-                        : "text-gray-500"
+                        ? "bg-blue-600 text-white shadow-md hover:scale-110 hover:bg-blue-700"
+                        : "text-gray-600 hover:-translate-y-1 hover:scale-110 hover:bg-gray-300 hover:text-white hover:shadow-lg"
                     }`}
+                    title="View Daily Schedule"
                   >
-                    {day}
-                  </span>
+                    <span className="flex h-6 w-6 items-center justify-center">
+                      {day}
+                    </span>
+                  </button>
                   <div onClick={(e) => e.stopPropagation()}>
                     <Popover
                       open={openPopovers[dateString] ?? false}
@@ -203,21 +214,28 @@ const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                  {dayEvents.slice(0, displayLimit).map((event) => {
+                {/* --- Container สำหรับ Event ที่ Scroll ได้ --- */}
+                {/* กำหนด max-h-[135px] ให้โชว์ได้ประมาณ 3 งาน พอดี */}
+                <div className="`scrollbar-hover:bg-gray-300 flex max-h-33.75 flex-col gap-1.5 overflow-y-auto [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-track]:bg-transparent">
+                  {dayEvents.map((event) => {
                     const isComplete = event.eventStatus === "Complete";
                     const isPending = event.eventStatus === "Pending";
 
                     return (
                       <div
                         key={event.eventId}
-                        className={`flex flex-col rounded border-l-2 px-2 py-1 text-xs text-gray-900 shadow-sm transition-transform hover:-translate-y-0.5 hover:shadow-md ${
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEventClick?.(event);
+                        }}
+                        className={`flex flex-shrink-0 cursor-pointer flex-col rounded border-l-2 px-2 py-1 text-xs text-gray-900 shadow-sm transition-transform hover:-translate-y-0.5 hover:shadow-md ${
                           isComplete
                             ? "border-green-500 bg-green-50/50"
                             : isPending
                               ? "border-yellow-400 bg-yellow-50/50"
                               : "border-gray-400 bg-gray-50/50"
                         }`}
+                        title={`View details for ${event.eventName}`}
                       >
                         <span
                           className={`mb-0.5 font-bold ${isComplete ? "text-green-700/80" : isPending ? "text-yellow-700/80" : "text-gray-600"}`}
@@ -231,40 +249,36 @@ const MonthView: React.FC<MonthViewProps> = ({ events = [], onDateClick }) => {
                       </div>
                     );
                   })}
-
-                  {/* 3. ส่วนแสดงผล + more พร้อมจุดเตือนงานค้าง */}
-                  {hiddenCount > 0 && (
-                    <div className="mt-1 flex flex-col items-center gap-1.5 pt-1">
-                      {/* ยอดรวม Events ทั้งหมดของวัน */}
-                      <span className="text-xs font-semibold tracking-wide text-gray-500 transition-colors hover:text-gray-700">
-                        Total: {dayEvents.length} Events
-                      </span>
-
-                      {/* ถ้ามี Pending ซ่อนอยู่ ให้โชว์จำนวนขึ้นมาเด่นๆ */}
-                      {dayEvents
-                        .slice(displayLimit)
-                        .filter((e) => e.eventStatus === "Pending").length >
-                        0 && (
-                        <div
-                          className="flex w-full items-center justify-center gap-1.5 rounded border border-yellow-200 bg-yellow-100/80 px-2 py-1 text-[10px] font-bold text-yellow-700 shadow-sm"
-                          title="Has pending events hidden"
-                        >
-                          <span className="relative flex h-2 w-2">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-yellow-400 opacity-75"></span>
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-yellow-500"></span>
-                          </span>
-                          +{" "}
-                          {
-                            dayEvents
-                              .slice(displayLimit)
-                              .filter((e) => e.eventStatus === "Pending").length
-                          }{" "}
-                          Pending
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
+
+                {/* 3. ส่วนแสดงผลสรุป (คงไว้ด้านล่าง เพื่อเตือนว่ามีงานค้างแม้จะโดนซ่อนด้วย Scroll) */}
+                {hiddenCount > 0 && (
+                  <div className="mt-auto flex flex-col items-center gap-1.5 pt-2">
+                    {/* ยอดรวม Events ทั้งหมดของวัน */}
+                    <span className="text-xs font-semibold tracking-wide text-gray-500 transition-colors hover:text-gray-700">
+                      Total: {dayEvents.length} Events
+                    </span>
+
+                    {/* ถ้ามีงาน Pending ในวันนี้ ให้โชว์จำนวนรวมทั้งหมด */}
+                    {dayEvents.filter((e) => e.eventStatus === "Pending")
+                      .length > 0 && (
+                      <div
+                        className="flex w-full items-center justify-center gap-1.5 rounded border border-yellow-200 bg-yellow-100/80 px-2 py-1 text-[10px] font-bold text-yellow-700 shadow-sm"
+                        title="Total pending events for today"
+                      >
+                        <span className="relative flex h-2 w-2">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-yellow-400 opacity-75"></span>
+                          <span className="relative inline-flex h-2 w-2 rounded-full bg-yellow-500"></span>
+                        </span>
+                        {
+                          dayEvents.filter((e) => e.eventStatus === "Pending")
+                            .length
+                        }{" "}
+                        Total Pending
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
