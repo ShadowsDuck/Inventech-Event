@@ -33,10 +33,8 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
     const isRefreshRequest = originalRequest.url?.includes("/refresh");
 
-    // ถ้า error 401 และ ไม่ใช่ การยิงเช็ค Auth (Refresh)
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -47,14 +45,24 @@ api.interceptors.response.use(
         window.location.pathname === "/login";
 
       if (!isPublicPage) {
+        originalRequest._retry = true; // ป้องกัน retry วนซ้ำ
+
+        // ลอง refresh token ก่อน
+        const newToken = await useAuthStore.getState().refreshAuth();
+
+        if (newToken) {
+          // ถ้า refresh ผ่าน → อัปเดต header แล้วยิง request เดิมซ้ำ
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return api(originalRequest);
+        }
+
+        // refresh ไม่ผ่าน → ค่อย logout แล้ว redirect
         useAuthStore.getState().logout();
         window.location.href = "/login";
         return Promise.reject(error);
       }
     }
 
-    // ถ้าเป็น 401 จากการ Refresh Token ปล่อยให้มัน Error ไปปกติ
-    // เพื่อให้ checkAuth() ใน Store จับ catch ได้ แล้ว set user = null
     return Promise.reject(error);
   },
 );
