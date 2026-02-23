@@ -37,6 +37,10 @@ export function UserCardProfile({ onBeforeOpenDialog }: UserCardProfileProps) {
     ? `${API_URL}/uploads/${user.avatar}`
     : undefined;
 
+  if (!user) {
+    return null;
+  }
+
   return (
     <>
       <div className="p-2">

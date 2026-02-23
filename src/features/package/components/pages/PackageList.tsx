@@ -17,7 +17,7 @@ const PackageList = () => {
       <PageHeader
         title="Package"
         count={PackageData.length}
-        countLabel="Package"
+        countLabel="packages"
         className="sticky top-0 z-10 bg-white"
         actions={
           <Button
