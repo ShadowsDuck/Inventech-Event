@@ -59,7 +59,7 @@ export default function EquipmentList() {
   return (
     <>
       <PageHeader
-        className="sticky top-0 z-9999 bg-white"
+        className="sticky top-0 z-10 bg-white"
         title="Equipment"
         count={filteredEquipment.length}
         countLabel="items"

@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
 import { useRouter } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
 
-import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 
 import { Badge } from "../ui/badge";
@@ -40,15 +38,6 @@ export function PageHeader({
   tabs,
 }: PageHeaderProps) {
   const navigate = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
-  const isDesktop = useMediaQuery("(min-width: 1024px)");
-
-  useEffect(() => {
-    if (isDesktop && isOpen) {
-      const timer = setTimeout(() => setIsOpen(false), 0);
-      return () => clearTimeout(timer);
-    }
-  }, [isDesktop, isOpen]);
 
   const showCount = typeof count === "number" && countLabel;
 
@@ -62,7 +51,7 @@ export function PageHeader({
       {/* ส่วนบน: Title และ Actions */}
       <div className="flex min-h-20 items-center justify-between px-6 py-4">
         <div className="flex items-center gap-4">
-          <div className="-ml-2 block lg:hidden">
+          <div className="-ml-2 block md:hidden">
             <SidebarTrigger />
           </div>
 
