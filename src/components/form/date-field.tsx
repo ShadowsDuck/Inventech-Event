@@ -13,23 +13,22 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-// import Label มาใช้
 import { useFieldContext } from ".";
-// path ไปยัง context ของคุณ
 import { FieldErrors } from "./field-error";
 
+// 1. เพิ่ม onChange เข้าไปใน Type Definition
 type DateFieldProps = {
   label?: string;
   placeholder?: string;
+  onChange?: (date: Date | undefined) => void; // เพิ่มบรรทัดนี้
 };
 
 export const DateField = ({
   label,
   placeholder = "Pick a date",
+  onChange, // 2. ดึง onChange ออกมาใช้งาน
 }: DateFieldProps) => {
-  // เปลี่ยน Generic Type เป็น Date | undefined
   const field = useFieldContext<Date | undefined>();
-
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
 
   const isSubmitted = field.form.state.isSubmitted;
@@ -37,16 +36,24 @@ export const DateField = ({
     (field.state.meta.isTouched || isSubmitted) &&
     field.state.meta.errors.length > 0;
 
-  // ฟังก์ชันสำหรับปุ่ม Today
-  const handleToday = () => {
-    field.handleChange(new Date());
+  // 3. สร้างฟังก์ชันกลางเพื่อจัดการการเปลี่ยนค่า
+  // ถ้ามีการส่ง onChange มาจากข้างนอก (เช่น จากหน้า EventForm) ให้ใช้ตัวนั้น
+  // แต่ถ้าไม่มี ให้ใช้ field.handleChange มาตรฐานของมันเอง
+  const handleInternalChange = (date: Date | undefined) => {
+    if (onChange) {
+      onChange(date);
+    } else {
+      field.handleChange(date);
+    }
     setIsPopoverOpen(false);
   };
 
-  // ฟังก์ชันสำหรับปุ่ม Clear
+  const handleToday = () => {
+    handleInternalChange(new Date());
+  };
+
   const handleClear = () => {
-    field.handleChange(undefined);
-    setIsPopoverOpen(false);
+    handleInternalChange(undefined);
   };
 
   return (
@@ -57,10 +64,9 @@ export const DateField = ({
 
       <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
         <PopoverTrigger
+          type="button" // ป้องกันการเผลอไป trigger submit form
           className={cn(
-            // base styles ของปุ่ม (เลียนแบบ variant="outline")
             "flex items-center bg-transparent transition-colors hover:bg-slate-100",
-            // custom styles ของคุณ
             "h-11 w-full justify-start rounded-xl border border-slate-200 px-4 py-2 text-left font-normal",
             !field.state.value && "text-muted-foreground",
             hasError && "border-destructive text-destructive",
@@ -68,7 +74,7 @@ export const DateField = ({
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {field.state.value ? (
-            format(field.state.value, "MM/dd/yyyy") // Format วันที่ตามภาพ
+            format(field.state.value, "MM/dd/yyyy")
           ) : (
             <span>{placeholder}</span>
           )}
@@ -78,17 +84,13 @@ export const DateField = ({
           <Calendar
             mode="single"
             selected={field.state.value}
-            onSelect={(date) => {
-              field.handleChange(date);
-              setIsPopoverOpen(false);
-            }}
+            onSelect={(date) => handleInternalChange(date as Date)} // ใช้ฟังก์ชันกลาง
             initialFocus
-            // เพิ่ม props นี้ถ้าอยากได้ dropdown เลือกปี/เดือน (ต้อง config shadcn calendar เพิ่มเติมเล็กน้อยถึงจะขึ้น dropdown)
           />
 
-          {/* ส่วน Footer: ปุ่ม Clear และ Today ตามภาพ */}
           <div className="flex items-center justify-between border-t p-2">
             <Button
+              type="button"
               variant="ghost"
               size="sm"
               onClick={handleClear}
@@ -97,6 +99,7 @@ export const DateField = ({
               Clear
             </Button>
             <Button
+              type="button"
               variant="ghost"
               size="sm"
               onClick={handleToday}

@@ -131,15 +131,19 @@ export default function EditEvent() {
     const latitude = latStr ? parseFloat(latStr.trim()) : null;
     const longitude = lngStr ? parseFloat(lngStr.trim()) : null;
 
+    const combinedRequirements = [
+      ...values.staffRequirements,
+      ...values.outsourceRequirements,
+    ];
     const payload = {
       ...values,
       id: parseInt(eventId),
       latitude,
       longitude,
       location: undefined,
-      attachmentFiles: values.attachmentFiles,
-      deletedAttachmentIds: deletedFileIds,
-      existingAttachmentIds: existingFileIds,
+      newAttachmentFiles: values.attachmentFiles,
+      deleteAttachmentIds: deletedFileIds,
+      requirements: combinedRequirements,
     };
 
     mutate(payload, {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useSuspenseQueries } from "@tanstack/react-query";
@@ -47,7 +47,6 @@ import type { StaffType } from "@/types/staff";
 import { equipmentBypackageIdQuery } from "../api/getEquipmentByPackageId";
 import { type EventData, getEventSchema } from "./event-schema";
 
-// --- Sub-Schemas ---
 interface EventFormProps {
   initialValues?: Partial<EventData>;
   onSubmit: (
@@ -69,19 +68,31 @@ export default function EventForm({
 }: EventFormProps) {
   const [alertOpen, setAlertOpen] = useState(false);
   const [pendingPackage, setPendingPackage] = useState<string | null>(null);
+
+  // --- Logic จัดการการเปลี่ยนวันที่ (แก้ Bug กดยกเลิกแล้วคนหาย) ---
   const [dateAlertOpen, setDateAlertOpen] = useState(false);
-  const prevEventDateRef = useRef<Date | undefined>(initialValues?.eventDate);
+  const [pendingDate, setPendingDate] = useState<Date | undefined>(undefined);
+
   const [currentExistingFiles, setCurrentExistingFiles] =
     useState(existingFiles);
   const [deletedFileIds, setDeletedFileIds] = useState<number[]>([]);
+  const currentExistingFilesRef = useRef(existingFiles);
+  const deletedFileIdsRef = useRef<number[]>([]);
 
-  // Function ลบไฟล์เดิม
   const handleRemoveExisting = (fileId: number) => {
-    setCurrentExistingFiles((prev) => prev.filter((f) => f.id !== fileId));
-    setDeletedFileIds((prev) => [...prev, fileId]);
-  };
+    setCurrentExistingFiles((prev) => {
+      const next = prev.filter((f) => f.id !== fileId);
+      currentExistingFilesRef.current = next; // อัปเดต Ref
+      return next;
+    });
 
-  // 1. Load Data
+    setDeletedFileIds((prev) => {
+      const next = [...prev, fileId];
+      deletedFileIdsRef.current = next; // อัปเดต Ref
+      return next;
+    });
+  };
+  // 1. Load ข้อมูลพื้นฐาน
   const [
     { data: roleData },
     { data: companiesData },
@@ -133,20 +144,48 @@ export default function EventForm({
       staffRequirements: initialValues?.staffRequirements ?? [],
       outsourceRequirements: initialValues?.outsourceRequirements ?? [],
     } as EventData,
-    validators: {
-      onChange: getEventSchema(mode),
-    },
-    onSubmit: async ({ value }) => {
-      // ส่งค่า deletedFileIds ออกไปด้วย
-      onSubmit(value, deletedFileIds, currentExistingFiles);
-    },
+    validators: { onChange: getEventSchema(mode) },
+    onSubmit: async ({ value }) =>
+      onSubmit(
+        value,
+        deletedFileIdsRef.current,
+        currentExistingFilesRef.current,
+      ),
   });
 
-  // --- Real-time Package Logic ---
+  // --- ดึงค่าจาก Store มาใช้คุม Logic ---
+  const currentEventDate = useStore(
+    form.store,
+    (state) => state.values.eventDate,
+  );
+  const currentTimePeriod = useStore(
+    form.store,
+    (state) => state.values.timePeriod,
+  );
+  const currentStaff = useStore(form.store, (state) => state.values.eventStaff);
+  const currentOutsources = useStore(
+    form.store,
+    (state) => state.values.eventOutsources,
+  );
   const selectedPackageId = useStore(
     form.store,
     (state) => state.values.packageId,
   );
+
+  // --- ดักจับการเปลี่ยนวันที่ก่อนเข้า Store ---
+  const handleDateChange = (newDate: Date | undefined, field: any) => {
+    const hasResources =
+      currentStaff?.length > 0 || currentOutsources?.length > 0;
+    const isActuallyChanged =
+      newDate?.getTime() !== field.state.value?.getTime();
+
+    if (hasResources && isActuallyChanged) {
+      setPendingDate(newDate); // พักวันที่ใหม่ไว้
+      setDateAlertOpen(true); // เปิด Alert
+    } else {
+      field.handleChange(newDate); // เปลี่ยนได้เลยถ้าไม่มีคน
+    }
+  };
 
   const { data: packageDetail, isLoading: isLoadingPkg } = useQuery({
     ...equipmentBypackageIdQuery(selectedPackageId?.toString() || "0"),
@@ -161,83 +200,39 @@ export default function EventForm({
     }));
   }, [packageDetail]);
 
-  // ดึงค่า date และ period จาก form
-  const currentEventDate = useStore(
-    form.store,
-    (state) => state.values.eventDate,
-  );
-  const currentTimePeriod = useStore(
-    form.store,
-    (state) => state.values.timePeriod,
-  );
-  const currentStaff = useStore(form.store, (state) => state.values.eventStaff);
-  const currentOutsources = useStore(
-    form.store,
-    (state) => state.values.eventOutsources,
-  );
-  useEffect(() => {
-    const currTime = currentEventDate?.getTime();
-    const prevTime = prevEventDateRef.current?.getTime();
-    if (currTime !== prevTime) {
-      const hasResources =
-        (currentStaff && currentStaff.length > 0) ||
-        (currentOutsources && currentOutsources.length > 0);
-
-      if (hasResources) {
-        // มีคนอยู่ เปิด Alert
-        setTimeout(() => {
-          setDateAlertOpen(true);
-        }, 0);
-      } else {
-        // ไม่มีคนอยู่ อัปเดต Date เดิมเป็น Date ใหม่ได้เลย
-        prevEventDateRef.current = currentEventDate;
-      }
-    }
-  }, [currentEventDate, currentStaff, currentOutsources]);
-  // แปลง Date เป็น String (YYYY-MM-DD) และ Period
   const dateString = currentEventDate
     ? format(currentEventDate, "yyyy-MM-dd")
     : undefined;
   const periodNumber = currentTimePeriod || undefined;
 
-  // 4. Query Staff
   const { data: staffData } = useQuery({
-    ...staffQuery({
-      date: dateString,
-      period: periodNumber,
-    }),
+    ...staffQuery({ date: dateString, period: periodNumber }),
     select: (data: StaffType[]) => data.filter((s) => !s.isDeleted),
-    enabled: !!dateString && !!periodNumber, // Query เมื่อมีทั้ง date และ period
+    enabled: !!dateString && !!periodNumber,
   });
 
-  // 5. Query Outsource
   const { data: outsourceData } = useQuery({
-    ...outsourcesQuery({
-      date: dateString,
-      period: periodNumber,
-    }),
+    ...outsourcesQuery({ date: dateString, period: periodNumber }),
     select: (data: OutsourceType[]) => data.filter((s) => !s.isDeleted),
-    enabled: !!dateString && !!periodNumber, // Query เมื่อมีทั้ง date และ period
+    enabled: !!dateString && !!periodNumber,
   });
+
   const isSameSchedule = useMemo(() => {
     if (mode !== "edit" || !initialValues?.eventDate || !currentEventDate)
       return false;
-
-    const initialDateStr = format(initialValues.eventDate, "yyyy-MM-dd");
-    const currentDateStr = format(currentEventDate, "yyyy-MM-dd");
-
     return (
-      initialDateStr === currentDateStr &&
+      format(initialValues.eventDate, "yyyy-MM-dd") ===
+        format(currentEventDate, "yyyy-MM-dd") &&
       initialValues.timePeriod === currentTimePeriod
     );
   }, [mode, initialValues, currentEventDate, currentTimePeriod]);
+
   const isResourceLocked =
     !currentEventDate || !currentTimePeriod || currentTimePeriod === 0;
 
+  // --- Formatting Lists พร้อม Safety Net กันคนหายตอน F5 ---
   const formattedStaffList = useMemo(() => {
-    // กำหนด Base URL สำหรับดึงรูปภาพจาก AP
     const BASE_IMAGE_URL = "https://localhost:7268/uploads/";
-
     const initialAssignedIds = new Set(
       mode === "edit"
         ? initialValues?.eventStaff
@@ -249,33 +244,27 @@ export default function EventForm({
     const baseList =
       staffData?.map((s) => {
         const sId = String(s.staffId);
-        const isAlreadyInThisEvent = initialAssignedIds.has(sId);
-
         let displayStatus = s.status;
         if (
           isSameSchedule &&
-          isAlreadyInThisEvent &&
+          initialAssignedIds.has(sId) &&
           s.status === "Unavailable"
-        ) {
+        )
           displayStatus = "Available";
-        }
-
         return {
           id: sId,
           name: s.fullName,
-          roles: s.staffRoles ? s.staffRoles.map((r) => r.roleName) : [],
-
+          roles: s.staffRoles?.map((r) => r.roleName) || [],
           avatar: s.avatar ? `${BASE_IMAGE_URL}${s.avatar}` : "",
           status: displayStatus,
         };
       }) || [];
 
+    // [SAFETY NET] รักษาคนเดิมไว้ใน Candidates จังหวะ Loading (แก้ Bug F5)
     if (mode === "edit" && initialValues?.eventStaff) {
       const existingIds = new Set(baseList.map((s) => s.id));
-
       initialValues.eventStaff.forEach((assigned) => {
         if (assigned.isDeleted) return;
-
         const sId = String(assigned.staffId);
         if (!existingIds.has(sId)) {
           baseList.push({
@@ -283,13 +272,11 @@ export default function EventForm({
             name: assigned.fullName || `Staff #${sId}`,
             roles: [assigned.roleName || "Unknown Role"],
             avatar: "",
-
             status: isSameSchedule ? "Available" : "Unavailable",
           });
         }
       });
     }
-
     return baseList;
   }, [staffData, mode, initialValues, isSameSchedule]);
 
@@ -305,31 +292,21 @@ export default function EventForm({
     const baseList =
       outsourceData?.map((o) => {
         const oId = String(o.outsourceId);
-        const isAlreadyInThisEvent = initialAssignedIds.has(oId);
-
         let displayStatus = o.status;
         if (
           isSameSchedule &&
-          isAlreadyInThisEvent &&
+          initialAssignedIds.has(oId) &&
           o.status === "Unavailable"
-        ) {
+        )
           displayStatus = "Available";
-        }
-
-        return {
-          id: oId,
-          name: o.fullName,
-          roles: [],
-          status: displayStatus,
-        };
+        return { id: oId, name: o.fullName, roles: [], status: displayStatus };
       }) || [];
 
+    // [SAFETY NET] สำหรับ Outsource (แก้ Bug F5)
     if (mode === "edit" && initialValues?.eventOutsources) {
       const existingIds = new Set(baseList.map((o) => o.id));
-
       initialValues.eventOutsources.forEach((assigned) => {
         if (assigned.isDeleted) return;
-
         const oId = String(assigned.outsourceId);
         if (!existingIds.has(oId)) {
           baseList.push({
@@ -341,10 +318,10 @@ export default function EventForm({
         }
       });
     }
-
     return baseList;
   }, [outsourceData, mode, initialValues, isSameSchedule]);
 
+  // --- UI Configuration ---
   const title = mode === "create" ? "Create Event" : "Edit Event";
   const subtitle =
     mode === "create" ? "Create a new Event" : "Update Event details";
@@ -356,8 +333,8 @@ export default function EventForm({
       <PageHeader
         className="sticky top-0 z-9999"
         title={title}
-        backButton
         subtitle={subtitle}
+        backButton
         actions={
           <div className="flex items-center gap-2">
             <ResetFormButton onClick={() => form.reset()} />
@@ -380,228 +357,130 @@ export default function EventForm({
             form.handleSubmit();
           }}
         >
-          {/* Basic Info */}
           <Card className="mt-6">
             <CardHeader className="pb-1">
               <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                <span className="h-6 w-1.5 rounded-full bg-blue-600" />
-                Basic Information
+                <span className="h-6 w-1.5 rounded-full bg-blue-600" /> Basic
+                Information
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <section className="space-y-6">
-                <form.AppField
-                  name="eventName"
-                  children={(field) => (
-                    <field.TextField
-                      label="Event Name"
-                      type="text"
-                      placeholder="e.g. Tech Conference"
-                    />
-                  )}
-                />
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <form.AppField
-                    name="companyId"
-                    children={(field) => (
-                      <field.SelectField
-                        label="Company"
-                        options={companiesOptions.map((company) => ({
-                          label: company.label,
-                          value: company.value.toString(),
-                        }))}
-                        placeholder="Select Company"
-                        required
-                        onChange={(val) => field.handleChange(Number(val))}
-                        value={field.state.value?.toString()}
-                      />
-                    )}
-                  />
-                  <form.AppField
-                    name="eventType"
-                    children={(field) => (
-                      <field.EventFormatField label="Event Type" />
-                    )}
-                  />
-                </div>
-              </section>
-            </CardContent>
-          </Card>
-
-          {/* Schedule */}
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                <span className="h-6 w-1 rounded-full bg-blue-600" />
-                Schedule
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <section className="w-full space-y-6">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <form.AppField
-                    name="eventDate"
-                    children={(field) => <field.DateField label="Event Date" />}
-                  />
-                  <form.AppField
-                    name="registrationTime"
-                    children={(field) => (
-                      <field.TimeField label="Registration Time" />
-                    )}
-                  />
-                </div>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <form.AppField
-                    name="startTime"
-                    children={(field) => <field.TimeField label="Start Time" />}
-                  />
-                  <form.AppField
-                    name="endTime"
-                    children={(field) => <field.TimeField label="End Time" />}
-                  />
-                </div>
-                <form.AppField
-                  name="timePeriod"
-                  children={(field) => (
-                    <field.PeriodSelectField label="Period" />
-                  )}
-                />
-                <form.AppField
-                  name="address"
-                  children={(field) => (
-                    <field.TextField
-                      label="Address"
-                      type="text"
-                      placeholder="Ex. 123 Main St"
-                    />
-                  )}
-                />
-                <form.AppField
-                  name="location"
-                  children={(field) => (
-                    <field.LocationField label="Select Location " />
-                  )}
-                />
-                {/* Alert ของ Schedue */}
-                <AlertDialog
-                  open={dateAlertOpen}
-                  onOpenChange={(isOpen) => {
-                    // ถ้าสถานะคือการ "ปิด" (เช่น กด ESC) ให้ Revert วันที่กลับอัตโนมัติ
-                    if (!isOpen) {
-                      form.setFieldValue(
-                        "eventDate",
-                        prevEventDateRef.current as Date,
-                      );
-                      setDateAlertOpen(false);
-                    }
-                  }}
-                >
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Change Event Date?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        If you change the event date, all assigned Staff and
-                        Outsources will be cleared due to schedule changes.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel
-                        onClick={() => {
-                          // ถ้ายกเลิก ให้ดึงเอาวันที่เดิมที่เก็บไว้ยัดกลับคืน
-                          form.setFieldValue(
-                            "eventDate",
-                            prevEventDateRef.current as Date,
-                          );
-                          setDateAlertOpen(false);
-                        }}
-                      >
-                        Cancel
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        className="bg-red-600 hover:bg-red-700"
-                        onClick={() => {
-                          // ถ้าคอนเฟิร์ม ให้ล้างข้อมูลคนทิ้งทั้งหมด
-                          form.setFieldValue("eventStaff", []);
-                          form.setFieldValue("eventOutsources", []);
-                          form.setFieldValue("staffRequirements", []);
-                          form.setFieldValue("outsourceRequirements", []);
-
-                          // อัปเดตว่ายอมรับวันที่ใหม่แล้ว
-                          prevEventDateRef.current = currentEventDate;
-                          setDateAlertOpen(false);
-                        }}
-                      >
-                        Confirm
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </section>
-            </CardContent>
-          </Card>
-
-          {/* Package Selection */}
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                <span className="h-6 w-1 rounded-full bg-blue-600" />
-                Package
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-6">
               <form.AppField
-                name="packageId"
+                name="eventName"
                 children={(field) => (
-                  <field.PackageEventField
-                    packages={packagesData}
-                    canEdit={false}
-                    onChange={(newValue) => {
-                      const numValue = Number(newValue);
-                      const currentEquipment = field.form.getFieldValue(
-                        "eventExtraEquipments",
-                      );
-                      const hasEquipment =
-                        currentEquipment && currentEquipment.length > 0;
-
-                      if (numValue !== field.state.value && hasEquipment) {
-                        setPendingPackage(newValue);
-                        setAlertOpen(true);
-                      } else {
-                        field.handleChange(numValue);
-                      }
-                    }}
+                  <field.TextField
+                    label="Event Name"
+                    type="text"
+                    placeholder="e.g. Tech Conference"
                   />
                 )}
               />
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <form.AppField
+                  name="companyId"
+                  children={(field) => (
+                    <field.SelectField
+                      label="Company"
+                      options={companiesOptions}
+                      placeholder="Select Company"
+                      onChange={(val) => field.handleChange(Number(val))}
+                      value={field.state.value?.toString()}
+                    />
+                  )}
+                />
+                <form.AppField
+                  name="eventType"
+                  children={(field) => (
+                    <field.EventFormatField label="Event Type" />
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
 
-              <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="text-lg font-bold">
+                <span className="mr-2 inline-block h-6 w-1 rounded-full bg-blue-600" />
+                Schedule
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <form.AppField
+                  name="eventDate"
+                  children={(field) => (
+                    <field.DateField
+                      label="Event Date"
+                      onChange={(d) => handleDateChange(d as Date, field)}
+                    />
+                  )}
+                />
+                <form.AppField
+                  name="registrationTime"
+                  children={(field) => (
+                    <field.TimeField label="Registration Time" />
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <form.AppField
+                  name="startTime"
+                  children={(field) => <field.TimeField label="Start Time" />}
+                />
+                <form.AppField
+                  name="endTime"
+                  children={(field) => <field.TimeField label="End Time" />}
+                />
+              </div>
+              <form.AppField
+                name="timePeriod"
+                children={(field) => <field.PeriodSelectField label="Period" />}
+              />
+              <form.AppField
+                name="address"
+                children={(field) => (
+                  <field.TextField
+                    label="Address"
+                    type="text"
+                    placeholder="Ex. 123 Main St"
+                  />
+                )}
+              />
+              <form.AppField
+                name="location"
+                children={(field) => (
+                  <field.LocationField label="Select Location" />
+                )}
+              />
+
+              <AlertDialog open={dateAlertOpen} onOpenChange={setDateAlertOpen}>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Change Package?</AlertDialogTitle>
+                    <AlertDialogTitle>Change Event Date?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      If you change the package, the selected equipment will be
-                      cleared.
+                      If you change the event date, all assigned resources will
+                      be cleared.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setPendingPackage(null)}>
+                    <AlertDialogCancel
+                      onClick={() => setPendingDate(undefined)}
+                    >
                       Cancel
                     </AlertDialogCancel>
                     <AlertDialogAction
                       className="bg-red-600 hover:bg-red-700"
                       onClick={() => {
-                        if (
-                          pendingPackage !== null &&
-                          pendingPackage !== undefined
-                        ) {
-                          form.setFieldValue(
-                            "packageId",
-                            Number(pendingPackage),
-                          );
-                          form.setFieldValue("eventExtraEquipments", []);
-                          setPendingPackage(null);
-                          setAlertOpen(false);
+                        if (pendingDate) {
+                          form.setFieldValue("eventDate", pendingDate);
+                          form.setFieldValue("eventStaff", []);
+                          form.setFieldValue("eventOutsources", []);
+                          form.setFieldValue("staffRequirements", []);
+                          form.setFieldValue("outsourceRequirements", []);
                         }
+                        setPendingDate(undefined);
+                        setDateAlertOpen(false);
                       }}
                     >
                       Confirm
@@ -612,15 +491,68 @@ export default function EventForm({
             </CardContent>
           </Card>
 
-          {/* Equipment Selection */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                <span className="h-6 w-1 rounded-full bg-blue-600" />
+              <CardTitle className="text-lg font-bold">Package</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form.AppField
+                name="packageId"
+                children={(field) => (
+                  <field.PackageEventField
+                    packages={packagesData}
+                    canEdit={false}
+                    onChange={(newValue) => {
+                      const numValue = Number(newValue);
+                      const hasEquipment =
+                        form.getFieldValue("eventExtraEquipments")?.length > 0;
+                      if (numValue !== field.state.value && hasEquipment) {
+                        setPendingPackage(newValue);
+                        setAlertOpen(true);
+                      } else {
+                        field.handleChange(numValue);
+                      }
+                    }}
+                  />
+                )}
+              />
+              <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Change Package?</AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setPendingPackage(null)}>
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        if (pendingPackage !== null) {
+                          form.setFieldValue(
+                            "packageId",
+                            Number(pendingPackage),
+                          );
+                          form.setFieldValue("eventExtraEquipments", []);
+                        }
+                        setPendingPackage(null);
+                        setAlertOpen(false);
+                      }}
+                    >
+                      Confirm
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </CardContent>
+          </Card>
+
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center text-lg font-bold">
                 Equipment
                 {isLoadingPkg && (
-                  <span className="ml-2 flex items-center text-xs text-gray-400">
-                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />{" "}
+                  <span className="ml-2 flex items-center text-xs font-normal text-gray-400">
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                     Updating...
                   </span>
                 )}
@@ -639,23 +571,16 @@ export default function EventForm({
             </CardContent>
           </Card>
 
-          {/* Staff */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                <span className="h-6 w-1 rounded-full bg-blue-600" />
+              <CardTitle className="text-lg font-bold">
                 Staff Management
               </CardTitle>
             </CardHeader>
             <CardContent>
               {isResourceLocked ? (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 py-10">
-                  <span className="font-medium text-gray-500">
-                    Please select an Event Date and Period first.
-                  </span>
-                  <span className="mt-1 text-sm text-gray-400">
-                    You must set the schedule before assigning staff.
-                  </span>
+                <div className="rounded-xl border-2 border-dashed bg-gray-50 py-10 text-center text-gray-400">
+                  Please select Date and Period first.
                 </div>
               ) : (
                 <form.AppField
@@ -669,18 +594,12 @@ export default function EventForm({
                       entityLabel="Staff"
                       value={field.state.value}
                       onChange={(data) => field.handleChange(data)}
-                      // รับค่า Quota Staff (SourceType = 1)
-                      onRequirementChange={(reqs) => {
-                        // ใช้ form.setFieldValue อัปเดต state เบื้องหลัง
+                      onRequirementChange={(reqs) =>
                         form.setFieldValue(
                           "staffRequirements",
-                          reqs.map((r) => ({
-                            roleId: r.roleId,
-                            quantity: r.quantity,
-                            sourceType: 1, // Internal Staff
-                          })),
-                        );
-                      }}
+                          reqs.map((r) => ({ ...r, sourceType: 1 })),
+                        )
+                      }
                     />
                   )}
                 />
@@ -688,23 +607,16 @@ export default function EventForm({
             </CardContent>
           </Card>
 
-          {/* Outsource */}
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                <span className="h-6 w-1 rounded-full bg-violet-600" />
+              <CardTitle className="text-lg font-bold">
                 Outsource Management
               </CardTitle>
             </CardHeader>
             <CardContent>
               {isResourceLocked ? (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 py-10">
-                  <span className="font-medium text-gray-500">
-                    Please select an Event Date and Period first.
-                  </span>
-                  <span className="mt-1 text-sm text-gray-400">
-                    You must set the schedule before assigning outsource.
-                  </span>
+                <div className="rounded-xl border-2 border-dashed bg-gray-50 py-10 text-center text-gray-400">
+                  Please select Date and Period first.
                 </div>
               ) : (
                 <form.AppField
@@ -721,17 +633,12 @@ export default function EventForm({
                       entityLabel="Outsource"
                       value={field.state.value}
                       onChange={(data) => field.handleChange(data)}
-                      // รับค่า Quota Outsource (SourceType = 2)
-                      onRequirementChange={(reqs) => {
+                      onRequirementChange={(reqs) =>
                         form.setFieldValue(
                           "outsourceRequirements",
-                          reqs.map((r) => ({
-                            roleId: r.roleId,
-                            quantity: r.quantity,
-                            sourceType: 2, // Outsource
-                          })),
-                        );
-                      }}
+                          reqs.map((r) => ({ ...r, sourceType: 2 })),
+                        )
+                      }
                     />
                   )}
                 />
@@ -739,128 +646,99 @@ export default function EventForm({
             </CardContent>
           </Card>
 
-          {/* File & Note */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <Card className="mt-6">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-600">
-                  <span className="h-6 w-1 rounded-full bg-blue-600" />
-                  File
+                <CardTitle className="text-lg font-bold text-gray-600">
+                  Files
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="flex flex-col gap-4">
-                  {/* --- [NEW] Section แสดงไฟล์เดิม --- */}
-                  {currentExistingFiles.length > 0 && (
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-gray-700">
-                        Existing Files
-                      </label>
-                      {currentExistingFiles.map((file) => (
-                        <div
-                          key={file.id}
-                          className="bg-accent/30 relative flex items-center gap-2.5 rounded-md border p-3"
-                        >
-                          <div className="bg-accent/50 flex size-10 shrink-0 items-center justify-center overflow-hidden rounded border text-gray-500">
-                            <FileText className="size-5" />
-                          </div>
-                          <div className="flex min-w-0 flex-1 flex-col">
-                            <a
-                              href={file.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="truncate text-sm font-medium text-blue-600 hover:underline"
-                            >
-                              {file.fileName}
-                            </a>
-                            <span className="text-muted-foreground text-xs">
-                              Stored in Server
-                            </span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveExisting(file.id)}
-                            className="p-1 text-red-500 transition-colors hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
+              <CardContent className="space-y-4">
+                {currentExistingFiles.map((file) => (
+                  <div
+                    key={file.id}
+                    className="bg-accent/30 flex items-center gap-2.5 rounded-md border p-3"
+                  >
+                    <FileText className="size-5 text-gray-500" />
+                    <div className="min-w-0 flex-1">
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="truncate text-sm font-medium text-blue-600 hover:underline"
+                      >
+                        {file.fileName}
+                      </a>
                     </div>
-                  )}
-
-                  {/* --- Section Upload ไฟล์ใหม่ (Logic เดิม) --- */}
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Upload New Files
-                    </label>
-                    <form.AppField
-                      name="attachmentFiles"
-                      children={(field) => (
-                        <FileUpload
-                          value={field.state.value}
-                          onValueChange={(files) => {
-                            if (Array.isArray(files)) {
-                              field.handleChange(files);
-                            } else {
-                              field.handleChange([]);
-                            }
-                          }}
-                        >
-                          <FileUploadDropzone className="text-black-500 mb-4 flex h-32 items-center justify-center rounded-2xl transition-colors group-hover:bg-blue-200 group-hover:text-blue-600">
-                            <div className="flex flex-col items-center justify-center">
-                              <UploadCloud size={32} color="gray" />
-                              <p className="mt-2 text-sm text-gray-600">
-                                Drag & Drop new files here
-                              </p>
-                            </div>
-                          </FileUploadDropzone>
-                          <FileUploadList>
-                            {field.state.value?.map((file, index) => (
-                              <FileUploadItem key={index} value={file}>
-                                <div className="flex w-full items-center gap-2">
-                                  <FileUploadItemPreview />
-                                  <FileUploadItemMetadata />
-                                  <FileUploadItemDelete
-                                    className="text-red-500 hover:text-red-700"
-                                    onClick={() => {
-                                      const newFiles = [...field.state.value];
-                                      newFiles.splice(index, 1);
-                                      field.handleChange(newFiles);
-                                    }}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </FileUploadItemDelete>
-                                </div>
-                              </FileUploadItem>
-                            ))}
-                          </FileUploadList>
-                        </FileUpload>
-                      )}
-                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveExisting(file.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
-                </div>
+                ))}
+                <form.AppField
+                  name="attachmentFiles"
+                  children={(field) => (
+                    <FileUpload
+                      value={field.state.value}
+                      onValueChange={(files) =>
+                        field.handleChange(Array.isArray(files) ? files : [])
+                      }
+                    >
+                      <FileUploadDropzone className="flex h-32 items-center justify-center rounded-2xl border-2 border-dashed">
+                        <div className="text-center">
+                          <UploadCloud
+                            size={32}
+                            className="mx-auto text-gray-400"
+                          />
+                          <p className="text-sm">Drag & Drop new files</p>
+                        </div>
+                      </FileUploadDropzone>
+                      <FileUploadList>
+                        {field.state.value?.map((file, i) => (
+                          <FileUploadItem key={i} value={file}>
+                            <FileUploadItemPreview />
+                            <FileUploadItemMetadata />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const next = [...field.state.value];
+                                next.splice(i, 1);
+                                field.handleChange(next);
+                              }}
+                              className="text-red-500"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </FileUploadItem>
+                        ))}
+                      </FileUploadList>
+                    </FileUpload>
+                  )}
+                />
               </CardContent>
             </Card>
 
             <Card className="mt-6">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-600">
-                  <span className="h-6 w-1 rounded-full bg-blue-600" />
+                <CardTitle className="text-lg font-bold text-gray-600">
                   Note
                 </CardTitle>
-                <CardContent>
-                  <form.AppField
-                    name="note"
-                    children={(field) => (
-                      <field.TextAreaField
-                        placeholder="Enter your note here"
-                        className="min-h-64 pt-2"
-                      />
-                    )}
-                  />
-                </CardContent>
               </CardHeader>
+              <CardContent>
+                <form.AppField
+                  name="note"
+                  children={(field) => (
+                    <field.TextAreaField
+                      placeholder="Enter your note here"
+                      className="min-h-64 pt-2"
+                    />
+                  )}
+                />
+              </CardContent>
             </Card>
           </div>
         </form>

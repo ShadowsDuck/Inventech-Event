@@ -13,7 +13,7 @@ type UpdateEventPayload = EventData & {
   id: number;
   latitude?: number | null;
   longitude?: number | null;
-  existingAttachmentIds?: number[];
+  deleteAttachmentIds?: number[];
 };
 
 const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
@@ -75,16 +75,18 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
       );
     });
   }
-  if (
-    payload.existingAttachmentIds &&
-    payload.existingAttachmentIds.length > 0
-  ) {
-    payload.existingAttachmentIds.forEach((fileId) => {
-      // ชื่อ Key "ExistingAttachmentIds" ต้องตรงกับที่ Backend (C# DTO) รอรับ
-      // ปกติจะเป็น List<int> ExistingAttachmentIds { get; set; }
-      formData.append("ExistingAttachmentIds", fileId.toString());
+  if (eventData.attachmentFiles && eventData.attachmentFiles.length > 0) {
+    eventData.attachmentFiles.forEach((f) => {
+      formData.append("NewAttachmentFiles", f);
     });
   }
+
+  if (payload.deleteAttachmentIds && payload.deleteAttachmentIds.length > 0) {
+    payload.deleteAttachmentIds.forEach((fileId) => {
+      formData.append("DeleteAttachmentIds", fileId.toString());
+    });
+  }
+
   if (eventData.eventStaff && eventData.eventStaff.length > 0) {
     const validStaffs = eventData.eventStaff
       .map((item) => ({
@@ -116,12 +118,6 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
         `EventOutsources[${index}].RoleId`,
         item.roleId.toString(),
       );
-    });
-  }
-
-  if (eventData.attachmentFiles && eventData.attachmentFiles.length > 0) {
-    eventData.attachmentFiles.forEach((f) => {
-      formData.append("NewAttachmentFiles", f);
     });
   }
 
