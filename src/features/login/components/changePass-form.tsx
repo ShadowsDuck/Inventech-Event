@@ -5,7 +5,7 @@ import z from "zod";
 import { useAppForm } from "@/components/form";
 import { Button } from "@/components/ui/button";
 
-import { useChangePassword } from "../api/change-password";
+import { useChangePassword } from "../api/changePassword";
 
 export const ChangePasswordSchema = z
   .object({

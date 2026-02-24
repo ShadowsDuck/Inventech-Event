@@ -3,7 +3,6 @@ import { useNavigate } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
 
 import { api } from "@/lib/axios";
-import { useAuthStore } from "@/store/auth-store";
 
 import { useLogout } from "./logout";
 

@@ -3,8 +3,8 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 
 import { cleanPhoneNumber, formatPhoneNumberInput } from "@/lib/format";
 
+import { useEditStaff } from "../../api/editStaff";
 import { staffByIdQuery } from "../../api/getStaffById";
-import { useUpdateStaff } from "../../api/updateStaff";
 import { type StaffData, StaffForm } from "../staff-form";
 
 export default function EditStaff() {
@@ -12,7 +12,7 @@ export default function EditStaff() {
 
   const { staffId } = useParams({ from: "/_auth/_admin/staff/$staffId/edit" });
   const { data: staffData } = useSuspenseQuery(staffByIdQuery(staffId));
-  const { mutate, isPending: isSaving } = useUpdateStaff();
+  const { mutate, isPending: isSaving } = useEditStaff();
 
   // แปลงจาก DB -> Form
   const initialValues: StaffData = {

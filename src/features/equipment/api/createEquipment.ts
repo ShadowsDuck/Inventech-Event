@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 
 import { api } from "@/lib/axios";
+import { handleApiError } from "@/lib/handle-api-error";
 import type { EquipmentType } from "@/types/equipment";
 
 import type { EquipmentData } from "../components/equipment-form";
@@ -12,23 +12,14 @@ const createEquipment = async (
 ): Promise<EquipmentType> => {
   try {
     const { data } = await api.post(`${API_URL}/api/equipments`, newEquipment);
+
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      const errorData = error.response.data;
-
-      const errorMessage =
-        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
-        errorData.detail ||
-        "Failed to create equipment";
-
-      throw new Error(errorMessage);
-    }
-    throw new Error("Failed to create company (Network error)");
+    return handleApiError(error, "Failed to create equipment");
   }
 };
 
-export const useAddEquipment = () =>
+export const useCreateEquipment = () =>
   useMutation({
     mutationFn: createEquipment,
     meta: {

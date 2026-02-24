@@ -1,9 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 
 import { api } from "@/lib/axios";
-
-// 1. Import axios และ helper
+import { handleApiError } from "@/lib/handle-api-error";
 
 import type { PackageData } from "../components/package-form";
 
@@ -11,24 +9,11 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const createPackage = async (newPackage: PackageData): Promise<void> => {
   try {
-    // 2. ใช้ axios.post ส่ง object ไปได้เลย
     await api.post(`${API_URL}/api/packages`, newPackage);
 
     return;
   } catch (error) {
-    // 3. ใช้ Standard Error Handling เพื่อดักจับ Message จาก Backend
-    if (isAxiosError(error) && error.response) {
-      const errorData = error.response.data;
-
-      const errorMessage =
-        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
-        errorData.detail ||
-        "Failed to create package";
-
-      throw new Error(errorMessage);
-    }
-
-    throw new Error("Failed to create package (Network error)");
+    return handleApiError(error, "Failed to create package");
   }
 };
 

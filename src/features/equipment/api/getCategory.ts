@@ -1,8 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { api } from "@/lib/axios";
-// 1. import axios
-
 import type { CategoryType } from "@/types/equipment";
 
 const API_URL = import.meta.env.VITE_API_URL;

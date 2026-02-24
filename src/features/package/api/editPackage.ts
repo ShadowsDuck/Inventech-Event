@@ -1,9 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 
 import { api } from "@/lib/axios";
-
-// 1. Import axios และ helper
+import { handleApiError } from "@/lib/handle-api-error";
 
 import type { PackageData } from "../components/package-form";
 
@@ -13,36 +11,22 @@ type UpdatePackageData = PackageData & {
   id: string;
 };
 
-const updatePackage = async ({
+const editPackage = async ({
   id,
   ...data
 }: UpdatePackageData): Promise<void> => {
   try {
-    // 2. ใช้ axios.put
-    // ส่ง id ไปกับ URL และส่ง data ไปเป็น body ได้เลย (ไม่ต้อง JSON.stringify)
     await api.put(`${API_URL}/api/packages/${id}`, data);
 
     return;
   } catch (error) {
-    // 3. ใช้ Standard Error Handling ดึง Message จาก Backend มาโชว์
-    if (isAxiosError(error) && error.response) {
-      const errorData = error.response.data;
-
-      const errorMessage =
-        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
-        errorData.detail ||
-        "Failed to update package";
-
-      throw new Error(errorMessage);
-    }
-
-    throw new Error("Failed to update package (Network error)");
+    return handleApiError(error, "Failed to update package");
   }
 };
 
 export const useEditPackage = () =>
   useMutation({
-    mutationFn: updatePackage,
+    mutationFn: editPackage,
     meta: {
       invalidatesQuery: ["packages"],
       successMessage: "Package updated successfully",

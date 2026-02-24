@@ -4,7 +4,7 @@ import { FolderX } from "lucide-react";
 
 import { DataTable } from "@/components/tables/data-table";
 
-import { companyEventsQuery } from "../../api/getEventByCompany";
+import { companyEventsQuery } from "../../api/getEventByCompanyId";
 import { eventHistoryColumns } from "../event-history-column";
 
 export function CompanyEventHistory({ companyId }: { companyId: string }) {

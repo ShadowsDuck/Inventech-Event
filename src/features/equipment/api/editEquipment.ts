@@ -1,9 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 
 import { api } from "@/lib/axios";
-
-// 1. import axios และ helper สำหรับจัดการ error
+import { handleApiError } from "@/lib/handle-api-error";
 
 import type { EquipmentData } from "../components/equipment-form";
 
@@ -13,34 +11,22 @@ type UpdateEquipmentData = EquipmentData & {
   id: string;
 };
 
-const UpdateEquipment = async ({
+const editEquipment = async ({
   id,
   ...data
 }: UpdateEquipmentData): Promise<void> => {
   try {
     await api.put(`${API_URL}/api/equipments/${id}`, data);
 
-    return; // ส่งค่ากลับเป็น void ตามเดิม
+    return;
   } catch (error) {
-    // 3. จัดการ Error ขาเข้าจาก Axios
-    if (isAxiosError(error) && error.response) {
-      const errorData = error.response.data;
-
-      const errorMessage =
-        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
-        errorData.detail ||
-        "Failed to update equipment";
-
-      throw new Error(errorMessage);
-    }
-
-    throw new Error("Failed to update equipment (Network error)");
+    return handleApiError(error, "Failed to update equipment");
   }
 };
 
-export const useEditEquipment = () => {
+export const useUpdateEquipment = () => {
   return useMutation({
-    mutationFn: UpdateEquipment,
+    mutationFn: editEquipment,
     meta: {
       invalidatesQuery: [["equipments"], ["packages"]],
       successMessage: "Equipment updated successfully",

@@ -363,7 +363,7 @@ export default function EventForm({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <PageHeader
-        className="sticky top-0 z-9999"
+        className="sticky top-0 z-10"
         title={title}
         subtitle={subtitle}
         backButton

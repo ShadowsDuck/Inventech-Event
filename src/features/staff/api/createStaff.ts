@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 
 import { api } from "@/lib/axios";
+import { handleApiError } from "@/lib/handle-api-error";
 
 import type { StaffData } from "../components/staff-form";
 
@@ -33,18 +33,7 @@ const createStaff = async (newStaff: StaffData): Promise<void> => {
 
     return;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      const errorData = error.response.data;
-
-      const errorMessage =
-        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
-        errorData.detail ||
-        "Failed to create staff";
-
-      throw new Error(errorMessage);
-    }
-
-    throw new Error("Failed to create staff (Network error)");
+    return handleApiError(error, "Failed to create staff");
   }
 };
 

@@ -3,8 +3,8 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 
 import { cleanPhoneNumber, formatPhoneNumberDisplay } from "@/lib/format";
 
+import { useEditCompany } from "../../api/editCompany";
 import { companyQuery } from "../../api/getCompany";
-import { useUpdateCompany } from "../../api/updateCompany";
 import { type CompanyData, CompanyForm } from "../company-form";
 
 export default function EditCompany() {
@@ -14,7 +14,7 @@ export default function EditCompany() {
     from: "/_auth/_admin/company/$companyId/edit",
   });
   const { data: companyData } = useSuspenseQuery(companyQuery(companyId));
-  const { mutate, isPending: isSaving } = useUpdateCompany();
+  const { mutate, isPending: isSaving } = useEditCompany();
 
   // แปลงจาก DB -> Form
   const initialValues: CompanyData = {

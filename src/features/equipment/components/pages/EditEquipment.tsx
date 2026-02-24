@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 
-import { useEditEquipment } from "../../api/editEquipment";
+import { useUpdateEquipment } from "../../api/editEquipment";
 import { equipmentByIdQuery } from "../../api/getEquipmentById";
 import { type EquipmentData, EquipmentForm } from "../equipment-form";
 
@@ -15,7 +15,7 @@ export default function EditEquipment() {
     equipmentByIdQuery(equipmentId),
   );
 
-  const { mutate, isPending: isSaving } = useEditEquipment();
+  const { mutate, isPending: isSaving } = useUpdateEquipment();
 
   if (!equipmentData) {
     return <div className="p-10 text-center">Equipment not found</div>;

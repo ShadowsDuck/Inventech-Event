@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const getCompanies = async (): Promise<CompanyType[]> => {
   const { data } = await api.get<CompanyType[]>(`${API_URL}/api/companies`);
 
-  return data; // 3. ส่งข้อมูลกลับได้เลย
+  return data;
 };
 
 export const companiesQuery = () =>

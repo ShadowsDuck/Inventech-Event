@@ -7,7 +7,7 @@ import z from "zod";
 import { useAppForm } from "@/components/form";
 import { Field, FieldGroup } from "@/components/ui/field";
 
-import { useForgotPassword } from "../api/forgot-password";
+import { useForgotPassword } from "../api/forgotPassword";
 
 export const ForgotPassSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),

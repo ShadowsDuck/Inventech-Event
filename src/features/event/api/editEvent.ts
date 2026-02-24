@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { isAxiosError } from "axios";
 import { format } from "date-fns";
 
 import { api } from "@/lib/axios";
+import { handleApiError } from "@/lib/handle-api-error";
 import type { EventType } from "@/types/event";
 
 import type { EventData } from "../components/event-schema";
@@ -21,20 +21,21 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
   const { id, ...eventData } = payload;
   const formData = new FormData();
 
-  // --- เตรียม FormData ---
+  // Basic Infomation
   formData.append("EventId", id.toString());
   formData.append("EventName", eventData.eventName);
   formData.append("EventType", eventData.eventType.toString());
   formData.append("Address", eventData.address || "");
-
   formData.append("CompanyId", eventData.companyId.toString());
 
+  // Package
   if (eventData.packageId && eventData.packageId > 0) {
     formData.append("PackageId", eventData.packageId.toString());
   } else {
     formData.append("PackageId", "");
   }
 
+  // Schedule
   const formattedDate = format(eventData.eventDate, "yyyy-MM-dd");
   formData.append("MeetingDate", formattedDate);
   formData.append("RegistrationTime", eventData.registrationTime || "");
@@ -59,7 +60,7 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
     formData.append("Longitude", eventData.longitude.toString());
   }
 
-  // --- Arrays Logic ---
+  // Extra Equipments
   if (
     eventData.eventExtraEquipments &&
     eventData.eventExtraEquipments.length > 0
@@ -75,6 +76,8 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
       );
     });
   }
+
+  // Files
   if (eventData.attachmentFiles && eventData.attachmentFiles.length > 0) {
     eventData.attachmentFiles.forEach((f) => {
       formData.append("NewAttachmentFiles", f);
@@ -87,6 +90,7 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
     });
   }
 
+  // Staff
   if (eventData.eventStaff && eventData.eventStaff.length > 0) {
     const validStaffs = eventData.eventStaff
       .map((item) => ({
@@ -101,6 +105,7 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
     });
   }
 
+  // Outsourced
   if (eventData.eventOutsources && eventData.eventOutsources.length > 0) {
     const validOutsources = eventData.eventOutsources
       .map((item) => ({
@@ -148,15 +153,7 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
     );
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      const errorData = error.response.data;
-      const errorMessage =
-        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
-        errorData.detail ||
-        "Failed to update event";
-      throw new Error(errorMessage);
-    }
-    throw new Error("Failed to update event (Network error)");
+    return handleApiError(error, "Failed to update event");
   }
 };
 

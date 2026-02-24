@@ -1,9 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 
 import { api } from "@/lib/axios";
-// 1. import axios
-
+import { handleApiError } from "@/lib/handle-api-error";
 import type { CompanyType } from "@/types/company";
 
 import type { CompanyData } from "../components/company-form";
@@ -14,12 +12,11 @@ type UpdateCompanyData = CompanyData & {
   id: number;
 };
 
-const updateCompany = async ({
+const editCompany = async ({
   id,
   ...company
 }: UpdateCompanyData): Promise<CompanyType> => {
   try {
-    // 2. ใช้ axios.put
     const { data } = await api.put<CompanyType>(
       `${API_URL}/api/companies/${id}`,
       company,
@@ -27,24 +24,13 @@ const updateCompany = async ({
 
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      const errorData = error.response.data;
-
-      const errorMessage =
-        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
-        errorData.detail ||
-        "Failed to update company";
-
-      throw new Error(errorMessage);
-    }
-
-    throw new Error("Failed to update company (Network error)");
+    return handleApiError(error, "Failed to update company");
   }
 };
 
-export const useUpdateCompany = () =>
+export const useEditCompany = () =>
   useMutation({
-    mutationFn: updateCompany,
+    mutationFn: editCompany,
     meta: {
       invalidatesQuery: ["companies"],
       successMessage: "Updated company successfully",

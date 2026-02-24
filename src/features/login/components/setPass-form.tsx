@@ -8,7 +8,7 @@ import { Field, FieldGroup } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 import { Route } from "@/routes/auth/set-password";
 
-import { useSetPassword } from "../api/set-password";
+import { useSetPassword } from "../api/setPassword";
 
 export const SetPasswordSchema = z
   .object({

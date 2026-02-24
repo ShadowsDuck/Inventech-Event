@@ -1,17 +1,13 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { api } from "@/lib/axios";
-// 1. import axios
-
 import type { CompanyType } from "@/types/company";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const getCompany = async (id: string): Promise<CompanyType> => {
-  // 2. ใช้ axios.get พร้อมระบุ Type <CompanyType>
   const { data } = await api.get<CompanyType>(`${API_URL}/api/companies/${id}`);
 
-  // 3. return data ได้เลย (Axios แปลง JSON ให้แล้ว)
   return data;
 };
 

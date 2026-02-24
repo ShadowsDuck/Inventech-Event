@@ -1,9 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 
 import { api } from "@/lib/axios";
-
-// 1. import axios
+import { handleApiError } from "@/lib/handle-api-error";
 
 import type { StaffData } from "../components/staff-form";
 
@@ -14,15 +12,16 @@ type UpdateStaffData = StaffData & {
   deleteAvatar?: boolean;
 };
 
-const updateStaff = async ({ id, ...data }: UpdateStaffData): Promise<void> => {
+const editStaff = async ({ id, ...data }: UpdateStaffData): Promise<void> => {
   const formData = new FormData();
 
-  // --- เตรียม FormData  ---
+  // Basic Infomation
   formData.append("FullName", data.fullName);
-
   if (data.email) formData.append("Email", data.email);
   if (data.phoneNumber) formData.append("PhoneNumber", data.phoneNumber);
+  formData.append("IsDeleted", data.isDeleted.toString());
 
+  // Avatar
   if (data.avatar instanceof File) {
     // กรณีอัปโหลดไฟล์ใหม่
     formData.append("AvatarFile", data.avatar);
@@ -31,41 +30,30 @@ const updateStaff = async ({ id, ...data }: UpdateStaffData): Promise<void> => {
     formData.append("DeleteAvatar", "true");
   }
 
+  // Roles
   if (data.staffRoles && data.staffRoles.length > 0) {
     data.staffRoles.forEach((roleId) => {
       formData.append("StaffRoles", roleId.toString());
     });
   }
+
+  // Resend Email Invite
   if (data.resendInvite) {
     formData.append("ResendInvite", "true");
   }
-  formData.append("IsDeleted", data.isDeleted.toString());
-  // ---------------------------------------
 
   try {
-    // 2. ใช้ axios.put
     await api.put(`${API_URL}/api/staff/${id}`, formData);
 
     return;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      const errorData = error.response.data;
-
-      const errorMessage =
-        (Object.values(errorData?.errors ?? {}).flat()[0] as string) ||
-        errorData.detail ||
-        "Failed to update staff";
-
-      throw new Error(errorMessage);
-    }
-
-    throw new Error("Failed to update staff (Network error)");
+    return handleApiError(error, "Failed to update staff");
   }
 };
 
-export const useUpdateStaff = () =>
+export const useEditStaff = () =>
   useMutation({
-    mutationFn: updateStaff,
+    mutationFn: editStaff,
     meta: {
       invalidatesQuery: ["staff"],
       successMessage: "Updated staff successfully",

@@ -3,8 +3,8 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 
 import { cleanPhoneNumber, formatPhoneNumberInput } from "@/lib/format";
 
+import { useEditOutsource } from "../../api/editOutsource";
 import { outsourceByIdQuery } from "../../api/getOutsourceById";
-import { useUpdateOutsource } from "../../api/updateOutsource";
 import { type OutsourceData, OutsourceForm } from "../outsource-form";
 
 export default function EditOutsource() {
@@ -17,7 +17,7 @@ export default function EditOutsource() {
     outsourceByIdQuery(outsourceId),
   );
 
-  const { mutate, isPending: isSaving } = useUpdateOutsource();
+  const { mutate, isPending: isSaving } = useEditOutsource();
 
   if (!outsourceData) {
     return <div className="p-10 text-center">Outsource not found</div>;

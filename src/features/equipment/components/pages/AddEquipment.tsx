@@ -1,11 +1,11 @@
 import { useNavigate } from "@tanstack/react-router";
 
-import { useAddEquipment } from "../../api/createEquipment";
+import { useCreateEquipment } from "../../api/createEquipment";
 import { type EquipmentData, EquipmentForm } from "../equipment-form";
 
 export default function AddEquipment() {
   const navigate = useNavigate();
-  const { mutate, isPending } = useAddEquipment();
+  const { mutate, isPending } = useCreateEquipment();
 
   const handleCreateSubmit = (values: EquipmentData) => {
     const payload = {
