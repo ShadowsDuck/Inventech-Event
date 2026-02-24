@@ -38,6 +38,11 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
   // Schedule
   const formattedDate = format(eventData.eventDate, "yyyy-MM-dd");
   formData.append("MeetingDate", formattedDate);
+  formData.append("StaffAppointmentTime", eventData.staffAppointmentTime || "");
+  formData.append(
+    "OutsourceAppointmentTime",
+    eventData.outsourceAppointmentTime || "",
+  );
   formData.append("RegistrationTime", eventData.registrationTime || "");
   formData.append("StartTime", eventData.startTime);
   formData.append("EndTime", eventData.endTime);

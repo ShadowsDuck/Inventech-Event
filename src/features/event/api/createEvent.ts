@@ -43,7 +43,18 @@ const createEvent = async (
   if (newEvent.registrationTime) {
     formData.append("RegistrationTime", newEvent.registrationTime);
   }
-  formData.append("StartTime", newEvent.startTime);
+  if (newEvent.staffAppointmentTime) {
+    formData.append("StaffAppointmentTime", newEvent.staffAppointmentTime);
+  }
+  if (newEvent.outsourceAppointmentTime) {
+    formData.append(
+      "OutsourceAppointmentTime",
+      newEvent.outsourceAppointmentTime,
+    );
+  }
+  if (newEvent.startTime) {
+    formData.append("StartTime", newEvent.startTime);
+  }
   formData.append("EndTime", newEvent.endTime);
 
   // Time Period

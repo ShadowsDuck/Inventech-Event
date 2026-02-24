@@ -134,6 +134,8 @@ export default function EventForm({
       address: initialValues?.address ?? "",
       packageId: initialValues?.packageId ?? 0,
       eventDate: initialValues?.eventDate,
+      staffAppointmentTime: initialValues?.staffAppointmentTime ?? "",
+      outsourceAppointmentTime: initialValues?.outsourceAppointmentTime ?? "",
       registrationTime: initialValues?.registrationTime ?? "",
       startTime: initialValues?.startTime ?? "",
       endTime: initialValues?.endTime ?? "",
@@ -234,7 +236,8 @@ export default function EventForm({
 
   const { data: staffData } = useQuery({
     ...staffQuery({ date: dateString, period: periodNumber }),
-    select: (data: StaffType[]) => data.filter((s) => !s.isDeleted),
+    select: (data: StaffType[]) =>
+      data.filter((s) => !s.isDeleted && !isPending),
     enabled: !!dateString && !!periodNumber,
   });
 
@@ -438,7 +441,7 @@ export default function EventForm({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="gap-6 md:grid-cols-2">
                 <form.AppField
                   name="eventDate"
                   children={(field) => (
@@ -448,14 +451,28 @@ export default function EventForm({
                     />
                   )}
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-6">
+                <form.AppField
+                  name="staffAppointmentTime"
+                  children={(field) => (
+                    <field.TimeField label="Staff Appointment Time" />
+                  )}
+                />
+                <form.AppField
+                  name="outsourceAppointmentTime"
+                  children={(field) => (
+                    <field.TimeField label="Outsource Appointment Time" />
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <form.AppField
                   name="registrationTime"
                   children={(field) => (
                     <field.TimeField label="Registration Time" />
                   )}
                 />
-              </div>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <form.AppField
                   name="startTime"
                   children={(field) => <field.TimeField label="Start Time" />}

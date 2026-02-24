@@ -81,7 +81,9 @@ export default function EventOverview({ events }: EventOverviewProps) {
                   </p>
 
                   <p className="text-sm font-bold text-gray-800">
-                    {/*{events.staffAppointmentTime || "-"}*/}
+                    {events.staffAppointmentTime
+                      ? events.staffAppointmentTime.slice(0, 5)
+                      : "N/A"}
                   </p>
                 </div>
               </div>
@@ -96,7 +98,9 @@ export default function EventOverview({ events }: EventOverviewProps) {
                     Outsource Appointment
                   </p>
                   <p className="text-sm font-bold text-gray-800">
-                    {/*{events.outsourceAppointmentTime || "-"}*/}
+                    {events.outsourceAppointmentTime
+                      ? events.outsourceAppointmentTime.slice(0, 5)
+                      : "N/A"}
                   </p>
                 </div>
               </div>
@@ -134,8 +138,6 @@ export default function EventOverview({ events }: EventOverviewProps) {
               </div>
             </div>
           </div>
-          {/* --- 3. Note Section --- */}
-          {/* --- 4. Map Preview --- */}
           <div>
             <h4 className="mb-3 text-sm font-bold text-gray-800">
               Map Preview

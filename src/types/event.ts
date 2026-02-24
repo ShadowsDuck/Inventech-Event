@@ -79,6 +79,8 @@ export interface EventType {
   longitude: number;
   note: string;
   eventStatus: string;
+  staffAppointmentTime: string;
+  outsourceAppointmentTime: string;
 
   // FK
   createdByStaffId: number;

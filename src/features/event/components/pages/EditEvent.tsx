@@ -53,6 +53,18 @@ export default function EditEvent() {
       eventDate: new Date(eventData.meetingDate),
       timePeriod: (PERIOD_MAP[eventData.period] ??
         1) as EventData["timePeriod"],
+      staffAppointmentTime: eventData.staffAppointmentTime
+        ? format(
+            parse(eventData.staffAppointmentTime, "HH:mm:ss", new Date()),
+            "HH:mm",
+          )
+        : "",
+      outsourceAppointmentTime: eventData.outsourceAppointmentTime
+        ? format(
+            parse(eventData.outsourceAppointmentTime, "HH:mm:ss", new Date()),
+            "HH:mm",
+          )
+        : "",
       registrationTime: eventData.registrationTime
         ? format(
             parse(eventData.registrationTime, "HH:mm:ss", new Date()),

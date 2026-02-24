@@ -42,6 +42,8 @@ const baseEventSchema = z.object({
       return "Invalid date format";
     },
   }),
+  staffAppointmentTime: z.string().optional(),
+  outsourceAppointmentTime: z.string().optional(),
   registrationTime: z.string().min(1, "Registration time is required"),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
