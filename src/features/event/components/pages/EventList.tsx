@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
@@ -25,6 +25,8 @@ import YearView from "../year-view";
 export default function EventList() {
   const navigate = useNavigate();
   const params = useSearch({ from: "/_auth/_sidebarLayout/event/" });
+
+  const topRef = useRef<HTMLDivElement>(null);
 
   const [
     { data: staffData },
@@ -76,6 +78,11 @@ export default function EventList() {
   const [activeTab, setActiveTab] = useState<"daily" | "month" | "year">(
     "month",
   );
+
+  // เมื่อ activeTab เปลี่ยนแปลง ให้ scroll ไปยังข้างบนสุดของหน้า
+  useEffect(() => {
+    topRef.current?.scrollIntoView({ behavior: "instant", block: "start" });
+  }, [activeTab]);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [search, setSearch] = useState("");
@@ -160,6 +167,11 @@ export default function EventList() {
     setActiveTab("daily");
   };
 
+  const handleMonthClick = (date: Date) => {
+    setSelectedDate(date);
+    setActiveTab("month");
+  };
+
   const handleNavigateToDetail = (event: EventType) => {
     navigate({
       to: "/event/$eventId",
@@ -169,6 +181,8 @@ export default function EventList() {
 
   return (
     <>
+      <div ref={topRef} />
+
       <PageHeader
         className="sticky top-0 z-10 bg-white"
         title="Event"
@@ -265,7 +279,7 @@ export default function EventList() {
           <YearView
             events={filteredEvents}
             onDateClick={handleDateClick}
-            // onEventClick={handleNavigateToDetail} // ถ้า YearView รองรับ
+            onMonthClick={handleMonthClick}
           />
         </TabsPanel>
 
@@ -274,6 +288,8 @@ export default function EventList() {
             events={filteredEvents}
             onDateClick={handleDateClick}
             onEventClick={handleNavigateToDetail}
+            key={selectedDate?.toISOString() || "month-view-default"}
+            initialDate={selectedDate}
           />
         </TabsPanel>
 
