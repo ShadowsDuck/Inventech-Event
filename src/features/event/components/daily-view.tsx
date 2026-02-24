@@ -1,11 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
-// 1. Import useNavigate (ปรับ import ให้ตรงกับ Library ที่ใช้ เช่น @tanstack/react-router)
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns/format";
 import {
   Activity,
-  // <-- 1. เพิ่มไอคอน Activity สำหรับ Status
   Building2,
   Calendar,
   ChartNoAxesGantt,
@@ -35,11 +33,9 @@ interface DailyViewProps {
 }
 
 const DailyView = ({ events, initialDate }: DailyViewProps) => {
+  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(initialDate || new Date());
   const [expandedId, setExpandedId] = useState<number | null>(null);
-
-  // 3. เรียกใช้ Hook
-  const navigate = useNavigate();
 
   const changeDate = (offset: number) => {
     const newDate = new Date(currentDate);
@@ -72,7 +68,7 @@ const DailyView = ({ events, initialDate }: DailyViewProps) => {
     e.stopPropagation();
 
     navigate({
-      to: "/event/$eventId", // **ตรวจสอบ Path นี้ให้ตรงกับ Router config ของคุณ**
+      to: "/event/$eventId",
       params: { eventId: eventId.toString() },
     });
   };
@@ -81,19 +77,13 @@ const DailyView = ({ events, initialDate }: DailyViewProps) => {
   const getStatusColor = (status?: string) => {
     const s = status?.toLowerCase() || "";
     if (s.includes("pending")) return "bg-yellow-50 text-yellow-700";
-    if (
-      s.includes("complete") ||
-      s.includes("success") ||
-      s.includes("approve")
-    )
-      return "bg-emerald-50 text-emerald-700";
-    if (s.includes("cancel") || s.includes("reject"))
-      return "bg-red-50 text-red-700";
+    if (s.includes("complete")) return "bg-emerald-50 text-emerald-700";
+    // if (s.includes("cancel")) return "bg-red-50 text-red-700";
     return "bg-gray-100 text-gray-700"; // สี Default
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <div className="mx-auto w-full p-6">
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-center justify-between gap-6">

@@ -47,3 +47,20 @@ export const TIME_PERIOD = [
   { id: 1, label: "Morning" },
   { id: 2, label: "Afternoon" },
 ];
+
+export const daysOfWeekShort = ["S", "M", "T", "W", "T", "F", "S"];
+export const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+export const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
