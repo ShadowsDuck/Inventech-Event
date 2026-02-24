@@ -119,14 +119,7 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
       <div className="grid grid-cols-3 gap-6 print:hidden">
         {/* Package  */}
         <div className="col-span-1">
-          <div className="mb-4 flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-              <Package className="size-4" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-800">
-              Selected Package
-            </h3>
-          </div>
+          <div className="mb-4 flex items-center gap-2"></div>
 
           <CarouselPackage
             packages={packageList}

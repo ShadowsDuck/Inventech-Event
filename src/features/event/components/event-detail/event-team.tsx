@@ -19,12 +19,14 @@ interface RoleType {
 interface StaffType {
   staffId: number;
   fullName: string;
+  phoneNumber: string;
   avatar?: string | null;
 }
 
 interface OutsourceType {
   outsourceId: number;
   fullName: string;
+  phoneNumber: string;
 }
 
 export interface EventStaff {
@@ -52,6 +54,7 @@ interface TeamMember {
   id: string;
   name: string;
   avatar?: string;
+  phoneNumber: string;
   type: "staff" | "outsource";
 }
 
@@ -97,59 +100,76 @@ const TeamGroupCard = ({ assignment }: { assignment: RoleAssignmentView }) => {
           <div
             key={`${type}-${index}`}
             className={cn(
-              "flex items-center justify-between rounded-xl border p-3 shadow-sm transition-colors",
+              "flex w-full items-center gap-3 rounded-xl border p-3 shadow-sm transition-colors",
               isStaff
                 ? "border-green-200 bg-green-50/50 hover:border-green-300"
                 : "border-violet-200 bg-violet-50/50 hover:border-violet-300",
             )}
           >
-            <div className="flex items-center gap-4">
-              <span
-                className={cn(
-                  "rounded bg-white/80 px-2 py-1 text-xs font-bold",
-                  isStaff ? "text-green-600" : "text-violet-600",
-                )}
-              >
-                #{slotNumber}
-              </span>
-              <div
-                className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-full border-2 border-white text-xs font-bold shadow-sm",
-                  isStaff
-                    ? "bg-green-200 text-green-700"
-                    : "bg-violet-200 text-violet-700",
-                )}
-              >
-                {member.avatar ? (
-                  <img
-                    src={member.avatar}
-                    alt={member.name}
-                    className="h-full w-full rounded-full object-cover"
-                  />
-                ) : (
-                  member.name.charAt(0)
-                )}
-              </div>
-              <div>
-                <p className="text-sm font-bold text-gray-800">{member.name}</p>
-                <p className="text-[10px] text-gray-400">
+            {/* --- ลำดับ (#) --- */}
+            <span
+              className={cn(
+                "shrink-0 rounded bg-white/80 px-2 py-1 text-xs font-bold",
+                isStaff ? "text-green-600" : "text-violet-600",
+              )}
+            >
+              #{slotNumber}
+            </span>
+
+            {/* --- รูป Avatar --- */}
+            <div
+              className={cn(
+                "flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-white text-xs font-bold shadow-sm",
+                isStaff
+                  ? "bg-green-200 text-green-700"
+                  : "bg-violet-200 text-violet-700",
+              )}
+            >
+              {member.avatar ? (
+                <img
+                  src={member.avatar}
+                  alt={member.name}
+                  className="h-full w-full rounded-full object-cover"
+                />
+              ) : (
+                member.name.charAt(0)
+              )}
+            </div>
+
+            {/* --- ข้อมูลชื่อ และ เบอร์โทร --- */}
+
+            <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-1">
+              {/* ส่วนชื่อ */}
+              <div className="flex min-w-0 flex-col">
+                <p className="truncate text-sm font-bold text-gray-800">
+                  {member.name}
+                </p>
+                <p className="mt-0.5 text-[10px] font-medium text-gray-400">
                   {isStaff ? "Internal Staff" : "Outsource Partner"}
                 </p>
               </div>
+
+              {/* ส่วนเบอร์โทร */}
+              {member.phoneNumber && member.phoneNumber !== "N/A" && (
+                <div className="flex shrink-0 items-center gap-1.5 px-2 py-1 text-sm font-semibold text-gray-700">
+                  <span>{member.phoneNumber}</span>
+                </div>
+              )}
             </div>
           </div>
         );
       }
 
+      // ... กรณีไม่มีคน (Unassigned)
       return (
         <div
           key={`empty-${type}-${index}`}
           className="flex items-center gap-4 rounded-xl border border-dashed border-gray-200 bg-gray-50/50 p-3"
         >
-          <span className="rounded bg-white px-2 py-1 text-xs font-bold text-gray-400 shadow-sm">
+          <span className="shrink-0 rounded bg-white px-2 py-1 text-xs font-bold text-gray-400 shadow-sm">
             #{slotNumber}
           </span>
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-300 shadow-sm">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-gray-300 shadow-sm">
             <User size={16} />
           </div>
           <span className="text-sm font-medium text-gray-400 italic">
@@ -267,13 +287,12 @@ export default function EventTeam({ events }: EventTeamProps) {
           ? `${API_BASE_URL}/uploads/${avatarFile}`
           : undefined;
 
-        console.log("Image Path Check:", fullAvatarUrl);
-
         const member: TeamMember = {
           id: item.staff.staffId.toString(),
           name: item.staff.fullName,
           avatar: fullAvatarUrl,
           type: "staff",
+          phoneNumber: item.staff.phoneNumber,
         };
 
         const emptyIdx = current.staffSlots.indexOf(null);
@@ -302,6 +321,7 @@ export default function EventTeam({ events }: EventTeamProps) {
           id: item.outsource.outsourceId.toString(),
           name: item.outsource.fullName,
           type: "outsource",
+          phoneNumber: item.outsource.phoneNumber || "N/A",
         };
 
         const emptyIdx = current.outsourceSlots.indexOf(null);

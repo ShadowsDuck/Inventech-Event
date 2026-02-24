@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 // 1. Import useNavigate (ปรับ import ให้ตรงกับ Library ที่ใช้ เช่น @tanstack/react-router)
 import { useNavigate } from "@tanstack/react-router";
+import { format } from "date-fns/format";
 import {
   Activity,
   // <-- 1. เพิ่มไอคอน Activity สำหรับ Status
@@ -341,11 +342,15 @@ const DailyView = ({ events, initialDate }: DailyViewProps) => {
                                 <Calendar className="h-3.5 w-3.5" />
                                 Date
                               </label>
-                              <p className="text-base font-medium text-gray-900">
-                                {event.meetingDate || "-"}
-                              </p>
+                              <span className="font-medium">
+                                {event.meetingDate
+                                  ? format(
+                                      new Date(event.meetingDate),
+                                      "dd MMM yyyy",
+                                    )
+                                  : "-"}
+                              </span>
                             </div>
-
                             <div>
                               <label className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                                 <Clock className="h-3.5 w-3.5" />

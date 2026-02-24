@@ -1,12 +1,16 @@
+import { format } from "date-fns/format";
 import {
   Building2,
   Calendar,
+  ClipboardList,
   Clock,
   Mail,
   MapPinCheckInside,
   Phone,
   StickyNote,
   User,
+  UserCircle,
+  Users,
 } from "lucide-react";
 
 import MapPreview from "@/components/map-preview";
@@ -38,65 +42,119 @@ export default function EventOverview({ events }: EventOverviewProps) {
           </CardTitle>
         </CardHeader>
 
-        {/* --- Detail Grid --- */}
-        <CardContent className="pt-2 pb-0">
-          <div className="grid grid-cols-4 gap-4 text-sm text-gray-600">
-            {/* 1. วันที่ */}
-            <div className="col-span-1 flex items-center gap-2">
+        <CardContent className="space-y-6 pt-5 pb-6">
+          {" "}
+          {/* --- 1. ข้อมูลหลัก (วันที่ และ สถานที่) --- */}
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
+            <div className="flex items-center gap-2 text-gray-700">
               <Calendar className="size-4 text-gray-400" />
-              <span className="font-medium">{events.meetingDate}</span>
-              <p className="font-medium">{events.period}</p>
-            </div>
-
-            {/* 2. เวลา */}
-            <div className="col-span-1 flex items-center gap-2">
-              <Clock className="size-4 text-gray-400" />
-              <span className="font-medium">
-                {events.startTime} - {events.endTime}
+              <span className="text-lg font-semibold">
+                {events.meetingDate
+                  ? format(new Date(events.meetingDate), "dd MMM yyyy")
+                  : "-"}
+              </span>
+              <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600">
+                {events.period || "All Day"}
               </span>
             </div>
-
-            {/* 3. สถานที่ */}
-            <div className="col-span-2 flex items-center gap-2 overflow-hidden">
+            <div className="flex max-w-[50%] items-center gap-2 text-gray-700">
               <MapPinCheckInside className="size-4 shrink-0 text-gray-400" />
               <span className="truncate font-medium" title={events.address}>
-                {events.address}
+                {events.address || "No Address Provided"}
               </span>
             </div>
           </div>
+          {/* --- 2. ข้อมูลตารางเวลา (Schedule Details) --- */}
+          <div>
+            <h4 className="mb-3 text-sm font-bold text-gray-800">
+              Schedule Details
+            </h4>
 
-          {/* เส้นคั่น */}
-          <div className="mt-4 border-b border-gray-100" />
-        </CardContent>
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+              <div className="flex items-center gap-3 rounded-lg border bg-gray-50/50 p-3 shadow-sm">
+                <div className="shrink-0 rounded-full bg-green-100 p-2 text-green-600">
+                  <Users className="size-4" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-gray-500 uppercase">
+                    Staff Appointment
+                  </p>
 
-        {/* --- Map Preview --- */}
-        <div className="px-5 pt-4">
-          {" "}
-          {/* ใช้ div ธรรมดาครอบเพื่อจัด title */}
-          <span className="text-sm font-semibold text-gray-700">
-            Map Preview
-          </span>
-        </div>
-
-        <CardContent className="relative z-0 h-64 p-4 pb-0">
-          <div className="h-full w-full overflow-hidden rounded-lg border border-gray-100">
-            {mapPosition ? (
-              <MapPreview
-                position={mapPosition}
-                popUp={events.address}
-                className="h-full w-full"
-              />
-            ) : (
-              <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-400">
-                <MapPinCheckInside className="size-8 opacity-20" />
-                <span className="text-xs">No GPS Coordinate</span>
+                  <p className="text-sm font-bold text-gray-800">
+                    {/*{events.staffAppointmentTime || "-"}*/}
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
-        </CardContent>
 
-        {/* --- Note Section (ส่วนที่เพิ่มมา) --- */}
-        <CardContent className="p-4 pt-4">
+              {/*  Outsource */}
+              <div className="flex items-center gap-3 rounded-lg border bg-gray-50/50 p-3 shadow-sm">
+                <div className="shrink-0 rounded-full bg-violet-100 p-2 text-violet-600">
+                  <UserCircle className="size-4" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-gray-500 uppercase">
+                    Outsource Appointment
+                  </p>
+                  <p className="text-sm font-bold text-gray-800">
+                    {/*{events.outsourceAppointmentTime || "-"}*/}
+                  </p>
+                </div>
+              </div>
+              {/* เวลาลงทะเบียน */}
+              <div className="flex items-center gap-3 rounded-lg border bg-gray-50/50 p-3 shadow-sm">
+                <div className="shrink-0 rounded-full bg-amber-100 p-2 text-amber-600">
+                  <ClipboardList className="size-4" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-gray-500 uppercase">
+                    Registration
+                  </p>
+
+                  <p className="text-sm font-bold text-gray-800">
+                    {events.registrationTime
+                      ? events.registrationTime.slice(0, 5)
+                      : "ไม่ระบุเวลา"}
+                  </p>
+                </div>
+              </div>
+              {/*  เวลา Event */}
+              <div className="flex items-center gap-3 rounded-lg border bg-gray-50/50 p-3 shadow-sm">
+                <div className="shrink-0 rounded-full bg-blue-100 p-2 text-blue-600">
+                  <Clock className="size-4" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-gray-500 uppercase">
+                    Event Time
+                  </p>
+                  <p className="text-sm font-bold text-gray-800">
+                    {events.startTime ? events.startTime.slice(0, 5) : "N/A"} -{" "}
+                    {events.endTime ? events.endTime.slice(0, 5) : "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* --- 3. Note Section --- */}
+          {/* --- 4. Map Preview --- */}
+          <div>
+            <h4 className="mb-3 text-sm font-bold text-gray-800">
+              Map Preview
+            </h4>
+            <div className="relative z-0 h-64 w-full overflow-hidden rounded-lg border border-gray-100">
+              {mapPosition ? (
+                <MapPreview
+                  position={mapPosition}
+                  popUp={events.address}
+                  className="h-full w-full"
+                />
+              ) : (
+                <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gray-50 text-gray-400">
+                  <MapPinCheckInside className="size-8 opacity-20" />
+                  <span className="text-xs">No GPS Coordinate</span>
+                </div>
+              )}
+            </div>
+          </div>
           <div className="rounded-lg border border-yellow-100 bg-yellow-50/50 p-3">
             <div className="flex items-start gap-2">
               <StickyNote className="mt-0.5 size-4 shrink-0 text-yellow-600" />
@@ -128,18 +186,18 @@ export default function EventOverview({ events }: EventOverviewProps) {
         {/* Content */}
         <CardContent className="space-y-6 px-5 py-5">
           {/* 1. ส่วนหัวบริษัท */}
-          <div className="flex items-start gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-lg font-bold text-blue-600">
+          <div className="flex w-full items-center gap-3">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-xl font-bold text-blue-600">
               {events.company?.companyName?.charAt(0) || "C"}
             </div>
-            <div className="min-w-0">
-              <h4 className="truncate leading-tight font-bold text-gray-900">
+            <div className="min-w-0 flex-1 items-center">
+              <h4 className="flex items-center truncate text-2xl leading-tight font-bold text-gray-900">
                 {events.company?.companyName}
               </h4>
             </div>
           </div>
 
-          {/* 2. Primary Contact (หาคนที่เป็น isPrimary = true) */}
+          {/* 2. Primary Contact */}
           {(() => {
             const primaryContact = events.company?.companyContacts?.find(
               (c) => c.isPrimary,
@@ -147,32 +205,32 @@ export default function EventOverview({ events }: EventOverviewProps) {
             if (!primaryContact) return null;
 
             return (
-              <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
-                <p className="mb-2 text-[10px] font-bold tracking-wider text-gray-400 uppercase">
-                  Primary Contact
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                <p className="mb-3 text-xs font-bold tracking-wider text-gray-400">
+                  PRIMARY CONTACT
                 </p>
 
-                <div className="mb-3 flex items-center gap-2.5">
-                  <div className="flex size-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400">
-                    <User className="size-4" />
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400">
+                    <User className="size-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-gray-900">
+                    <p className="truncate text-base font-bold text-gray-900">
                       {primaryContact.fullName}
                     </p>
-                    <p className="truncate text-xs text-gray-500">
+                    <p className="truncate text-sm text-gray-500">
                       {primaryContact.position}
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-1.5 pl-1">
-                  <div className="flex items-center gap-2 text-xs text-gray-600">
-                    <Phone className="size-3 text-gray-400" />
+                <div className="space-y-2 pl-1">
+                  <div className="flex items-center gap-2.5 text-sm text-gray-600">
+                    <Phone className="size-4 text-gray-400" />
                     {primaryContact.phoneNumber}
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-600">
-                    <Mail className="size-3 text-gray-400" />
+                  <div className="flex items-center gap-2.5 text-sm text-gray-600">
+                    <Mail className="size-4 text-gray-400" />
                     <a
                       href={`mailto:${primaryContact.email}`}
                       className="truncate hover:text-blue-600"
@@ -185,7 +243,7 @@ export default function EventOverview({ events }: EventOverviewProps) {
             );
           })()}
 
-          {/* 3. Other Contacts (คนอื่น ๆ ที่ไม่ใช่ Primary) */}
+          {/* 3. Other Contacts */}
           {(() => {
             const otherContacts =
               events.company?.companyContacts?.filter((c) => !c.isPrimary) ||
@@ -194,28 +252,28 @@ export default function EventOverview({ events }: EventOverviewProps) {
 
             return (
               <div>
-                <p className="mb-2 text-[10px] font-bold tracking-wider text-gray-400 uppercase">
+                <p className="mb-3 text-xs font-bold tracking-wider text-gray-400 uppercase">
                   Other Contacts
                 </p>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   {otherContacts.slice(0, 3).map((contact) => (
                     <div
                       key={contact.companyContactId}
-                      className="group flex cursor-default items-center gap-2.5 rounded-lg border border-transparent p-2 transition-colors hover:border-gray-100 hover:bg-gray-50"
+                      className="group flex cursor-default items-center gap-3 rounded-lg border border-transparent p-2 transition-colors hover:border-gray-100 hover:bg-gray-50"
                     >
-                      <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-all group-hover:bg-white group-hover:shadow-sm">
-                        <span className="text-[10px] font-bold">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-all group-hover:bg-white group-hover:shadow-sm">
+                        <span className="text-xs font-bold">
                           {contact.fullName.charAt(0)}
                         </span>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-12px truncate font-medium text-gray-700 group-hover:text-gray-900">
+                        <p className="truncate text-sm font-semibold text-gray-700 group-hover:text-gray-900">
                           {contact.fullName}
                         </p>
-                        <p className="truncate text-[12px] text-gray-400">
+                        <p className="truncate text-sm text-gray-500">
                           {contact.position}
                         </p>
-                        <p className="truncate text-[12px] text-gray-400">
+                        <p className="truncate text-sm text-gray-500">
                           {contact.phoneNumber}
                         </p>
                       </div>
