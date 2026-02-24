@@ -1,4 +1,7 @@
 import * as React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { SearchIcon, XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -14,7 +17,7 @@ export interface FilterOption {
   label: string;
   description?: string;
   icon?: React.ComponentType<{ className?: string }>;
-  isDivider?: boolean; // <-- 1. เพิ่มตรงนี้
+  isDivider?: boolean;
 }
 
 interface FilterMultiSelectProps {
@@ -37,95 +40,200 @@ export function FilterMultiSelect({
   align = "start",
 }: FilterMultiSelectProps) {
   const isActive = selected.length > 0;
+  const [open, setOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    // ล้างข้อความค้นหาเมื่อปิด dropdown
+    if (!nextOpen) setSearchText("");
+  };
+
+  // โฟกัส input เมื่อ dropdown เปิด
+  useEffect(() => {
+    if (open) {
+      // หน่วงเวลาเล็กน้อยเพื่อป้องกัน PopoverTrigger click ทำให้ blur ทันที
+      setTimeout(() => inputRef.current?.focus(), 0);
+    }
+  }, [open]);
+
+  const filteredOptions = useMemo(() => {
+    if (!searchText) return options;
+
+    // คงไว้เฉพาะ divider ที่มี option ที่ตรงกับการค้นหาอยู่ในกลุ่ม
+    const result: FilterOption[] = [];
+    let pendingDivider: FilterOption | null = null;
+
+    for (const option of options) {
+      if (option.isDivider) {
+        pendingDivider = option;
+        continue;
+      }
+      if (option.label.toLowerCase().includes(searchText.toLowerCase())) {
+        if (pendingDivider) {
+          result.push(pendingDivider);
+          pendingDivider = null;
+        }
+        result.push(option);
+      }
+    }
+    return result;
+  }, [options, searchText]);
 
   return (
-    <MultiSelect values={selected} onValuesChange={onChange}>
+    <MultiSelect
+      values={selected}
+      onValuesChange={onChange}
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
+      {/* Trigger ที่เปลี่ยนเป็นช่อง search เมื่อเปิด dropdown */}
       <MultiSelectTrigger
         className={cn(
-          "hover:bg-hover h-8 w-fit rounded-xl border bg-white transition-colors",
-          isActive &&
+          "hover:bg-hover h-8 rounded-xl border bg-white transition-all",
+          open
+            ? "w-44 border-blue-600 bg-white shadow-sm ring-2 ring-blue-100"
+            : "w-fit",
+          !open &&
+            isActive &&
             "border-solid border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
           className,
         )}
+        // ป้องกัน Button click จาก toggle popover เมื่อกดที่ input
+        onClick={(e) => {
+          if (open) e.preventDefault();
+        }}
       >
-        <div className="flex items-center gap-2">
-          {Icon && (
-            <Icon
+        {open ? (
+          /* โหมดค้นหา — แสดงเมื่อ dropdown เปิดอยู่ */
+          <div
+            className="flex w-full items-center gap-1.5"
+            // หยุด click ไม่ให้ปิด popover ผ่าน PopoverTrigger
+            onClick={(e) => e.stopPropagation()}
+          >
+            <SearchIcon className="text-primary h-3.5 w-3.5 shrink-0" />
+            <input
+              ref={inputRef}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder={`Search...`}
+              className="w-full bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400"
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  if (searchText) {
+                    // กด Escape ครั้งแรก → ล้างข้อความ
+                    setSearchText("");
+                  } else {
+                    // กด Escape อีกครั้ง → ปิด dropdown
+                    handleOpenChange(false);
+                  }
+                  e.stopPropagation();
+                }
+              }}
+            />
+            {/* ปุ่มล้างข้อความค้นหา */}
+            {searchText && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSearchText("");
+                  inputRef.current?.focus();
+                }}
+                className="shrink-0 text-gray-400 hover:text-gray-600"
+              >
+                <XIcon className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+        ) : (
+          /* โหมดปกติ — แสดง icon, title และจำนวนที่เลือก */
+          <div className="flex items-center gap-2">
+            {Icon && (
+              <Icon
+                className={cn(
+                  "h-4 w-4",
+                  isActive ? "text-blue-700" : "text-muted-foreground",
+                )}
+              />
+            )}
+            <span
               className={cn(
-                "h-4 w-4",
+                "text-sm font-medium",
                 isActive ? "text-blue-700" : "text-muted-foreground",
               )}
-            />
-          )}
-
-          <span
-            className={cn(
-              "text-sm font-medium",
-              isActive ? "text-blue-700" : "text-muted-foreground",
+            >
+              {title}
+            </span>
+            {/* Badge แสดงจำนวนที่เลือกเมื่อมีการเลือก */}
+            {isActive && (
+              <div className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-xl bg-blue-200 px-1 text-xs font-bold text-blue-700">
+                {selected.length}
+              </div>
             )}
-          >
-            {title}
-          </span>
-
-          {isActive && (
-            <div className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-xl bg-blue-200 px-1 text-xs font-bold text-blue-700">
-              {selected.length}
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </MultiSelectTrigger>
 
       <MultiSelectContent
-        search={{
-          emptyMessage: "Not found",
-          placeholder: "Search...",
-        }}
+        search={false}
         align={align}
         onClear={isActive ? () => onChange([]) : undefined}
+        className="py-2"
       >
-        {options.map((option) => {
-          if (option.isDivider) {
+        {/* แสดงข้อความเมื่อไม่พบผลลัพธ์จากการค้นหา */}
+        {filteredOptions.length === 0 ? (
+          <div className="py-6 text-center text-sm text-gray-400">
+            Not found
+          </div>
+        ) : (
+          filteredOptions.map((option) => {
+            // แสดง divider สำหรับแบ่งกลุ่ม option
+            if (option.isDivider) {
+              return (
+                <MultiSelectItem
+                  key={option.value}
+                  value={option.value}
+                  disabled
+                  hideCheckbox
+                  className="pointer-events-none p-0 opacity-100 data-disabled:opacity-100 [&_svg]:hidden [&>span:first-child]:hidden"
+                >
+                  <div className="flex w-full items-center px-2 py-2">
+                    <div className="h-px flex-1 bg-gray-200" />
+                    {option.label && (
+                      <span className="px-2 text-[10px] font-semibold text-gray-400 uppercase">
+                        {option.label}
+                      </span>
+                    )}
+                    <div className="h-px flex-1 bg-gray-200" />
+                  </div>
+                </MultiSelectItem>
+              );
+            }
+
+            // แสดง option ปกติ พร้อม icon และ description (ถ้ามี)
             return (
               <MultiSelectItem
                 key={option.value}
                 value={option.value}
-                disabled
-                hideCheckbox
-                className="pointer-events-none p-0 opacity-100 data-disabled:opacity-100 [&_svg]:hidden [&>span:first-child]:hidden"
+                hasDescription={!!option.description}
               >
-                <div className="flex w-full items-center px-2 py-2">
-                  <div className="h-px flex-1 bg-gray-200"></div>
-                  {option.label && (
-                    <span className="px-2 text-[10px] font-semibold text-gray-400 uppercase">
-                      {option.label}
+                {option.icon && (
+                  <option.icon className="text-muted-foreground mr-2 h-4 w-4" />
+                )}
+                <div className="flex flex-col">
+                  <span className="leading-snug">{option.label}</span>
+                  {option.description && (
+                    <span className="text-muted-foreground/80 text-[11px]">
+                      {option.description}
                     </span>
                   )}
-                  <div className="h-px flex-1 bg-gray-200"></div>
                 </div>
               </MultiSelectItem>
             );
-          }
-
-          return (
-            <MultiSelectItem
-              key={option.value}
-              value={option.value}
-              hasDescription={option.description ? true : false}
-            >
-              {option.icon && (
-                <option.icon className="text-muted-foreground mr-2 h-4 w-4" />
-              )}
-              <div className="flex flex-col">
-                <span className="leading-snug">{option.label}</span>
-                {option.description && (
-                  <span className="text-muted-foreground/80 text-[11px]">
-                    {option.description}
-                  </span>
-                )}
-              </div>
-            </MultiSelectItem>
-          );
-        })}
+          })
+        )}
       </MultiSelectContent>
     </MultiSelect>
   );

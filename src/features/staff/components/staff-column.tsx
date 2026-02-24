@@ -39,15 +39,6 @@ export const staffColumns: ColumnDef<StaffType>[] = [
             <div className="truncate font-medium" title={fullName}>
               {fullName}
             </div>
-
-            {staff.isPending && (
-              <div className="mt-1 flex items-center gap-1.5">
-                <span className="inline-flex items-center gap-1 rounded-md border border-amber-500 bg-amber-200/50 px-1 py-0.5 text-[10px] font-bold tracking-wider text-amber-700 uppercase">
-                  <Clock className="size-3" />
-                  <span>Pending Invite</span>
-                </span>
-              </div>
-            )}
           </div>
         </div>
       );
@@ -148,9 +139,26 @@ export const staffColumns: ColumnDef<StaffType>[] = [
     accessorKey: "isDeleted",
     header: "Status",
     size: 100,
-    cell: ({ row }) => (
-      <>
-        {row.getValue("isDeleted") ? (
+    cell: ({ row }) => {
+      const isPending = row.original.isPending;
+      const isDeleted = row.original.isDeleted;
+
+      // 1. ถ้ายังไม่ถูกลบ ให้เช็คว่ากำลังรอการยืนยัน (Pending) หรือไม่
+      if (isPending) {
+        return (
+          <Badge variant="pending">
+            <span
+              className="mr-0.5 size-1.25 rounded-full bg-yellow-600/60"
+              aria-hidden="true"
+            />
+            Pending
+          </Badge>
+        );
+      }
+
+      // 2. ตรวจสอบสถานะ Inactive (ถูกลบ) ก่อนเป็นอันดับแรก
+      if (isDeleted) {
+        return (
           <Badge variant="unsuccess">
             <span
               className="bg-secondary-foreground/30 mr-0.5 size-1.25 rounded-full"
@@ -158,17 +166,20 @@ export const staffColumns: ColumnDef<StaffType>[] = [
             />
             Inactive
           </Badge>
-        ) : (
-          <Badge variant="success">
-            <span
-              className="mr-0.5 size-1.25 rounded-full bg-green-600/60"
-              aria-hidden="true"
-            />
-            Active
-          </Badge>
-        )}
-      </>
-    ),
+        );
+      }
+
+      // 3. ถ้าไม่ใช่ทั้งสองอย่าง แสดงว่าเป็น Active
+      return (
+        <Badge variant="success">
+          <span
+            className="mr-0.5 size-1.25 rounded-full bg-green-600/60"
+            aria-hidden="true"
+          />
+          Active
+        </Badge>
+      );
+    },
   },
   {
     id: "actions",

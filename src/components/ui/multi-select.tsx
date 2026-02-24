@@ -44,13 +44,23 @@ export function MultiSelect({
   values,
   defaultValues,
   onValuesChange,
+  open: controlledOpen,
+  onOpenChange,
 }: {
   children: ReactNode;
   values?: string[];
   defaultValues?: string[];
   onValuesChange?: (values: string[]) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = (value: boolean) => {
+    setInternalOpen(value);
+    onOpenChange?.(value);
+  };
+
   const [internalValues, setInternalValues] = useState(
     new Set<string>(values ?? defaultValues),
   );
@@ -268,7 +278,7 @@ export function MultiSelectContent({
         </Command>
       </div>
       <PopoverContent
-        className="w-fit overflow-hidden rounded-xl p-0"
+        className="w-fit min-w-44 overflow-hidden rounded-xl p-0"
         align={align}
       >
         <Command {...props}>
@@ -282,7 +292,7 @@ export function MultiSelectContent({
             <button autoFocus className="sr-only" />
           )}
 
-          <div className="border-input/70 my-2 border-b" />
+          {search && <div className="border-input/70 my-2 border-b" />}
 
           <CommandList>
             {canSearch && (
@@ -297,7 +307,7 @@ export function MultiSelectContent({
               <button
                 className="text-destructive hover:bg-destructive/5 flex w-full cursor-pointer items-center justify-center gap-1 rounded-lg p-2 text-center text-xs transition-colors"
                 onClick={(e) => {
-                  e.stopPropagation(); // กัน Popover ปิด
+                  e.stopPropagation();
                   onClear();
                 }}
                 type="button"
@@ -349,7 +359,6 @@ export function MultiSelectItem({
         props.className,
       )}
     >
-      {/* ส่วนสร้าง Checkbox Box */}
       {!hideCheckbox && (
         <div
           className={cn(
