@@ -10,6 +10,7 @@ import CarouselPackage from "@/features/package/components/carousel-package";
 import type { EquipmentType } from "@/types/equipment";
 import type { EventType } from "@/types/event";
 
+// อย่าลืมอัปเดต ExportEquipmentProp ในไฟล์นี้ให้ตรงกับแบบใหม่ด้วยนะครับ
 import { ExportEquipment, type ExportEquipmentProp } from "./EquipmentExport";
 
 export interface SelectedItemState {
@@ -66,31 +67,31 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
   const printableEquipmentList: ExportEquipmentProp[] = useMemo(() => {
     const equipmentMap = new Map<number, ExportEquipmentProp>();
 
-    //  จัดการของจาก Package: ใส่ลงใน Map
+    // จัดการของจาก Package: นำจำนวนไปใส่ใน packageQuantity
     packageItems.forEach((item) => {
       equipmentMap.set(item.equipmentId, {
         id: item.equipmentId,
         name: item.equipmentName,
         category: "-",
-        source: "Package",
-        quantity: item.quantity,
+        packageQuantity: item.quantity,
+        extraQuantity: 0, // เริ่มต้น Extra เป็น 0
       });
     });
 
-    // จัดการของจาก Extra: ถ้าซ้ำกับ Package ให้บวกเลขเพิ่ม ถ้าไม่ซ้ำให้เพิ่มแถวใหม่
+    // จัดการของจาก Extra: นำจำนวนไปใส่ใน extraQuantity
     extraItems.forEach((item) => {
       if (equipmentMap.has(item.equipmentId)) {
-        // ถ้ามีอยู่แล้ว (ซ้ำ) ให้ดึงตัวเก่ามาบวก quantity เพิ่ม
+        // ถ้ามีอยู่แล้วให้บวกเพิ่มเฉพาะฝั่ง extraQuantity
         const existing = equipmentMap.get(item.equipmentId)!;
-        existing.quantity += item.quantity;
+        existing.extraQuantity += item.quantity;
       } else {
-        // ถ้ายังไม่มี ให้เพิ่มเข้าไปใหม่
+        // ถ้ายังไม่มี ให้ตั้งค่า package เป็น 0 และเก็บค่าลง extra
         equipmentMap.set(item.equipmentId, {
           id: item.equipmentId,
           name: item.equipmentName,
           category: item.categoryName || "-",
-          source: "Extra",
-          quantity: item.quantity,
+          packageQuantity: 0,
+          extraQuantity: item.quantity,
         });
       }
     });
@@ -100,6 +101,7 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
       a.name.localeCompare(b.name, "th"),
     );
   }, [packageItems, extraItems]);
+
   return (
     <div>
       {/* ส่วนหัว และ ปุ่ม Export PDF */}
@@ -115,7 +117,7 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
       </div>
 
       <div className="grid grid-cols-3 gap-6 print:hidden">
-        {/*  Package  */}
+        {/* Package  */}
         <div className="col-span-1">
           <div className="mb-4 flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
@@ -135,7 +137,7 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
           />
         </div>
 
-        {/*  Extra Equipment */}
+        {/* Extra Equipment */}
         <div className="col-span-2 space-y-6">
           <EquipmentSummaryTable
             equipmentList={allEquipmentList}

@@ -26,7 +26,6 @@ import {
   FileUpload,
   FileUploadDropzone,
   FileUploadItem,
-  FileUploadItemDelete,
   FileUploadItemMetadata,
   FileUploadItemPreview,
   FileUploadList,
