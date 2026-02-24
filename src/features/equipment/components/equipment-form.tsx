@@ -16,8 +16,8 @@ import { categoryQuery } from "../api/getCategory";
 export const EquipmentSchema = z.object({
   equipmentName: z
     .string()
-    .min(2, "Full name should be at least 2 characters.")
-    .max(255, "Full name should not exceed 255 characters."),
+    .min(2, "Equipment Name should be at least 2 characters.")
+    .max(255, "Equipment Name should not exceed 255 characters."),
   isDeleted: z.boolean(),
   categoryId: z.number().min(1, "Category is required."),
 });
