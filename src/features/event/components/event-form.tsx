@@ -72,6 +72,10 @@ export default function EventForm({
   // --- Logic จัดการการเปลี่ยนวันที่ (แก้ Bug กดยกเลิกแล้วคนหาย) ---
   const [dateAlertOpen, setDateAlertOpen] = useState(false);
   const [pendingDate, setPendingDate] = useState<Date | undefined>(undefined);
+  const [periodAlertOpen, setPeriodAlertOpen] = useState(false);
+  const [pendingPeriod, setPendingPeriod] = useState<number | undefined>(
+    undefined,
+  );
 
   const [currentExistingFiles, setCurrentExistingFiles] =
     useState(existingFiles);
@@ -171,19 +175,43 @@ export default function EventForm({
     form.store,
     (state) => state.values.packageId,
   );
-
+  type FieldControl<T> = {
+    state: { value: T | undefined };
+    handleChange: (value: T) => void;
+  };
   // --- ดักจับการเปลี่ยนวันที่ก่อนเข้า Store ---
-  const handleDateChange = (newDate: Date | undefined, field: any) => {
+  const handleDateChange = (
+    newDate: Date | undefined,
+    field: FieldControl<Date>,
+  ) => {
     const hasResources =
       currentStaff?.length > 0 || currentOutsources?.length > 0;
     const isActuallyChanged =
       newDate?.getTime() !== field.state.value?.getTime();
 
+    // โค้ดนี้ของคุณหายไปตอนวางทับ ให้เติมกลับเข้ามาด้วยครับ
     if (hasResources && isActuallyChanged) {
       setPendingDate(newDate); // พักวันที่ใหม่ไว้
       setDateAlertOpen(true); // เปิด Alert
     } else {
-      field.handleChange(newDate); // เปลี่ยนได้เลยถ้าไม่มีคน
+      field.handleChange(newDate as Date); // เปลี่ยนได้เลยถ้าไม่มีคน
+    }
+  };
+
+  // --- ดักจับการเปลี่ยนเวลา ---
+  const handlePeriodChange = (
+    newPeriod: number,
+    field: FieldControl<number>,
+  ) => {
+    const hasResources =
+      currentStaff?.length > 0 || currentOutsources?.length > 0;
+    const isActuallyChanged = newPeriod !== field.state.value;
+
+    if (hasResources && isActuallyChanged) {
+      setPendingPeriod(newPeriod);
+      setPeriodAlertOpen(true);
+    } else {
+      field.handleChange(newPeriod);
     }
   };
 
@@ -299,7 +327,12 @@ export default function EventForm({
           o.status === "Unavailable"
         )
           displayStatus = "Available";
-        return { id: oId, name: o.fullName, roles: [], status: displayStatus };
+        return {
+          id: oId,
+          name: o.fullName,
+          roles: [],
+          status: displayStatus,
+        };
       }) || [];
 
     // [SAFETY NET] สำหรับ Outsource (แก้ Bug F5)
@@ -435,7 +468,12 @@ export default function EventForm({
               </div>
               <form.AppField
                 name="timePeriod"
-                children={(field) => <field.PeriodSelectField label="Period" />}
+                children={(field) => (
+                  <field.PeriodSelectField
+                    label="Period"
+                    onChange={(val) => handlePeriodChange(val as number, field)}
+                  />
+                )}
               />
               <form.AppField
                 name="address"
@@ -536,6 +574,43 @@ export default function EventForm({
                         }
                         setPendingPackage(null);
                         setAlertOpen(false);
+                      }}
+                    >
+                      Confirm
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <AlertDialog
+                open={periodAlertOpen}
+                onOpenChange={setPeriodAlertOpen}
+              >
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Change Event Period?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      If you change the event period, all assigned resources
+                      will be cleared.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel
+                      onClick={() => setPendingPeriod(undefined)}
+                    >
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-red-600 hover:bg-red-700"
+                      onClick={() => {
+                        if (pendingPeriod) {
+                          form.setFieldValue("timePeriod", pendingPeriod);
+                          form.setFieldValue("eventStaff", []);
+                          form.setFieldValue("eventOutsources", []);
+                          form.setFieldValue("staffRequirements", []);
+                          form.setFieldValue("outsourceRequirements", []);
+                        }
+                        setPendingPeriod(undefined);
+                        setPeriodAlertOpen(false);
                       }}
                     >
                       Confirm

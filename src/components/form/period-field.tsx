@@ -9,15 +9,27 @@ import { FieldErrors } from "./field-error";
 
 type PeriodSelectFieldProps = {
   label?: string;
+  onChange?: (value: number) => void;
 };
 
-export const PeriodSelectField = ({ label }: PeriodSelectFieldProps) => {
+export const PeriodSelectField = ({
+  label,
+  onChange,
+}: PeriodSelectFieldProps) => {
   const field = useFieldContext<number>();
 
   const isSubmitted = field.form.state.isSubmitted;
   const hasError =
     (field.state.meta.isTouched || isSubmitted) &&
     field.state.meta.errors.length > 0;
+
+  const handleSelect = (value: number) => {
+    if (onChange) {
+      onChange(value); // ถ้ามีการส่ง onChange มา ให้ส่งค่ากลับไปให้ Parent จัดการ
+    } else {
+      field.handleChange(value); // ถ้าไม่มี ก็เปลี่ยนค่าตรงๆ เลย
+    }
+  };
 
   return (
     <div className="w-full space-y-3">
@@ -38,7 +50,7 @@ export const PeriodSelectField = ({ label }: PeriodSelectFieldProps) => {
         {/* ปุ่ม Morning */}
         <button
           type="button"
-          onClick={() => field.handleChange(TIME_PERIOD[0].id)}
+          onClick={() => handleSelect(TIME_PERIOD[0].id)}
           className={cn(
             "flex items-center justify-center gap-2 rounded-xl border px-4 py-3 transition-all duration-200",
             field.state.value === TIME_PERIOD[0].id
@@ -61,7 +73,7 @@ export const PeriodSelectField = ({ label }: PeriodSelectFieldProps) => {
         {/* ปุ่ม Afternoon */}
         <button
           type="button"
-          onClick={() => field.handleChange(TIME_PERIOD[1].id)}
+          onClick={() => handleSelect(TIME_PERIOD[1].id)}
           className={cn(
             "flex items-center justify-center gap-2 rounded-xl border px-4 py-3 transition-all duration-200",
             field.state.value === TIME_PERIOD[1].id
