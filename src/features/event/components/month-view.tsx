@@ -1,12 +1,13 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
-import { ChevronLeft, ChevronRight, ExternalLink, Info, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Info, X } from "lucide-react";
 
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { daysOfWeek, months } from "@/data/constants";
 import type { EventType } from "@/types/event";
 
 import DayInfoPopover from "./day-info-popover";
@@ -15,34 +16,24 @@ interface MonthViewProps {
   events: EventType[];
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: EventType) => void;
+  initialDate?: Date | null;
 }
 
 const MonthView: React.FC<MonthViewProps> = ({
   events = [],
   onDateClick,
   onEventClick,
+  initialDate,
 }) => {
   const today = useMemo(() => new Date(), []);
-  const [currentDate, setCurrentDate] = useState(
-    new Date(today.getFullYear(), today.getMonth(), 1),
-  );
-  const [openPopovers, setOpenPopovers] = useState<Record<string, boolean>>({});
 
-  const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  const [currentDate, setCurrentDate] = useState(
+    initialDate
+      ? new Date(initialDate.getFullYear(), initialDate.getMonth(), 1)
+      : new Date(today.getFullYear(), today.getMonth(), 1),
+  );
+
+  const [openPopovers, setOpenPopovers] = useState<Record<string, boolean>>({});
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -205,8 +196,11 @@ const MonthView: React.FC<MonthViewProps> = ({
                       </PopoverTrigger>
 
                       <PopoverContent
-                        align="end"
+                        align="start"
+                        side="right"
+                        sideOffset={6}
                         className="w-3xs overflow-hidden rounded-xl border border-gray-100 bg-white p-0 shadow-lg"
+                        positionerClassName="z-11"
                       >
                         <DayInfoPopover dateString={dateString} />
                       </PopoverContent>
@@ -228,7 +222,7 @@ const MonthView: React.FC<MonthViewProps> = ({
                           e.stopPropagation();
                           onEventClick?.(event);
                         }}
-                        className={`flex flex-shrink-0 cursor-pointer flex-col rounded border-l-2 px-2 py-1 text-xs text-gray-900 shadow-sm transition-transform hover:-translate-y-0.5 hover:shadow-md ${
+                        className={`flex shrink-0 cursor-pointer flex-col rounded border-l-2 px-2 py-1 text-xs text-gray-900 shadow-sm transition-transform hover:-translate-y-0.5 hover:shadow-md ${
                           isComplete
                             ? "border-green-500 bg-green-50/50"
                             : isPending
