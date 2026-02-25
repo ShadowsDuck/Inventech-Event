@@ -89,14 +89,14 @@ export const getEventSchema = () => {
     // registrationTime
     .superRefine((data, ctx) => {
       if (data.registrationTime) {
-        if (data.startTime && data.registrationTime > data.startTime) {
+        if (data.startTime && data.registrationTime >= data.startTime) {
           ctx.addIssue({
             code: "custom",
             message: "Registration time must be before start time",
             path: ["registrationTime"],
             input: data,
           });
-        } else if (data.endTime && data.registrationTime > data.endTime) {
+        } else if (data.endTime && data.registrationTime >= data.endTime) {
           ctx.addIssue({
             code: "custom",
             message: "Registration time must be before end time",
@@ -123,7 +123,7 @@ export const getEventSchema = () => {
       if (data.staffAppointmentTime) {
         if (
           data.registrationTime &&
-          data.staffAppointmentTime > data.registrationTime
+          data.staffAppointmentTime >= data.registrationTime
         ) {
           ctx.addIssue({
             code: "custom",
@@ -133,7 +133,7 @@ export const getEventSchema = () => {
           });
         } else if (
           data.startTime &&
-          data.staffAppointmentTime > data.startTime
+          data.staffAppointmentTime >= data.startTime
         ) {
           ctx.addIssue({
             code: "custom",
@@ -141,7 +141,7 @@ export const getEventSchema = () => {
             path: ["staffAppointmentTime"],
             input: data,
           });
-        } else if (data.endTime && data.staffAppointmentTime > data.endTime) {
+        } else if (data.endTime && data.staffAppointmentTime >= data.endTime) {
           ctx.addIssue({
             code: "custom",
             message: "Staff appointment time must be before end time",
@@ -154,7 +154,7 @@ export const getEventSchema = () => {
       if (data.outsourceAppointmentTime) {
         if (
           data.registrationTime &&
-          data.outsourceAppointmentTime > data.registrationTime
+          data.outsourceAppointmentTime >= data.registrationTime
         ) {
           ctx.addIssue({
             code: "custom",
@@ -165,7 +165,7 @@ export const getEventSchema = () => {
           });
         } else if (
           data.startTime &&
-          data.outsourceAppointmentTime > data.startTime
+          data.outsourceAppointmentTime >= data.startTime
         ) {
           ctx.addIssue({
             code: "custom",
@@ -175,7 +175,7 @@ export const getEventSchema = () => {
           });
         } else if (
           data.endTime &&
-          data.outsourceAppointmentTime > data.endTime
+          data.outsourceAppointmentTime >= data.endTime
         ) {
           ctx.addIssue({
             code: "custom",
