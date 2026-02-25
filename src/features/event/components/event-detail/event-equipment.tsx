@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { Package, Printer } from "lucide-react";
+import { Package, PackageOpen } from "lucide-react";
 
 import {
   EquipmentSummaryTable,
@@ -10,7 +10,6 @@ import CarouselPackage from "@/features/package/components/carousel-package";
 import type { EquipmentType } from "@/types/equipment";
 import type { EventType } from "@/types/event";
 
-// อย่าลืมอัปเดต ExportEquipmentProp ในไฟล์นี้ให้ตรงกับแบบใหม่ด้วยนะครับ
 import { ExportEquipment, type ExportEquipmentProp } from "./EquipmentExport";
 
 export interface SelectedItemState {
@@ -23,8 +22,45 @@ interface EventEquipmentProps {
   events: EventType;
 }
 
+// --- Empty State Components ---
+function EmptyPackage() {
+  return (
+    <div className="flex h-full min-h-72 flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 px-6 py-10 text-center">
+      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+        <Package className="h-6 w-6 text-gray-400" />
+      </div>
+      <p className="text-sm font-medium text-gray-500">Package not found</p>
+      <p className="mt-1 text-xs text-gray-400">
+        This event has not yet specified a package
+      </p>
+    </div>
+  );
+}
+
+function EmptyAll() {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 py-20 text-center">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+        <PackageOpen className="h-8 w-8 text-gray-400" />
+      </div>
+      <p className="text-base font-semibold text-gray-500">
+        Equipment not found
+      </p>
+      <p className="mt-1 text-sm text-gray-400">
+        This event has not yet specified a package or equipment
+      </p>
+    </div>
+  );
+}
+
+// --- Main Component ---
 export default function EventEquipment({ events }: EventEquipmentProps) {
   const packageList = events.package ? [events.package] : [];
+
+  const hasPackage = !!events.package;
+  const hasExtraEquipment =
+    !!events.eventExtraEquipments && events.eventExtraEquipments.length > 0;
+  const hasAnything = hasPackage || hasExtraEquipment;
 
   const packageItems: PackageItem[] = useMemo(() => {
     return (
@@ -36,7 +72,6 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
     );
   }, [events.package?.equipmentSets]);
 
-  //
   const extraItems: SelectedItemState[] = useMemo(() => {
     return (
       events.eventExtraEquipments?.map((item) => {
@@ -67,14 +102,13 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
   const printableEquipmentList: ExportEquipmentProp[] = useMemo(() => {
     const equipmentMap = new Map<number, ExportEquipmentProp>();
 
-    // จัดการของจาก Package: นำจำนวนไปใส่ใน packageQuantity
     packageItems.forEach((item) => {
       equipmentMap.set(item.equipmentId, {
         id: item.equipmentId,
         name: item.equipmentName,
         category: "-",
         packageQuantity: item.quantity,
-        extraQuantity: 0, // เริ่มต้น Extra เป็น 0
+        extraQuantity: 0,
       });
     });
 
@@ -104,43 +138,65 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
 
   return (
     <div>
-      {/* ส่วนหัว และ ปุ่ม Export PDF */}
+      {/* Header */}
       <div className="mb-6 flex items-center justify-between print:hidden">
         <h2 className="text-2xl font-bold text-gray-800">Equipment Summary</h2>
       </div>
 
-      <div className="grid grid-cols-3 gap-6 print:hidden">
-        {/* Package  */}
-        <div className="col-span-1">
-          <div className="mb-4 flex items-center gap-2"></div>
-
-          <CarouselPackage
-            packages={packageList}
-            value={String(events.package?.packageId)}
-            readOnly={true}
-            canEdit={false}
-            itemBasis="basis-full"
-          />
+      {/* Empty state: ไม่มีทั้ง Package และ Extra Equipment */}
+      {!hasAnything ? (
+        <div className="print:hidden">
+          <EmptyAll />
         </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-6 print:hidden">
+          {/* Package Section */}
+          {hasPackage ? (
+            <>
+              <CarouselPackage
+                packages={packageList}
+                value={String(events.package?.packageId)}
+                readOnly={true}
+                canEdit={false}
+                itemBasis="basis-full"
+              />
+              <div className="col-span-2">
+                <EquipmentSummaryTable
+                  equipmentList={allEquipmentList}
+                  packageItems={packageItems}
+                  extraItems={extraItems}
+                  onUpdateExtra={() => {}}
+                  readOnly={true}
+                />
+              </div>
+            </>
+          ) : (
+            <EmptyPackage />
+          )}
 
-        {/* Extra Equipment */}
-        <div className="col-span-2 space-y-6">
-          <EquipmentSummaryTable
-            equipmentList={allEquipmentList}
-            packageItems={packageItems}
-            extraItems={extraItems}
-            onUpdateExtra={() => {}}
-            readOnly={true}
-          />
+          {/* Extra Equipment Section */}
+          <div className="col-span-2 space-y-6">
+            {!hasPackage && hasExtraEquipment && (
+              <EquipmentSummaryTable
+                equipmentList={allEquipmentList}
+                packageItems={packageItems}
+                extraItems={extraItems}
+                onUpdateExtra={() => {}}
+                readOnly={true}
+              />
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Equipment Print */}
-      <ExportEquipment
-        equipmentList={printableEquipmentList}
-        eventName={events.eventName}
-        meetingDate={events.meetingDate}
-      />
+      {hasAnything && (
+        <ExportEquipment
+          equipmentList={printableEquipmentList}
+          eventName={events.eventName}
+          meetingDate={events.meetingDate}
+        />
+      )}
     </div>
   );
 }
