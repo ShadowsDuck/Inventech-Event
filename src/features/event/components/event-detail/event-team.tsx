@@ -1,61 +1,28 @@
 // EventTeam.tsx
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
-import { Printer, User } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  MessageSquare,
+  Printer,
+  User,
+} from "lucide-react";
 
+import { formatPhoneNumberDisplay } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import type { EventType } from "@/types/event";
 
 import { PersonnelExport, type ReportStaff } from "./PersonnelExport";
 
-// Import Component และ Type ที่แยกออกไป (ปรับ path ให้ตรงกับโปรเจกต์ของคุณ)
-
 // --- 1. Type Definitions ---
-
-interface RoleType {
-  roleId: number;
-  roleName: string;
-}
-
-interface StaffType {
-  staffId: number;
-  fullName: string;
-  phoneNumber: string;
-  avatar?: string | null;
-}
-
-interface OutsourceType {
-  outsourceId: number;
-  fullName: string;
-  phoneNumber: string;
-}
-
-export interface EventStaff {
-  staffId: number;
-  staff?: StaffType;
-  eventRole: RoleType;
-}
-
-export interface EventOutsource {
-  outsourceId: number;
-  outsource?: OutsourceType;
-  role?: RoleType;
-  roleId: number;
-}
-
-export interface EventRoleRequirement {
-  roleId: number;
-  roleName: string;
-  role?: RoleType;
-  quantity: number;
-  sourceType: number;
-}
-
 interface TeamMember {
   id: string;
   name: string;
   avatar?: string;
   phoneNumber: string;
   type: "staff" | "outsource";
+  remark?: string | null;
 }
 
 interface RoleAssignmentView {
@@ -66,13 +33,7 @@ interface RoleAssignmentView {
 }
 
 interface EventTeamProps {
-  events: {
-    eventStaff: EventStaff[];
-    eventOutsources: EventOutsource[];
-    requirements: EventRoleRequirement[];
-    eventName?: string;
-    meetingDate?: string;
-  };
+  events: EventType;
 }
 
 // --- 2. Sub-Component: TeamGroupCard ---
@@ -86,6 +47,21 @@ const TeamGroupCard = ({ assignment }: { assignment: RoleAssignmentView }) => {
     assignment.staffSlots.length + assignment.outsourceSlots.length;
   const isComplete = totalFilled >= totalCapacity && totalCapacity > 0;
 
+  const [collapsedSlots, setCollapsedSlots] = useState<Set<string>>(new Set());
+
+  // ฟังก์ชันสลับการเปิด/ปิด
+  const toggleExpand = (slotKey: string) => {
+    setCollapsedSlots((prev) => {
+      const next = new Set(prev);
+      if (next.has(slotKey)) {
+        next.delete(slotKey); // ถ้าเคยถูกปิด ให้เอาออกจาก Set = เปิด
+      } else {
+        next.add(slotKey); // ถ้ากำลังเปิดอยู่ ให้เอาใส่ Set = ปิด
+      }
+      return next;
+    });
+  };
+
   const renderSlotList = (
     slots: (TeamMember | null)[],
     type: "staff" | "outsource",
@@ -93,74 +69,104 @@ const TeamGroupCard = ({ assignment }: { assignment: RoleAssignmentView }) => {
   ) => {
     return slots.map((member, index) => {
       const slotNumber = baseIndex + index + 1;
+      const slotKey = `${type}-${index}`;
+
+      const isExpanded = !collapsedSlots.has(slotKey);
 
       if (member) {
         const isStaff = type === "staff";
         return (
           <div
-            key={`${type}-${index}`}
+            key={slotKey}
             className={cn(
-              "flex w-full items-center gap-3 rounded-xl border p-3 shadow-sm transition-colors",
+              "flex w-full flex-col rounded-xl border p-3 shadow-sm transition-colors",
               isStaff
                 ? "border-green-200 bg-green-50/50 hover:border-green-300"
                 : "border-violet-200 bg-violet-50/50 hover:border-violet-300",
             )}
           >
-            {/* --- ลำดับ (#) --- */}
-            <span
-              className={cn(
-                "shrink-0 rounded bg-white/80 px-2 py-1 text-xs font-bold",
-                isStaff ? "text-green-600" : "text-violet-600",
-              )}
-            >
-              #{slotNumber}
-            </span>
+            {/* --- ส่วนหัว (ข้อมูลหลัก) --- */}
+            <div className="flex w-full items-center gap-3">
+              <span
+                className={cn(
+                  "shrink-0 rounded bg-white/80 px-2 py-1 text-xs font-bold",
+                  isStaff ? "text-green-600" : "text-violet-600",
+                )}
+              >
+                #{slotNumber}
+              </span>
 
-            {/* --- รูป Avatar --- */}
-            <div
-              className={cn(
-                "flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-white text-xs font-bold shadow-sm",
-                isStaff
-                  ? "bg-green-200 text-green-700"
-                  : "bg-violet-200 text-violet-700",
-              )}
-            >
-              {member.avatar ? (
-                <img
-                  src={member.avatar}
-                  alt={member.name}
-                  className="h-full w-full rounded-full object-cover"
-                />
-              ) : (
-                member.name.charAt(0)
-              )}
-            </div>
-
-            {/* --- ข้อมูลชื่อ และ เบอร์โทร --- */}
-
-            <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-1">
-              {/* ส่วนชื่อ */}
-              <div className="flex min-w-0 flex-col">
-                <p className="truncate text-sm font-bold text-gray-800">
-                  {member.name}
-                </p>
-                <p className="mt-0.5 text-[10px] font-medium text-gray-400">
-                  {isStaff ? "Internal Staff" : "Outsource Partner"}
-                </p>
+              <div
+                className={cn(
+                  "flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-white text-xs font-bold shadow-sm",
+                  isStaff
+                    ? "bg-green-200 text-green-700"
+                    : "bg-violet-200 text-violet-700",
+                )}
+              >
+                {member.avatar ? (
+                  <img
+                    src={member.avatar}
+                    alt={member.name}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  member.name.charAt(0)
+                )}
               </div>
 
-              {/* ส่วนเบอร์โทร */}
-              {member.phoneNumber && member.phoneNumber !== "N/A" && (
-                <div className="flex shrink-0 items-center gap-1.5 px-2 py-1 text-sm font-semibold text-gray-700">
-                  <span>{member.phoneNumber}</span>
+              <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                <div className="flex min-w-0 flex-col">
+                  <p className="truncate text-sm font-bold text-gray-800">
+                    {member.name}
+                  </p>
+
+                  {member.phoneNumber && member.phoneNumber !== "N/A" && (
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-600">
+                      <span>
+                        {formatPhoneNumberDisplay(member.phoneNumber)}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              )}
+
+                {member.remark && (
+                  <button
+                    type="button"
+                    onClick={() => toggleExpand(slotKey)}
+                    className="flex shrink-0 items-center justify-center rounded-full p-1.5 transition-colors hover:bg-white/60 focus:outline-none"
+                  >
+                    {isExpanded ? (
+                      <ChevronUp size={16} className="text-gray-500" />
+                    ) : (
+                      <ChevronDown size={16} className="text-gray-500" />
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
+
+            {/* --- ส่วนขยาย  เปิด/ปิดด้วย isExpanded --- */}
+            {member.remark && isExpanded && (
+              <div className="animate-in fade-in slide-in-from-top-2 mt-3 w-full">
+                <div className="flex items-start gap-2 rounded-lg border border-amber-100/50 bg-amber-50/80 p-2.5">
+                  <MessageSquare
+                    size={14}
+                    className="mt-0.5 shrink-0 text-amber-500"
+                  />
+                  <div className="flex min-w-0 flex-col gap-0.5">
+                    <p className="text-xs leading-relaxed font-medium whitespace-pre-wrap text-amber-900">
+                      {member.remark}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         );
       }
 
-      // ... กรณีไม่มีคน (Unassigned)
+      // กรณีไม่มีคน (Unassigned)
       return (
         <div
           key={`empty-${type}-${index}`}
@@ -183,7 +189,7 @@ const TeamGroupCard = ({ assignment }: { assignment: RoleAssignmentView }) => {
   return (
     <div
       className={cn(
-        "group relative rounded-2xl border-2 bg-white p-6 transition-all",
+        "group relative h-full rounded-2xl border-2 bg-white p-6 transition-all",
         isComplete ? "border-green-100" : "border-amber-100",
       )}
     >
@@ -244,6 +250,7 @@ const TeamGroupCard = ({ assignment }: { assignment: RoleAssignmentView }) => {
 
 export default function EventTeam({ events }: EventTeamProps) {
   const API_BASE_URL = "https://localhost:7268";
+
   const assignments = useMemo(() => {
     const roleMap = new Map<number, RoleAssignmentView>();
 
@@ -273,7 +280,7 @@ export default function EventTeam({ events }: EventTeamProps) {
       if (!roleMap.has(rId)) {
         roleMap.set(rId, {
           roleId: rId,
-          roleName: item.eventRole.roleName || "Unknown Role",
+          roleName: item.eventRole?.roleName || "Unknown Role",
           staffSlots: [],
           outsourceSlots: [],
         });
@@ -292,7 +299,7 @@ export default function EventTeam({ events }: EventTeamProps) {
           name: item.staff.fullName,
           avatar: fullAvatarUrl,
           type: "staff",
-          phoneNumber: item.staff.phoneNumber,
+          phoneNumber: item.staff.phoneNumber || "N/A",
         };
 
         const emptyIdx = current.staffSlots.indexOf(null);
@@ -322,6 +329,7 @@ export default function EventTeam({ events }: EventTeamProps) {
           name: item.outsource.fullName,
           type: "outsource",
           phoneNumber: item.outsource.phoneNumber || "N/A",
+          remark: item.outsource.remark,
         };
 
         const emptyIdx = current.outsourceSlots.indexOf(null);
@@ -333,9 +341,6 @@ export default function EventTeam({ events }: EventTeamProps) {
     return Array.from(roleMap.values());
   }, [events]);
 
-  {
-    /* Export PDF */
-  }
   const allStaffList: ReportStaff[] = useMemo(() => {
     return assignments.flatMap((assign) => {
       const filledStaff = assign.staffSlots.filter(
@@ -383,7 +388,8 @@ export default function EventTeam({ events }: EventTeamProps) {
           Export Personnel PDF
         </button>
       </div>
-      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3 print:hidden">
+      {/* Layout */}
+      <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 lg:grid-cols-3 print:hidden">
         {assignments.map((assign) => (
           <TeamGroupCard key={assign.roleId} assignment={assign} />
         ))}

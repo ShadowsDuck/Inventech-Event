@@ -13,6 +13,7 @@ export default function Addoutsource() {
     const payload = {
       ...values,
       email: values.email || undefined,
+      remark: values.remark || undefined,
       phoneNumber: cleanPhoneNumber(values.phoneNumber ?? "") || undefined,
     };
 

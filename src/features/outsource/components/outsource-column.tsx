@@ -56,6 +56,28 @@ export const outsourceColumns: ColumnDef<OutsourceType>[] = [
     },
   },
   {
+    accessorKey: "remark",
+    header: "Remark",
+    size: 160,
+    enableSorting: false,
+    cell: ({ row }) => {
+      const remark = row.original.remark;
+
+      return (
+        <div className="w-full">
+          <div
+            className={`inline-block max-w-full truncate rounded-md px-2 py-1 align-middle text-sm text-gray-500 ${
+              remark ? "bg-orange-100 font-medium text-orange-800" : ""
+            }`}
+            title={remark}
+          >
+            {remark ? remark : "-"}
+          </div>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "isDeleted",
     header: "Status",
     size: 100,

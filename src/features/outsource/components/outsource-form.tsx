@@ -1,5 +1,5 @@
 import { revalidateLogic } from "@tanstack/react-form";
-import { Mail, Phone, User } from "lucide-react";
+import { Clipboard, Mail, Phone, User } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
@@ -22,6 +22,7 @@ export const OutsourceSchema = z.object({
     .max(12, "Invalid phone number")
     .optional()
     .or(z.literal("")),
+  remark: z.string().optional().or(z.literal("")),
   isDeleted: z.boolean(),
 });
 
@@ -44,6 +45,7 @@ export function OutsourceForm({
     defaultValues: {
       fullName: initialValues?.fullName ?? "",
       email: initialValues?.email ?? "",
+      remark: initialValues?.remark ?? "",
       phoneNumber: initialValues?.phoneNumber ?? "",
       isDeleted: initialValues?.isDeleted ?? false,
     } as OutsourceData,
@@ -172,6 +174,17 @@ export function OutsourceForm({
                   )}
                 />
               </div>
+              <form.AppField
+                name="remark"
+                children={(field) => (
+                  <field.TextField
+                    label="Remark"
+                    type="text"
+                    placeholder="e.g. คนนี้หน้าเหวี่ยง"
+                    startIcon={Clipboard}
+                  />
+                )}
+              />
             </form>
           </CardContent>
         </Card>

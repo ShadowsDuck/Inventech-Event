@@ -27,6 +27,7 @@ export default function EditOutsource() {
   const initialValues: OutsourceData = {
     fullName: outsourceData.fullName,
     email: outsourceData.email ?? "",
+    remark: outsourceData.remark ?? "",
     phoneNumber: formatPhoneNumberInput(outsourceData.phoneNumber ?? ""),
     isDeleted: outsourceData.isDeleted ?? false,
   };
@@ -37,6 +38,7 @@ export default function EditOutsource() {
       id: outsourceId,
       fullName: values.fullName,
       email: values.email || undefined,
+      remark: values.remark || undefined,
       phoneNumber: cleanPhoneNumber(values.phoneNumber ?? "") || undefined,
       isDeleted: values.isDeleted,
     };
