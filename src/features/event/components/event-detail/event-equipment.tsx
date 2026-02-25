@@ -107,13 +107,6 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
       {/* ส่วนหัว และ ปุ่ม Export PDF */}
       <div className="mb-6 flex items-center justify-between print:hidden">
         <h2 className="text-2xl font-bold text-gray-800">Equipment Summary</h2>
-        <button
-          onClick={() => window.print()}
-          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
-        >
-          <Printer size={18} />
-          Export อุปกรณ์ PDF
-        </button>
       </div>
 
       <div className="grid grid-cols-3 gap-6 print:hidden">

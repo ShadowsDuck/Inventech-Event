@@ -92,6 +92,9 @@ const createEvent = async (
         `EventExtraEquipments[${index}].Quantity`,
         item.quantity.toString(),
       );
+      if (item.remark) {
+        formData.append(`EventExtraEquipments[${index}].Remark`, item.remark);
+      }
     });
   }
 

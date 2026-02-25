@@ -19,7 +19,8 @@ export const PersonnelExport = ({
   meetingDate = "ไม่ระบุ",
 }: Props) => {
   return (
-    <div className="hidden print:block">
+    <div className="hidden print:block print:p-10">
+      {" "}
       <table className="w-full border-collapse text-sm">
         <thead className="print:table-header-group">
           <tr className="hidden print:table-row">
@@ -88,7 +89,7 @@ export const PersonnelExport = ({
             </tr>
           ))}
 
-          {[1, 2, 3].map((num) => (
+          {[1, 2, 3, 4, 5].map((num) => (
             <tr
               key={`empty-row-${num}`}
               className="break-inside-avoid print:break-inside-avoid"

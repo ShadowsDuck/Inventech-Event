@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 
-import { Box, Minus, Plus, Search } from "lucide-react";
+import { Box, MessageSquare, Minus, Plus, Search } from "lucide-react";
 
 import { useFieldContext } from "@/components/form";
 import { cn } from "@/lib/utils";
@@ -19,26 +19,30 @@ type SelectedItemState = {
   equipmentName: string;
   category: string;
   quantity: number;
+  remark?: string | null;
 };
 
 // ==========================================
 // Part 1: Equipment Summary Table
-// (ตารางสรุปยอดรวม Package + Extra)
 // ==========================================
 interface EquipmentSummaryTableProps {
   equipmentList: EquipmentType[];
-  packageItems: PackageItem[]; // ของที่มีใน Package (In PKG)
-  extraItems: SelectedItemState[]; // ของที่เลือกเพิ่ม (Extra)
-  onUpdateExtra: (item: EquipmentType, delta: number) => void;
+  packageItems: PackageItem[];
+  extraItems: SelectedItemState[];
+  onUpdateExtra?: (item: EquipmentType, delta: number) => void; // ทำให้เป็น optional เผื่อตอน readonly ไม่ได้ส่งมา
+  onUpdateRemark?: (equipmentId: number, remark: string) => void; // ทำให้เป็น optional
+  readOnly?: boolean;
+  showRemark?: boolean;
 }
-
-// ... (Imports และ Interface เดิม)
 
 const EquipmentSummaryTable = ({
   equipmentList,
   packageItems = [],
   extraItems = [],
   onUpdateExtra,
+  onUpdateRemark,
+  readOnly = false,
+  showRemark = true, // ค่าเริ่มต้นคือ true (แสดงช่องหมายเหตุ)
 }: EquipmentSummaryTableProps) => {
   const mergedItems = useMemo(() => {
     const allIds = new Set([
@@ -46,41 +50,34 @@ const EquipmentSummaryTable = ({
       ...extraItems.map((i) => i.equipmentId),
     ]);
 
-    return (
-      Array.from(allIds)
-        .map((id) => {
-          // 1. หาข้อมูลจาก Master Data
-          const originalItem = equipmentList.find((e) => e.equipmentId === id);
+    return Array.from(allIds)
+      .map((id) => {
+        const originalItem = equipmentList.find((e) => e.equipmentId === id);
 
-          // กรองของที่ถูกลบ (isDeleted) หรือหาไม่เจอใน List
-          // ถ้าเป็นของที่ถูกลบ เราจะ return null เพื่อให้ filter ข้างล่างดีดออก
-          if (!originalItem || originalItem.isDeleted) {
-            return null;
-          }
+        if (!originalItem || originalItem.isDeleted) {
+          return null;
+        }
 
-          const pkgItem = packageItems.find((p) => p.equipmentId === id);
-          const extraItem = extraItems.find((e) => e.equipmentId === id);
+        const pkgItem = packageItems.find((p) => p.equipmentId === id);
+        const extraItem = extraItems.find((e) => e.equipmentId === id);
 
-          const inPkgQty = pkgItem?.quantity || 0;
-          const extraQty = extraItem?.quantity || 0;
+        const inPkgQty = pkgItem?.quantity || 0;
+        const extraQty = extraItem?.quantity || 0;
 
-          return {
-            originalItem,
-            id,
-            name: originalItem.equipmentName,
-            inPkg: inPkgQty,
-            extra: extraQty,
-            total: inPkgQty + extraQty,
-          };
-        })
-        // Filter เอาตัว null ออก (Type Guard)
-        .filter((item): item is NonNullable<typeof item> => item !== null)
-        // เรียงตามชื่อ
-        .sort((a, b) => a.name.localeCompare(b.name))
-    );
+        return {
+          originalItem,
+          id,
+          name: originalItem.equipmentName,
+          inPkg: inPkgQty,
+          extra: extraQty,
+          total: inPkgQty + extraQty,
+          remark: extraItem?.remark || "",
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null)
+      .sort((a, b) => a.name.localeCompare(b.name));
   }, [equipmentList, packageItems, extraItems]);
 
-  // คำนวณยอดรวมเฉพาะของที่ Active (เพราะตัว null ถูกกรองออกไปแล้ว)
   const totalCount = mergedItems.reduce((acc, item) => acc + item.total, 0);
 
   if (mergedItems.length === 0) return null;
@@ -100,12 +97,29 @@ const EquipmentSummaryTable = ({
         </div>
       </div>
 
-      {/* --- Table Headers --- */}
+      {/* --- Table Headers (ปรับขนาดสัดส่วนตาม showRemark) --- */}
       <div className="grid grid-cols-12 gap-4 border-b border-gray-100 bg-gray-50/50 px-6 py-3 text-[10px] font-bold tracking-wider text-gray-500 uppercase">
-        <div className="col-span-6">Item Name</div>
-        <div className="col-span-2 text-center">In Pkg</div>
+        <div className={showRemark ? "col-span-5" : "col-span-6"}>
+          Item Name
+        </div>
+        <div
+          className={cn(
+            "text-center",
+            showRemark ? "col-span-1" : "col-span-2",
+          )}
+        >
+          In Pkg
+        </div>
         <div className="col-span-2 text-center text-blue-600">Extra</div>
-        <div className="col-span-2 text-center">Total</div>
+        <div
+          className={cn(
+            "text-center",
+            showRemark ? "col-span-1" : "col-span-2",
+          )}
+        >
+          Total
+        </div>
+        {showRemark && <div className="col-span-3 text-left">Remark</div>}
       </div>
 
       {/* --- Table Rows --- */}
@@ -116,7 +130,12 @@ const EquipmentSummaryTable = ({
             className="grid grid-cols-12 items-center gap-4 px-6 py-3 transition-colors hover:bg-gray-50/50"
           >
             {/* 1. Name */}
-            <div className="col-span-6 flex items-center gap-3">
+            <div
+              className={cn(
+                "flex items-center gap-3",
+                showRemark ? "col-span-5" : "col-span-6",
+              )}
+            >
               <span
                 className="truncate text-sm font-medium text-gray-700"
                 title={item.name}
@@ -125,8 +144,13 @@ const EquipmentSummaryTable = ({
               </span>
             </div>
 
-            {/* 2. In PKG (Read Only) */}
-            <div className="col-span-2 text-center">
+            {/* 2. In PKG */}
+            <div
+              className={cn(
+                "text-center",
+                showRemark ? "col-span-1" : "col-span-2",
+              )}
+            >
               {item.inPkg > 0 ? (
                 <span className="text-sm font-medium text-gray-600">
                   {item.inPkg}
@@ -136,25 +160,12 @@ const EquipmentSummaryTable = ({
               )}
             </div>
 
-            {/* 3. Extra (Editable Controls) */}
+            {/* 3. Extra  */}
             <div className="col-span-2 flex justify-center">
-              <div className="flex h-8 items-center rounded-lg border border-gray-200 bg-white shadow-sm">
-                <button
-                  type="button"
-                  onClick={() =>
-                    item.originalItem && onUpdateExtra(item.originalItem, -1)
-                  }
-                  // ถ้า InPkg มีอยู่แล้ว แต่เราไปลบ Extra จนติดลบ (เช่น มีใน pkg 5 แต่เราใส่ extra -5)
-                  // logic นี้จะยอมให้ลดจนเหลือ Total 0 ได้ แต่ห้ามต่ำกว่านั้น
-                  disabled={item.extra <= -item.inPkg}
-                  className="flex h-full w-8 items-center justify-center rounded-l-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30"
-                >
-                  <Minus size={12} />
-                </button>
-
+              {readOnly ? (
                 <span
                   className={cn(
-                    "w-8 text-center text-sm font-bold select-none",
+                    "text-sm font-bold",
                     item.extra > 0
                       ? "text-blue-600"
                       : item.extra < 0
@@ -162,28 +173,94 @@ const EquipmentSummaryTable = ({
                         : "text-gray-400",
                   )}
                 >
-                  {/* แสดงเครื่องหมาย + หรือ - ให้ชัดเจน */}
                   {item.extra > 0 ? `+${item.extra}` : item.extra}
                 </span>
+              ) : (
+                <div className="flex h-8 items-center rounded-lg border border-gray-200 bg-white shadow-sm">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onUpdateExtra &&
+                      item.originalItem &&
+                      onUpdateExtra(item.originalItem, -1)
+                    }
+                    disabled={item.extra <= -item.inPkg}
+                    className="flex h-full w-8 items-center justify-center rounded-l-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30"
+                  >
+                    <Minus size={12} />
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    item.originalItem && onUpdateExtra(item.originalItem, 1)
-                  }
-                  className="flex h-full w-8 items-center justify-center rounded-r-lg text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
-                >
-                  <Plus size={12} />
-                </button>
-              </div>
+                  <span
+                    className={cn(
+                      "w-8 text-center text-sm font-bold select-none",
+                      item.extra > 0
+                        ? "text-blue-600"
+                        : item.extra < 0
+                          ? "text-red-500"
+                          : "text-gray-400",
+                    )}
+                  >
+                    {item.extra > 0 ? `+${item.extra}` : item.extra}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onUpdateExtra &&
+                      item.originalItem &&
+                      onUpdateExtra(item.originalItem, 1)
+                    }
+                    className="flex h-full w-8 items-center justify-center rounded-r-lg text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
+                  >
+                    <Plus size={12} />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* 4. Total */}
-            <div className="col-span-2 text-center">
+            <div
+              className={cn(
+                "text-center",
+                showRemark ? "col-span-1" : "col-span-2",
+              )}
+            >
               <span className="text-sm font-bold text-gray-900">
                 {item.total}
               </span>
             </div>
+
+            {showRemark && (
+              <div className="col-span-3">
+                {readOnly ? (
+                  <p
+                    className="truncate text-xs font-medium text-gray-600"
+                    title={item.remark}
+                  >
+                    {item.remark || (
+                      <span className="text-gray-300 italic">-</span>
+                    )}
+                  </p>
+                ) : (
+                  <div className="relative flex items-center">
+                    <MessageSquare
+                      className="absolute left-2.5 text-gray-400"
+                      size={14}
+                    />
+                    <input
+                      type="text"
+                      placeholder="ระบุหมายเหตุ..."
+                      value={item.remark}
+                      onChange={(e) =>
+                        onUpdateRemark &&
+                        onUpdateRemark(item.id, e.target.value)
+                      }
+                      className="w-full rounded-md border border-gray-200 bg-white py-1.5 pr-3 pl-8 text-xs text-gray-700 transition-colors outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -194,7 +271,6 @@ const EquipmentSummaryTable = ({
 // ==========================================
 // Part 2: Sub-Components for Selection List
 // ==========================================
-
 const EquipmentFilterHeader = ({
   equipSearch,
   onSearchChange,
@@ -354,13 +430,16 @@ const EquipmentSelectionList = ({
 
 export type EquipmentSelectFieldProps = {
   equipmentList: EquipmentType[];
-  packageItems?: PackageItem[]; // รับค่า Package items เข้ามา
+  packageItems?: PackageItem[];
   required?: boolean;
+  showRemark?: boolean;
 };
 
 export const EquipmentSelectField = ({
   equipmentList,
   packageItems = [],
+
+  showRemark = true,
 }: EquipmentSelectFieldProps) => {
   const field = useFieldContext<SelectedItemState[]>();
   const [equipSearch, setEquipSearch] = useState("");
@@ -372,40 +451,31 @@ export const EquipmentSelectField = ({
     (field.state.meta.isTouched || isSubmitted) &&
     field.state.meta.errors.length > 0;
 
-  // --- 1. Prepare Tabs ---
   const categoriesTab = useMemo(() => {
     const uniqueCats = new Map<string, string>();
     equipmentList.forEach((item) => {
-      // ตรวจสอบ structure ของ category ให้แน่ใจ (บางทีอาจเป็น object หรือ id)
       const catId = item.category?.categoryId
         ? String(item.category.categoryId)
         : "uncategorized";
       const catName = item.category?.categoryName || "Uncategorized";
-
       uniqueCats.set(catId, catName);
     });
-
     const sortedCats = Array.from(uniqueCats.entries())
       .map(([id, name]) => ({ id, name }))
       .sort((a, b) => a.name.localeCompare(b.name));
-
     return [{ id: "All", name: "All" }, ...sortedCats];
   }, [equipmentList]);
 
-  // --- 2. Filter & Group Data ---
   const { availableEquipment, groupedEquipment } = useMemo(() => {
     const filtered = equipmentList.filter((item) => {
       const matchSearch = item.equipmentName
         .toLowerCase()
         .includes(equipSearch.toLowerCase());
-
       const itemCatId = item.category?.categoryId
         ? String(item.category.categoryId)
         : "uncategorized";
-
       const matchCategory =
         activeCategoryId === "All" || itemCatId === activeCategoryId;
-
       return matchSearch && matchCategory;
     });
 
@@ -421,11 +491,9 @@ export const EquipmentSelectField = ({
             {} as Record<string, EquipmentType[]>,
           )
         : null;
-
     return { availableEquipment: filtered, groupedEquipment: grouped };
   }, [equipmentList, equipSearch, activeCategoryId]);
 
-  // --- 3. Handlers ---
   const updateItems = (newItems: SelectedItemState[]) => {
     field.handleChange(newItems);
   };
@@ -435,7 +503,6 @@ export const EquipmentSelectField = ({
       (i) => i.equipmentId === item.equipmentId,
     );
 
-    // Case 1: ยังไม่มีใน Extra List -> เพิ่มเข้าไป
     if (!existingItem) {
       if (delta > 0) {
         updateItems([
@@ -443,25 +510,22 @@ export const EquipmentSelectField = ({
           {
             equipmentId: item.equipmentId,
             equipmentName: item.equipmentName,
-            // แปลง category เป็น string เพื่อเก็บใน state (ตาม Type SelectedItemState)
             category: item.category?.categoryName || "Uncategorized",
             quantity: delta,
+            remark: "",
           },
         ]);
       }
       return;
     }
 
-    // Case 2: มีอยู่แล้ว -> ปรับจำนวน
     const newQuantity = existingItem.quantity + delta;
 
     if (newQuantity <= 0) {
-      // ถ้าเหลือ 0 ให้ลบออกจาก Extra List
       updateItems(
         selectedItems.filter((i) => i.equipmentId !== item.equipmentId),
       );
     } else {
-      // ถ้ายังเหลือ ให้อัปเดตจำนวน
       updateItems(
         selectedItems.map((i) =>
           i.equipmentId === item.equipmentId
@@ -472,9 +536,44 @@ export const EquipmentSelectField = ({
     }
   };
 
+  const handleRemarkChange = (equipmentId: number, newRemark: string) => {
+    // หาว่าของชิ้นนี้มีอยู่ใน Form State (extraItems) ไหม
+    const existingItemIndex = selectedItems.findIndex(
+      (i) => i.equipmentId === equipmentId,
+    );
+
+    // ถ้าของชิ้นนี้ไม่ได้อยู่ใน Extra (แปลว่าเป็นของแถมมากับ Package ล้วนๆ แต่ User อยากเติม Remark)
+    if (existingItemIndex === -1) {
+      const originalItem = equipmentList.find(
+        (e) => e.equipmentId === equipmentId,
+      );
+      if (originalItem) {
+        // ต้องยัดมันลงไปใน Form State ด้วยจำนวน = 0 (เพราะไม่ได้เบิกเพิ่ม แค่โน้ตไว้)
+        updateItems([
+          ...selectedItems,
+          {
+            equipmentId: originalItem.equipmentId,
+            equipmentName: originalItem.equipmentName,
+            category: originalItem.category?.categoryName || "Uncategorized",
+            quantity: 0,
+            remark: newRemark,
+          },
+        ]);
+      }
+      return;
+    }
+
+    // ถ้ามีอยู่ใน Extra อยู่แล้ว (หรือโดนยัดลงไปตะกี้) แค่อัปเดตข้อความ
+    const newItems = [...selectedItems];
+    newItems[existingItemIndex] = {
+      ...newItems[existingItemIndex],
+      remark: newRemark,
+    };
+    updateItems(newItems);
+  };
+
   return (
     <div className="flex flex-col gap-6">
-      {/* Selection Area (List & Search) */}
       <div
         className={cn(
           "flex h-112.5 flex-col overflow-hidden rounded-xl border bg-white shadow-sm",
@@ -498,13 +597,13 @@ export const EquipmentSelectField = ({
         />
       </div>
 
-      {/* Summary Area (Table) */}
-      {/* เรียกใช้ Component ที่คุณให้มา โดยส่ง props ให้ครบถ้วน */}
       <EquipmentSummaryTable
         equipmentList={equipmentList}
-        packageItems={packageItems} // ข้อมูลจาก Package
-        extraItems={selectedItems} // ข้อมูลจาก Form State (Extra)
-        onUpdateExtra={handleQuantityChange} // ใช้ Handler เดียวกัน
+        packageItems={packageItems}
+        extraItems={selectedItems}
+        onUpdateExtra={handleQuantityChange}
+        onUpdateRemark={handleRemarkChange}
+        showRemark={showRemark}
       />
 
       {hasError && <FieldErrors meta={field.state.meta} />}

@@ -79,6 +79,9 @@ const editEvent = async (payload: UpdateEventPayload): Promise<EventType> => {
         `EventExtraEquipments[${index}].Quantity`,
         item.quantity.toString(),
       );
+      if (item.remark) {
+        formData.append(`EventExtraEquipments[${index}].Remark`, item.remark);
+      }
     });
   }
 

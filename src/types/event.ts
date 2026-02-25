@@ -44,6 +44,7 @@ export interface EventExtraEquipment {
   equipmentId: number;
   quantity: number;
   equipment?: EquipmentType;
+  remark?: string;
 }
 
 // 4. Attachment

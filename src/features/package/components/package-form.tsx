@@ -145,6 +145,7 @@ export default function PackageForm({
                   <field.EquipmentSelectField
                     equipmentList={equipmentData}
                     required
+                    showRemark={false}
                   />
                 )}
               />

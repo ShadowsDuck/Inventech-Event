@@ -3,6 +3,7 @@ import { z } from "zod";
 const EquipmentEventSchema = z.object({
   equipmentId: z.number(),
   quantity: z.number().min(1),
+  remark: z.string().optional().nullable(),
 });
 
 const StaffSchema = z.object({

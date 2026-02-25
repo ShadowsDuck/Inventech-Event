@@ -21,7 +21,7 @@ export const ExportEquipment = ({
   meetingDate = "ไม่ระบุ",
 }: Props) => {
   return (
-    <div className="hidden print:m-0 print:block print:bg-white print:p-0">
+    <div className="hidden print:m-0 print:block print:bg-white print:p-10">
       <table className="w-full border-collapse text-sm">
         <thead className="print:table-header-group">
           <tr className="hidden print:table-row">

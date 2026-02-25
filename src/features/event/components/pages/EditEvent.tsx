@@ -106,6 +106,7 @@ export default function EditEvent() {
         eventData.eventExtraEquipments?.map((item) => ({
           equipmentId: item.equipment?.equipmentId ?? 0,
           quantity: item.quantity,
+          remark: item.remark || "",
         })) ?? [],
 
       attachmentFiles: [],
@@ -157,7 +158,7 @@ export default function EditEvent() {
       deleteAttachmentIds: deletedFileIds,
       requirements: combinedRequirements,
     };
-
+    console.log(payload);
     mutate(payload, {
       onSuccess: () => {
         history.go(-1);

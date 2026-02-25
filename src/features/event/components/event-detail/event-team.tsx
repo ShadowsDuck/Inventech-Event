@@ -380,13 +380,6 @@ export default function EventTeam({ events }: EventTeamProps) {
     <div className="print:m-0 print:p-0">
       <div className="mb-6 flex items-center justify-between print:hidden">
         <h2 className="text-2xl font-bold text-gray-800">Team Assignments</h2>
-        <button
-          onClick={() => window.print()}
-          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
-        >
-          <Printer size={18} />
-          Export Personnel PDF
-        </button>
       </div>
       {/* Layout */}
       <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 lg:grid-cols-3 print:hidden">
