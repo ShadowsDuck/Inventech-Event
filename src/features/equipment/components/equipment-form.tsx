@@ -1,13 +1,14 @@
+import { useMemo } from "react";
+
 import { revalidateLogic } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Loader2, Save, Tag } from "lucide-react";
+import { Tag } from "lucide-react";
 import z from "zod";
 
 import { useAppForm } from "@/components/form";
 import { CreateFormButton } from "@/components/form/ui/create-form-button";
 import { ResetFormButton } from "@/components/form/ui/reset-form-button";
 import PageHeader from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { categoryQuery } from "../api/getCategory";
@@ -39,10 +40,12 @@ export function EquipmentForm({
 }: EquipmentFormProps) {
   const { data: categoryData } = useSuspenseQuery(categoryQuery());
 
-  const categoryOptions = categoryData.map((category) => ({
-    label: category.categoryName,
-    value: category.categoryId,
-  }));
+  const categoryOptions = useMemo(() => {
+    return categoryData?.map((category) => ({
+      value: category.categoryId.toString(),
+      label: category.categoryName,
+    }));
+  }, [categoryData]);
 
   // 3. การจัดการ Form (Form Logic)
   const form = useAppForm({
@@ -150,17 +153,13 @@ export function EquipmentForm({
               <form.AppField
                 name="categoryId"
                 children={(field) => (
-                  <field.SelectField2
+                  <field.SelectField
                     label="Category"
-                    options={categoryOptions.map((option) => ({
-                      label: option.label,
-                      value: option.value,
-                    }))}
+                    options={categoryOptions}
                     icon={Tag}
-                    placeholder="Select category"
-                    searchPlaceholder="Search categories..."
-                    value={field.state.value}
-                    onChange={(val) => field.handleChange(val)}
+                    placeholder="Category"
+                    value={field.state.value?.toString()}
+                    onChange={(value) => field.handleChange(Number(value))}
                     required
                   />
                 )}

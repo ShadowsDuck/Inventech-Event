@@ -93,10 +93,11 @@ export const SelectField = ({
   };
 
   const handleSelect = (value: string) => {
+    const newValue = value === selectedValue ? "" : value;
     if (onChange) {
-      onChange(value);
+      onChange(newValue);
     } else {
-      field.handleChange(value);
+      field.handleChange(newValue);
     }
     handleOpenChange(false);
   };
@@ -248,7 +249,7 @@ export const SelectField = ({
                   key={option.value}
                   onClick={() => handleSelect(option.value)}
                   className={cn(
-                    "group my-0.5 flex cursor-pointer items-center rounded-lg px-2 py-1.5 text-xs transition-colors",
+                    "group my-0.5 flex cursor-pointer items-center rounded-lg px-2 py-1.5 transition-colors",
                     "hover:bg-accent/60",
                     isSelected &&
                       "bg-blue-50 font-medium text-blue-700 hover:bg-blue-50",
