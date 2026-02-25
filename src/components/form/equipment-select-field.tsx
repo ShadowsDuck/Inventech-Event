@@ -63,6 +63,7 @@ const EquipmentSummaryTable = ({
 
         const inPkgQty = pkgItem?.quantity || 0;
         const extraQty = extraItem?.quantity || 0;
+        const remarkText = extraItem?.remark || "";
 
         return {
           originalItem,
@@ -71,10 +72,18 @@ const EquipmentSummaryTable = ({
           inPkg: inPkgQty,
           extra: extraQty,
           total: inPkgQty + extraQty,
-          remark: extraItem?.remark || "",
+          remark: remarkText,
         };
       })
-      .filter((item): item is NonNullable<typeof item> => item !== null)
+      .filter((item): item is NonNullable<typeof item> => {
+        if (!item) return false;
+
+        const hasTotal = item.total > 0;
+        // const hasRemark = item.remark.trim() !== "";
+
+        return hasTotal;
+      })
+
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [equipmentList, packageItems, extraItems]);
 
