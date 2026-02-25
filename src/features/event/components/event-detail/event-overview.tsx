@@ -15,6 +15,7 @@ import {
 
 import MapPreview from "@/components/map-preview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatPhoneNumberDisplay } from "@/lib/format";
 import type { EventType } from "@/types/event";
 
 interface EventOverviewProps {
@@ -138,6 +139,19 @@ export default function EventOverview({ events }: EventOverviewProps) {
               </div>
             </div>
           </div>
+          <div className="rounded-lg border border-yellow-100 bg-yellow-50/50 p-3">
+            <div className="flex items-start gap-2">
+              <StickyNote className="mt-0.5 size-4 shrink-0 text-yellow-600" />
+              <div className="flex min-w-0 flex-col gap-1">
+                <span className="text-xs font-bold tracking-wide text-yellow-700 uppercase">
+                  Note
+                </span>
+                <p className="wrap-break-words text-sm whitespace-pre-wrap text-gray-700">
+                  {events.note || "-"}
+                </p>
+              </div>
+            </div>
+          </div>
           <div>
             <h4 className="mb-3 text-sm font-bold text-gray-800">
               Map Preview
@@ -155,19 +169,6 @@ export default function EventOverview({ events }: EventOverviewProps) {
                   <span className="text-xs">No GPS Coordinate</span>
                 </div>
               )}
-            </div>
-          </div>
-          <div className="rounded-lg border border-yellow-100 bg-yellow-50/50 p-3">
-            <div className="flex items-start gap-2">
-              <StickyNote className="mt-0.5 size-4 shrink-0 text-yellow-600" />
-              <div className="flex min-w-0 flex-col gap-1">
-                <span className="text-xs font-bold tracking-wide text-yellow-700 uppercase">
-                  Note
-                </span>
-                <p className="wrap-break-words text-sm whitespace-pre-wrap text-gray-700">
-                  {events.note || "-"}
-                </p>
-              </div>
             </div>
           </div>
         </CardContent>
@@ -200,6 +201,7 @@ export default function EventOverview({ events }: EventOverviewProps) {
           </div>
 
           {/* 2. Primary Contact */}
+          {/* 2. Primary Contact */}
           {(() => {
             const primaryContact = events.company?.companyContacts?.find(
               (c) => c.isPrimary,
@@ -207,38 +209,39 @@ export default function EventOverview({ events }: EventOverviewProps) {
             if (!primaryContact) return null;
 
             return (
-              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-                <p className="mb-3 text-xs font-bold tracking-wider text-gray-400">
+              <div>
+                <p className="mb-3 text-xs font-bold tracking-wider text-gray-400 uppercase">
                   PRIMARY CONTACT
                 </p>
+                <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-4">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-full border border-blue-200 bg-white text-blue-500 shadow-sm">
+                      <User className="size-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-base font-bold text-gray-900">
+                        {primaryContact.fullName}
+                      </p>
+                      <p className="truncate text-sm font-medium text-gray-500">
+                        {primaryContact.position}
+                      </p>
+                    </div>
+                  </div>
 
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400">
-                    <User className="size-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-base font-bold text-gray-900">
-                      {primaryContact.fullName}
-                    </p>
-                    <p className="truncate text-sm text-gray-500">
-                      {primaryContact.position}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-2 pl-1">
-                  <div className="flex items-center gap-2.5 text-sm text-gray-600">
-                    <Phone className="size-4 text-gray-400" />
-                    {primaryContact.phoneNumber}
-                  </div>
-                  <div className="flex items-center gap-2.5 text-sm text-gray-600">
-                    <Mail className="size-4 text-gray-400" />
-                    <a
-                      href={`mailto:${primaryContact.email}`}
-                      className="truncate hover:text-blue-600"
-                    >
-                      {primaryContact.email}
-                    </a>
+                  <div className="space-y-2 pl-1">
+                    <div className="flex items-center gap-2.5 text-sm font-medium text-gray-600">
+                      <Phone className="size-4 text-gray-400" />
+                      {formatPhoneNumberDisplay(primaryContact.phoneNumber)}
+                    </div>
+                    <div className="flex items-center gap-2.5 text-sm font-medium text-gray-600">
+                      <Mail className="size-4 text-gray-400" />
+                      <a
+                        href={`mailto:${primaryContact.email}`}
+                        className="truncate hover:text-blue-600 hover:underline"
+                      >
+                        {primaryContact.email}
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -253,31 +256,50 @@ export default function EventOverview({ events }: EventOverviewProps) {
             if (otherContacts.length === 0) return null;
 
             return (
-              <div>
+              <div className="mt-6">
+                {" "}
+                {/* เพิ่ม margin-top ให้ห่างจาก Primary นิดนึง */}
                 <p className="mb-3 text-xs font-bold tracking-wider text-gray-400 uppercase">
                   Other Contacts
                 </p>
-                <div className="space-y-2">
+                <div className="space-y-3">
+                  {" "}
+                  {/* เปลี่ยนเป็น space-y-3 ให้ช่องว่างระหว่าง Card สวยขึ้น */}
                   {otherContacts.slice(0, 3).map((contact) => (
                     <div
                       key={contact.companyContactId}
-                      className="group flex cursor-default items-center gap-3 rounded-lg border border-transparent p-2 transition-colors hover:border-gray-100 hover:bg-gray-50"
+                      className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
                     >
-                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-all group-hover:bg-white group-hover:shadow-sm">
-                        <span className="text-xs font-bold">
-                          {contact.fullName.charAt(0)}
-                        </span>
+                      <div className="mb-4 flex items-center gap-3">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-gray-50 text-gray-500">
+                          <span className="text-sm font-bold uppercase">
+                            {contact.fullName.charAt(0)}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-base font-bold text-gray-800">
+                            {contact.fullName}
+                          </p>
+                          <p className="truncate text-sm font-medium text-gray-500">
+                            {contact.position}
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-gray-700 group-hover:text-gray-900">
-                          {contact.fullName}
-                        </p>
-                        <p className="truncate text-sm text-gray-500">
-                          {contact.position}
-                        </p>
-                        <p className="truncate text-sm text-gray-500">
-                          {contact.phoneNumber}
-                        </p>
+
+                      <div className="space-y-2 pl-1">
+                        <div className="flex items-center gap-2.5 text-sm font-medium text-gray-600">
+                          <Phone className="size-4 text-gray-400" />
+                          {formatPhoneNumberDisplay(contact.phoneNumber)}
+                        </div>
+                        <div className="flex items-center gap-2.5 text-sm font-medium text-gray-600">
+                          <Mail className="size-4 text-gray-400" />
+                          <a
+                            href={`mailto:${contact.email}`}
+                            className="truncate hover:text-blue-600 hover:underline"
+                          >
+                            {contact.email}
+                          </a>
+                        </div>
                       </div>
                     </div>
                   ))}
