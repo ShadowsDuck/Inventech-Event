@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useParams, useRouter } from "@tanstack/react-router";
 import { format, parse } from "date-fns";
 
-import type { ExistingFileType } from "@/types/event";
+// import type { ExistingFileType } from "@/types/event";
 
 import { useEditEvent } from "../../api/editEvent";
 import { eventQuery } from "../../api/getEventById";
@@ -22,7 +22,7 @@ const EVENT_TYPE_MAP: Record<string, number> = {
 const PERIOD_MAP: Record<string, number> = { Morning: 1, Afternoon: 2 };
 
 export default function EditEvent() {
-  const navigate = useNavigate();
+  const { history } = useRouter();
   const { eventId } = useParams({ from: "/_auth/_admin/event/$eventId/edit" });
 
   // 1. Fetch Data
@@ -136,9 +136,9 @@ export default function EditEvent() {
   const handleEditSubmit = (
     values: EventData,
     deletedFileIds?: number[],
-    currentExistingFiles?: ExistingFileType[],
+    // currentExistingFiles?: ExistingFileType[],
   ) => {
-    const existingFileIds = currentExistingFiles?.map((f) => f.id) ?? [];
+    // const existingFileIds = currentExistingFiles?.map((f) => f.id) ?? [];
     const [latStr, lngStr] = values.location?.split(",") || [];
     const latitude = latStr ? parseFloat(latStr.trim()) : null;
     const longitude = lngStr ? parseFloat(lngStr.trim()) : null;
@@ -160,7 +160,7 @@ export default function EditEvent() {
 
     mutate(payload, {
       onSuccess: () => {
-        navigate({ to: `/event/${eventId}`, replace: true });
+        history.go(-1);
       },
     });
   };

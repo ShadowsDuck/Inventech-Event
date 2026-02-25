@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useParams, useRouter } from "@tanstack/react-router";
 
 import { cleanPhoneNumber, formatPhoneNumberDisplay } from "@/lib/format";
 
@@ -8,7 +8,7 @@ import { companyQuery } from "../../api/getCompany";
 import { type CompanyData, CompanyForm } from "../company-form";
 
 export default function EditCompany() {
-  const navigate = useNavigate();
+  const { history } = useRouter();
 
   const { companyId } = useParams({
     from: "/_auth/_admin/company/$companyId/edit",
@@ -61,11 +61,7 @@ export default function EditCompany() {
 
     mutate(payload, {
       onSuccess: () => {
-        navigate({
-          to: "/company/$companyId",
-          params: { companyId },
-          replace: true,
-        });
+        history.go(-1);
       },
     });
   };

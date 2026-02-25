@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { useNavigate, useRouter } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -37,7 +37,7 @@ export function PageHeader({
   isDeleted = false,
   tabs,
 }: PageHeaderProps) {
-  const navigate = useNavigate();
+  const { history } = useRouter();
 
   const showCount = typeof count === "number" && countLabel;
 
@@ -57,12 +57,7 @@ export function PageHeader({
 
           {backButton && (
             <button
-              onClick={() =>
-                navigate({
-                  to: "..",
-                  replace: true,
-                })
-              }
+              onClick={() => history.go(-1)}
               className="hover:bg-muted-foreground/7 rounded-full bg-white p-2 duration-150"
             >
               <ChevronLeft color="gray" />

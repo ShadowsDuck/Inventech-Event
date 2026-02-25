@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { Box, Calendar, Users } from "lucide-react";
+import { Calendar, Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -64,29 +64,9 @@ export const eventHistoryColumns: ColumnDef<EventType>[] = [
           <div className="flex flex-col">
             <span className="font-medium">{total} People</span>
             <span className="text-muted-foreground text-[10px] font-bold uppercase">
-              {staffCount} Staff / {outsourceCount} Out
+              {staffCount} Staff / {outsourceCount} Outsource
             </span>
           </div>
-        </div>
-      );
-    },
-  },
-  {
-    id: "package",
-    header: "Package",
-    size: 180,
-    cell: ({ row }) => {
-      const packageName = row.original.package?.packageName;
-
-      return (
-        <div className="flex items-center gap-2">
-          <Box className="text-muted-foreground h-4 w-4 shrink-0 opacity-70" />
-          <span
-            className="text-muted-foreground truncate font-medium"
-            title={packageName}
-          >
-            {packageName || "No Package"}
-          </span>
         </div>
       );
     },

@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
 import { format } from "date-fns";
 
 import { api } from "@/lib/axios";
@@ -38,7 +38,7 @@ const createEvent = async (
   }
 
   // Event Date
-  const formattedDate = format(newEvent.eventDate, "yyyy-MM-dd");
+  const formattedDate = format(newEvent.eventDate!, "yyyy-MM-dd");
   formData.append("MeetingDate", formattedDate);
   if (newEvent.registrationTime) {
     formData.append("RegistrationTime", newEvent.registrationTime);
