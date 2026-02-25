@@ -1,12 +1,10 @@
-import React from "react";
-
-// เรียกใช้ ExportEquipmentProp แบบใหม่ที่แยก packageQuantity และ extraQuantity
 export interface ExportEquipmentProp {
   id: string | number;
   name: string;
   category: string;
   packageQuantity: number;
   extraQuantity: number;
+  remark?: string;
 }
 
 interface Props {
@@ -20,7 +18,6 @@ export const ExportEquipment = ({
   equipmentList,
   eventName = "ไม่ระบุ",
   meetingDate = "ไม่ระบุ",
-  remark = "",
 }: Props) => {
   return (
     <div className="hidden print:m-0 print:block print:bg-white print:p-10">
@@ -84,8 +81,9 @@ export const ExportEquipment = ({
                 {item.extraQuantity > 0 ? item.extraQuantity : ""}
               </td>
               <td className="border border-gray-800 p-1"></td>
-              <td className="border border-gray-800 p-1 text-center font-bold text-black">
-                {remark || ""}
+              {/* แสดงหมายเหตุ */}
+              <td className="border border-gray-800 p-1 text-left font-bold text-black">
+                {item.remark || ""}
               </td>
             </tr>
           ))}

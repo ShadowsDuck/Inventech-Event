@@ -17,6 +17,7 @@ export interface SelectedItemState {
   quantity: number;
   equipmentName: string;
   categoryName?: string;
+  remark?: string;
 }
 interface EventEquipmentProps {
   events: EventType;
@@ -81,6 +82,7 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
           quantity: item.quantity || 0,
           equipmentName: equip?.equipmentName || "Unknown",
           categoryName: equip?.category?.categoryName || "-",
+          remark: item.remark || "",
         };
       }) || []
     );
@@ -109,6 +111,7 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
         category: "-",
         packageQuantity: item.quantity,
         extraQuantity: 0,
+        remark: "",
       });
     });
 
@@ -118,6 +121,7 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
         // ถ้ามีอยู่แล้วให้บวกเพิ่มเฉพาะฝั่ง extraQuantity
         const existing = equipmentMap.get(item.equipmentId)!;
         existing.extraQuantity += item.quantity;
+        if (item.remark) existing.remark = item.remark;
       } else {
         // ถ้ายังไม่มี ให้ตั้งค่า package เป็น 0 และเก็บค่าลง extra
         equipmentMap.set(item.equipmentId, {
@@ -126,6 +130,7 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
           category: item.categoryName || "-",
           packageQuantity: 0,
           extraQuantity: item.quantity,
+          remark: item.remark || "",
         });
       }
     });
@@ -143,7 +148,7 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
         <h2 className="text-2xl font-bold text-gray-800">Equipment Summary</h2>
       </div>
 
-      {/* Empty state: ไม่มีทั้ง Package และ Extra Equipment */}
+      {/* Empty state */}
       {!hasAnything ? (
         <div className="print:hidden">
           <EmptyAll />
@@ -195,6 +200,7 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
           equipmentList={printableEquipmentList}
           eventName={events.eventName}
           meetingDate={events.meetingDate}
+          remark={events.remark}
         />
       )}
     </div>

@@ -82,6 +82,7 @@ export interface EventType {
   eventStatus: string;
   staffAppointmentTime: string;
   outsourceAppointmentTime: string;
+  remark: string;
 
   // FK
   createdByStaffId: number;

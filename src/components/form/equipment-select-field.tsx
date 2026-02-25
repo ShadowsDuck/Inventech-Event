@@ -42,7 +42,7 @@ const EquipmentSummaryTable = ({
   onUpdateExtra,
   onUpdateRemark,
   readOnly = false,
-  showRemark = true, // ค่าเริ่มต้นคือ true (แสดงช่องหมายเหตุ)
+  showRemark = true,
 }: EquipmentSummaryTableProps) => {
   const mergedItems = useMemo(() => {
     const allIds = new Set([
