@@ -1,72 +1,37 @@
-import { useMemo } from "react";
-
 import { Minus, Plus } from "lucide-react";
 
-// ปรับ import ตามจริง
 import { cn } from "@/lib/utils";
-import { type EquipmentType } from "@/types/equipment";
 
-export type PackageItem = {
-  equipmentId: number;
-  equipmentName: string;
-  quantity: number;
-};
-
-type SelectedItemState = {
-  equipmentId: number;
-  equipmentName: string;
-  quantity: number;
+export type MergedEquipmentItem = {
+  id: number;
+  name: string;
+  category: string;
+  packageQuantity: number;
+  extraQuantity: number;
+  remark: string;
 };
 
 interface EquipmentSummaryTableProps {
-  equipmentList: EquipmentType[];
-  packageItems: PackageItem[]; // ของที่มีใน Package (In PKG)
-  extraItems: SelectedItemState[]; // ของที่เลือกเพิ่ม (Extra)
-  onUpdateExtra: (item: EquipmentType, delta: number) => void;
-  readOnly: boolean;
+  items: MergedEquipmentItem[];
+  onUpdateExtra?: (id: number, delta: number) => void;
+  readOnly?: boolean;
 }
 
 export const EquipmentSummaryTable = ({
-  equipmentList,
-  packageItems = [],
-  extraItems = [],
+  items = [],
   onUpdateExtra,
   readOnly = false,
 }: EquipmentSummaryTableProps) => {
-  const mergedItems = useMemo(() => {
-    const allIds = new Set([
-      ...packageItems.map((i) => i.equipmentId),
-      ...extraItems.map((i) => i.equipmentId),
-    ]);
+  const totalCount = items.reduce(
+    (acc, item) => acc + item.packageQuantity + item.extraQuantity,
+    0,
+  );
 
-    return Array.from(allIds)
-      .map((id) => {
-        const originalItem = equipmentList.find((e) => e.equipmentId === id);
-        const pkgItem = packageItems.find((p) => p.equipmentId === id);
-        const extraItem = extraItems.find((e) => e.equipmentId === id);
-
-        const inPkgQty = pkgItem?.quantity || 0;
-        const extraQty = extraItem?.quantity || 0;
-
-        return {
-          originalItem, // เก็บ Object เต็มไว้ใช้ตอนส่ง event
-          id,
-          name: originalItem?.equipmentName || `Equipment ${id}`,
-          inPkg: inPkgQty,
-          extra: extraQty,
-          total: inPkgQty + extraQty,
-        };
-      })
-      .sort((a, b) => a.name.localeCompare(b.name)); // เรียงตามชื่อ
-  }, [equipmentList, packageItems, extraItems]);
-
-  const totalCount = mergedItems.reduce((acc, item) => acc + item.total, 0);
-
-  if (mergedItems.length === 0) return null;
+  if (items.length === 0) return null;
 
   return (
-    <div className="mt-6 w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-      {/* --- Header --- */}
+    <div className="mt-0.5 w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
         <h3 className="text-sm font-bold text-gray-800">
           Selected Equipment Summary
@@ -79,99 +44,105 @@ export const EquipmentSummaryTable = ({
         </div>
       </div>
 
-      {/* --- Table Headers --- */}
+      {/* Column Headers */}
       <div className="grid grid-cols-12 gap-4 border-b border-gray-100 bg-gray-50/50 px-6 py-3 text-[10px] font-bold tracking-wider text-gray-500 uppercase">
-        <div className="col-span-6">Item Name</div>
+        {/* ขยายพื้นที่ชื่อ Item จาก col-span-5 เป็น col-span-7 */}
+        <div className="col-span-7">Item Name</div>
         <div className="col-span-2 text-center">In Pkg</div>
         <div className="col-span-2 text-center text-blue-600">Extra</div>
-        <div className="col-span-2 text-center">Total</div>
+        <div className="col-span-1 text-center">Total</div>
       </div>
 
-      {/* --- Table Rows --- */}
+      {/* Rows */}
       <div className="divide-y divide-gray-100">
-        {mergedItems.map((item) => (
-          <div
-            key={item.id}
-            className="grid grid-cols-12 items-center gap-4 px-6 py-4 transition-colors hover:bg-gray-50/50"
-          >
-            {/* 1. Name */}
-            <div className="col-span-6 flex items-center gap-3">
-              <span
-                className="truncate text-sm font-medium text-gray-700"
-                title={item.name}
-              >
-                {item.name}
-              </span>
-            </div>
-
-            {/* 2. In PKG (Read Only) */}
-            <div className="col-span-2 text-center">
-              {item.inPkg > 0 ? (
-                <span className="text-sm font-medium text-gray-600">
-                  {item.inPkg}
-                </span>
-              ) : (
-                <span className="text-sm text-gray-300">-</span>
-              )}
-            </div>
-
-            {/* 3. Extra (Editable Controls) */}
-            <div className="col-span-2 flex justify-center">
-              {readOnly ? (
+        {items.map((item) => {
+          const total = item.packageQuantity + item.extraQuantity;
+          return (
+            <div
+              key={item.id}
+              className="grid grid-cols-12 items-center gap-4 px-6 py-4 transition-colors hover:bg-gray-50/50"
+            >
+              {/* Name & Remark */}
+              <div className="col-span-7 flex flex-col justify-center gap-0.5">
                 <span
-                  className={cn(
-                    "text-sm font-bold",
-                    item.extra > 0 ? "text-blue-600" : "text-gray-300",
-                  )}
+                  className="truncate text-sm font-medium"
+                  title={item.name}
                 >
-                  {item.extra > 0 ? `+${item.extra}` : "-"}
+                  {item.name}
                 </span>
-              ) : (
-                // ---------------------------------------------------
-                // กรณีปกติ: แสดงปุ่มบวกลบ (Code เดิมของคุณ)
-                // ---------------------------------------------------
-                <div className="flex h-8 items-center rounded-lg border border-gray-200 bg-white shadow-sm">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      item.originalItem && onUpdateExtra(item.originalItem, -1)
-                    }
-                    disabled={item.extra <= 0}
-                    className="flex h-full w-8 items-center justify-center rounded-l-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30"
+                {/* แสดง Remark ด้านล่างชื่อ ถ้ามีข้อมูล */}
+                {item.remark && (
+                  <span
+                    className="text-foreground/70 truncate text-xs"
+                    title={item.remark}
                   >
-                    <Minus size={12} />
-                  </button>
+                    Note: {item.remark}
+                  </span>
+                )}
+              </div>
 
+              {/* In Pkg */}
+              <div className="col-span-2 text-center">
+                {item.packageQuantity > 0 ? (
+                  <span className="text-sm font-medium text-gray-600">
+                    {item.packageQuantity}
+                  </span>
+                ) : (
+                  <span className="text-sm text-gray-300">-</span>
+                )}
+              </div>
+
+              {/* Extra */}
+              <div className="col-span-2 flex justify-center">
+                {readOnly ? (
                   <span
                     className={cn(
-                      "w-8 text-center text-sm font-bold select-none",
-                      item.extra > 0 ? "text-blue-600" : "text-gray-400",
+                      "text-sm font-bold",
+                      item.extraQuantity > 0
+                        ? "text-blue-600"
+                        : "text-gray-300",
                     )}
                   >
-                    {item.extra > 0 ? `+${item.extra}` : "0"}
+                    {item.extraQuantity > 0 ? `+${item.extraQuantity}` : "-"}
                   </span>
+                ) : (
+                  <div className="flex h-8 items-center rounded-lg border border-gray-200 bg-white shadow-sm">
+                    <button
+                      type="button"
+                      onClick={() => onUpdateExtra?.(item.id, -1)}
+                      disabled={item.extraQuantity <= 0}
+                      className="flex h-full w-8 items-center justify-center rounded-l-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      <Minus size={12} />
+                    </button>
+                    <span
+                      className={cn(
+                        "w-8 text-center text-sm font-bold select-none",
+                        item.extraQuantity > 0
+                          ? "text-blue-600"
+                          : "text-gray-400",
+                      )}
+                    >
+                      {item.extraQuantity > 0 ? `+${item.extraQuantity}` : "0"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => onUpdateExtra?.(item.id, 1)}
+                      className="flex h-full w-8 items-center justify-center rounded-r-lg text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
+                    >
+                      <Plus size={12} />
+                    </button>
+                  </div>
+                )}
+              </div>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      item.originalItem && onUpdateExtra(item.originalItem, 1)
-                    }
-                    className="flex h-full w-8 items-center justify-center rounded-r-lg text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
-                  >
-                    <Plus size={12} />
-                  </button>
-                </div>
-              )}
+              {/* Total */}
+              <div className="col-span-1 text-center">
+                <span className="text-sm font-bold text-gray-900">{total}</span>
+              </div>
             </div>
-
-            {/* 4. Total */}
-            <div className="col-span-2 text-center">
-              <span className="text-sm font-bold text-gray-900">
-                {item.total}
-              </span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

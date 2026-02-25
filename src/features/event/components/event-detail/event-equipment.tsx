@@ -4,24 +4,12 @@ import { Package, PackageOpen } from "lucide-react";
 
 import {
   EquipmentSummaryTable,
-  type PackageItem,
+  type MergedEquipmentItem,
 } from "@/components/form/summary";
 import CarouselPackage from "@/features/package/components/carousel-package";
-import type { EquipmentType } from "@/types/equipment";
 import type { EventType } from "@/types/event";
 
-import { ExportEquipment, type ExportEquipmentProp } from "./EquipmentExport";
-
-export interface SelectedItemState {
-  equipmentId: number;
-  quantity: number;
-  equipmentName: string;
-  categoryName?: string;
-  remark?: string;
-}
-interface EventEquipmentProps {
-  events: EventType;
-}
+import { ExportEquipment } from "./EquipmentExport";
 
 // --- Empty State Components ---
 function EmptyPackage() {
@@ -55,97 +43,52 @@ function EmptyAll() {
 }
 
 // --- Main Component ---
-export default function EventEquipment({ events }: EventEquipmentProps) {
-  const packageList = events.package ? [events.package] : [];
-
+export default function EventEquipment({ events }: { events: EventType }) {
   const hasPackage = !!events.package;
-  const hasExtraEquipment =
-    !!events.eventExtraEquipments && events.eventExtraEquipments.length > 0;
+  const hasExtraEquipment = !!events.eventExtraEquipments?.length;
   const hasAnything = hasPackage || hasExtraEquipment;
 
-  const packageItems: PackageItem[] = useMemo(() => {
-    return (
-      events.package?.equipmentSets?.map((item) => ({
-        equipmentId: item.equipmentId,
-        quantity: item.quantity || 0,
-        equipmentName: item.equipmentName,
-      })) || []
-    );
-  }, [events.package?.equipmentSets]);
+  const mergedList = useMemo(() => {
+    // 1. เริ่มจาก package items
+    const result: MergedEquipmentItem[] = (
+      events.package?.equipmentSets ?? []
+    ).map((es) => ({
+      id: es.equipmentId,
+      name: es.equipmentName,
+      category: "-",
+      packageQuantity: es.quantity ?? 0,
+      extraQuantity: 0,
+      remark: "",
+    }));
 
-  const extraItems: SelectedItemState[] = useMemo(() => {
-    return (
-      events.eventExtraEquipments?.map((item) => {
-        const equip = item.equipment;
-        return {
-          equipmentId: equip?.equipmentId ?? 0,
-          quantity: item.quantity || 0,
-          equipmentName: equip?.equipmentName || "Unknown",
-          categoryName: equip?.category?.categoryName || "-",
-          remark: item.remark || "",
-        };
-      }) || []
-    );
-  }, [events.eventExtraEquipments]);
-
-  const allEquipmentList: EquipmentType[] = [
-    ...(events.package?.equipmentSets?.map(
-      (es) =>
-        ({
-          equipmentId: es.equipmentId,
-          equipmentName: es.equipmentName,
-        }) as EquipmentType,
-    ) || []),
-    ...(events.eventExtraEquipments?.map(
-      (ex) => ex.equipment as EquipmentType,
-    ) || []),
-  ].filter((item): item is EquipmentType => !!item);
-
-  const printableEquipmentList: ExportEquipmentProp[] = useMemo(() => {
-    const equipmentMap = new Map<number, ExportEquipmentProp>();
-
-    packageItems.forEach((item) => {
-      equipmentMap.set(item.equipmentId, {
-        id: item.equipmentId,
-        name: item.equipmentName,
-        category: "-",
-        packageQuantity: item.quantity,
-        extraQuantity: 0,
-        remark: "",
-      });
-    });
-
-    // จัดการของจาก Extra: นำจำนวนไปใส่ใน extraQuantity
-    extraItems.forEach((item) => {
-      if (equipmentMap.has(item.equipmentId)) {
-        // ถ้ามีอยู่แล้วให้บวกเพิ่มเฉพาะฝั่ง extraQuantity
-        const existing = equipmentMap.get(item.equipmentId)!;
-        existing.extraQuantity += item.quantity;
-        if (item.remark) existing.remark = item.remark;
+    // 2. วน extra items — ถ้ามีอยู่แล้วให้บวกเพิ่ม ถ้าไม่มีให้เพิ่มใหม่
+    (events.eventExtraEquipments ?? []).forEach((ex) => {
+      const existing = result.find(
+        (item) => item.id === ex.equipment?.equipmentId,
+      );
+      if (existing) {
+        existing.extraQuantity += ex.quantity ?? 0;
+        if (ex.remark) existing.remark = ex.remark;
       } else {
-        // ถ้ายังไม่มี ให้ตั้งค่า package เป็น 0 และเก็บค่าลง extra
-        equipmentMap.set(item.equipmentId, {
-          id: item.equipmentId,
-          name: item.equipmentName,
-          category: item.categoryName || "-",
+        result.push({
+          id: ex.equipment?.equipmentId ?? 0,
+          name: ex.equipment?.equipmentName ?? "Unknown",
+          category: ex.equipment?.category?.categoryName ?? "-",
           packageQuantity: 0,
-          extraQuantity: item.quantity,
-          remark: item.remark || "",
+          extraQuantity: ex.quantity ?? 0,
+          remark: ex.remark ?? "",
         });
       }
     });
 
-    // แปลง Map เป็น Array และเรียงลำดับตามชื่อ (ก-ฮ, A-Z)
-    return Array.from(equipmentMap.values()).sort((a, b) =>
-      a.name.localeCompare(b.name, "th"),
-    );
-  }, [packageItems, extraItems]);
+    return result.sort((a, b) => a.name.localeCompare(b.name, "th"));
+  }, [events.package, events.eventExtraEquipments]);
 
   return (
     <div>
       {/* Header */}
       <div className="mb-6 flex items-center justify-between print:hidden">
-        <h2 className="text-2xl font-bold text-gray-800">Equipment Summary</h2>
+        <h2 className="text-2xl font-bold">Equipment Summary</h2>
       </div>
 
       {/* Empty state */}
@@ -159,45 +102,30 @@ export default function EventEquipment({ events }: EventEquipmentProps) {
           {hasPackage ? (
             <>
               <CarouselPackage
-                packages={packageList}
+                packages={[events.package!]}
                 value={String(events.package?.packageId)}
                 readOnly={true}
                 canEdit={false}
                 itemBasis="basis-full"
               />
               <div className="col-span-2">
-                <EquipmentSummaryTable
-                  equipmentList={allEquipmentList}
-                  packageItems={packageItems}
-                  extraItems={extraItems}
-                  onUpdateExtra={() => {}}
-                  readOnly={true}
-                />
+                <EquipmentSummaryTable items={mergedList} readOnly={true} />
               </div>
             </>
           ) : (
-            <EmptyPackage />
+            <>
+              <EmptyPackage />
+              <div className="col-span-2">
+                <EquipmentSummaryTable items={mergedList} readOnly={true} />
+              </div>
+            </>
           )}
-
-          {/* Extra Equipment Section */}
-          <div className="col-span-2 space-y-6">
-            {!hasPackage && hasExtraEquipment && (
-              <EquipmentSummaryTable
-                equipmentList={allEquipmentList}
-                packageItems={packageItems}
-                extraItems={extraItems}
-                onUpdateExtra={() => {}}
-                readOnly={true}
-              />
-            )}
-          </div>
         </div>
       )}
 
-      {/* Equipment Print */}
       {hasAnything && (
         <ExportEquipment
-          equipmentList={printableEquipmentList}
+          equipmentList={mergedList}
           eventName={events.eventName}
           meetingDate={events.meetingDate}
           remark={events.remark}
