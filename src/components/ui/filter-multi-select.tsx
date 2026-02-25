@@ -43,13 +43,22 @@ export function FilterMultiSelect({
 }: FilterMultiSelectProps) {
   const isActive = selected.length > 0;
   const [open, setOpen] = useState(false);
+  const [searchMode, setSearchMode] = useState(false);
   const [searchText, setSearchText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchModeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
-    // ล้างข้อความค้นหาเมื่อปิด dropdown
-    if (!nextOpen) setSearchText("");
+    if (nextOpen) {
+      // ยกเลิก timer ที่ค้างอยู่ (กรณีเปิดซ้ำระหว่าง animation ปิด) แล้วเข้า search mode ทันที
+      if (searchModeTimerRef.current) clearTimeout(searchModeTimerRef.current);
+      setSearchMode(true);
+    } else {
+      // ล้างข้อความค้นหาทันที แล้วรอให้ animation ปิด content เสร็จก่อนค่อยออกจาก search mode
+      setSearchText("");
+      searchModeTimerRef.current = setTimeout(() => setSearchMode(false), 67);
+    }
   };
 
   // โฟกัส input เมื่อ dropdown เปิด (เฉพาะโหมด searchable)
@@ -95,10 +104,10 @@ export function FilterMultiSelect({
         className={cn(
           "hover:bg-hover h-8 rounded-xl border bg-white transition-all",
           // เมื่อเปิดและ searchable → ขยาย trigger เป็นช่อง search
-          open && searchable
+          searchMode && searchable
             ? "w-44 border-blue-600 bg-white shadow-sm ring-2 ring-blue-100"
             : "w-fit",
-          !open &&
+          !searchMode &&
             isActive &&
             "border-solid border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
           className,
@@ -108,7 +117,7 @@ export function FilterMultiSelect({
           if (open && searchable) e.preventDefault();
         }}
       >
-        {open && searchable ? (
+        {searchMode && searchable ? (
           /* โหมดค้นหา — แสดงเมื่อ dropdown เปิดอยู่และ searchable */
           <div
             className="flex w-full items-center gap-1.5"

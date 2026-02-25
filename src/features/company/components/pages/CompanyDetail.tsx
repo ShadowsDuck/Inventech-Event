@@ -36,8 +36,14 @@ export default function CompanyDetail() {
         subtitle={
           <div className="flex items-center gap-4 text-sm text-gray-500">
             <div className="flex items-center gap-1.5">
-              <Building2 className="size-4" />
-              <span>{company.companyName}</span>
+              {company.companyShortName && (
+                <>
+                  <Building2 className="size-4" />
+                  <span className="text-sm text-gray-500">
+                    {company.companyShortName}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         }

@@ -35,6 +35,11 @@ export default function CompanyOverview({ company }: { company: CompanyType }) {
           <div className="flex flex-col">
             <div className="flex items-center gap-3">
               <h1 className="text-xl font-bold">{company.companyName}</h1>
+              {company.companyShortName && (
+                <span className="bg-primary/10 text-primary border-primary/20 rounded-md border px-2 py-0.5 text-xs font-bold tracking-wide uppercase">
+                  {company.companyShortName}
+                </span>
+              )}
             </div>
 
             {/* System Metadata Line */}
