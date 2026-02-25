@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { ChevronLeft, ChevronRight, Info, X } from "lucide-react";
 
@@ -63,8 +63,8 @@ const MonthView: React.FC<MonthViewProps> = ({
   };
 
   return (
-    <div className="flex h-full flex-col bg-gray-50 p-6 font-sans text-gray-700">
-      <div className="flex flex-1 flex-col overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <div className="flex h-full flex-col p-6">
+      <div className="flex flex-1 flex-col overflow-y-auto rounded-2xl border border-gray-100 shadow-sm">
         {/* --- Header --- */}
         <div className="flex items-center justify-between border-b border-gray-50 p-6">
           <h2 className="text-xl font-bold text-gray-800">

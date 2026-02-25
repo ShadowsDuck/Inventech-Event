@@ -15,7 +15,7 @@ import { SelectField2 } from "./select-field-2";
 import { SwitchField } from "./switch-field";
 import { TextAreaField } from "./text-area";
 import { TextField } from "./text-field";
-import { TimeField } from "./time-filed";
+import { TimeField } from "./time-field";
 
 export const { fieldContext, useFieldContext, formContext, useFormContext } =
   createFormHookContexts();

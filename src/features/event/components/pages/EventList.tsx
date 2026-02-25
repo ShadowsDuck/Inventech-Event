@@ -260,6 +260,7 @@ export default function EventList() {
                   options={eventTypeOptions}
                   selected={eventTypeFilter}
                   onChange={setEventTypeFilter}
+                  searchable={false}
                 />
 
                 <FilterMultiSelect
@@ -269,6 +270,7 @@ export default function EventList() {
                   selected={statusFilter}
                   onChange={setStatusFilter}
                   align="end"
+                  searchable={false}
                 />
               </div>
             </div>
