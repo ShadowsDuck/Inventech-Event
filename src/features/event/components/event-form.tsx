@@ -3,7 +3,13 @@ import { useMemo, useRef, useState } from "react";
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useSuspenseQueries } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { FileText, Loader2, Trash2, UploadCloud } from "lucide-react";
+import {
+  Building2,
+  FileText,
+  Loader2,
+  Trash2,
+  UploadCloud,
+} from "lucide-react";
 
 import { useAppForm } from "@/components/form";
 import { EquipmentSelectField } from "@/components/form/equipment-select-field";
@@ -149,7 +155,7 @@ export default function EventForm({
       staffRequirements: initialValues?.staffRequirements ?? [],
       outsourceRequirements: initialValues?.outsourceRequirements ?? [],
     } as EventData,
-    validators: { onChange: getEventSchema(mode) },
+    validators: { onChange: getEventSchema() },
     onSubmit: async ({ value }) =>
       onSubmit(
         value,
@@ -417,9 +423,10 @@ export default function EventForm({
                     <field.SelectField
                       label="Company"
                       options={companiesOptions}
-                      placeholder="Select Company"
+                      placeholder="Company"
                       onChange={(val) => field.handleChange(Number(val))}
                       value={field.state.value?.toString()}
+                      icon={Building2}
                     />
                   )}
                 />
@@ -435,8 +442,8 @@ export default function EventForm({
 
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="text-lg font-bold">
-                <span className="mr-2 inline-block h-6 w-1 rounded-full bg-blue-600" />
+              <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                <span className="h-6 w-1.5 rounded-full bg-blue-600" />
                 Schedule
               </CardTitle>
             </CardHeader>

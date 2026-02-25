@@ -28,6 +28,7 @@ interface FilterMultiSelectProps {
   onChange: (values: string[]) => void;
   className?: string;
   align?: "start" | "center" | "end";
+  searchable?: boolean;
 }
 
 export function FilterMultiSelect({
@@ -38,6 +39,7 @@ export function FilterMultiSelect({
   onChange,
   className,
   align = "start",
+  searchable = true,
 }: FilterMultiSelectProps) {
   const isActive = selected.length > 0;
   const [open, setOpen] = useState(false);
@@ -50,16 +52,17 @@ export function FilterMultiSelect({
     if (!nextOpen) setSearchText("");
   };
 
-  // โฟกัส input เมื่อ dropdown เปิด
+  // โฟกัส input เมื่อ dropdown เปิด (เฉพาะโหมด searchable)
   useEffect(() => {
-    if (open) {
+    if (open && searchable) {
       // หน่วงเวลาเล็กน้อยเพื่อป้องกัน PopoverTrigger click ทำให้ blur ทันที
       setTimeout(() => inputRef.current?.focus(), 0);
     }
-  }, [open]);
+  }, [open, searchable]);
 
   const filteredOptions = useMemo(() => {
-    if (!searchText) return options;
+    // ถ้าไม่ได้ searchable หรือยังไม่ได้พิมพ์ ให้คืนค่า options ทั้งหมด
+    if (!searchable || !searchText) return options;
 
     // คงไว้เฉพาะ divider ที่มี option ที่ตรงกับการค้นหาอยู่ในกลุ่ม
     const result: FilterOption[] = [];
@@ -79,7 +82,7 @@ export function FilterMultiSelect({
       }
     }
     return result;
-  }, [options, searchText]);
+  }, [options, searchText, searchable]);
 
   return (
     <MultiSelect
@@ -88,11 +91,11 @@ export function FilterMultiSelect({
       open={open}
       onOpenChange={handleOpenChange}
     >
-      {/* Trigger ที่เปลี่ยนเป็นช่อง search เมื่อเปิด dropdown */}
       <MultiSelectTrigger
         className={cn(
           "hover:bg-hover h-8 rounded-xl border bg-white transition-all",
-          open
+          // เมื่อเปิดและ searchable → ขยาย trigger เป็นช่อง search
+          open && searchable
             ? "w-44 border-blue-600 bg-white shadow-sm ring-2 ring-blue-100"
             : "w-fit",
           !open &&
@@ -102,11 +105,11 @@ export function FilterMultiSelect({
         )}
         // ป้องกัน Button click จาก toggle popover เมื่อกดที่ input
         onClick={(e) => {
-          if (open) e.preventDefault();
+          if (open && searchable) e.preventDefault();
         }}
       >
-        {open ? (
-          /* โหมดค้นหา — แสดงเมื่อ dropdown เปิดอยู่ */
+        {open && searchable ? (
+          /* โหมดค้นหา — แสดงเมื่อ dropdown เปิดอยู่และ searchable */
           <div
             className="flex w-full items-center gap-1.5"
             // หยุด click ไม่ให้ปิด popover ผ่าน PopoverTrigger
@@ -117,7 +120,7 @@ export function FilterMultiSelect({
               ref={inputRef}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              placeholder={`Search...`}
+              placeholder="Search..."
               className="w-full bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400"
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
