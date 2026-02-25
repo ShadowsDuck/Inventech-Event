@@ -11,15 +11,29 @@ export const companyColumns: ColumnDef<CompanyType>[] = [
   {
     accessorKey: "companyName",
     header: "Company Name",
-    size: 250,
-    cell: ({ row }) => (
-      <div
-        className="truncate font-semibold"
-        title={row.getValue("companyName") as string}
-      >
-        {row.getValue("companyName") as string}
-      </div>
-    ),
+    size: 300, // อาจจะต้องเพิ่ม size นิดนึงเผื่อที่ให้ Badge
+    cell: ({ row }) => {
+      const shortName = row.original.companyShortName;
+      const fullName = row.getValue("companyName") as string;
+
+      return (
+        <div className="flex items-center gap-2 overflow-hidden">
+          {/* แสดง Badge ชื่อย่อ ถ้ามีข้อมูล */}
+          {shortName && (
+            <span className="shrink-0 rounded-md bg-blue-100/80 px-2 py-0.5 text-xs font-bold text-blue-700">
+              {shortName}
+            </span>
+          )}
+          {/* แสดงชื่อเต็ม */}
+          <span
+            className="truncate font-semibold text-gray-900"
+            title={fullName}
+          >
+            {fullName}
+          </span>
+        </div>
+      );
+    },
   },
   {
     id: "contactName",

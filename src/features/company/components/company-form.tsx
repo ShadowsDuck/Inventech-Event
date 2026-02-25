@@ -37,6 +37,10 @@ const CompanySchema = z.object({
     .string()
     .min(1, "Company name is required")
     .max(255, "Company name must be less than 255 characters"),
+  companyShortName: z
+    .string()
+    .max(100, "Company short name must be less than 100 characters")
+    .optional(),
   address: z
     .string()
     .max(500, "Address must be less than 500 characters")
@@ -67,6 +71,7 @@ export function CompanyForm({
 }: CompanyFormProps) {
   const defaultValues: CompanyData = {
     companyName: initialValues?.companyName ?? "",
+    companyShortName: initialValues?.companyShortName ?? "",
     address: initialValues?.address ?? "",
     location: initialValues?.location ?? "",
     isDeleted: initialValues?.isDeleted ?? false,
@@ -172,7 +177,16 @@ export function CompanyForm({
                     />
                   )}
                 />
-
+                <form.AppField
+                  name="companyShortName"
+                  children={(field) => (
+                    <field.TextField
+                      label="Company Short Name"
+                      type="text"
+                      placeholder="e.g. Kplus"
+                    />
+                  )}
+                />
                 {/* Address */}
                 <form.AppField
                   name="address"

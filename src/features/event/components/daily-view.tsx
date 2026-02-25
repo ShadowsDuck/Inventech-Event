@@ -191,10 +191,14 @@ const DailyView = ({ events, initialDate }: DailyViewProps) => {
 
                     {/* Event Details */}
                     <div className="min-w-0 flex-1">
-                      <h2 className="mb-2 text-2xl font-bold text-gray-900 transition-colors hover:text-blue-600">
-                        {event.eventName}
+                      <h2 className="mb-2 flex items-center gap-3 text-2xl font-bold text-gray-900 transition-colors hover:text-blue-600">
+                        {event.company?.companyShortName && (
+                          <span className="shrink-0 rounded-md bg-blue-100 px-2.5 py-1 text-sm font-extrabold text-blue-700">
+                            {event.company?.companyShortName}
+                          </span>
+                        )}
+                        <span className="truncate">{event.eventName}</span>
                       </h2>
-
                       <div className="mb-3 flex flex-wrap gap-2">
                         {/* <-- 2. เพิ่ม Status Badge โชว์ในหน้าการ์ดตรงนี้ --> */}
                         {event.eventStatus && (

@@ -32,7 +32,7 @@ export const useEditCompany = () =>
   useMutation({
     mutationFn: editCompany,
     meta: {
-      invalidatesQuery: ["companies"],
+      invalidatesQuery: [["companies"], ["events"]],
       successMessage: "Updated company successfully",
       errorMessage: "Failed to update company",
     },

@@ -19,6 +19,7 @@ export default function EditCompany() {
   // แปลงจาก DB -> Form
   const initialValues: CompanyData = {
     companyName: companyData.companyName,
+    companyShortName: companyData.companyShortName,
     address: companyData.address ?? "",
     location:
       companyData.latitude && companyData.longitude

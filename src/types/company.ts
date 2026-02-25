@@ -3,6 +3,7 @@ import type { EventType } from "./event";
 export interface CompanyType {
   companyId: number;
   companyName: string;
+  companyShortName: string;
   address?: string | null;
   latitude?: number;
   longitude?: number;

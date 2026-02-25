@@ -34,13 +34,14 @@ export function EventDetail() {
       <PageHeader
         backButton={true}
         className="z-10 print:hidden"
-        title={eventData.eventName}
-        subtitle={
-          <div className="flex items-center gap-4 text-sm text-gray-500">
-            <div className="flex items-center gap-1.5">
-              <Building2 className="size-4" />
-              <span>{eventData.company?.companyName}</span>
-            </div>
+        title={
+          <div className="flex items-center gap-3">
+            {eventData.company?.companyShortName && (
+              <span className="shrink-0 rounded-md bg-blue-100 px-2.5 py-1 text-sm font-extrabold text-blue-700">
+                {eventData.company?.companyShortName}
+              </span>
+            )}
+            <span className="truncate">{eventData.eventName}</span>
           </div>
         }
         actions={
