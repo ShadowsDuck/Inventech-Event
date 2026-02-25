@@ -74,7 +74,7 @@ export const DateField = ({
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {field.state.value ? (
-            format(field.state.value, "MM/dd/yyyy")
+            format(field.state.value, "dd/MM/yyyy")
           ) : (
             <span>{placeholder}</span>
           )}
