@@ -13,12 +13,14 @@ interface Props {
   equipmentList: ExportEquipmentProp[];
   eventName?: string;
   meetingDate?: string;
+  remark?: string | null;
 }
 
 export const ExportEquipment = ({
   equipmentList,
   eventName = "ไม่ระบุ",
   meetingDate = "ไม่ระบุ",
+  remark = "",
 }: Props) => {
   return (
     <div className="hidden print:m-0 print:block print:bg-white print:p-10">
@@ -82,7 +84,9 @@ export const ExportEquipment = ({
                 {item.extraQuantity > 0 ? item.extraQuantity : ""}
               </td>
               <td className="border border-gray-800 p-1"></td>
-              <td className="border border-gray-800 p-1"></td>
+              <td className="border border-gray-800 p-1 text-center font-bold text-black">
+                {remark || ""}
+              </td>
             </tr>
           ))}
 

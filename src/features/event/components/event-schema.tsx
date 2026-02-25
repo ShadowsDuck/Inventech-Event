@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const EquipmentEventSchema = z.object({
   equipmentId: z.number(),
-  quantity: z.number().min(1),
+  quantity: z.number().min(0),
   remark: z.string().optional().nullable(),
 });
 

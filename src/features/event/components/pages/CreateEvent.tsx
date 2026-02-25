@@ -20,7 +20,7 @@ export default function CreateEvent() {
       longitude,
       location: undefined,
     };
-
+    console.log(payload);
     mutate(payload, {
       onSuccess: () => {
         navigate({ to: "..", replace: true });

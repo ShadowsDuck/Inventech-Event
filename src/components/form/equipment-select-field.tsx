@@ -504,7 +504,7 @@ export const EquipmentSelectField = ({
     );
 
     if (!existingItem) {
-      if (delta > 0) {
+      if (delta >= 0) {
         updateItems([
           ...selectedItems,
           {
@@ -519,21 +519,15 @@ export const EquipmentSelectField = ({
       return;
     }
 
-    const newQuantity = existingItem.quantity + delta;
+    const newQuantity = Math.max(0, existingItem.quantity + delta);
 
-    if (newQuantity <= 0) {
-      updateItems(
-        selectedItems.filter((i) => i.equipmentId !== item.equipmentId),
-      );
-    } else {
-      updateItems(
-        selectedItems.map((i) =>
-          i.equipmentId === item.equipmentId
-            ? { ...i, quantity: newQuantity }
-            : i,
-        ),
-      );
-    }
+    updateItems(
+      selectedItems.map((i) =>
+        i.equipmentId === item.equipmentId
+          ? { ...i, quantity: newQuantity }
+          : i,
+      ),
+    );
   };
 
   const handleRemarkChange = (equipmentId: number, newRemark: string) => {
@@ -563,7 +557,6 @@ export const EquipmentSelectField = ({
       return;
     }
 
-    // ถ้ามีอยู่ใน Extra อยู่แล้ว (หรือโดนยัดลงไปตะกี้) แค่อัปเดตข้อความ
     const newItems = [...selectedItems];
     newItems[existingItemIndex] = {
       ...newItems[existingItemIndex],
